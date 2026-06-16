@@ -1,0 +1,61 @@
+<template id="tpl-permisos">
+
+<div class="modulo-wrapper fade-in">
+
+    <div id="module-container">
+
+        <h2 class="titulo-modulo">🔐 Permisos</h2>
+
+        <!-- Aviso de permisos -->
+        <div id="avisoPermisos" class="aviso-permisos" style="display:none;">
+            No tienes permisos para modificar esta sección.
+        </div>
+
+        <div class="card-glass p-20">
+
+            <div class="permiso-item">
+                <label>
+                    <input type="checkbox" id="permImportar">
+                    Importar Excel
+                </label>
+            </div>
+
+            <div class="permiso-item mt-10">
+                <label>
+                    <input type="checkbox" id="permBorrar">
+                    Borrar datos
+                </label>
+            </div>
+
+            <div class="permiso-item mt-10">
+                <label>
+                    <input type="checkbox" id="permRestaurar">
+                    Restaurar backups
+                </label>
+            </div>
+
+            <div class="permiso-item mt-10">
+                <label>
+                    <input type="checkbox" id="permMapas">
+                    Editar mapas
+                </label>
+            </div>
+
+            <div class="permiso-item mt-10">
+                <label>
+                    <input type="checkbox" id="permExportar">
+                    Exportar CSV
+                </label>
+            </div>
+
+            <button class="btn-primary mt-20" onclick="guardarPermisos()">
+                Guardar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+</template>

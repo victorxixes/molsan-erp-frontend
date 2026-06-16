@@ -1,0 +1,105 @@
+/* ============================================================
+   SIDEBAR GLASS LUXE 2027
+============================================================ */
+
+.sidebar {
+    width: 240px;
+    background: #0f172a;
+    color: #e2e8f0;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    padding-top: 10px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.2s ease;
+}
+
+.menu-item:hover {
+    background: rgba(255,255,255,0.08);
+}
+
+.menu-item.active {
+    background: rgba(56,189,248,0.15);
+    border-left: 3px solid #38bdf8;
+}
+
+.menu-item .icon {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+.menu-item .text {
+    font-size: 0.95rem;
+    white-space: nowrap;
+    color: #e2e8f0;
+}
+
+
+/* ============================================================
+   TOOLTIP PREMIUM
+============================================================ */
+
+.menu-item .tooltip {
+    position: absolute;
+    left: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #ffffff;
+    color: #0f172a;
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    white-space: nowrap;
+    font-size: 0.8rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 9999;
+}
+
+/* Mostrar tooltip solo cuando está colapsado */
+.sidebar.collapsed .menu-item:hover .tooltip {
+    opacity: 1;
+    transform: translateY(-50%) translateX(6px);
+}
+
+/* Ocultar tooltip cuando sidebar está expandido */
+.sidebar:not(.collapsed) .tooltip {
+    display: none;
+}
+
+/* ============================================================
+   SCROLLBAR PREMIUM
+============================================================ */
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.25);
+}

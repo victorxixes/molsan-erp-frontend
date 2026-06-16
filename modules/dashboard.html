@@ -1,0 +1,36 @@
+<template id="tpl-dashboard">
+
+<div class="modulo-wrapper fade-in">
+
+    <div class="module-container">
+
+        <h2 class="titulo-modulo">📊 Dashboard — Glass Luxe 2027</h2>
+
+        <!-- KPIs -->
+        <div class="kpi-grid">
+            <div class="kpi-box" id="kpiTotalFirmas">Firmas Totales: 0</div>
+            <div class="kpi-box" id="kpiVideo">Videoconferencias: 0</div>
+            <div class="kpi-box" id="kpiPresencial">Presenciales: 0</div>
+            <div class="kpi-box" id="kpiMediaDias">Media Días Gestión: 0</div>
+        </div>
+
+        <!-- Gráfico: Firmas por mes -->
+        <div class="card-glass" style="margin-bottom:20px;">
+            <canvas id="chartFirmasMes"></canvas>
+        </div>
+
+        <!-- Gráfico: Tipo de firma -->
+        <div class="card-glass">
+            <canvas id="chartTipoFirma"></canvas>
+        </div>
+
+        <!-- Botón informe -->
+        <button class="btn-primary mt-20" onclick="informeReunion()" style="margin-top:20px;">
+            Informe para reunión
+        </button>
+
+    </div>
+
+</div>
+
+</template>

@@ -1,0 +1,97 @@
+/* ============================================================
+   INFORMES PREMIUM — GLASS LUXE 2027
+   Tarjetas, Grid, Animaciones y Contenedor
+============================================================ */
+
+/* GRID RESPONSIVE */
+.grid-informes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 22px;
+    margin-top: 25px;
+}
+
+/* TARJETAS PREMIUM */
+.informe-card {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 14px;
+    padding: 22px 18px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #0f172a;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(15,23,42,0.08);
+    transition: all 0.25s ease;
+    user-select: none;
+}
+
+/* HOVER PREMIUM */
+.informe-card:hover {
+    background: rgba(14,165,233,0.18);
+    border-color: #0EA5E9;
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 28px rgba(15,23,42,0.12);
+}
+
+/* ICONOS MÁS GRANDES */
+.informe-card::first-letter {
+    font-size: 1.4rem;
+}
+
+/* CONTENEDOR DEL INFORME */
+#informeContainer {
+    animation: fadeInInforme 0.35s ease;
+    padding: 25px;
+}
+
+/* ANIMACIÓN DE ENTRADA */
+@keyframes fadeInInforme {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* TABLAS PREMIUM DENTRO DE INFORMES */
+#informeContainer table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+#informeContainer th {
+    background: #0EA5E9;
+    color: white;
+    padding: 10px;
+    font-weight: 600;
+    text-align: left;
+}
+
+#informeContainer td {
+    padding: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+#informeContainer tr:hover td {
+    background: rgba(14,165,233,0.12);
+}
+
+/* GRÁFICOS */
+#informeContainer canvas {
+    margin-top: 25px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 12px;
+    padding: 10px;
+}

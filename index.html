@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>MOLSAN ERP — Glass Luxe 2027</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/molsan.css">
+
+    <!-- Librerías externas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+ <script>
+        // Versión única para romper caché
+        window.v = Date.now();
+    </script>
+</head>
+
+<body>
+<button id="sidebarToggle" class="sidebar-toggle-btn">☰</button>
+
+<!-- ============================================================
+     SIDEBAR PREMIUM
+============================================================ -->
+<div class="sidebar">
+    <ul>
+
+        <li class="menu-item" onclick="cargarModulo('dashboard')">
+            <span class="icon">📊</span>
+            <span class="text">Dashboard</span>
+        </li>
+
+        <li class="menu-item" onclick="cargarModulo('listado')">
+            <span class="icon">📄</span>
+            <span class="text">Listado</span>
+        </li>
+
+        <li class="menu-item" onclick="cargarModulo('uploader')">
+            <span class="icon">📂</span>
+            <span class="text">Importar Excel</span>
+        </li>
+
+        <li class="menu-item" onclick="cargarModulo('configuracion')">
+            <span class="icon">⚙️</span>
+            <span class="text">Configuración</span>
+        </li>
+
+        <li class="menu-item" onclick="cargarModulo('permisos')">
+            <span class="icon">🔐</span>
+            <span class="text">Permisos</span>
+        </li>
+
+        <li class="menu-item" onclick="cargarModulo('backup')">
+            <span class="icon">💾</span>
+            <span class="text">Backup</span>
+        </li>
+
+        <li class="menu-item" onclick="cargarModulo('restore')">
+            <span class="icon">♻️</span>
+            <span class="text">Restaurar</span>
+        </li>
+
+        <hr>
+
+        <li class="menu-item" onclick="cargarModulo('informes-premium')">
+            <span class="icon">📘</span>
+            <span class="text">Informes Premium</span>
+        </li>
+
+    </ul>
+</div>
+
+<!-- ============================================================
+     CONTENEDOR PRINCIPAL (FUERA DEL SIDEBAR)
+============================================================ -->
+<div id="module-container" class="module-container"></div>
+
+<!-- ============================================================
+     TEMPLATES DE MÓDULOS
+============================================================ -->
+
+<!-- DASHBOARD -->
+<template id="tpl-dashboard">
+    <div class="modulo-wrapper fade-in dashboard-wrapper">
+
+        <h2 class="titulo-modulo">📊 Dashboard</h2>
+
+        <div class="card-glass p-20">
+
+            <div class="kpi-grid">
+                <div class="kpi-box">Total: <span id="kpiTotal">0</span></div>
+                <div class="kpi-box">Hoy: <span id="kpiHoy">0</span></div>
+                <div class="kpi-box">Media días: <span id="kpiMedia">0</span></div>
+                <div class="kpi-box">VC: <span id="kpiVC">0</span></div>
+            </div>
+
+            <div class="dashboard-chart mt-30">
+                <canvas id="chartFirmasMes" height="120"></canvas>
+            </div>
+
+            <div class="dashboard-chart mt-30">
+                <canvas id="chartTipoFirma" height="120"></canvas>
+            </div>
+
+            <button class="btn-primary mt-20" onclick="informeReunion()">Informe para reunión</button>
+
+        </div>
+
+    </div>
+</template>
+
+<!-- LISTADO -->
+<template id="tpl-listado">
+    <div class="modulo-wrapper fade-in">
+
+        <h2 class="titulo-modulo">📄 Listado de Expedientes</h2>
+
+        <div class="card-glass p-20">
+
+            <div class="filtros-grid">
+                <input id="filtroExpediente" placeholder="Expediente">
+                <input id="filtroApoderado" placeholder="Apoderado">
+                <input id="filtroOficina" placeholder="Oficina">
+                <input id="filtroCircuito" placeholder="Circuito">
+                <input id="filtroTipoFirma" placeholder="Tipo Firma">
+                <input id="filtroMes" placeholder="Mes">
+                <input id="filtroAnio" placeholder="Año">
+                <input id="filtroDiasMin" placeholder="Días mín">
+                <input id="filtroDiasMax" placeholder="Días máx">
+            </div>
+
+            <button class="btn-primary mt-10" onclick="aplicarFiltros()">Aplicar filtros</button>
+
+            <div id="chipsFiltros" class="chips mt-10"></div>
+
+            <table class="tabla-listado mt-20">
+                <thead>
+                    <tr>
+                        <th>Expediente</th>
+                        <th>Oficina</th>
+                        <th>Fecha Protocolo</th>
+                        <th>Apoderado</th>
+                        <th>Centro</th>
+                        <th>Circuito</th>
+                        <th>Tipo Firma</th>
+                        <th>Días</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-listado"></tbody>
+            </table>
+
+            <div class="paginacion mt-20">
+                <button id="btnPrev" class="btn-secondary">Anterior</button>
+                <span id="paginaActual"></span>
+                <button id="btnNext" class="btn-secondary">Siguiente</button>
+            </div>
+
+            <button class="btn-primary mt-20" onclick="exportarFiltrados()">Exportar CSV</button>
+
+        </div>
+
+    </div>
+</template>
+
+<!-- UPLOADER -->
+<template id="tpl-uploader">
+    <div class="modulo-wrapper fade-in">
+
+        <h2 class="titulo-modulo">📂 Importar Excel de Firmas</h2>
+
+        <div class="card-glass p-20">
+
+            <p class="texto-secundario">
+                Selecciona el fichero Excel original descargado del programa.
+            </p>
+
+            <div class="input-file-box mt-10">
+                <input type="file" id="excelFile" accept=".xlsx,.xls" class="input-file" />
+            </div>
+
+            <button id="btnImportar" class="btn-primary w-100 mt-20">
+                Procesar Excel
+            </button>
+
+            <div id="progreso" class="progress-container mt-25">
+                <div id="progreso-barra" class="progress-bar"></div>
+            </div>
+
+            <p id="progreso-texto" class="progress-text mt-10"></p>
+
+        </div>
+    </div>
+</template>
+
+<!-- CONFIGURACIÓN -->
+<template id="tpl-configuracion">
+    <div class="modulo-wrapper fade-in">
+
+        <h2 class="titulo-modulo">⚙️ Configuración de Mapas</h2>
+
+        <div class="card-glass p-20">
+
+            <div class="mapa-box">
+                <h3>Apoderados</h3>
+                <textarea id="mapaApoderados" class="config-textarea"></textarea>
+                <button class="btn-primary mt-10" data-mapa="apoderados">Guardar</button>
+            </div>
+
+            <div class="mapa-box mt-20">
+                <h3>Oficinas</h3>
+                <textarea id="mapaOficinas" class="config-textarea"></textarea>
+                <button class="btn-primary mt-10" data-mapa="oficinas">Guardar</button>
+            </div>
+
+            <div class="mapa-box mt-20">
+                <h3>Apellidos</h3>
+                <textarea id="mapaApellidos" class="config-textarea"></textarea>
+                <button class="btn-primary mt-10" data-mapa="apellidos">Guardar</button>
+            </div>
+
+            <div class="mapa-box mt-20">
+                <h3>Centro que firma</h3>
+                <textarea id="mapaCentroFirma" class="config-textarea"></textarea>
+                <button class="btn-primary mt-10" data-mapa="centroFirma">Guardar</button>
+            </div>
+
+            <div class="mapa-box mt-20">
+                <h3>Notarios</h3>
+                <textarea id="mapaNotarios" class="config-textarea"></textarea>
+                <button class="btn-primary mt-10" data-mapa="notarios">Guardar</button>
+            </div>
+
+            <div class="mapa-box mt-20">
+                <h3>Tipo de Gestión</h3>
+                <textarea id="mapaTipoGestion" class="config-textarea"></textarea>
+                <button class="btn-primary mt-10" data-mapa="tipoGestion">Guardar</button>
+            </div>
+
+        </div>
+
+    </div>
+</template>
+
+<!-- PERMISOS -->
+<template id="tpl-permisos">
+    <div class="modulo-wrapper fade-in">
+
+        <h2 class="titulo-modulo">🔐 Permisos</h2>
+
+        <div class="card-glass p-20">
+
+            <label><input type="checkbox" id="permImportar"> Importar Excel</label>
+            <label><input type="checkbox" id="permBorrar"> Borrar datos</label>
+            <label><input type="checkbox" id="permRestaurar"> Restaurar backups</label>
+            <label><input type="checkbox" id="permMapas"> Editar mapas</label>
+            <label><input type="checkbox" id="permExportar"> Exportar CSV</label>
+
+            <button class="btn-primary mt-20" onclick="guardarPermisos()">Guardar</button>
+
+        </div>
+
+    </div>
+</template>
+
+<!-- BACKUP -->
+<template id="tpl-backup">
+    <div class="modulo-wrapper fade-in">
+
+        <h2 class="titulo-modulo">💾 Backup</h2>
+
+        <div class="card-glass p-20">
+            <button class="btn-primary" onclick="crearBackup()">Crear Backup</button>
+            <div id="backupInfo" class="mt-20"></div>
+        </div>
+
+    </div>
+</template>
+
+<!-- RESTORE -->
+<template id="tpl-restore">
+    <div class="modulo-wrapper fade-in">
+
+        <h2 class="titulo-modulo">♻️ Restaurar Backup</h2>
+
+        <div class="card-glass p-20">
+
+            <input type="file" id="restoreFile" accept=".json" class="input-file">
+
+            <button id="btnVistaPrevia" class="btn-secondary mt-20">Vista previa</button>
+            <button id="btnRestaurar" class="btn-primary mt-10">Restaurar</button>
+
+            <div id="restorePreview" class="mt-20"></div>
+
+        </div>
+
+    </div>
+</template>
+
+<template id="tpl-informes-premium">
+    <div class="modulo-wrapper fade-in">
+
+        <h2 class="titulo-modulo">📘 Informes Premium</h2>
+
+        <!-- GRID DE INFORMES -->
+        <div class="grid-informes">
+
+            <div class="informe-card" onclick="cargarInforme('apoderados')">🧑‍ Informe por Apoderados</div>
+            <div class="informe-card" onclick="cargarInforme('oficinas')">🏢 Informe por Oficinas</div>
+            <div class="informe-card" onclick="cargarInforme('centros')">🏬 Informe por Centros</div>
+            <div class="informe-card" onclick="cargarInforme('circuitos')">🔄 Informe por Circuitos</div>
+            <div class="informe-card" onclick="cargarInforme('tipoGestion')">📑 Tipo de Gestión</div>
+            <div class="informe-card" onclick="cargarInforme('tipoFirma')">✍️ Tipo de Firma</div>
+            <div class="informe-card" onclick="cargarInforme('mes')">📅 Informe por Mes</div>
+            <div class="informe-card" onclick="cargarInforme('anio')">📆 Informe por Año</div>
+            <div class="informe-card" onclick="cargarInforme('evolutivo')">📈 Informe Evolutivo</div>
+            <div class="informe-card" onclick="cargarInforme('comparativo')">⚖️ Informe Comparativo</div>
+            <div class="informe-card" onclick="cargarInforme('vc')">💼 Informe VC</div>
+            <div class="informe-card" onclick="cargarInforme('sla')">⏱️ Informe SLA</div>
+
+        </div>
+
+        <!-- CONTENEDOR DONDE SE CARGA EL INFORME -->
+        <div id="informeContainer" class="card-glass mt-30" style="display:none;">
+            <!-- Aquí se inyecta el informe -->
+        </div>
+
+    </div>
+</template>
+<!-- ============================
+     SCRIPTS — ANTI‑CACHÉ SEGURO
+============================ -->
+
+<script src="js/reglas.js"></script>
+<script src="js/kpis.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/importador.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/listado.js"></script>
+<script src="js/backup.js"></script>
+<script src="js/uploader.js"></script>
+<script src="js/permisos.js"></script>
+<script src="js/main.js"></script>
+<script src="js/informes.js"></script>
+
+<script>
+    // Recargar scripts con versión única
+    document.querySelectorAll("script[src]").forEach(s => {
+        s.src = s.src + "?v=" + window.v;
+    });
+</script>
+
+</body>
+</html>
+

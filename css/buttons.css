@@ -1,0 +1,77 @@
+/* ============================================================
+   BOTONES — MOLSAN CLEAN LIGHT
+============================================================ */
+
+.btn {
+    padding: 0.55rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: 0.15s ease;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* PRIMARIO */
+.btn-primary {
+    background: var(--molsan-primary);
+    border: 1px solid var(--molsan-primary-dark);
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background: var(--molsan-primary-dark);
+}
+
+/* SECUNDARIO */
+.btn-secondary {
+    background: #FFFFFF;
+    border: 1px solid var(--molsan-border-strong);
+    color: var(--molsan-text-secondary);
+}
+
+.btn-secondary:hover {
+    background: var(--molsan-bg-soft);
+}
+
+/* SUAVE */
+.btn-soft {
+    background: var(--molsan-primary-soft);
+    border: 1px solid var(--molsan-primary);
+    color: var(--molsan-primary-dark);
+}
+
+.btn-soft:hover {
+    background: var(--molsan-primary);
+    color: #FFFFFF;
+}
+
+/* PELIGRO */
+.btn-danger {
+    background: var(--molsan-danger);
+    border: 1px solid #b91c1c;
+    color: #FFFFFF;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+/* ICONOS */
+.btn svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
+}
+
+/* BOTÓN FULL WIDTH */
+.btn-full {
+    width: 100%;
+}
+
+/* BOTÓN REDONDO */
+.btn-round {
+    border-radius: 50px;
+

@@ -1,0 +1,23 @@
+/* ============================================================
+   MOLSAN ERP — GLASS LUXE 2027
+   Archivo maestro de estilos
+============================================================ */
+
+/* THEME BASE (layout + estructura + glass luxe) */
+@import url("theme-molsan-light.css");
+
+/* COMPONENTES PREMIUM */
+@import url("buttons.css");
+@import url("modals.css");
+@import url("animations.css");
+@import url("autocompletado.css");
+
+/* MÓDULOS */
+@import url("sidebar.css");
+@import url("dashboard.css");
+@import url("listado.css");
+@import url("tables-excel.css");
+@import url("informes.css");
+
+/* ELIMINADO: sistema antiguo de informes */
+/* @import url("reports.css"); */

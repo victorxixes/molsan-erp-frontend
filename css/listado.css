@@ -1,0 +1,48 @@
+/* ============================================================
+   LISTADO — MOLSAN CLEAN LIGHT
+============================================================ */
+
+
+
+.filtros-grid input {
+    background: #FFFFFF;
+    border: 1px solid var(--molsan-border-soft);
+    color: var(--molsan-text-main);
+    border-radius: 10px;
+    padding: 0.55rem;
+}
+
+.chip {
+    background: var(--molsan-primary-soft);
+    border: 1px solid var(--molsan-primary);
+    color: var(--molsan-primary-dark);
+    border-radius: 20px;
+    padding: 0.35rem 0.7rem;
+    transition: 0.2s;
+}
+
+.chip.active {
+    background: var(--molsan-primary);
+    color: #FFFFFF;
+}
+
+.tabla-listado {
+    background: #FFFFFF;
+    border-radius: 14px;
+    border: 1px solid var(--molsan-border-soft);
+    overflow: hidden;
+}
+
+.tabla-listado th {
+    background: var(--molsan-bg-soft);
+    color: var(--molsan-text-secondary);
+    padding: 0.6rem;
+}
+
+.tabla-listado td {
+    padding: 0.55rem;
+}
+
+.tabla-listado tr:hover {
+    background: var(--molsan-primary-soft);
+}

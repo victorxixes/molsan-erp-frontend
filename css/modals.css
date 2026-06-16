@@ -1,0 +1,69 @@
+/* ============================================================
+   MODALES — MOLSAN CLEAN LIGHT
+============================================================ */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    animation: fadeIn 0.25s ease;
+}
+
+.modal-box {
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 1.5rem;
+    width: 420px;
+    max-width: 90%;
+    border: 1px solid var(--molsan-border-soft);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    animation: slideUp 0.25s ease;
+}
+
+.modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--molsan-text-main);
+}
+
+.modal-body {
+    color: var(--molsan-text-secondary);
+    margin-bottom: 1rem;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+}
+
+/* MODAL DE CONFIRMACIÓN */
+.modal-confirm {
+    border-left: 4px solid var(--molsan-primary);
+}
+
+/* MODAL DE ERROR */
+.modal-error {
+    border-left: 4px solid var(--molsan-danger);
+}
+
+/* MODAL DE IMPRESIÓN (para informes) */
+@media print {
+    .modal-overlay {
+        background: none;
+        backdrop-filter: none;
+    }
+
+    .modal-box {
+        box-shadow: none;
+        border: none;
+        width: 100%;
+        padding: 0;
+    }
+}

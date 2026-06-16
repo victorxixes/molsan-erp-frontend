@@ -1,0 +1,268 @@
+/* ============================================================
+   MOLSAN ERP — GLASS LUXE 2027
+   LAYOUT COMPLETO (SIDEBAR + CONTENIDO + RESPONSIVE)
+============================================================ */
+
+/* ============================================================
+   PALETA PRINCIPAL
+============================================================ */
+:root {
+    --molsan-bg: #F9FAFB;
+    --molsan-bg-card: #FFFFFF;
+    --molsan-bg-soft: #F3F4F6;
+
+    --molsan-border-soft: #E5E7EB;
+    --molsan-border-strong: #D1D5DB;
+
+    --molsan-text-main: #111827;
+    --molsan-text-secondary: #4B5563;
+    --molsan-text-muted: #9CA3AF;
+
+    --molsan-primary: #0EA5E9;
+    --molsan-primary-dark: #0369A1;
+    --molsan-primary-soft: #E0F2FE;
+}
+
+/* ============================================================
+   BASE
+============================================================ */
+body {
+    background: var(--molsan-bg);
+    color: var(--molsan-text-main);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* ============================================================
+   WRAPPER DE MÓDULOS
+============================================================ */
+.modulo-wrapper {
+    width: 100%;
+    display: block;
+}
+
+/* Animación fade-in */
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   SIDEBAR FIJO — GLASS LUXE 2027
+============================================================ */
+.sidebar {
+    width: 240px;
+    background: #0f172a;
+    color: #e2e8f0;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    padding-top: 10px;
+}
+
+/* Scrollbar premium */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.25);
+}
+
+/* UL */
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* ============================================================
+   ITEMS DEL MENÚ PREMIUM
+============================================================ */
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.2s ease, padding 0.2s ease;
+    position: relative;
+}
+
+.menu-item:hover {
+    background: rgba(255,255,255,0.08);
+}
+
+.menu-item.active {
+    background: rgba(56,189,248,0.15);
+    border-left: 3px solid #38bdf8;
+}
+
+/* Iconos */
+.menu-item .icon {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+/* Texto */
+.menu-item .text {
+    font-size: 0.95rem;
+    white-space: nowrap;
+    color: #e2e8f0;
+}
+
+/* Tooltip (solo si algún día vuelves a colapsado) */
+.menu-item .tooltip {
+    display: none;
+}
+
+/* ============================================================
+   CONTENIDO PRINCIPAL
+============================================================ */
+#module-container {
+    margin-left: 240px; /* igual al ancho del sidebar */
+    padding: 30px;
+    min-height: 100vh;
+    box-sizing: border-box;
+    max-width: 1400px;
+}
+
+/* ============================================================
+   CARDS GLASS — GLASS LUXE 2027
+============================================================ */
+.card-glass {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.35);
+    box-shadow: 0 10px 25px rgba(15,23,42,0.08);
+    padding: 20px;
+}
+
+/* ============================================================
+   TÍTULOS DE MÓDULO
+============================================================ */
+.titulo-modulo {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--molsan-text-main);
+    margin-bottom: 1.2rem;
+    letter-spacing: -0.3px;
+}
+
+/* ============================================================
+   BOTONES
+============================================================ */
+.btn-primary {
+    background: var(--molsan-primary);
+    border: 1px solid var(--molsan-primary-dark);
+    color: #FFFFFF;
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: 0.15s;
+}
+.btn-primary:hover {
+    background: var(--molsan-primary-dark);
+}
+
+.btn-secondary {
+    background: #FFFFFF;
+    border: 1px solid var(--molsan-border-strong);
+    color: var(--molsan-text-secondary);
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: 0.15s;
+}
+.btn-secondary:hover {
+    background: var(--molsan-bg-soft);
+}
+
+/* ============================================================
+   INPUTS
+============================================================ */
+input,
+select,
+textarea {
+    border-radius: 8px;
+    border: 1px solid var(--molsan-border-soft);
+    padding: 0.45rem 0.6rem;
+    font-size: 0.9rem;
+    background: #FFFFFF;
+    color: var(--molsan-text-main);
+}
+input::placeholder,
+textarea::placeholder {
+    color: var(--molsan-text-muted);
+}
+
+/* Select premium */
+.filtro-select {
+    padding: 0.45rem 0.6rem;
+    border-radius: 8px;
+    border: 1px solid var(--molsan-border-soft);
+    background: #fff;
+    font-size: 0.9rem;
+    color: var(--molsan-text-main);
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 200px;
+    }
+    #module-container {
+        margin-left: 200px;
+    }
+}
+
+@media (max-width: 700px) {
+    .sidebar {
+        width: 180px;
+    }
+    #module-container {
+        margin-left: 180px;
+    }
+}
+
+@media (max-width: 600px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        border-right: none;
+    }
+    #module-container {
+        margin-left: 0;
+        padding: 20px;
+    }
+}
+/* FIX DEFINITIVO — Sidebar siempre por encima */
+.sidebar {
+    z-index: 9999 !important;
+    position: fixed !important;
+}
+
+/* Asegurar que el contenido no lo tape */
+#module-container {
+    position: relative;
+    z-index: 1;
+}

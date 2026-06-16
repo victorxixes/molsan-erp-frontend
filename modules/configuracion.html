@@ -1,0 +1,64 @@
+<template id="tpl-configuracion">
+
+<div class="modulo-wrapper fade-in">
+
+    <div id="module-container">
+
+        <h2 class="titulo-modulo">⚙️ Configuración de Mapas</h2>
+
+        <!-- Aviso de permisos -->
+        <div id="avisoPermisos" class="aviso-permisos" style="display:none;">
+            No tienes permisos para editar los mapas.
+        </div>
+
+        <div class="card-glass p-20">
+
+            <!-- MAPA: Apoderados -->
+            <div class="mapa-box">
+                <h3>Apoderados</h3>
+                <textarea id="mapaApoderados" class="config-textarea"></textarea>
+                <button class="btn-primary mt-10" data-mapa="apoderados">Guardar</button>
+            </div>
+
+            <!-- MAPA: Apellidos -->
+            <div class="mapa-box mt-20">
+                <h3>Apellidos</h3>
+                <textarea id="mapaApellidos" class="config-textarea"></textarea>
+                <button class="btn-primary mt-10" data-mapa="apellidos">Guardar</button>
+            </div>
+
+            <!-- MAPA: Centro que firma -->
+            <div class="mapa-box mt-20">
+                <h3>Centro que firma</h3>
+                <textarea id="mapaCentroFirma" class="config-textarea"></textarea>
+                <button class="btn-primary mt-10" data-mapa="centroFirma">Guardar</button>
+            </div>
+
+            <!-- MAPA: Notarios -->
+            <div class="mapa-box mt-20">
+                <h3>Notarios</h3>
+                <textarea id="mapaNotarios" class="config-textarea"></textarea>
+                <button class="btn-primary mt-10" data-mapa="notarios">Guardar</button>
+            </div>
+
+            <!-- MAPA: Tipo de gestión -->
+            <div class="mapa-box mt-20">
+                <h3>Tipo de gestión</h3>
+                <textarea id="mapaTipoGestion" class="config-textarea"></textarea>
+                <button class="btn-primary mt-10" data-mapa="tipoGestion">Guardar</button>
+            </div>
+
+            <!-- MAPA: Oficinas -->
+            <div class="mapa-box mt-20">
+                <h3>Oficinas</h3>
+                <textarea id="mapaOficinas" class="config-textarea"></textarea>
+                <button class="btn-primary mt-10" data-mapa="oficinas">Guardar</button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</template>

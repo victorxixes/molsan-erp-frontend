@@ -1,0 +1,118 @@
+<template id="tpl-listado">
+
+<div class="modulo-wrapper fade-in">
+
+    <h3 class="titulo-modulo">📄 Listado de Expedientes</h3>
+
+    <div class="card-glass p-20">
+
+        <div class="filtros-grid">
+            <input id="filtroExpediente" placeholder="Expediente">
+            <input id="filtroApoderado" placeholder="Apoderado">
+            <input id="filtroOficina" placeholder="Oficina">
+            <input id="filtroCircuito" placeholder="Circuito">
+            <input id="filtroTipoFirma" placeholder="Tipo Firma">
+            <input id="filtroMes" placeholder="Mes">
+            <input id="filtroAnio" placeholder="Año">
+            <input id="filtroDiasMin" placeholder="Días mín">
+            <input id="filtroDiasMax" placeholder="Días máx">
+        </div>
+
+        <button class="btn-primary mt-10" onclick="aplicarFiltros()">Aplicar filtros</button>
+
+        <div id="chipsFiltros" class="chips mt-10"></div>
+
+        <table class="tabla-listado mt-20">
+            <thead>
+                <tr>
+                    <th>Expediente</th>
+                    <th>Oficina</th>
+                    <th>Fecha Protocolo</th>
+                    <th>Apoderado</th>
+                    <th>Centro</th>
+                    <th>Circuito</th>
+                    <th>Tipo Firma</th>
+                    <th>Días</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-listado"></tbody>
+        </table>
+
+        <div class="paginacion mt-20">
+            <button id="btnPrev" class="btn-secondary">Anterior</button>
+            <span id="paginaActual"></span>
+            <button id="btnNext" class="btn-secondary">Siguiente</button>
+        </div>
+
+        <button class="btn-primary mt-20" onclick="exportarFiltrados()">Exportar CSV</button>
+
+    </div>
+
+</div>
+
+</template>
+<template id="tpl-listado">
+
+<div class="modulo-wrapper fade-in">
+
+    <div id="module-container">
+
+        <h2 class="titulo-modulo">📄 Listado de Expedientes</h2>
+
+        <div class="card-glass p-20">
+
+            <!-- FILTROS -->
+            <div class="filtros-grid">
+                <input id="filtroExpediente" placeholder="Expediente">
+                <input id="filtroApoderado" placeholder="Apoderado">
+                <input id="filtroOficina" placeholder="Oficina">
+                <input id="filtroCircuito" placeholder="Circuito">
+                <input id="filtroTipoFirma" placeholder="Tipo Firma">
+                <input id="filtroMes" placeholder="Mes">
+
+                <!-- SELECTOR DE AÑO CORRECTO -->
+                <select id="filtroAnio">
+                    <option value="">Año</option>
+                </select>
+
+                <input id="filtroDiasMin" placeholder="Días mín">
+                <input id="filtroDiasMax" placeholder="Días máx">
+            </div>
+
+            <button class="btn-primary mt-10" onclick="aplicarFiltros()">Aplicar filtros</button>
+
+            <div id="chipsFiltros" class="chips mt-10"></div>
+
+            <!-- TABLA -->
+            <table class="tabla-listado mt-20">
+                <thead>
+                    <tr>
+                        <th>Expediente</th>
+                        <th>Oficina</th>
+                        <th>Fecha Protocolo</th>
+                        <th>Apoderado</th>
+                        <th>Centro</th>
+                        <th>Circuito</th>
+                        <th>Tipo Firma</th>
+                        <th>Días</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-listado"></tbody>
+            </table>
+
+            <!-- PAGINACIÓN -->
+            <div class="paginacion mt-20">
+                <button id="btnPrev" class="btn-secondary">Anterior</button>
+                <span id="paginaActual"></span>
+                <button id="btnNext" class="btn-secondary">Siguiente</button>
+            </div>
+
+            <button class="btn-primary mt-20" onclick="exportarFiltrados()">Exportar CSV</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+</template>

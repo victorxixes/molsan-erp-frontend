@@ -1,0 +1,75 @@
+.report-cover {
+    text-align: center;
+    margin-top: 80px;
+}
+
+.report-cover img {
+    width: 180px;
+    margin-bottom: 30px;
+}
+
+.report-cover .title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #0EA5E9;
+}
+
+.report-cover .subtitle {
+    font-size: 1.2rem;
+    color: #4B5563;
+    margin-top: 10px;
+}
+
+.report-cover .date {
+    margin-top: 40px;
+    font-size: 1rem;
+    color: #6B7280;
+}
+.informe-wrapper {
+    padding: 40px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.informe-portada {
+    text-align: center;
+    padding: 40px;
+    background: #f5f7fa;
+    border-radius: 12px;
+    margin-bottom: 30px;
+}
+
+.informe-portada h1 {
+    font-size: 38px;
+    margin-bottom: 10px;
+}
+
+.informe-portada h2 {
+    font-size: 22px;
+    color: #666;
+}
+
+.tabla-informe {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-informe th {
+    background: #1a73e8;
+    color: white;
+    padding: 10px;
+}
+
+.tabla-informe td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+@media print {
+    .sidebar, .sidebar-toggle-btn, button {
+        display: none !important;
+    }
+    body {
+        background: white;
+    }
+}

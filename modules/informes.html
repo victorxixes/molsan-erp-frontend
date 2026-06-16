@@ -1,0 +1,29 @@
+<template id="tpl-informes-premium">
+    <div class="modulo-wrapper fade-in">
+
+        <h2 class="titulo-modulo">📘 Informes Premium</h2>
+
+        <!-- GRID DE INFORMES -->
+        <div class="grid-informes">
+
+            <div class="informe-card" onclick="cargarInforme('apoderados')">🧑‍💼 Informe por Apoderados</div>
+            <div class="informe-card" onclick="cargarInforme('oficinas')">🏢 Informe por Oficinas</div>
+            <div class="informe-card" onclick="cargarInforme('centros')">🏬 Informe por Centros</div>
+            <div class="informe-card" onclick="cargarInforme('circuitos')">🔄 Informe por Circuitos</div>
+            <div class="informe-card" onclick="cargarInforme('tipoGestion')">📑 Tipo de Gestión</div>
+            <div class="informe-card" onclick="cargarInforme('tipoFirma')">✍️ Tipo de Firma</div>
+            <div class="informe-card" onclick="cargarInforme('mes')">📅 Informe por Mes</div>
+            <div class="informe-card" onclick="cargarInforme('anio')">📆 Informe por Año</div>
+            <div class="informe-card" onclick="cargarInforme('evolutivo')">📈 Informe Evolutivo</div>
+            <div class="informe-card" onclick="cargarInforme('comparativo')">⚖️ Informe Comparativo</div>
+            <div class="informe-card" onclick="cargarInforme('vc')">💼 Informe VC</div>
+            <div class="informe-card" onclick="cargarInforme('sla')">⏱️ Informe SLA</div>
+
+        </div>
+
+        <!-- CONTENEDOR DONDE SE CARGA EL INFORME -->
+        <div id="informeContainer" class="card-glass mt-30" style="display:none;"></div>
+
+    </div>
+</template>
+
