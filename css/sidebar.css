@@ -1,5 +1,5 @@
 /* ============================================================
-   SIDEBAR GLASS LUXE 2027
+   SIDEBAR GLASS LUXE 2027 — COMPLETO
 ============================================================ */
 
 .sidebar {
@@ -13,14 +13,22 @@
     overflow-y: auto;
     border-right: 1px solid rgba(255,255,255,0.05);
     padding-top: 10px;
+    transition: width 0.25s ease;
+    z-index: 9000;
 }
 
+.sidebar.collapsed {
+    width: 70px;
+}
+
+/* LISTA */
 .sidebar ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
+/* ITEMS */
 .menu-item {
     display: flex;
     align-items: center;
@@ -28,7 +36,8 @@
     padding: 0.85rem 1rem;
     cursor: pointer;
     border-bottom: 1px solid rgba(255,255,255,0.04);
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, padding 0.25s ease;
+    position: relative;
 }
 
 .menu-item:hover {
@@ -50,8 +59,14 @@
     font-size: 0.95rem;
     white-space: nowrap;
     color: #e2e8f0;
+    transition: opacity 0.2s ease;
 }
 
+/* Ocultar texto cuando está colapsado */
+.sidebar.collapsed .menu-item .text {
+    opacity: 0;
+    pointer-events: none;
+}
 
 /* ============================================================
    TOOLTIP PREMIUM
@@ -102,4 +117,32 @@
 
 .sidebar::-webkit-scrollbar-thumb:hover {
     background: rgba(255,255,255,0.25);
+}
+
+/* ============================================================
+   BOTÓN TOGGLE SIDEBAR — Glass Luxe 2027
+============================================================ */
+
+.sidebar-toggle-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 9999;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #e2e8f0;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-toggle-btn:hover {
+    background: rgba(255,255,255,0.18);
+    transform: scale(1.05);
+}
+
+.sidebar-collapsed .sidebar-toggle-btn {
+    left: 15px;
 }
