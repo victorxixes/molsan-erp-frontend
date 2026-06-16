@@ -10,21 +10,34 @@
     <!-- Librerías externas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
- <script>
+
+    <script>
         // Versión única para romper caché
         window.v = Date.now();
     </script>
 </head>
 
 <body>
-<button id="sidebarToggle" class="sidebar-toggle-btn">☰</button>
 
-<!-- ============================================================
-     SIDEBAR PREMIUM
-============================================================ -->
+<!-- ICONOS SVG GLOBALES -->
+<svg style="display:none;">
+    <symbol id="icon-menu" viewBox="0 0 24 24">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+    </symbol>
+
+    <symbol id="icon-close" viewBox="0 0 24 24">
+        <path d="M6 6l12 12M6 18L18 6"/>
+    </symbol>
+</svg>
+
+<!-- BOTÓN SIDEBAR -->
+<button id="sidebarToggle" class="sidebar-toggle-btn">
+    <svg class="icon"><use href="#icon-menu"></use></svg>
+</button>
+
+<!-- SIDEBAR PREMIUM -->
 <div class="sidebar">
     <ul>
-
         <li class="menu-item" onclick="cargarModulo('dashboard')">
             <span class="icon">📊</span>
             <span class="text">Dashboard</span>
@@ -66,18 +79,24 @@
             <span class="icon">📘</span>
             <span class="text">Informes Premium</span>
         </li>
-
     </ul>
 </div>
 
-<!-- ============================================================
-     CONTENEDOR PRINCIPAL (FUERA DEL SIDEBAR)
-============================================================ -->
+<!-- CABECERA PRINCIPAL -->
+<header class="main-header">
+    <h1>MOLSAN ERP — Glass Luxe 2027</h1>
+    <h2 id="module-title" class="module-title"></h2>
+</header>
+
+<!-- AVISO PERMISOS -->
+<div id="avisoPermisos" style="display:none;"></div>
+
+<!-- CONTENEDOR PRINCIPAL -->
 <div id="module-container" class="module-container"></div>
 
-<!-- ============================================================
+<!-- ============================
      TEMPLATES DE MÓDULOS
-============================================================ -->
+============================ -->
 
 <!-- DASHBOARD -->
 <template id="tpl-dashboard">
@@ -192,49 +211,22 @@
     </div>
 </template>
 
-<!-- CONFIGURACIÓN -->
+<!-- CONFIGURACIÓN (SIN MAPAS) -->
 <template id="tpl-configuracion">
     <div class="modulo-wrapper fade-in">
 
-        <h2 class="titulo-modulo">⚙️ Configuración de Mapas</h2>
+        <h2 class="titulo-modulo">⚙️ Configuración del Sistema</h2>
 
         <div class="card-glass p-20">
 
-            <div class="mapa-box">
-                <h3>Apoderados</h3>
-                <textarea id="mapaApoderados" class="config-textarea"></textarea>
-                <button class="btn-primary mt-10" data-mapa="apoderados">Guardar</button>
-            </div>
+            <p class="texto-secundario">
+                La normalización de datos se realiza automáticamente mediante reglas internas
+                (Glass Luxe 2027). Los mapas manuales han sido eliminados.
+            </p>
 
-            <div class="mapa-box mt-20">
-                <h3>Oficinas</h3>
-                <textarea id="mapaOficinas" class="config-textarea"></textarea>
-                <button class="btn-primary mt-10" data-mapa="oficinas">Guardar</button>
-            </div>
-
-            <div class="mapa-box mt-20">
-                <h3>Apellidos</h3>
-                <textarea id="mapaApellidos" class="config-textarea"></textarea>
-                <button class="btn-primary mt-10" data-mapa="apellidos">Guardar</button>
-            </div>
-
-            <div class="mapa-box mt-20">
-                <h3>Centro que firma</h3>
-                <textarea id="mapaCentroFirma" class="config-textarea"></textarea>
-                <button class="btn-primary mt-10" data-mapa="centroFirma">Guardar</button>
-            </div>
-
-            <div class="mapa-box mt-20">
-                <h3>Notarios</h3>
-                <textarea id="mapaNotarios" class="config-textarea"></textarea>
-                <button class="btn-primary mt-10" data-mapa="notarios">Guardar</button>
-            </div>
-
-            <div class="mapa-box mt-20">
-                <h3>Tipo de Gestión</h3>
-                <textarea id="mapaTipoGestion" class="config-textarea"></textarea>
-                <button class="btn-primary mt-10" data-mapa="tipoGestion">Guardar</button>
-            </div>
+            <p class="mt-20">
+                Para gestionar permisos del sistema, utiliza el módulo <strong>Permisos</strong>.
+            </p>
 
         </div>
 
@@ -252,8 +244,8 @@
             <label><input type="checkbox" id="permImportar"> Importar Excel</label>
             <label><input type="checkbox" id="permBorrar"> Borrar datos</label>
             <label><input type="checkbox" id="permRestaurar"> Restaurar backups</label>
-            <label><input type="checkbox" id="permMapas"> Editar mapas</label>
             <label><input type="checkbox" id="permExportar"> Exportar CSV</label>
+            <label><input type="checkbox" id="permVerTodo"> Ver Informes Premium</label>
 
             <button class="btn-primary mt-20" onclick="guardarPermisos()">Guardar</button>
 
@@ -288,6 +280,7 @@
 
             <button id="btnVistaPrevia" class="btn-secondary mt-20">Vista previa</button>
             <button id="btnRestaurar" class="btn-primary mt-10">Restaurar</button>
+            <button id="btnCancelar" class="btn-secondary mt-10">Cancelar</button>
 
             <div id="restorePreview" class="mt-20"></div>
 
@@ -296,65 +289,56 @@
     </div>
 </template>
 
+<!-- INFORMES PREMIUM -->
 <template id="tpl-informes-premium">
     <div class="modulo-wrapper fade-in">
 
         <h2 class="titulo-modulo">📘 Informes Premium</h2>
 
-        <!-- GRID DE INFORMES -->
         <div class="grid-informes">
-
-            <div class="informe-card" onclick="cargarInforme('apoderados')">🧑‍ Informe por Apoderados</div>
-            <div class="informe-card" onclick="cargarInforme('oficinas')">🏢 Informe por Oficinas</div>
-            <div class="informe-card" onclick="cargarInforme('centros')">🏬 Informe por Centros</div>
-            <div class="informe-card" onclick="cargarInforme('circuitos')">🔄 Informe por Circuitos</div>
-            <div class="informe-card" onclick="cargarInforme('tipoGestion')">📑 Tipo de Gestión</div>
-            <div class="informe-card" onclick="cargarInforme('tipoFirma')">✍️ Tipo de Firma</div>
-            <div class="informe-card" onclick="cargarInforme('mes')">📅 Informe por Mes</div>
-            <div class="informe-card" onclick="cargarInforme('anio')">📆 Informe por Año</div>
-            <div class="informe-card" onclick="cargarInforme('evolutivo')">📈 Informe Evolutivo</div>
-            <div class="informe-card" onclick="cargarInforme('comparativo')">⚖️ Informe Comparativo</div>
-            <div class="informe-card" onclick="cargarInforme('vc')">💼 Informe VC</div>
-            <div class="informe-card" onclick="cargarInforme('sla')">⏱️ Informe SLA</div>
-
+            <button class="btn-inf" onclick="generarInformeGeneral()">Informe General</button>
+            <button class="btn-inf" onclick="generarInformeAnual()">Informe Anual</button>
+            <button class="btn-inf" onclick="generarInformeMensual()">Informe Mensual</button>
+            <button class="btn-inf" onclick="generarInformeApoderados()">Por Apoderado</button>
+            <button class="btn-inf" onclick="generarInformeOficinas()">Por Oficina</button>
+            <button class="btn-inf" onclick="generarInformeCircuito()">Por Circuito</button>
+            <button class="btn-inf" onclick="generarInformeTipoFirma()">Por Tipo de Firma</button>
+            <button class="btn-inf" onclick="generarInformeTiempos()">Tiempos Medios</button>
         </div>
 
-        <!-- CONTENEDOR DONDE SE CARGA EL INFORME -->
-        <div id="informeContainer" class="card-glass mt-30" style="display:none;">
-            <!-- Aquí se inyecta el informe -->
-        </div>
+        <div id="informeContainer" class="card-glass mt-30" style="display:none;"></div>
 
     </div>
 </template>
+
 <!-- ============================
-     SCRIPTS — ANTI‑CACHÉ SEGURO
+     SCRIPTS
 ============================ -->
 
 <script src="js/reglas.js"></script>
-<script src="js/kpis.js"></script>
 <script src="js/storage.js"></script>
+<script src="js/kpis.js"></script>
 <script src="js/importador.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/listado.js"></script>
 <script src="js/filtros.js"></script>
-<script src="js/backup.js"></script>
 <script src="js/uploader.js"></script>
+<script src="js/backup.js"></script>
+<script src="js/restore.js"></script>
+<script src="js/informes.js"></script>
 <script src="js/permisos.js"></script>
 <script src="js/configuracion.js"></script>
-<script src="js/restore.js"></script>
 <script src="js/sidebar.js"></script>
 <script src="js/main.js"></script>
-<script src="js/informes.js"></script>
-
 
 <script>
     // Recargar scripts con versión única
-document.querySelectorAll("script[src]").forEach(s => {
-    s.src = s.src + "?v=" + window.v;
-});
-
+    document.querySelectorAll("script[src]").forEach(s => {
+        s.src = s.src + "?v=" + window.v;
+    });
 </script>
 
 </body>
 </html>
+
 
