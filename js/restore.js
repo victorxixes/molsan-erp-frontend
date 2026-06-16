@@ -1,5 +1,5 @@
 /* ============================================================
-   RESTORE — Restauración avanzada de backups (Glass Luxe 2027)
+   RESTORE — GLASS LUXE 2027 (IndexedDB + Preview + Progreso)
 ============================================================ */
 
 let backupTemporal = null;
@@ -9,15 +9,9 @@ let restaurando = false;
    INICIALIZAR MÓDULO
 ============================================================ */
 function initRestore() {
-    const btnPreview = document.getElementById("btnVistaPrevia");
-    const btnRestaurar = document.getElementById("btnRestaurar");
-    const btnCancelar = document.getElementById("btnCancelar");
-
-    if (btnPreview) btnPreview.onclick = vistaPreviaBackup;
-    if (btnRestaurar) btnRestaurar.onclick = confirmarRestauracion;
-    if (btnCancelar) btnCancelar.onclick = cancelarRestauracion;
-
-    aplicarPermisos();
+    document.getElementById("btnVistaPrevia")?.addEventListener("click", vistaPreviaBackup);
+    document.getElementById("btnRestaurar")?.addEventListener("click", confirmarRestauracion);
+    document.getElementById("btnCancelar")?.addEventListener("click", cancelarRestauracion);
 }
 
 /* ============================================================
@@ -25,13 +19,10 @@ function initRestore() {
 ============================================================ */
 function vistaPreviaBackup() {
     const file = document.getElementById("restoreFile").files[0];
-    if (!file) {
-        alert("Selecciona un archivo JSON primero.");
-        return;
-    }
+    if (!file) return alert("Selecciona un archivo JSON primero.");
 
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = (e) => {
         try {
             const json = JSON.parse(e.target.result);
 
@@ -56,12 +47,13 @@ function vistaPreviaBackup() {
    VALIDAR ESTRUCTURA DEL BACKUP
 ============================================================ */
 function validarEstructuraBackup(b) {
-    if (!b) return false;
-    if (!b.fecha) return false;
-    if (!b.datos || !Array.isArray(b.datos)) return false;
-    if (!b.kpis || typeof b.kpis !== "object") return false;
-    if (typeof b.total_registros !== "number") return false;
-    return true;
+    return (
+        b &&
+        typeof b === "object" &&
+        Array.isArray(b.datos) &&
+        typeof b.kpis === "object" &&
+        typeof b.total_registros === "number"
+    );
 }
 
 /* ============================================================
@@ -107,15 +99,8 @@ function mostrarPreview() {
    CONFIRMAR RESTAURACIÓN
 ============================================================ */
 function confirmarRestauracion() {
-    if (!backupTemporal) {
-        alert("No hay backup cargado.");
-        return;
-    }
-
-    if (restaurando) {
-        alert("Ya se está restaurando un backup.");
-        return;
-    }
+    if (!backupTemporal) return alert("No hay backup cargado.");
+    if (restaurando) return alert("Ya se está restaurando un backup.");
 
     if (!confirm("¿Seguro que quieres restaurar este backup? Se perderán los datos actuales.")) {
         return;
@@ -126,36 +111,27 @@ function confirmarRestauracion() {
 }
 
 /* ============================================================
-   RESTAURAR BACKUP (chunked)
+   RESTAURAR BACKUP (IndexedDB + Progreso)
 ============================================================ */
-function restaurarBackup() {
+async function restaurarBackup() {
     try {
-        borrarTodo();
+        // 1. Borrar DB
+        await borrarFirmas();
 
-        const lote = 5000;
-        let bloque = [];
-        let index = 1;
+        // 2. Insertar datos en lotes
+        const lote = 500;
+        let procesadas = 0;
 
-        backupTemporal.datos.forEach(fila => {
-            bloque.push(fila);
+        for (let i = 0; i < backupTemporal.datos.length; i += lote) {
+            const chunk = backupTemporal.datos.slice(i, i + lote);
+            await guardarFirmas(chunk);
 
-            if (bloque.length === lote) {
-                guardarChunk(bloque, index);
-                bloque = [];
-                index++;
-            }
-        });
-
-        if (bloque.length > 0) {
-            guardarChunk(bloque, index);
+            procesadas += chunk.length;
+            actualizarProgresoRestore(procesadas, backupTemporal.datos.length);
         }
 
-        // Restaurar KPIs
+        // 3. Restaurar KPIs
         localStorage.setItem("molsan_kpis", JSON.stringify(backupTemporal.kpis));
-
-        // Reconstruir índices y KPIs
-        construirIndices();
-        recalcularKPIs();
 
         alert("Backup restaurado correctamente.");
         cancelarRestauracion();
@@ -166,6 +142,20 @@ function restaurarBackup() {
     }
 
     restaurando = false;
+}
+
+/* ============================================================
+   PROGRESO VISUAL
+============================================================ */
+function actualizarProgresoRestore(actual, total) {
+    const barra = document.getElementById("restoreBarra");
+    const texto = document.getElementById("restoreTexto");
+
+    if (!barra || !texto) return;
+
+    const pct = Math.round((actual / total) * 100);
+    barra.style.width = pct + "%";
+    texto.textContent = `Restaurando ${actual} / ${total} (${pct}%)`;
 }
 
 /* ============================================================

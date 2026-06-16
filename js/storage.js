@@ -1,29 +1,77 @@
 /* ============================================================
-   STORAGE — Glass Luxe 2027 (localStorage)
+   STORAGE — IndexedDB Profesional (Glass Luxe 2027)
 ============================================================ */
 
-const STORAGE_KEY_FIRMAS = "molsan_firmas";
+let db = null;
 
-async function cargarHistorico() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY_FIRMAS) || "[]";
-        const datos = JSON.parse(raw);
-        if (!Array.isArray(datos)) return [];
-        return datos;
-    } catch (e) {
-        console.warn("cargarHistorico: error parseando datos", e);
-        return [];
-    }
+// Inicializar DB
+function initDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open("molsanDB", 1);
+
+        request.onupgradeneeded = (e) => {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains("firmas")) {
+                db.createObjectStore("firmas", { keyPath: "id", autoIncrement: true });
+            }
+        };
+
+        request.onsuccess = (e) => {
+            db = e.target.result;
+            resolve();
+        };
+
+        request.onerror = (e) => reject(e);
+    });
 }
 
-async function guardarHistorico(filas) {
-    try {
-        if (!Array.isArray(filas)) {
-            console.warn("guardarHistorico: filas no es array");
-            return;
-        }
-        localStorage.setItem(STORAGE_KEY_FIRMAS, JSON.stringify(filas));
-    } catch (e) {
-        console.error("guardarHistorico: error guardando datos", e);
-    }
+// Guardar registros masivamente
+async function guardarFirmas(datos) {
+    await initDB();
+
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction("firmas", "readwrite");
+        const store = tx.objectStore("firmas");
+
+        datos.forEach(reg => store.add(reg));
+
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = (e) => reject(e);
+    });
+}
+
+// Borrar todo
+async function borrarFirmas() {
+    await initDB();
+
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction("firmas", "readwrite");
+        const store = tx.objectStore("firmas");
+
+        const req = store.clear();
+
+        req.onsuccess = () => resolve(true);
+        req.onerror = (e) => reject(e);
+    });
+}
+
+// Obtener todas las firmas
+async function obtenerFirmas() {
+    await initDB();
+
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction("firmas", "readonly");
+        const store = tx.objectStore("firmas");
+
+        const req = store.getAll();
+
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = (e) => reject(e);
+    });
+}
+
+// Para compatibilidad con filtros.js
+async function obtenerIndiceChunks() {
+    const datos = await obtenerFirmas();
+    return datos.length;
 }

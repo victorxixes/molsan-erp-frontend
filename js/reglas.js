@@ -4,7 +4,6 @@
 
 function aplicarReglas(f) {
 
-    // Normalización de nombres del Excel original
     const fila = {
         expediente: f.expediente || "",
         oficina: f.oficina || "",
@@ -22,23 +21,20 @@ function aplicarReglas(f) {
         envio_notario: f.envio_notario || "",
         dias: Number(f.dias || 0),
 
-        // Campos Excel adicionales
+        // Excel adicionales
         mes_excel: f.mes || "",
         anio_excel: f.anio || "",
-        centro: f.centro || "",
+        centro_que_firma: f.centro_que_firma || "",
         tipo_gestion_excel: f.tipo_gestion || "",
         nombre_excel: f.nombre || "",
         apellidos_excel: f.apellidos || "",
-        centro_que_firma: f.centro_que_firma || "",
         circuito_notarial: f.circuito_notarial || "",
         tipo_firma_excel: f.tipo_firma || ""
     };
 
-    // Fecha protocolo
     const fechaProtocolo = new Date(fila.fecha_protocolo);
 
     return {
-        // Datos base
         expediente: fila.expediente,
         oficina: fila.oficina,
         fecha_alta: fila.fecha_alta,
@@ -49,9 +45,8 @@ function aplicarReglas(f) {
         municipio: fila.municipio,
         comunidad: fila.comunidad,
         protocolo: fila.protocolo,
-        fecha_protocolo: fila.fecha_protocolo,
+        fecha_protocolo: normalizarFecha(fila.fecha_protocolo),
         vc: fila.vc,
-        apoderado: fila.apoderado,
         envio_notario: fila.envio_notario,
         dias: fila.dias,
 
@@ -59,12 +54,11 @@ function aplicarReglas(f) {
         mes: getMesNumero(fechaProtocolo) || fila.mes_excel,
         anio: getAnio(fechaProtocolo) || fila.anio_excel,
 
-        // Normalización directa (sin mapas)
-        centro: fila.oficina,
-        tipo_gestion: fila.tipo_provision,
-        nombre: fila.apoderado,
-        apellidos: fila.apellidos_excel,
-        centro_que_firma: fila.centro_que_firma,
+        // Normalización mejorada
+        centro: fila.centro_que_firma || fila.oficina,
+        tipo_gestion: fila.tipo_gestion_excel || fila.tipo_provision,
+        nombre: fila.apoderado || fila.nombre_excel,
+        apellidos: fila.apellidos_excel || "",
         notario_clasificacion: fila.notario,
 
         // Circuito notarial
@@ -76,8 +70,13 @@ function aplicarReglas(f) {
 }
 
 /* ============================================================
-   FUNCIONES AUXILIARES
+   FECHAS
 ============================================================ */
+function normalizarFecha(v) {
+    const d = new Date(v);
+    if (isNaN(d)) return "";
+    return d.toISOString().split("T")[0];
+}
 
 function getMesNumero(fecha) {
     if (!(fecha instanceof Date) || isNaN(fecha)) return null;
@@ -90,7 +89,7 @@ function getAnio(fecha) {
 }
 
 /* ============================================================
-   CIRCUITO NOTARIAL — Glass Luxe 2027
+   CIRCUITO NOTARIAL
 ============================================================ */
 function getCircuito(valor) {
     if (!valor) return "Sin circuito";
@@ -105,15 +104,18 @@ function getCircuito(valor) {
 }
 
 /* ============================================================
-   TIPO DE FIRMA — Glass Luxe 2027
+   TIPO DE FIRMA
 ============================================================ */
 function getTipoFirma(valor) {
     if (!valor) return "Desconocido";
 
     const v = String(valor).toLowerCase();
 
-    if (v.includes("vc") || v.includes("video")) return "VideoConferencia";
-    if (v.includes("pres")) return "Presencial";
+    if (v.includes("vc") || v.includes("video") || v.includes("tele") || v.includes("virtual"))
+        return "VideoConferencia";
+
+    if (v.includes("pres"))
+        return "Presencial";
 
     return "Desconocido";
 }

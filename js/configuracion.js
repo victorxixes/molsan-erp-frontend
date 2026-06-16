@@ -1,93 +1,48 @@
 /* ============================================================
-   CONFIGURACIÓN — MOLSAN GLASS LUXE 2027
+   CONFIGURACIÓN — MOLSAN GLASS LUXE 2027 (Sin Mapas)
 ============================================================ */
 
 function initConfiguracion() {
 
-    // Mapas reales del ERP
-    cargarMapa("apoderados", "mapaApoderados");
-    cargarMapa("apellidos", "mapaApellidos");
-    cargarMapa("centroFirma", "mapaCentroFirma");
-    cargarMapa("notarios", "mapaNotarios");
-    cargarMapa("tipoGestion", "mapaTipoGestion");
-    cargarMapa("oficinas", "mapaOficinas");
-
-    // Indicadores visuales
-    activarIndicadoresGuardado();
-
-    // Permisos
+    // Solo permisos (lo único que sigue existiendo)
     aplicarPermisos();
 
-    console.log("Configuración inicializada correctamente.");
+    console.log("Configuración inicializada (sin mapas).");
 }
 
 /* ============================================================
-   INDICADORES VISUALES
+   GUARDAR PERMISOS
 ============================================================ */
-function activarIndicadoresGuardado() {
-    document.querySelectorAll(".config-textarea").forEach(area => {
-        area.addEventListener("input", () => {
-            area.classList.add("cambiado");
-        });
+function guardarPermisos() {
+    const permisos = {
+        importar: document.getElementById("permImportar")?.checked || false,
+        borrar: document.getElementById("permBorrar")?.checked || false,
+        restaurar: document.getElementById("permRestaurar")?.checked || false,
+        mapas: false, // mapas eliminados
+        exportar: document.getElementById("permExportar")?.checked || false,
+        verTodo: document.getElementById("permVerTodo")?.checked || false
+    };
+
+    localStorage.setItem("molsan_permisos", JSON.stringify(permisos));
+    alert("Permisos guardados correctamente.");
+}
+
+/* ============================================================
+   INICIALIZAR PÁGINA DE PERMISOS
+============================================================ */
+function initPermisos() {
+    const permisos = JSON.parse(localStorage.getItem("molsan_permisos") || "{}");
+
+    const map = {
+        permImportar: "importar",
+        permBorrar: "borrar",
+        permRestaurar: "restaurar",
+        permExportar: "exportar",
+        permVerTodo: "verTodo"
+    };
+
+    Object.entries(map).forEach(([id, key]) => {
+        const el = document.getElementById(id);
+        if (el) el.checked = !!permisos[key];
     });
-}
-
-/* ============================================================
-   CARGAR MAPA
-============================================================ */
-function cargarMapa(nombre, textareaId) {
-    const mapa = JSON.parse(localStorage.getItem("molsan_mapa_" + nombre) || "[]");
-    const textarea = document.getElementById(textareaId);
-    if (textarea) textarea.value = mapa.join("\n");
-}
-
-/* ============================================================
-   GUARDAR MAPA
-============================================================ */
-function guardarMapa(nombre) {
-    const textarea = document.getElementById("mapa" + capitalizar(nombre));
-    if (!textarea) return;
-
-    const lineas = textarea.value
-        .split("\n")
-        .map(l => l.trim())
-        .filter(l => l !== "");
-
-    const errores = validarMapa(nombre, lineas);
-
-    if (errores.length) {
-        alert("Errores en el mapa:\n\n" + errores.join("\n"));
-        return;
-    }
-
-    localStorage.setItem("molsan_mapa_" + nombre, JSON.stringify(lineas));
-
-    textarea.classList.remove("cambiado");
-    alert("Mapa guardado correctamente.");
-}
-
-/* ============================================================
-   VALIDACIÓN DE MAPAS
-============================================================ */
-function validarMapa(nombre, lineas) {
-    const errores = [];
-
-    // Duplicados
-    const duplicados = lineas.filter((v, i, a) => a.indexOf(v) !== i);
-    if (duplicados.length) errores.push("Hay valores duplicados: " + duplicados.join(", "));
-
-    // Vacíos
-    if (lineas.some(l => l.trim() === "")) errores.push("Hay líneas vacías.");
-
-    // Longitud mínima
-    if (lineas.length === 0) errores.push("El mapa está vacío.");
-
-    return errores;
-}
-
-/* ============================================================
-   HELPERS
-============================================================ */
-function capitalizar(t) {
-    return t.charAt(0).toUpperCase() + t.slice(1);
 }

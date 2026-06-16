@@ -1,5 +1,5 @@
 /* ============================================================
-   PERMISOS MOLSAN — Glass Luxe 2027
+   PERMISOS MOLSAN — Glass Luxe 2027 (Compatibilidad Total)
 ============================================================ */
 
 function aplicarPermisos() {
@@ -14,26 +14,37 @@ function aplicarPermisos() {
 
     if (!permisos || Object.keys(permisos).length === 0) return;
 
+    /* ============================================================
+       IMPORTAR
+    ============================================================= */
     if (!permisos.importar) {
-        const btn = document.getElementById("btnImportar");
-        if (btn) btn.disabled = true;
+        document.getElementById("btnImportar")?.setAttribute("disabled", true);
+        document.getElementById("excelFile")?.setAttribute("disabled", true);
         window.permitirImportar = false;
     } else {
         window.permitirImportar = true;
     }
 
+    /* ============================================================
+       BORRAR (si lo usas en el futuro)
+    ============================================================= */
     window.permitirBorrado = !!permisos.borrar;
 
+    /* ============================================================
+       RESTAURAR BACKUPS
+    ============================================================= */
     if (!permisos.restaurar) {
-        ["btnRestaurarBackup", "btnRestaurar", "btnVistaPrevia"].forEach(id => {
-            const b = document.getElementById(id);
-            if (b) b && (b.disabled = true);
+        ["btnVistaPrevia", "btnRestaurar", "btnCancelar"].forEach(id => {
+            document.getElementById(id)?.setAttribute("disabled", true);
         });
         window.permitirRestore = false;
     } else {
         window.permitirRestore = true;
     }
 
+    /* ============================================================
+       MAPAS (configuración avanzada)
+    ============================================================= */
     if (!permisos.mapas) {
         document.querySelectorAll(".config-textarea").forEach(t => t.disabled = true);
         document.querySelectorAll("[data-mapa]").forEach(b => b.disabled = true);
@@ -42,19 +53,31 @@ function aplicarPermisos() {
         window.permitirMapas = true;
     }
 
+    /* ============================================================
+       EXPORTAR (CSV / JSON)
+    ============================================================= */
     if (!permisos.exportar) {
         ["btnExportarCSV", "btnExportarJSON"].forEach(id => {
-            const b = document.getElementById(id);
-            if (b) b.disabled = true;
+            document.getElementById(id)?.setAttribute("disabled", true);
         });
         window.permitirExportar = false;
     } else {
         window.permitirExportar = true;
     }
 
+    /* ============================================================
+       INFORMES PREMIUM
+    ============================================================= */
+    if (!permisos.verTodo) {
+        document.querySelectorAll(".btn-inf").forEach(btn => btn.disabled = true);
+    }
+
     mostrarAvisoPermisos(permisos);
 }
 
+/* ============================================================
+   AVISO VISUAL
+============================================================ */
 function mostrarAvisoPermisos(permisos) {
     const aviso = document.getElementById("avisoPermisos");
     if (!aviso) return;
@@ -66,6 +89,7 @@ function mostrarAvisoPermisos(permisos) {
     if (!permisos.restaurar) bloqueados.push("Restaurar backups");
     if (!permisos.mapas) bloqueados.push("Editar mapas");
     if (!permisos.exportar) bloqueados.push("Exportar datos");
+    if (!permisos.verTodo) bloqueados.push("Ver informes premium");
 
     if (bloqueados.length === 0) {
         aviso.style.display = "none";
@@ -81,6 +105,9 @@ function mostrarAvisoPermisos(permisos) {
     aviso.style.display = "block";
 }
 
+/* ============================================================
+   GUARDAR PERMISOS
+============================================================ */
 function guardarPermisos() {
     const permisos = {
         importar: document.getElementById("permImportar")?.checked || false,
@@ -88,13 +115,16 @@ function guardarPermisos() {
         restaurar: document.getElementById("permRestaurar")?.checked || false,
         mapas: document.getElementById("permMapas")?.checked || false,
         exportar: document.getElementById("permExportar")?.checked || false,
-        verTodo: true
+        verTodo: document.getElementById("permVerTodo")?.checked || false
     };
 
     localStorage.setItem("molsan_permisos", JSON.stringify(permisos));
     alert("Permisos guardados correctamente.");
 }
 
+/* ============================================================
+   INICIALIZAR PÁGINA DE PERMISOS
+============================================================ */
 function initPermisos() {
     const permisos = JSON.parse(localStorage.getItem("molsan_permisos") || "{}");
 
@@ -103,7 +133,8 @@ function initPermisos() {
         permBorrar: "borrar",
         permRestaurar: "restaurar",
         permMapas: "mapas",
-        permExportar: "exportar"
+        permExportar: "exportar",
+        permVerTodo: "verTodo"
     };
 
     Object.entries(map).forEach(([id, key]) => {

@@ -1,44 +1,92 @@
 /* ============================================================
-   KPIS — GLASS LUXE 2027
+   KPIS MOLSAN — Cálculo automático (IndexedDB + Glass Luxe 2027)
 ============================================================ */
 
 async function recalcularKPIs() {
-    const datos = await cargarHistorico();
-    if (!Array.isArray(datos) || datos.length === 0) {
-        console.warn("KPIs: no hay datos.");
-        return {
-            total: 0,
-            hoy: 0,
-            mediaDias: 0,
-            vc: 0
-        };
+    const datos = await obtenerFirmas(); // ← IndexedDB
+
+    let totalRegistros = 0;
+
+    let porMes = {};
+    let porAnio = {};
+    let porApoderado = {};
+    let porOficina = {};
+    let porCircuito = {};
+    let porTipoFirma = {};
+
+    let sumaDias = 0;
+
+    for (const fila of datos) {
+        if (!fila) continue;
+
+        totalRegistros++;
+
+        const mes = normalizarClave(fila.mes);
+        const anio = normalizarClave(fila.anio);
+        const apo = normalizarClave(fila.nombre);
+        const ofi = normalizarClave(fila.oficina);
+        const cir = normalizarClave(fila.circuito);
+        const tipo = normalizarClave(fila.tipo_firma);
+        const dias = Number(fila.dias) || 0;
+
+        incrementar(porMes, mes);
+        incrementar(porAnio, anio);
+        incrementar(porApoderado, apo);
+        incrementar(porOficina, ofi);
+        incrementar(porCircuito, cir);
+        incrementar(porTipoFirma, tipo);
+
+        sumaDias += dias;
     }
 
-    const total = datos.length;
+    const mediaDias = totalRegistros ? (sumaDias / totalRegistros) : 0;
 
-    const hoyStr = new Date().toISOString().split("T")[0];
-    const hoy = datos.filter(d => d.fecha_protocolo?.startsWith(hoyStr)).length;
+    const rankingApoderados = ordenarRanking(porApoderado, "nombre");
+    const rankingOficinas = ordenarRanking(porOficina, "oficina");
 
-    const mediaDias = Math.round(
-        datos.reduce((acc, d) => acc + (Number(d.dias) || 0), 0) / total
-    );
+    const kpis = {
+        fecha_calculo: new Date().toISOString(),
+        total_registros: totalRegistros,
+        por_mes: porMes,
+        por_anio: porAnio,
+        por_apoderado: porApoderado,
+        por_oficina: porOficina,
+        por_circuito: porCircuito,
+        por_tipo_firma: porTipoFirma,
+        media_dias: Number(mediaDias.toFixed(2)),
+        ranking_apoderados: rankingApoderados,
+        ranking_oficinas: rankingOficinas
+    };
 
-    const vc = datos.filter(d => String(d.tipo_firma).toLowerCase().includes("video")).length;
-
-    const kpis = { total, hoy, mediaDias, vc };
-
-    await guardarKPIs(kpis);
-    return kpis;
-}
-
-async function guardarKPIs(kpis) {
     localStorage.setItem("molsan_kpis", JSON.stringify(kpis));
+
+    console.log("KPIs recalculados:", kpis);
 }
 
-function cargarKPIs() {
-    try {
-        return JSON.parse(localStorage.getItem("molsan_kpis") || "{}");
-    } catch {
-        return {};
-    }
+/* ============================================================
+   Obtener KPIs ya calculados
+============================================================ */
+function obtenerKPIs() {
+    return JSON.parse(localStorage.getItem("molsan_kpis") || "{}");
+}
+
+/* ============================================================
+   Helpers
+============================================================ */
+
+function incrementar(obj, clave) {
+    if (!clave) clave = "Sin dato";
+    obj[clave] = (obj[clave] || 0) + 1;
+}
+
+function normalizarClave(v) {
+    if (v === undefined || v === null) return "Sin dato";
+    const t = String(v).trim();
+    return t === "" ? "Sin dato" : t;
+}
+
+function ordenarRanking(obj, campo) {
+    return Object.entries(obj)
+        .map(([k, total]) => ({ [campo]: k, total }))
+        .sort((a, b) => b.total - a.total);
 }

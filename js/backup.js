@@ -1,47 +1,69 @@
 /* ============================================================
-   BACKUP — GLASS LUXE 2027
+   BACKUP — GLASS LUXE 2027 (IndexedDB + KPIs + Descarga JSON)
 ============================================================ */
 
-const STORAGE_KEY_BACKUP = "molsan_backup";
+function initBackup() {
+    document.getElementById("btnHacerBackup")?.addEventListener("click", generarBackup);
+    mostrarInfoBackup();
+}
 
-async function initBackup() {
-    const btn = document.getElementById("btnHacerBackup");
+/* ============================================================
+   GENERAR BACKUP COMPLETO
+============================================================ */
+async function generarBackup() {
     const info = document.getElementById("backupInfo");
 
-    if (!btn || !info) return;
+    const datos = await obtenerFirmas(); // ← IndexedDB
+    const kpis = obtenerKPIs();          // ← KPIs actuales
 
-    btn.onclick = async () => {
-        const datos = await cargarHistorico();
-        localStorage.setItem(STORAGE_KEY_BACKUP, JSON.stringify({
-            fecha: new Date().toISOString(),
-            datos
-        }));
-        info.textContent = `Backup creado con ${datos.length} registros.`;
+    const backup = {
+        fecha: new Date().toISOString(),
+        total_registros: datos.length,
+        datos,
+        kpis
     };
 
-    const raw = localStorage.getItem(STORAGE_KEY_BACKUP);
-    if (raw) {
-        const b = JSON.parse(raw);
-        info.textContent = `Último backup: ${b.fecha} (${(b.datos || []).length} registros)`;
-    } else {
-        info.textContent = "No hay backups.";
+    // Guardar copia local (opcional)
+    localStorage.setItem("molsan_backup", JSON.stringify(backup));
+
+    // Descargar archivo JSON
+    descargarJSON(backup, `backup_molsan_${Date.now()}.json`);
+
+    if (info) {
+        info.textContent = `Backup creado: ${datos.length} registros — ${new Date().toLocaleString("es-ES")}`;
     }
 }
 
-async function initRestore() {
-    const btn = document.getElementById("btnRestaurarBackup");
-    if (!btn) return;
+/* ============================================================
+   MOSTRAR INFO DEL ÚLTIMO BACKUP
+============================================================ */
+function mostrarInfoBackup() {
+    const info = document.getElementById("backupInfo");
+    if (!info) return;
 
-    btn.onclick = async () => {
-        const raw = localStorage.getItem(STORAGE_KEY_BACKUP);
-        if (!raw) {
-            alert("No hay backup para restaurar.");
-            return;
-        }
-        const b = JSON.parse(raw);
-        await guardarHistorico(b.datos || []);
-        await recalcularKPIs();
-        alert("Backup restaurado.");
-        await initDashboard();
-    };
+    const raw = localStorage.getItem("molsan_backup");
+
+    if (!raw) {
+        info.textContent = "No hay backups.";
+        return;
+    }
+
+    const b = JSON.parse(raw);
+
+    info.textContent = `Último backup: ${new Date(b.fecha).toLocaleString("es-ES")} — ${b.total_registros} registros`;
+}
+
+/* ============================================================
+   DESCARGAR JSON
+============================================================ */
+function descargarJSON(obj, nombre) {
+    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = nombre;
+    a.click();
+
+    URL.revokeObjectURL(url);
 }

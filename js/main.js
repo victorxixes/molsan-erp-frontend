@@ -3,55 +3,97 @@
    MOTOR PRINCIPAL DE MÓDULOS
 ============================================================ */
 
-function aplicarPermisosGlobal() {
-    aplicarPermisos();
-}
-
 async function cargarModulo(nombre) {
 
+    // Quitar selección previa
     document.querySelectorAll(".menu-item").forEach(i => i.classList.remove("active"));
 
+    // Activar el menú actual
     const item = [...document.querySelectorAll(".menu-item")]
         .find(i => i.getAttribute("onclick")?.includes(nombre));
     if (item) item.classList.add("active");
 
+    // Cargar plantilla
     const tpl = document.getElementById(`tpl-${nombre}`);
     const cont = document.getElementById("module-container");
     const title = document.getElementById("module-title");
 
-    if (!tpl || !cont) return;
+    if (!tpl || !cont) {
+        console.error("No se encontró el módulo:", nombre);
+        return;
+    }
 
     cont.innerHTML = "";
     cont.appendChild(tpl.content.cloneNode(true));
-    if (title) title.textContent = nombre;
 
-    switch (nombre) {
-        case "dashboard":
-            await initDashboard();
-            break;
-        case "listado":
-            await initListado();
-            break;
-        case "uploader":
-            initUploader();
-            break;
-        case "permisos":
-            initPermisos();
-            break;
-        case "backup":
-            await initBackup();
-            break;
-        case "restore":
-            await initRestore();
-            break;
-        case "informes-premium":
-            await initInformesPremium();
-            break;
+    // Títulos bonitos
+    if (title) {
+        const nombresBonitos = {
+            "dashboard": "Dashboard",
+            "listado": "Listado de Firmas",
+            "uploader": "Importación de Excel",
+            "permisos": "Permisos del Sistema",
+            "backup": "Backup de Datos",
+            "restore": "Restauración de Backups",
+            "informes-premium": "Informes Premium"
+        };
+        title.textContent = nombresBonitos[nombre] || nombre;
     }
 
-    aplicarPermisosGlobal();
+    // Inicializar módulo
+    try {
+        switch (nombre) {
+            case "dashboard":
+                await initDashboard();
+                break;
+
+            case "listado":
+                await initListado();
+                break;
+
+            case "uploader":
+                initUploader();
+                break;
+
+            case "permisos":
+                initPermisos();
+                break;
+
+            case "backup":
+                await initBackup();
+                break;
+
+            case "restore":
+                await initRestore();
+                break;
+
+            case "informes-premium":
+                await initInformesPremium();
+                break;
+        }
+    } catch (err) {
+        console.error("Error cargando módulo:", nombre, err);
+        cont.innerHTML = `
+            <div class="card-glass error-box">
+                <h3>Error cargando el módulo</h3>
+                <p>${err.message}</p>
+            </div>
+        `;
+    }
+
+    // Aplicar permisos después de cargar el módulo
+    aplicarPermisos();
 }
 
+/* ============================================================
+   INICIALIZACIÓN GLOBAL
+============================================================ */
 window.addEventListener("DOMContentLoaded", () => {
+
+    // Restaurar estado del sidebar
+    const estado = localStorage.getItem("molsan_sidebar") === "collapsed";
+    aplicarEstadoSidebar(estado);
+
+    // Cargar módulo inicial
     cargarModulo("dashboard");
 });
