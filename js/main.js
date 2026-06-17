@@ -86,14 +86,17 @@ async function cargarModulo(nombre) {
 }
 
 /* ============================================================
-   INICIALIZACIÓN GLOBAL
+   INICIALIZACIÓN GLOBAL — CORREGIDA
 ============================================================ */
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
 
-    // Restaurar estado del sidebar
+    // 1) Esperar a que IndexedDB esté listo
+    await initDB();
+
+    // 2) Restaurar estado del sidebar
     const estado = localStorage.getItem("molsan_sidebar") === "collapsed";
     aplicarEstadoSidebar(estado);
 
-    // Cargar módulo inicial
+    // 3) Cargar módulo inicial
     cargarModulo("dashboard");
 });
