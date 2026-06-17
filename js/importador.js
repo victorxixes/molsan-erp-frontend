@@ -2,7 +2,13 @@
    IMPORTADOR — GLASS LUXE 2027 (IndexedDB + Chunks + Progreso)
 ============================================================ */
 
-async function procesarExcel(file) {
+// ESTA ES LA FUNCIÓN QUE FALTABA
+async function importarExcel(file, onProgress) {
+    return procesarExcel(file, onProgress);
+}
+
+// ESTA ES LA FUNCIÓN QUE YA TENÍAS
+async function procesarExcel(file, onProgress) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
 
@@ -31,13 +37,18 @@ async function procesarExcel(file) {
                     await guardarFirmas(chunk);
 
                     procesadas += chunk.length;
-                    actualizarProgreso(procesadas, normalizadas.length);
+
+                    if (onProgress) {
+                        const pct = Math.round((procesadas / normalizadas.length) * 100);
+                        onProgress(pct);
+                    }
                 }
 
                 await recalcularKPIs();
 
                 console.log("Importación completada. Filas:", normalizadas.length);
-                resolve();
+                resolve(normalizadas);
+
             } catch (err) {
                 console.error("Error procesando Excel:", err);
                 reject(err);
@@ -47,20 +58,4 @@ async function procesarExcel(file) {
         reader.onerror = (err) => reject(err);
         reader.readAsArrayBuffer(file);
     });
-}
-
-/* ============================================================
-   PROGRESO VISUAL
-============================================================ */
-
-function actualizarProgreso(actual, total) {
-    const barra = document.getElementById("progreso-barra");
-    const texto = document.getElementById("progreso-texto");
-
-    if (!barra || !texto) return;
-
-    const pct = Math.round((actual / total) * 100);
-
-    barra.style.width = pct + "%";
-    texto.textContent = `Procesando ${actual} / ${total} (${pct}%)`;
 }
