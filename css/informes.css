@@ -95,3 +95,52 @@
     border-radius: 12px;
     padding: 10px;
 }
+/* ============================================================
+   BOTONES INFORMES PREMIUM — Glass Luxe 2027
+============================================================ */
+
+/* ============================================================
+   BOTONES INFORMES PREMIUM — ICONOS ANIMADOS
+============================================================ */
+
+.btn-inf {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+
+    background: #0ea5e9;
+    border: 1px solid #0284c7;
+    color: #ffffff;
+
+    padding: 0.75rem 1.1rem;
+    border-radius: 10px;
+
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+
+    transition: background 0.2s ease, transform 0.2s ease;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+}
+
+/* Iconos animados */
+.btn-inf svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+/* Animación al pasar el ratón */
+.btn-inf:hover svg {
+    transform: translateX(4px) scale(1.1);
+    opacity: 0.9;
+}
+
+/* Hover premium */
+.btn-inf:hover {
+    background: #0284c7;
+    transform: translateY(-2px);
+}
+
