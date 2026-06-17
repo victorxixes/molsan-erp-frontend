@@ -136,6 +136,7 @@
 
         <div class="card-glass p-20">
 
+            <!-- FILTROS -->
             <div class="filtros-grid">
                 <input id="filtroExpediente" placeholder="Expediente">
                 <input id="filtroApoderado" placeholder="Apoderado">
@@ -152,34 +153,65 @@
 
             <div id="chipsFiltros" class="chips mt-10"></div>
 
-            <table class="tabla-listado mt-20">
-                <thead>
-                    <tr>
-                        <th>Expediente</th>
-                        <th>Oficina</th>
-                        <th>Fecha Protocolo</th>
-                        <th>Apoderado</th>
-                        <th>Centro</th>
-                        <th>Circuito</th>
-                        <th>Tipo Firma</th>
-                        <th>Días</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-listado"></tbody>
-            </table>
+            <!-- TABLA CON SCROLL Y CABECERA FIJA -->
+            <div class="tabla-scroll-x mt-20">
+                <table class="tabla-listado tabla-sticky">
+                    <thead>
+                        <tr>
+                            <th onclick="ordenarPor('expediente')">Expediente</th>
+                            <th onclick="ordenarPor('oficina')">Oficina</th>
+                            <th onclick="ordenarPor('fecha_alta')">Fecha Alta</th>
+                            <th onclick="ordenarPor('contrato')">Contrato</th>
+                            <th onclick="ordenarPor('tipo_provision')">Tipo Provisión</th>
+                            <th onclick="ordenarPor('notario')">Notario</th>
+                            <th>Provincia</th>
+                            <th>Municipio</th>
+                            <th>Comunidad</th>
+                            <th>Protocolo</th>
+                            <th onclick="ordenarPor('fecha_protocolo')">Fecha Protocolo</th>
+                            <th>V.C.</th>
+                            <th onclick="ordenarPor('apoderado')">Apoderado</th>
+                            <th>Envio Notario</th>
+                            <th onclick="ordenarPor('dias')">Días</th>
 
-            <div class="paginacion mt-20">
-                <button id="btnPrev" class="btn-secondary">Anterior</button>
-                <span id="paginaActual"></span>
-                <button id="btnNext" class="btn-secondary">Siguiente</button>
+                            <th onclick="ordenarPor('mes')">Mes</th>
+                            <th onclick="ordenarPor('anio')">Año</th>
+                            <th onclick="ordenarPor('centro')">Centro</th>
+                            <th>Tipo Gestión</th>
+                            <th>Nombre</th>
+                            <th>Apellidos</th>
+                            <th>Centro que firma</th>
+
+                            <th>Contrato 2</th>
+                            <th>Notario 2</th>
+
+                            <th onclick="ordenarPor('circuito')">Circuito notarial</th>
+                            <th onclick="ordenarPor('tipo_firma')">Tipo de firma</th>
+
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tabla-listado"></tbody>
+                </table>
             </div>
 
+            <!-- PAGINACIÓN -->
+            <div class="paginacion mt-20">
+                <button id="btnPrev" class="btn-secondary" onclick="paginaAnterior()">Anterior</button>
+                <span id="paginaActual"></span>
+                <button id="btnNext" class="btn-secondary" onclick="siguientePagina()">Siguiente</button>
+            </div>
+
+            <!-- EXPORTAR -->
             <button class="btn-primary mt-20" onclick="exportarFiltrados()">Exportar CSV</button>
 
         </div>
 
     </div>
 </template>
+
+
 
 <!-- UPLOADER -->
 <template id="tpl-uploader">
@@ -343,6 +375,25 @@
 
     </div>
 </template>
+<!-- MODAL DETALLE EXPEDIENTE -->
+<div id="modal-detalle" class="modal-overlay hidden">
+    <div class="modal-box">
+
+        <div class="modal-header">
+            <h3 id="detalleTitulo">Detalle del expediente</h3>
+            <button class="modal-close" onclick="cerrarModalDetalle()">✕</button>
+        </div>
+
+        <div class="modal-body" id="detalleContenido">
+            <!-- Aquí se inyecta el contenido -->
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="cerrarModalDetalle()">Cerrar</button>
+        </div>
+
+    </div>
+</div>
 
 <!-- ============================
      SCRIPTS
