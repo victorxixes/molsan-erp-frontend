@@ -2,98 +2,50 @@
    UPLOADER — Importación de Excel (Glass Luxe 2027)
 ============================================================ */
 
-let archivoSeleccionado = null;
-
 function initUploader() {
+    const input = document.getElementById("excelFile");
+    const btn = document.getElementById("btnImportar");
+    const barra = document.getElementById("progreso-barra");
+    const texto = document.getElementById("progreso-texto");
 
-    setTimeout(() => {
+    if (!input || !btn) {
+        console.error("Uploader: faltan elementos en el DOM");
+        return;
+    }
 
-        const btn = document.getElementById("btnImportar");
-        const input = document.getElementById("excelFile");
-        const barra = document.getElementById("progreso-barra");
-        const texto = document.getElementById("progreso-texto");
-
-        if (!btn || !input) {
-            console.warn("Uploader no está listo");
+    btn.onclick = async () => {
+        if (!input.files || !input.files.length) {
+            alert("Selecciona un fichero Excel primero.");
             return;
         }
 
-        /* ============================================================
-           CAPTURA DEL ARCHIVO
-        ============================================================= */
-        input.addEventListener("change", (e) => {
-            archivoSeleccionado = e.target.files[0];
-        });
+        const file = input.files[0];
 
-        /* ============================================================
-           RESET UI
-        ============================================================= */
-        if (barra) barra.style.width = "0%";
-        if (texto) texto.textContent = "";
+        barra.style.width = "0%";
+        texto.textContent = "Procesando fichero...";
 
-        aplicarPermisos();
+        try {
+            // 1) Importar y guardar en IndexedDB
+            const filas = await importarExcel(file, (porcentaje) => {
+                barra.style.width = porcentaje + "%";
+                texto.textContent = `Progreso: ${porcentaje}%`;
+            });
 
-        /* ============================================================
-           ACCIÓN PRINCIPAL
-        ============================================================= */
-        btn.onclick = async () => {
+            console.log("Importación completada. Filas:", filas.length);
+            texto.textContent = `Importación completada. Filas: ${filas.length}`;
 
-            if (!window.permitirImportar) {
-                alert("No tienes permiso para importar datos.");
-                return;
-            }
+            // 2) Recalcular KPIs
+            await recalcularKPIs();
 
-            if (!input.files.length) {
-                alert("Selecciona un fichero Excel primero");
-                return;
-            }
+            // 3) Cambiar de módulo al terminar → AQUÍ ESTABA EL PROBLEMA
+            //    Antes llamabas a initDashboard() / initListado() directamente,
+            //    pero sus templates no estaban montados.
+            cargarModulo("dashboard");   // mostramos el dashboard ya con datos
 
-            const file = input.files[0];
-
-            if (!validarExtension(file.name)) {
-                alert("El archivo debe ser .xlsx o .xls");
-                return;
-            }
-
-            // UI inicial
-            if (texto) texto.textContent = "Procesando archivo (0%)";
-            btn.disabled = true;
-            input.disabled = true;
-
-            try {
-                /* ============================================================
-                   IMPORTACIÓN REAL (IndexedDB + chunks + progreso)
-                ============================================================= */
-                await procesarExcel(file);
-
-                // UI final
-                if (barra) barra.style.width = "100%";
-                if (texto) texto.textContent = "Importación completada ✔";
-
-                // Refrescar módulos
-                await initDashboard();
-                await initListado();
-                await initInformesPremium();
-
-            } catch (err) {
-                console.error(err);
-                if (texto) texto.textContent = "❌ Error al procesar el archivo";
-
-            } finally {
-                btn.disabled = false;
-                input.disabled = false;
-
-                // Reset visual tras 1 segundo
-                setTimeout(() => {
-                    if (barra) barra.style.width = "0%";
-                    if (texto) texto.textContent = "";
-                }, 1000);
-            }
-        };
-
-    }, 0);
-}
-
-function validarExtension(nombre) {
-    return nombre.endsWith(".xlsx") || nombre.endsWith(".xls");
+        } catch (err) {
+            console.error("Error importando Excel:", err);
+            alert("Error importando el fichero. Revisa la consola.");
+            texto.textContent = "Error en la importación.";
+        }
+    };
 }
