@@ -2,27 +2,25 @@
    INFORMES PREMIUM — GLASS LUXE 2027 (IndexedDB + KPIs + Charts)
 ============================================================ */
 
+let chartActual = null;
+
+/* ============================================================
+   INICIALIZAR MÓDULO
+============================================================ */
 async function initInformesPremium() {
-    const cont = document.getElementById("informeContainer");
-    if (!cont) return;
+    console.log("📘 initInformesPremium() ejecutado");
+    const cont = document.getElementById("informeContenido");
+    if (cont) cont.innerHTML = "";
+}
 
-    cont.innerHTML = `
-        <h2 class="titulo-modulo">Informes Premium — Glass Luxe 2027</h2>
-        <p class="subtitulo">Selecciona un informe para generar:</p>
-
-        <div class="grid-informes">
-            <button class="btn-inf" onclick="generarInformeGeneral()">Informe General</button>
-            <button class="btn-inf" onclick="generarInformeAnual()">Informe Anual</button>
-            <button class="btn-inf" onclick="generarInformeMensual()">Informe Mensual</button>
-            <button class="btn-inf" onclick="generarInformeApoderados()">Por Apoderado</button>
-            <button class="btn-inf" onclick="generarInformeOficinas()">Por Oficina</button>
-            <button class="btn-inf" onclick="generarInformeCircuito()">Por Circuito</button>
-            <button class="btn-inf" onclick="generarInformeTipoFirma()">Por Tipo de Firma</button>
-            <button class="btn-inf" onclick="generarInformeTiempos()">Tiempos Medios</button>
-        </div>
-
-        <div id="informeContenido" class="card-glass" style="margin-top:20px;"></div>
-    `;
+/* ============================================================
+   UTILIDAD — Destruir gráfico previo
+============================================================ */
+function resetChart() {
+    if (chartActual) {
+        chartActual.destroy();
+        chartActual = null;
+    }
 }
 
 /* ============================================================
@@ -35,27 +33,28 @@ async function generarInformeGeneral() {
     const cont = document.getElementById("informeContenido");
     cont.innerHTML = `
         <h3>Informe General</h3>
-        <p>Total de firmas: <strong>${kpis.total_registros}</strong></p>
-        <p>Media de días: <strong>${kpis.media_dias}</strong></p>
 
         <div class="kpi-grid">
+            <div class="kpi-box">Total firmas: ${kpis.total_registros}</div>
+            <div class="kpi-box">Media días: ${kpis.media_dias}</div>
             <div class="kpi-box">Presenciales: ${kpis.por_tipo_firma?.Presencial ?? 0}</div>
             <div class="kpi-box">Videoconferencias: ${kpis.por_tipo_firma?.VideoConferencia ?? 0}</div>
         </div>
 
-        <canvas id="chartGeneral" style="margin-top:20px;"></canvas>
+        <canvas id="chartGeneral" class="mt-20"></canvas>
     `;
 
-    // Gráfico por meses
+    resetChart();
+
     const ctx = document.getElementById("chartGeneral");
-    new Chart(ctx, {
+    chartActual = new Chart(ctx, {
         type: "bar",
         data: {
             labels: Object.keys(kpis.por_mes),
             datasets: [{
                 label: "Firmas por mes",
                 data: Object.values(kpis.por_mes),
-                backgroundColor: "#4f46e5"
+                backgroundColor: "#0ea5e9"
             }]
         }
     });
@@ -65,7 +64,6 @@ async function generarInformeGeneral() {
    INFORME ANUAL
 ============================================================ */
 async function generarInformeAnual() {
-    const datos = await obtenerFirmas();
     const kpis = obtenerKPIs();
 
     const cont = document.getElementById("informeContenido");
@@ -74,8 +72,10 @@ async function generarInformeAnual() {
         <canvas id="chartAnual"></canvas>
     `;
 
+    resetChart();
+
     const ctx = document.getElementById("chartAnual");
-    new Chart(ctx, {
+    chartActual = new Chart(ctx, {
         type: "line",
         data: {
             labels: Object.keys(kpis.por_anio),
@@ -101,8 +101,10 @@ async function generarInformeMensual() {
         <canvas id="chartMensual"></canvas>
     `;
 
+    resetChart();
+
     const ctx = document.getElementById("chartMensual");
-    new Chart(ctx, {
+    chartActual = new Chart(ctx, {
         type: "bar",
         data: {
             labels: Object.keys(kpis.por_mes),
@@ -127,8 +129,10 @@ async function generarInformeApoderados() {
         <canvas id="chartApo"></canvas>
     `;
 
+    resetChart();
+
     const ctx = document.getElementById("chartApo");
-    new Chart(ctx, {
+    chartActual = new Chart(ctx, {
         type: "bar",
         data: {
             labels: Object.keys(kpis.por_apoderado),
@@ -153,8 +157,10 @@ async function generarInformeOficinas() {
         <canvas id="chartOfi"></canvas>
     `;
 
+    resetChart();
+
     const ctx = document.getElementById("chartOfi");
-    new Chart(ctx, {
+    chartActual = new Chart(ctx, {
         type: "pie",
         data: {
             labels: Object.keys(kpis.por_oficina),
@@ -178,8 +184,10 @@ async function generarInformeCircuito() {
         <canvas id="chartCircuito"></canvas>
     `;
 
+    resetChart();
+
     const ctx = document.getElementById("chartCircuito");
-    new Chart(ctx, {
+    chartActual = new Chart(ctx, {
         type: "doughnut",
         data: {
             labels: Object.keys(kpis.por_circuito),
@@ -203,8 +211,10 @@ async function generarInformeTipoFirma() {
         <canvas id="chartTipoFirma"></canvas>
     `;
 
+    resetChart();
+
     const ctx = document.getElementById("chartTipoFirma");
-    new Chart(ctx, {
+    chartActual = new Chart(ctx, {
         type: "bar",
         data: {
             labels: Object.keys(kpis.por_tipo_firma),

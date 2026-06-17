@@ -3,6 +3,8 @@
 ============================================================ */
 
 async function initDashboard() {
+    console.log("📊 initDashboard() ejecutado");
+
     const datos = await obtenerFirmas(); // ← IndexedDB
 
     if (!datos || !datos.length) {
@@ -12,8 +14,9 @@ async function initDashboard() {
         return;
     }
 
-    await recalcularKPIs(); // recalcula y guarda en localStorage
-    const kpis = obtenerKPIs(); // ahora sí obtenemos los KPIs
+    // Recalcular KPIs y obtenerlos
+    await recalcularKPIs();
+    const kpis = obtenerKPIs();
 
     actualizarKPIs(kpis, datos);
 }
@@ -23,24 +26,35 @@ async function initDashboard() {
 ============================================================ */
 
 function actualizarKPIs(kpis, datos) {
-    const cont = document.getElementById("kpisContainer");
+
+    // IDs REALES DEL HTML
+    const elTotal = document.getElementById("kpiTotal");
+    const elHoy = document.getElementById("kpiHoy");
+    const elMedia = document.getElementById("kpiMedia");
+    const elVC = document.getElementById("kpiVC");
+
+    if (!elTotal || !elHoy || !elMedia || !elVC) {
+        console.error("❌ No se encontraron los elementos KPI en el HTML");
+        return;
+    }
+
+    // Total firmas
+    elTotal.textContent = kpis.total_registros || 0;
+
+    // Media días
+    elMedia.textContent = kpis.media_dias || 0;
+
+    // VC
+    elVC.textContent = kpis.por_tipo_firma?.VideoConferencia ?? 0;
+
+    // Firmas HOY (comparación correcta YYYY-MM-DD)
+    const hoyISO = new Date().toISOString().split("T")[0];
+    const firmasHoy = datos.filter(f => f.fecha_protocolo === hoyISO).length;
+
+    elHoy.textContent = firmasHoy;
+
+    // Debug opcional
     const dbg = document.getElementById("debugDashboard");
-    if (!cont) return;
-
-    const total = kpis.total_registros || 0;
-    const media = kpis.media_dias || 0;
-
-    const hoy = datos.filter(f => f.fecha_protocolo === new Date().toLocaleDateString()).length;
-
-    const vc = (kpis.por_tipo_firma?.VideoConferencia) || 0;
-
-    cont.innerHTML = `
-        <div class="kpi-card">Total firmas: <strong>${total}</strong></div>
-        <div class="kpi-card">Firmas hoy: <strong>${hoy}</strong></div>
-        <div class="kpi-card">Media días: <strong>${media}</strong></div>
-        <div class="kpi-card">VideoConferencia: <strong>${vc}</strong></div>
-    `;
-
     if (dbg) {
         dbg.textContent = "Muestras de datos:\n" + JSON.stringify(datos.slice(0, 5), null, 2);
     }
