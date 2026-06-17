@@ -123,26 +123,29 @@
    BOTÓN TOGGLE SIDEBAR — Glass Luxe 2027
 ============================================================ */
 
+/* BOTÓN SIDEBAR — Minimalista */
 .sidebar-toggle-btn {
     position: fixed;
     top: 15px;
     left: 15px;
     z-index: 9999;
-    background: rgba(255,255,255,0.12);
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.15);
-    padding: 10px;
-    border-radius: 8px;
+
+    background: transparent !important;
+    border: none !important;
+    backdrop-filter: none !important;
+
+    padding: 6px;
+    border-radius: 6px;
+
     cursor: pointer;
     color: #e2e8f0;
-    transition: background 0.2s ease, transform 0.2s ease;
+
+    box-shadow: none !important;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .sidebar-toggle-btn:hover {
-    background: rgba(255,255,255,0.18);
+    opacity: 0.7;
     transform: scale(1.05);
 }
 
-.sidebar-collapsed .sidebar-toggle-btn {
-    left: 15px;
-}
