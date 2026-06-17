@@ -120,15 +120,14 @@
 }
 
 /* ============================================================
-   BOTÓN TOGGLE SIDEBAR — Glass Luxe 2027
+   BOTÓN TOGGLE SIDEBAR — Minimalista y SIN bloquear clics
 ============================================================ */
 
-/* BOTÓN SIDEBAR — Minimalista */
 .sidebar-toggle-btn {
-    position: fixed;
+    position: absolute;   /* ← YA NO BLOQUEA EL SIDEBAR */
     top: 15px;
     left: 15px;
-    z-index: 9999;
+    z-index: 10;          /* ← YA NO TAPA NADA */
 
     background: transparent !important;
     border: none !important;
@@ -148,4 +147,3 @@
     opacity: 0.7;
     transform: scale(1.05);
 }
-
