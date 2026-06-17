@@ -4,7 +4,7 @@
 
 let db = null;
 
-// Inicializar DB
+// Inicializar DB (solo se llama una vez desde main.js)
 function initDB() {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open("molsanDB", 1);
@@ -27,8 +27,6 @@ function initDB() {
 
 // Guardar registros masivamente
 async function guardarFirmas(datos) {
-    await initDB();
-
     return new Promise((resolve, reject) => {
         const tx = db.transaction("firmas", "readwrite");
         const store = tx.objectStore("firmas");
@@ -42,8 +40,6 @@ async function guardarFirmas(datos) {
 
 // Borrar todo
 async function borrarFirmas() {
-    await initDB();
-
     return new Promise((resolve, reject) => {
         const tx = db.transaction("firmas", "readwrite");
         const store = tx.objectStore("firmas");
@@ -57,8 +53,6 @@ async function borrarFirmas() {
 
 // Obtener todas las firmas
 async function obtenerFirmas() {
-    await initDB();
-
     return new Promise((resolve, reject) => {
         const tx = db.transaction("firmas", "readonly");
         const store = tx.objectStore("firmas");
