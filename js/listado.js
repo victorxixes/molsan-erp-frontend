@@ -2,7 +2,7 @@
    LISTADO — GLASS LUXE 2027 (IndexedDB + Filtros + Paginación)
 ============================================================ */
 
-let listadoDatos = [];     // datos filtrados
+let listadoDatos = [];     
 let paginaActual = 1;
 const filasPorPagina = 50;
 
@@ -12,7 +12,7 @@ const filasPorPagina = 50;
 async function initListado() {
     console.log("📄 initListado() ejecutado");
 
-    const datos = await obtenerFirmas(); // ← IndexedDB
+    const datos = await obtenerFirmas();
 
     console.log("Datos obtenidos:", datos?.length);
 
@@ -93,11 +93,11 @@ function paginaAnterior() {
 }
 
 /* ============================================================
-   RENDER TABLA
+   RENDER TABLA — 27 COLUMNAS COMPLETAS
 ============================================================ */
 function renderTabla(datos) {
-    const tbody = document.querySelector("#tabla-listado");  // ← CORREGIDO
-    const info = document.getElementById("paginaActual");    // ← CORREGIDO
+    const tbody = document.querySelector("#tabla-listado");
+    const info = document.getElementById("paginaActual");
 
     if (!tbody) {
         console.error("❌ No se encontró #tabla-listado");
@@ -108,7 +108,7 @@ function renderTabla(datos) {
 
     if (!datos.length) {
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="8">Sin datos.</td>`;
+        tr.innerHTML = `<td colspan="27">Sin datos.</td>`;
         tbody.appendChild(tr);
         if (info) info.textContent = "0 resultados";
         return;
@@ -116,20 +116,151 @@ function renderTabla(datos) {
 
     datos.forEach(f => {
         const tr = document.createElement("tr");
+
         tr.innerHTML = `
-            <td>${f.expediente || ""}</td>
-            <td>${f.oficina || ""}</td>
-            <td>${f.fecha_protocolo || ""}</td>
-            <td>${f.nombre || ""}</td>
-            <td>${f.centro || ""}</td>
-            <td>${f.circuito || ""}</td>
-            <td>${f.tipo_firma || ""}</td>
-            <td>${f.dias ?? ""}</td>
+            <td>${f.expediente}</td>
+            <td>${f.oficina}</td>
+            <td>${f.fecha_alta}</td>
+            <td>${f.contrato}</td>
+            <td>${f.tipo_provision}</td>
+            <td>${f.notario}</td>
+            <td>${f.provincia}</td>
+            <td>${f.municipio}</td>
+            <td>${f.comunidad}</td>
+            <td>${f.protocolo}</td>
+            <td>${f.fecha_protocolo}</td>
+            <td>${f.vc}</td>
+            <td>${f.apoderado}</td>
+            <td>${f.envio_notario}</td>
+            <td>${f.dias}</td>
+
+            <td>${f.mes}</td>
+            <td>${f.anio}</td>
+            <td>${f.centro}</td>
+            <td>${f.tipo_gestion}</td>
+            <td>${f.nombre}</td>
+            <td>${f.apellidos}</td>
+            <td>${f.centro_que_firma}</td>
+
+            <td>${f.contrato2}</td>
+            <td>${f.notario2}</td>
+
+            <td class="${getClaseCircuito(f.circuito)}">${f.circuito}</td>
+            <td class="${getClaseFirma(f.tipo_firma)}">${f.tipo_firma}</td>
+
+            <td><button class="btn-detalle" onclick="verDetalle('${f.expediente}')">Ver</button></td>
         `;
+
         tbody.appendChild(tr);
     });
 
     if (info) {
         info.textContent = `Página ${paginaActual} — ${datos.length} de ${listadoDatos.length} registros`;
     }
+}
+
+/* ============================================================
+   COLORES POR CIRCUITO Y TIPO DE FIRMA
+============================================================ */
+function getClaseCircuito(c) {
+    if (c === "Circuito Península") return "circuito-peninsula";
+    if (c === "Circuito Canarias") return "circuito-canarias";
+    return "circuito-externo";
+}
+
+function getClaseFirma(t) {
+    if (t === "Presencial") return "firma-presencial";
+    if (t === "VideoConferencia") return "firma-vc";
+    return "";
+}
+
+/* ============================================================
+   BOTÓN DETALLE
+============================================================ */
+function verDetalle(expediente) {
+    alert("Abrir detalle del expediente: " + expediente);
+}
+
+/* ============================================================
+   ORDENACIÓN POR COLUMNAS
+============================================================ */
+let ordenActual = { campo: null, asc: true };
+
+function ordenarPor(campo) {
+    if (ordenActual.campo === campo) {
+        ordenActual.asc = !ordenActual.asc;
+    } else {
+        ordenActual = { campo, asc: true };
+    }
+
+    listadoDatos.sort((a, b) => {
+
+        let x = a[campo] ?? "";
+        let y = b[campo] ?? "";
+
+        // Si es fecha DD/MM/AAAA → convertir
+        if (campo.includes("fecha")) {
+            x = convertirFecha(x);
+            y = convertirFecha(y);
+        }
+
+        if (x < y) return ordenActual.asc ? -1 : 1;
+        if (x > y) return ordenActual.asc ? 1 : -1;
+        return 0;
+    });
+
+    renderTabla(paginar(listadoDatos));
+}
+
+function convertirFecha(f) {
+    if (!f) return 0;
+    const [d, m, a] = f.split("/");
+    return new Date(`${a}-${m}-${d}`).getTime();
+}
+function verDetalle(expediente) {
+    const f = listadoDatos.find(x => x.expediente == expediente);
+    if (!f) return;
+
+    document.getElementById("detalleTitulo").textContent =
+        `Expediente ${f.expediente}`;
+
+    document.getElementById("detalleContenido").innerHTML = `
+        <table>
+            <tr><td><b>Expediente:</b></td><td>${f.expediente}</td></tr>
+            <tr><td><b>Oficina:</b></td><td>${f.oficina}</td></tr>
+            <tr><td><b>Fecha Alta:</b></td><td>${f.fecha_alta}</td></tr>
+            <tr><td><b>Contrato:</b></td><td>${f.contrato}</td></tr>
+            <tr><td><b>Tipo Provisión:</b></td><td>${f.tipo_provision}</td></tr>
+            <tr><td><b>Notario:</b></td><td>${f.notario}</td></tr>
+            <tr><td><b>Provincia:</b></td><td>${f.provincia}</td></tr>
+            <tr><td><b>Municipio:</b></td><td>${f.municipio}</td></tr>
+            <tr><td><b>Comunidad:</b></td><td>${f.comunidad}</td></tr>
+            <tr><td><b>Protocolo:</b></td><td>${f.protocolo}</td></tr>
+            <tr><td><b>Fecha Protocolo:</b></td><td>${f.fecha_protocolo}</td></tr>
+            <tr><td><b>V.C.:</b></td><td>${f.vc}</td></tr>
+            <tr><td><b>Apoderado:</b></td><td>${f.apoderado}</td></tr>
+            <tr><td><b>Envio Notario:</b></td><td>${f.envio_notario}</td></tr>
+            <tr><td><b>Días:</b></td><td>${f.dias}</td></tr>
+
+            <tr><td><b>Mes:</b></td><td>${f.mes}</td></tr>
+            <tr><td><b>Año:</b></td><td>${f.anio}</td></tr>
+            <tr><td><b>Centro:</b></td><td>${f.centro}</td></tr>
+            <tr><td><b>Tipo Gestión:</b></td><td>${f.tipo_gestion}</td></tr>
+            <tr><td><b>Nombre:</b></td><td>${f.nombre}</td></tr>
+            <tr><td><b>Apellidos:</b></td><td>${f.apellidos}</td></tr>
+            <tr><td><b>Centro que firma:</b></td><td>${f.centro_que_firma}</td></tr>
+
+            <tr><td><b>Contrato 2:</b></td><td>${f.contrato2}</td></tr>
+            <tr><td><b>Notario 2:</b></td><td>${f.notario2}</td></tr>
+
+            <tr><td><b>Circuito:</b></td><td>${f.circuito}</td></tr>
+            <tr><td><b>Tipo Firma:</b></td><td>${f.tipo_firma}</td></tr>
+        </table>
+    `;
+
+    document.getElementById("modal-detalle").classList.remove("hidden");
+}
+
+function cerrarModalDetalle() {
+    document.getElementById("modal-detalle").classList.add("hidden");
 }

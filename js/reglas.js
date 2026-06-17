@@ -1,6 +1,6 @@
 /* ============================================================
    REGLAS DE NORMALIZACIÓN — MOLSAN Glass Luxe 2027
-   Adaptado EXACTAMENTE a tu Excel original + columnas nuevas
+   Adaptado EXACTAMENTE a tu Excel original
 ============================================================ */
 
 function aplicarReglas(f) {
@@ -28,29 +28,19 @@ function aplicarReglas(f) {
     const mes = isNaN(fecha) ? "" : fecha.getMonth() + 1;
     const anio = isNaN(fecha) ? "" : fecha.getFullYear();
 
-    const centro = oficina; // igual que en tu Excel
+    // CENTRO (tu fórmula exacta)
+    const centro = (Number(oficina) === 5316) ? "Cancela" : "Oficina";
+
     const tipoGestion = tipoProvision;
-    const nombre = apoderado; // Excel no trae nombre separado
-    const apellidos = ""; // Excel no trae apellidos separados
-    const centroQueFirma = oficina;
+    const nombre = apoderado;
+    const apellidos = "";
+    const centroQueFirma = centro;
 
-    // 3. Circuito notarial (derivado del notario)
-    let circuito = "Sin circuito";
-    if (notarioOriginal) {
-        const n = notarioOriginal.toLowerCase();
-        if (n.includes("a")) circuito = "A";
-        else if (n.includes("b")) circuito = "B";
-        else if (n.includes("c")) circuito = "C";
-        else circuito = "Otros";
-    }
+    // 3. Circuito notarial EXACTO según tu Excel
+    const circuito = getCircuito(notarioOriginal);
 
-    // 4. Tipo de firma (derivado de V.C.)
-    let tipoFirma = "Desconocido";
-    if (vc) {
-        const v = vc.toLowerCase();
-        if (v.includes("vc") || v.includes("video") || v.includes("virtual")) tipoFirma = "VideoConferencia";
-        else if (v.includes("pres")) tipoFirma = "Presencial";
-    }
+    // 4. Tipo de firma EXACTO según tu Excel (N/S)
+    const tipoFirma = getTipoFirma(vc);
 
     // 5. Devolver objeto final COMPLETO
     return {
@@ -91,11 +81,67 @@ function aplicarReglas(f) {
 }
 
 /* ============================================================
-   FECHAS
+   FECHAS — FORMATO ESPAÑOL DD/MM/AAAA
 ============================================================ */
 function normalizarFecha(v) {
     const d = new Date(v);
     if (isNaN(d)) return "";
-    return d.toISOString().split("T")[0];
+
+    const dia = String(d.getDate()).padStart(2, "0");
+    const mes = String(d.getMonth() + 1).padStart(2, "0");
+    const anio = d.getFullYear();
+
+    return `${dia}/${mes}/${anio}`;
 }
 
+/* ============================================================
+   CIRCUITO NOTARIAL — EXACTO SEGÚN TU EXCEL
+============================================================ */
+function getCircuito(notario) {
+    if (!notario) return "Circuito Externo";
+
+    const n = String(notario).trim();
+
+    // Circuito Península
+    const peninsula = [
+        "María Dolores Giménez Arbona",
+        "Gonzalo Sauca Núñez de Prado",
+        "Isabel Molinos Gil",
+        "Raúl González Fuentes",
+        "María Isabel Gabarró Miquel",
+        "Javier Micó Giner",
+        "Jesús Javier Benavides Lima",
+        "Rosa María Pérez Paniagua",
+        "María del Camino Quiroga Martínez",
+        "Ana María Fortuny Subirats",
+        "Miguel de Páramo Argüelles"
+    ];
+
+    // Circuito Canarias
+    const canarias = [
+        "David Gracia Fuentes",
+        "José Manuel Jiménez Santoveña",
+        "Guillermo José Croissier Naranjo",
+        "José Ignacio Olmedo Castañeda",
+        "Pedro Javier Viñuela Sandoval"
+    ];
+
+    if (peninsula.includes(n)) return "Circuito Península";
+    if (canarias.includes(n)) return "Circuito Canarias";
+
+    return "Circuito Externo";
+}
+
+/* ============================================================
+   TIPO DE FIRMA — EXACTO SEGÚN TU EXCEL (N/S)
+============================================================ */
+function getTipoFirma(valor) {
+    if (!valor) return "Desconocido";
+
+    const v = String(valor).trim().toUpperCase();
+
+    if (v === "N") return "Presencial";
+    if (v === "S") return "VideoConferencia";
+
+    return "Desconocido";
+}
