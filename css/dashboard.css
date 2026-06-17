@@ -1,85 +1,68 @@
-/* ============================================================
-   DASHBOARD — MOLSAN CLEAN LIGHT
-============================================================ */
+/* ============================
+   DASHBOARD PREMIUM 2027
+============================ */
 
-.titulo-modulo {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--molsan-primary-dark);
-    margin-bottom: 1rem;
+/* Fade-in del módulo */
+.modulo-wrapper.fade-in {
+    animation: dashFadeIn 0.4s ease-out;
 }
 
+@keyframes dashFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Tarjetas KPI dinámicas */
 .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 1rem;
+    margin: 1rem 0 1.5rem;
 }
 
 .kpi-box {
-    background: var(--molsan-bg-soft);
-    border: 1px solid var(--molsan-border-soft);
-    padding: 1rem;
+    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(240,240,255,0.9));
     border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--molsan-text-secondary);
-    text-align: center;
-    transition: 0.2s;
+    padding: 0.8rem 1rem;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+    border: 1px solid rgba(255,255,255,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .kpi-box:hover {
-    background: var(--molsan-primary-soft);
-    border-color: var(--molsan-primary);
-    color: var(--molsan-primary-dark);
-}
-
-canvas {
-    background: #FFFFFF;
-    border-radius: 12px;
-    padding: 1rem;
-    border: 1px solid var(--molsan-border-soft);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-/* ============================================================
-   DASHBOARD — MOLSAN CLEAN LIGHT (Premium)
-============================================================ */
-
-.dashboard-wrapper {
-    animation: fadeIn 0.35s ease;
-}
-
-.titulo-modulo {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: var(--molsan-primary-dark);
-    margin-bottom: 1.2rem;
-}
-
-/* KPIs */
-.kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.2rem;
-}
-
-.kpi-box {
-    background: #FFFFFF;
-    border: 1px solid var(--molsan-border-soft);
-    border-radius: 14px;
-    padding: 1.2rem;
-    text-align: center;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--molsan-text-secondary);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
-    transition: 0.25s ease;
-}
-
-.kpi-box:hover {
-    background: var(--molsan-primary-soft);
-    border-color: var(--molsan-primary);
-    color: var(--molsan-primary-dark);
     transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+    background: linear-gradient(135deg, rgba(255,255,255,1), rgba(220,235,255,1));
+}
+
+.kpi-box-title {
+    font-size: 0.8rem;
+    color: var(--molsan-text-secondary);
+}
+
+.kpi-box-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--molsan-primary-dark);
+}
+
+/* Cards de gráficos con efecto glass */
+.card-glass {
+    background: rgba(20,20,30,0.85);
+    border-radius: 16px;
+    padding: 1rem 1.2rem;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    backdrop-filter: blur(10px);
+}
+
+/* Canvas con transición suave */
+.card-glass canvas {
+    width: 100%;
+    transition: opacity 0.3s ease;
 }
 
 /* Gráficos */

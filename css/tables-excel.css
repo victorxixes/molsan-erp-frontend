@@ -12,6 +12,12 @@
     margin-top: 1rem;
 }
 
+/* CONTENEDOR SCROLL HORIZONTAL (Listados, Evolutivo, etc.) */
+.tabla-scroll-x {
+    overflow-x: auto;
+    width: 100%;
+}
+
 /* ============================================================
    TABLA BASE
 ============================================================ */
@@ -105,4 +111,22 @@ th.sortable:hover {
 .table-excel td {
     padding: 8px;
     border-bottom: 1px solid var(--molsan-border-soft);
+}
+
+/* ============================================================
+   EVOLUTIVO POR AÑO — CABECERA STICKY
+============================================================ */
+#tabla-evolutivo td,
+#tabla-evolutivo th {
+    white-space: nowrap;
+    padding: 6px 10px;
+}
+
+#tabla-evolutivo th {
+    background: rgba(20,20,20,0.9);
+    backdrop-filter: blur(6px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    color: #FFFFFF;
 }
