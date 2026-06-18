@@ -104,6 +104,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     const estado = localStorage.getItem("molsan_sidebar") === "collapsed";
     aplicarEstadoSidebar(estado);
 
-    // 3) Cargar módulo inicial
-    cargarModulo("dashboard");
+    // 3) ❌ NO cargar Dashboard automáticamente
+    //    El usuario elegirá el módulo desde el menú
+    // cargarModulo("dashboard");  ← ELIMINADO
 });
