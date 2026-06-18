@@ -1,0 +1,117 @@
+/* ============================================================
+   INFORMES DINÁMICOS — GLASS LUXE 2027
+   Estilos premium, independientes y sin colisiones
+============================================================ */
+
+/* CONTENEDOR GENERAL */
+.informes-header {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.informes-header .label {
+    font-weight: 600;
+    color: #d0d0d0;
+    margin-bottom: 5px;
+}
+
+.informes-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* SELECTS Y INPUTS */
+.input-select,
+.input-text {
+    width: 180px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: rgba(255,255,255,0.05);
+    color: white;
+}
+
+/* TABLA */
+.table-excel {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: rgba(255,255,255,0.03);
+}
+
+.table-excel th {
+    background: rgba(255,255,255,0.08);
+    padding: 10px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid #444;
+}
+
+.table-excel td {
+    padding: 8px;
+    border-bottom: 1px solid #333;
+}
+
+/* SCROLL */
+.tabla-scroll-x {
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+/* TÍTULO DEL INFORME */
+#tituloInformeActual {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+/* BOTONES */
+.btn-primary {
+    background: #007bff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    transition: 0.2s;
+}
+
+.btn-primary:hover {
+    background: #0066d6;
+}
+
+.btn-secondary {
+    background: #555;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    transition: 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #666;
+}
+
+/* TARJETAS */
+.card-glass {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+
+/* ANIMACIÓN */
+.fade-in {
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
