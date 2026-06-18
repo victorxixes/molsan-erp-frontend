@@ -1,52 +1,51 @@
 <template id="tpl-dashboard">
+    <div id="dashboard-root" class="modulo-wrapper fade-in dashboard-wrapper">
 
-<div class="modulo-wrapper fade-in">
 
     <div class="module-container">
 
         <h2 class="titulo-modulo">📊 Dashboard — Glass Luxe 2027</h2>
 
-       <div class="kpi-grid">
-    <div class="kpi-box">
-        <div class="kpi-box-title">Firmas Totales</div>
-        <div class="kpi-box-value" id="kpiTotal">0</div>
-    </div>
-    <div class="kpi-box">
-        <div class="kpi-box-title">Videoconferencias</div>
-        <div class="kpi-box-value" id="kpiVC">0</div>
-    </div>
-    <div class="kpi-box">
-        <div class="kpi-box-title">Presenciales</div>
-        <div class="kpi-box-value" id="kpiPresencial">0</div>
-    </div>
-    <div class="kpi-box">
-        <div class="kpi-box-title">Media días gestión</div>
-        <div class="kpi-box-value" id="kpiMedia">0</div>
-    </div>
-    <div class="kpi-box">
-        <div class="kpi-box-title">Firmas hoy</div>
-        <div class="kpi-box-value" id="kpiHoy">0</div>
-    </div>
-</div>
+        <!-- ===================== KPIs ===================== -->
+        <div class="kpi-grid">
+            <div class="kpi-box">
+                <div class="kpi-box-title">Firmas Totales</div>
+                <div class="kpi-box-value" id="kpiTotal">0</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-box-title">Videoconferencias</div>
+                <div class="kpi-box-value" id="kpiVC">0</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-box-title">Presenciales</div>
+                <div class="kpi-box-value" id="kpiPresencial">0</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-box-title">Media días gestión</div>
+                <div class="kpi-box-value" id="kpiMedia">0</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-box-title">Firmas hoy</div>
+                <div class="kpi-box-value" id="kpiHoy">0</div>
+            </div>
+        </div>
 
-        <!-- Gráfico: Firmas por mes -->
+        <!-- ===================== Gráfico: Firmas por mes ===================== -->
         <div class="card-glass" style="margin-bottom:20px;">
             <canvas id="chartFirmasMes"></canvas>
         </div>
 
-        <!-- Gráfico: Tipo de firma -->
+        <!-- ===================== Gráfico: Tipo de firma ===================== -->
         <div class="card-glass">
             <canvas id="chartTipoFirma"></canvas>
         </div>
 
-        <!-- Botón informe -->
+        <!-- ===================== Botón informe ===================== -->
         <button class="btn-primary mt-20" onclick="informeReunion()" style="margin-top:20px;">
             Informe para reunión
         </button>
 
-        <!-- ============================================================
-             EVOLUTIVO POR AÑO — AUTOMÁTICO
-        ============================================================ -->
+        <!-- ===================== EVOLUTIVO POR AÑO ===================== -->
         <div class="card-glass p-20 mt-20" id="evolutivo-anual">
             <h2 class="titulo-modulo">📈 Evolutivo por Año</h2>
 
