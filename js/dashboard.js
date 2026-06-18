@@ -3,8 +3,13 @@
 ============================================================ */
 
 async function initDashboard() {
-
     console.log("📊 initDashboard() ejecutado");
+
+    // Verificar que el dashboard está realmente cargado en el DOM
+    if (!document.getElementById("kpiTotal")) {
+        console.warn("⏳ Dashboard no está visible, cancelando initDashboard()");
+        return;
+    }
 
     const datos = await obtenerFirmas(); // ← IndexedDB
 
@@ -21,7 +26,7 @@ async function initDashboard() {
 
     actualizarKPIs(kpis, datos);
 
-    // 🔥 NUEVO: generar Evolutivo por Año
+    // Evolutivo por año
     generarEvolutivo();
 }
 
@@ -38,7 +43,7 @@ function actualizarKPIs(kpis, datos) {
     const elPresencial = document.getElementById("kpiPresencial");
 
     if (!elTotal || !elHoy || !elMedia || !elVC || !elPresencial) {
-        console.error("❌ No se encontraron los elementos KPI en el HTML");
+        console.warn("❌ No se encontraron los elementos KPI en el HTML");
         return;
     }
 
@@ -47,8 +52,14 @@ function actualizarKPIs(kpis, datos) {
     const vc = kpis.por_tipo_firma?.VideoConferencia ?? 0;
     const presencial = kpis.por_tipo_firma?.Presencial ?? 0;
 
-    const hoyISO = new Date().toISOString().split("T")[0];
-    const firmasHoy = datos.filter(f => f.fecha_protocolo === hoyISO).length;
+    // Hoy en formato dd/mm/aaaa (como tus fechas normalizadas)
+    const hoy = new Date();
+    const d = String(hoy.getDate()).padStart(2, "0");
+    const m = String(hoy.getMonth() + 1).padStart(2, "0");
+    const y = hoy.getFullYear();
+    const hoyES = `${d}/${m}/${y}`;
+
+    const firmasHoy = datos.filter(f => f.fecha_protocolo === hoyES).length;
 
     elTotal.textContent = total.toLocaleString("es-ES");
     elMedia.textContent = mediaDias.toFixed(2);
@@ -61,15 +72,22 @@ function actualizarKPIs(kpis, datos) {
         dbg.textContent = "Muestras de datos:\n" + JSON.stringify(datos.slice(0, 5), null, 2);
     }
 
-    // 🔥 Gráficos premium
+    // Gráficos premium
     crearChartFirmasMes(datos);
     crearChartTipoFirma(kpis);
 }
+
 /* ============================================================
    EVOLUTIVO POR AÑO — AUTOMÁTICO
 ============================================================ */
 
 async function generarEvolutivo() {
+    const tabla = document.getElementById("tabla-evolutivo");
+    if (!tabla) {
+        console.warn("⏳ tabla-evolutivo no existe en el DOM, se omite generarEvolutivo()");
+        return;
+    }
+
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
 
@@ -150,7 +168,7 @@ async function generarEvolutivo() {
 
     html += `</tr></tbody>`;
 
-    document.getElementById("tabla-evolutivo").innerHTML = html;
+    tabla.innerHTML = html;
 
     generarGraficosEvolutivo(años, estructura);
 }
@@ -160,6 +178,14 @@ async function generarEvolutivo() {
 ============================================================ */
 
 function generarGraficosEvolutivo(años, estructura) {
+    const canvasLineas = document.getElementById("graficoEvolutivoLineas");
+    const canvasBarras = document.getElementById("graficoEvolutivoBarras");
+
+    if (!canvasLineas || !canvasBarras) {
+        console.warn("⏳ Canvas de gráficos evolutivos no encontrados, se omite generarGraficosEvolutivo()");
+        return;
+    }
+
     const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 
     const datasets = años.map(a => ({
@@ -169,12 +195,12 @@ function generarGraficosEvolutivo(años, estructura) {
         fill: false
     }));
 
-    new Chart(document.getElementById("graficoEvolutivoLineas"), {
+    new Chart(canvasLineas, {
         type: "line",
         data: { labels: meses, datasets }
     });
 
-    new Chart(document.getElementById("graficoEvolutivoBarras"), {
+    new Chart(canvasBarras, {
         type: "bar",
         data: { labels: meses, datasets }
     });
@@ -189,8 +215,11 @@ function imprimirEvolutivo() {
 }
 
 function exportarEvolutivoCSV() {
-    const tabla = document.getElementById("tabla-evolutivo").innerText;
-    const blob = new Blob([tabla], { type: "text/csv;charset=utf-8;" });
+    const tabla = document.getElementById("tabla-evolutivo");
+    if (!tabla) return;
+
+    const texto = tabla.innerText;
+    const blob = new Blob([texto], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
@@ -198,6 +227,11 @@ function exportarEvolutivoCSV() {
     a.download = "evolutivo.csv";
     a.click();
 }
+
+/* ============================================================
+   GRÁFICO: FIRMAS POR MES
+============================================================ */
+
 function crearChartFirmasMes(datos) {
     const ctx = document.getElementById("chartFirmasMes");
     if (!ctx) return;
@@ -245,6 +279,11 @@ function crearChartFirmasMes(datos) {
         }
     });
 }
+
+/* ============================================================
+   GRÁFICO: TIPO DE FIRMA
+============================================================ */
+
 function crearChartTipoFirma(kpis) {
     const ctx = document.getElementById("chartTipoFirma");
     if (!ctx) return;
