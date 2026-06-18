@@ -6,7 +6,7 @@ async function initDashboard() {
     console.log("📊 initDashboard() ejecutado");
 
     // Verificar que el dashboard está realmente cargado en el DOM
-    if (!document.getElementById("kpiTotal")) {
+    if (!document.getElementById("dashboard-root")) {
         console.warn("⏳ Dashboard no está visible, cancelando initDashboard()");
         return;
     }

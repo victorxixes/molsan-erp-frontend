@@ -46,7 +46,8 @@ async function cargarModulo(nombre) {
         switch (nombre) {
 
             case "dashboard":
-                await initDashboard();
+                // 🔥 FIX CRÍTICO: retrasar initDashboard hasta que el DOM esté pintado
+                setTimeout(() => initDashboard(), 0);
                 break;
 
             case "listado":
@@ -105,6 +106,5 @@ window.addEventListener("DOMContentLoaded", async () => {
     aplicarEstadoSidebar(estado);
 
     // 3) ❌ NO cargar Dashboard automáticamente
-    //    El usuario elegirá el módulo desde el menú
-    // cargarModulo("dashboard");  ← ELIMINADO
+    // cargarModulo("dashboard");
 });
