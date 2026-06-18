@@ -84,13 +84,29 @@ function normalizarFecha(v) {
         return d.toLocaleDateString("es-ES");
     }
 
+    // ISO completo: 2024-06-18T00:00:00.000Z
+    if (/^\d{4}-\d{2}-\d{2}T/.test(v)) {
+        const d = new Date(v);
+        return d.toLocaleDateString("es-ES");
+    }
+
     // yyyy-mm-dd
-    if (v.includes("-")) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
         const [y, m, d] = v.split("-");
         return `${d}/${m}/${y}`;
     }
 
     // dd/mm/yyyy ya correcto
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
+        return v;
+    }
+
+    // fallback
+    const d = new Date(v);
+    if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString("es-ES");
+    }
+
     return v;
 }
 
