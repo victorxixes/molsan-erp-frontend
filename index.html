@@ -446,11 +446,17 @@
 
 <!-- ============================ SCRIPTS ============================ -->
 
+<!-- ============================
+     SCRIPTS — ORDEN CORRECTO
+============================ -->
+
+<!-- 1) Librerías base -->
 <script src="js/reglas.js?v=2"></script>
 <script src="js/storage.js?v=2"></script>
 <script src="js/kpis.js?v=2"></script>
 <script src="js/importador.js?v=2"></script>
-<script src="js/dashboard.js?v=2"></script>
+
+<!-- 2) Módulos funcionales -->
 <script src="js/listado.js?v=2"></script>
 <script src="js/filtros.js?v=2"></script>
 <script src="js/uploader.js?v=2"></script>
@@ -460,6 +466,11 @@
 <script src="js/informes-dinamicos.js?v=2"></script>
 <script src="js/permisos.js?v=2"></script>
 <script src="js/configuracion.js?v=2"></script>
+
+<!-- 3) Dashboard SIEMPRE después de todo lo anterior -->
+<script src="js/dashboard.js?v=2"></script>
+
+<!-- 4) Y SIEMPRE, SIEMPRE, SIEMPRE: main.js el último -->
 <script src="js/sidebar.js?v=2"></script>
 <script src="js/main.js?v=2"></script>
 
