@@ -9,8 +9,12 @@ let chartActual = null;
 ============================================================ */
 async function initInformesPremium() {
     console.log("📘 initInformesPremium() ejecutado");
-    const cont = document.getElementById("informeContenido");
-    if (cont) cont.innerHTML = "";
+
+    const cont = document.getElementById("informeContainer");
+    if (cont) {
+        cont.style.display = "none";
+        cont.innerHTML = "";
+    }
 }
 
 /* ============================================================
@@ -30,7 +34,8 @@ async function generarInformeGeneral() {
     const datos = await obtenerFirmas();
     const kpis = obtenerKPIs();
 
-    const cont = document.getElementById("informeContenido");
+    const cont = document.getElementById("informeContainer");
+    cont.style.display = "block";
     cont.innerHTML = `
         <h3>Informe General</h3>
 
@@ -66,7 +71,8 @@ async function generarInformeGeneral() {
 async function generarInformeAnual() {
     const kpis = obtenerKPIs();
 
-    const cont = document.getElementById("informeContenido");
+    const cont = document.getElementById("informeContainer");
+    cont.style.display = "block";
     cont.innerHTML = `
         <h3>Informe Anual</h3>
         <canvas id="chartAnual"></canvas>
@@ -95,7 +101,8 @@ async function generarInformeAnual() {
 async function generarInformeMensual() {
     const kpis = obtenerKPIs();
 
-    const cont = document.getElementById("informeContenido");
+    const cont = document.getElementById("informeContainer");
+    cont.style.display = "block";
     cont.innerHTML = `
         <h3>Informe Mensual</h3>
         <canvas id="chartMensual"></canvas>
@@ -123,7 +130,8 @@ async function generarInformeMensual() {
 async function generarInformeApoderados() {
     const kpis = obtenerKPIs();
 
-    const cont = document.getElementById("informeContenido");
+    const cont = document.getElementById("informeContainer");
+    cont.style.display = "block";
     cont.innerHTML = `
         <h3>Informe por Apoderado</h3>
         <canvas id="chartApo"></canvas>
@@ -151,7 +159,8 @@ async function generarInformeApoderados() {
 async function generarInformeOficinas() {
     const kpis = obtenerKPIs();
 
-    const cont = document.getElementById("informeContenido");
+    const cont = document.getElementById("informeContainer");
+    cont.style.display = "block";
     cont.innerHTML = `
         <h3>Informe por Oficina</h3>
         <canvas id="chartOfi"></canvas>
@@ -178,7 +187,8 @@ async function generarInformeOficinas() {
 async function generarInformeCircuito() {
     const kpis = obtenerKPIs();
 
-    const cont = document.getElementById("informeContenido");
+    const cont = document.getElementById("informeContainer");
+    cont.style.display = "block";
     cont.innerHTML = `
         <h3>Informe por Circuito</h3>
         <canvas id="chartCircuito"></canvas>
@@ -205,7 +215,8 @@ async function generarInformeCircuito() {
 async function generarInformeTipoFirma() {
     const kpis = obtenerKPIs();
 
-    const cont = document.getElementById("informeContenido");
+    const cont = document.getElementById("informeContainer");
+    cont.style.display = "block";
     cont.innerHTML = `
         <h3>Informe por Tipo de Firma</h3>
         <canvas id="chartTipoFirma"></canvas>
@@ -233,7 +244,8 @@ async function generarInformeTipoFirma() {
 async function generarInformeTiempos() {
     const kpis = obtenerKPIs();
 
-    const cont = document.getElementById("informeContenido");
+    const cont = document.getElementById("informeContainer");
+    cont.style.display = "block";
     cont.innerHTML = `
         <h3>Tiempos Medios de Gestión</h3>
         <p>Media de días: <strong>${kpis.media_dias}</strong></p>

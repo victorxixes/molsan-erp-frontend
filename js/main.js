@@ -71,6 +71,10 @@ async function cargarModulo(nombre) {
                 await initInformesPremium();
                 break;
         }
+case "informes-dinamicos":
+    await initInformesDinamicos();
+    break;
+ }
     } catch (err) {
         console.error("Error cargando módulo:", nombre, err);
         cont.innerHTML = `
