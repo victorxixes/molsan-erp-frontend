@@ -1,97 +1,93 @@
 /* ============================================================
-   REGLAS DE NORMALIZACIÓN — MOLSAN Glass Luxe 2027
-   Adaptado EXACTAMENTE a tu Excel original
+   REGLAS DE NORMALIZACIÓN — GLASS LUXE 2027
 ============================================================ */
 
 function aplicarReglas(f) {
 
-    // 1. Mapeo EXACTO del Excel original
-    const expediente = f["Expediente"] || "";
-    const oficina = f["Oficina"] || "";
-    const fechaAlta = f["Fecha Alta"] || "";
-    const contratoOriginal = f["Contrato"] || "";
-    const tipoProvision = f["Tipo Provisión"] || "";
-    const notarioOriginal = f["Notario"] || "";
-    const provincia = f["Provincia"] || "";
-    const municipio = f["Municipio"] || "";
-    const comunidad = f["Comunidad"] || "";
-    const protocolo = f["Protocolo"] || "";
-    const fechaProtocolo = f["Fecha Protocolo"] || "";
-    const vc = f["V.C."] || "";
-    const apoderado = f["Apoderado"] || "";
-    const envioNotario = f["Envio Notario"] || "";
-    const dias = Number(f["Días"] || 0);
+    /* ============================================================
+       1) FECHAS → dd/mm/yyyy
+    ============================================================= */
+    f.fecha_alta = normalizarFecha(f.fecha_alta);
+    f.fecha_protocolo = normalizarFecha(f.fecha_protocolo);
+    f.envio_notario = normalizarFecha(f.envio_notario);
 
-    // 2. Campos calculados (antes eran fórmulas de Excel)
-    const fecha = new Date(fechaProtocolo);
+    /* ============================================================
+       2) MES / AÑO (de fecha protocolo)
+    ============================================================= */
+    if (f.fecha_protocolo) {
+        const [d, m, y] = f.fecha_protocolo.split("/");
+        f.mes = Number(m);
+        f.anio = Number(y);
+    } else {
+        f.mes = "";
+        f.anio = "";
+    }
 
-    const mes = isNaN(fecha) ? "" : fecha.getMonth() + 1;
-    const anio = isNaN(fecha) ? "" : fecha.getFullYear();
+    /* ============================================================
+       3) CENTRO (oficina original)
+    ============================================================= */
+    f.centro = f.oficina;
 
-    // CENTRO (tu fórmula exacta)
-    const centro = (Number(oficina) === 5316) ? "Cancela" : "Oficina";
+    /* ============================================================
+       4) CENTRO QUE FIRMA (regla 5316)
+    ============================================================= */
+    f.centro_que_firma = (String(f.oficina) === "5316")
+        ? "Cancela"
+        : "Oficina";
 
-    const tipoGestion = tipoProvision;
-    const nombre = apoderado;
-    const apellidos = "";
-    const centroQueFirma = centro;
+    /* ============================================================
+       5) TIPO GESTIÓN
+    ============================================================= */
+    f.tipo_gestion = f.tipo_provision;
 
-    // 3. Circuito notarial EXACTO según tu Excel
-    const circuito = getCircuito(notarioOriginal);
+    /* ============================================================
+       6) NOMBRE / APELLIDOS (si vienen juntos)
+    ============================================================= */
+    if (f.nombre_completo) {
+        const partes = f.nombre_completo.trim().split(" ");
+        f.nombre = partes.shift();
+        f.apellidos = partes.join(" ");
+    }
 
-    // 4. Tipo de firma EXACTO según tu Excel (N/S)
-    const tipoFirma = getTipoFirma(vc);
+    /* ============================================================
+       7) TIPO FIRMA (N/S)
+    ============================================================= */
+    f.tipo_firma = getTipoFirma(f.vc);
 
-    // 5. Devolver objeto final COMPLETO
-    return {
-        // Originales
-        expediente,
-        oficina,
-        fecha_alta: normalizarFecha(fechaAlta),
-        contrato: contratoOriginal,
-        tipo_provision: tipoProvision,
-        notario: notarioOriginal,
-        provincia,
-        municipio,
-        comunidad,
-        protocolo,
-        fecha_protocolo: normalizarFecha(fechaProtocolo),
-        vc,
-        apoderado,
-        envio_notario,
-        dias,
+    /* ============================================================
+       8) CIRCUITO NOTARIAL
+    ============================================================= */
+    f.circuito = getCircuito(f.notario);
 
-        // Calculados
-        mes,
-        anio,
-        centro,
-        tipo_gestion: tipoGestion,
-        nombre,
-        apellidos,
-        centro_que_firma: centroQueFirma,
+    /* ============================================================
+       9) CAMPOS DUPLICADOS
+    ============================================================= */
+    f.contrato2 = f.contrato;
+    f.notario2 = f.notario;
 
-        // Duplicados (como en tu Excel con fórmulas)
-        contrato2: contratoOriginal,
-        notario2: notarioOriginal,
-
-        // Derivados
-        circuito,
-        tipo_firma: tipoFirma
-    };
+    return f;
 }
 
 /* ============================================================
    FECHAS — FORMATO ESPAÑOL DD/MM/AAAA
 ============================================================ */
 function normalizarFecha(v) {
-    const d = new Date(v);
-    if (isNaN(d)) return "";
+    if (!v) return "";
 
-    const dia = String(d.getDate()).padStart(2, "0");
-    const mes = String(d.getMonth() + 1).padStart(2, "0");
-    const anio = d.getFullYear();
+    // Excel numérico
+    if (typeof v === "number") {
+        const d = new Date((v - 25569) * 86400 * 1000);
+        return d.toLocaleDateString("es-ES");
+    }
 
-    return `${dia}/${mes}/${anio}`;
+    // yyyy-mm-dd
+    if (v.includes("-")) {
+        const [y, m, d] = v.split("-");
+        return `${d}/${m}/${y}`;
+    }
+
+    // dd/mm/yyyy ya correcto
+    return v;
 }
 
 /* ============================================================
@@ -102,7 +98,6 @@ function getCircuito(notario) {
 
     const n = String(notario).trim();
 
-    // Circuito Península
     const peninsula = [
         "María Dolores Giménez Arbona",
         "Gonzalo Sauca Núñez de Prado",
@@ -117,7 +112,6 @@ function getCircuito(notario) {
         "Miguel de Páramo Argüelles"
     ];
 
-    // Circuito Canarias
     const canarias = [
         "David Gracia Fuentes",
         "José Manuel Jiménez Santoveña",

@@ -14,8 +14,6 @@ async function initListado() {
 
     const datos = await obtenerFirmas();
 
-    console.log("Datos obtenidos:", datos?.length);
-
     if (!datos || !datos.length) {
         renderTabla([]);
         return;
@@ -56,7 +54,10 @@ async function aplicarFiltros() {
 ============================================================ */
 function coincideFiltro(f, filtros) {
     if (filtros.expediente && !String(f.expediente).includes(filtros.expediente)) return false;
-    if (filtros.apoderado && !String(f.nombre).toLowerCase().includes(filtros.apoderado.toLowerCase())) return false;
+
+    // CORREGIDO: apoderado real
+    if (filtros.apoderado && !String(f.apoderado ?? "").toLowerCase().includes(filtros.apoderado.toLowerCase())) return false;
+
     if (filtros.oficina && !String(f.oficina).toLowerCase().includes(filtros.oficina.toLowerCase())) return false;
     if (filtros.circuito && !String(f.circuito).toLowerCase().includes(filtros.circuito.toLowerCase())) return false;
     if (filtros.tipoFirma && !String(f.tipo_firma).toLowerCase().includes(filtros.tipoFirma.toLowerCase())) return false;
@@ -99,17 +100,10 @@ function renderTabla(datos) {
     const tbody = document.querySelector("#tabla-listado");
     const info = document.getElementById("paginaActual");
 
-    if (!tbody) {
-        console.error("❌ No se encontró #tabla-listado");
-        return;
-    }
-
     tbody.innerHTML = "";
 
     if (!datos.length) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td colspan="27">Sin datos.</td>`;
-        tbody.appendChild(tr);
+        tbody.innerHTML = `<tr><td colspan="27">Sin datos.</td></tr>`;
         if (info) info.textContent = "0 resultados";
         return;
     }
@@ -175,48 +169,8 @@ function getClaseFirma(t) {
 }
 
 /* ============================================================
-   BOTÓN DETALLE
+   DETALLE (MODAL)
 ============================================================ */
-function verDetalle(expediente) {
-    alert("Abrir detalle del expediente: " + expediente);
-}
-
-/* ============================================================
-   ORDENACIÓN POR COLUMNAS
-============================================================ */
-let ordenActual = { campo: null, asc: true };
-
-function ordenarPor(campo) {
-    if (ordenActual.campo === campo) {
-        ordenActual.asc = !ordenActual.asc;
-    } else {
-        ordenActual = { campo, asc: true };
-    }
-
-    listadoDatos.sort((a, b) => {
-
-        let x = a[campo] ?? "";
-        let y = b[campo] ?? "";
-
-        // Si es fecha DD/MM/AAAA → convertir
-        if (campo.includes("fecha")) {
-            x = convertirFecha(x);
-            y = convertirFecha(y);
-        }
-
-        if (x < y) return ordenActual.asc ? -1 : 1;
-        if (x > y) return ordenActual.asc ? 1 : -1;
-        return 0;
-    });
-
-    renderTabla(paginar(listadoDatos));
-}
-
-function convertirFecha(f) {
-    if (!f) return 0;
-    const [d, m, a] = f.split("/");
-    return new Date(`${a}-${m}-${d}`).getTime();
-}
 function verDetalle(expediente) {
     const f = listadoDatos.find(x => x.expediente == expediente);
     if (!f) return;
@@ -225,7 +179,7 @@ function verDetalle(expediente) {
         `Expediente ${f.expediente}`;
 
     document.getElementById("detalleContenido").innerHTML = `
-        <table>
+        <table class="tabla-detalle">
             <tr><td><b>Expediente:</b></td><td>${f.expediente}</td></tr>
             <tr><td><b>Oficina:</b></td><td>${f.oficina}</td></tr>
             <tr><td><b>Fecha Alta:</b></td><td>${f.fecha_alta}</td></tr>
@@ -263,4 +217,41 @@ function verDetalle(expediente) {
 
 function cerrarModalDetalle() {
     document.getElementById("modal-detalle").classList.add("hidden");
+}
+
+/* ============================================================
+   ORDENACIÓN POR COLUMNAS
+============================================================ */
+let ordenActual = { campo: null, asc: true };
+
+function ordenarPor(campo) {
+    if (ordenActual.campo === campo) {
+        ordenActual.asc = !ordenActual.asc;
+    } else {
+        ordenActual = { campo, asc: true };
+    }
+
+    listadoDatos.sort((a, b) => {
+
+        let x = a[campo] ?? "";
+        let y = b[campo] ?? "";
+
+        // Si es fecha DD/MM/AAAA → convertir
+        if (campo.includes("fecha")) {
+            x = convertirFecha(x);
+            y = convertirFecha(y);
+        }
+
+        if (x < y) return ordenActual.asc ? -1 : 1;
+        if (x > y) return ordenActual.asc ? 1 : -1;
+        return 0;
+    });
+
+    renderTabla(paginar(listadoDatos));
+}
+
+function convertirFecha(f) {
+    if (!f) return 0;
+    const [d, m, a] = f.split("/");
+    return new Date(`${a}-${m}-${d}`).getTime();
 }
