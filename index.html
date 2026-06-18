@@ -119,23 +119,44 @@
 <template id="tpl-dashboard">
     <div id="dashboard-root" class="modulo-wrapper fade-in dashboard-wrapper">
 
-        <h2 class="titulo-modulo">📊 Dashboard</h2>
+        <h2 class="titulo-modulo">📊 Dashboard — Glass Luxe 2027</h2>
 
         <div class="card-glass p-20">
 
+            <!-- KPIs -->
             <div class="kpi-grid">
-                <div class="kpi-box">Total: <span id="kpiTotal">0</span></div>
-                <div class="kpi-box">Hoy: <span id="kpiHoy">0</span></div>
+                <div class="kpi-box">Total firmas: <span id="kpiTotal">0</span></div>
+                <div class="kpi-box">Firmas hoy: <span id="kpiHoy">0</span></div>
                 <div class="kpi-box">Media días: <span id="kpiMedia">0</span></div>
-                <div class="kpi-box">VC: <span id="kpiVC">0</span></div>
+                <div class="kpi-box">Presenciales: <span id="kpiPresencial">0</span></div>
+                <div class="kpi-box">Videoconferencias: <span id="kpiVC">0</span></div>
             </div>
 
+            <!-- Gráfico firmas por mes -->
             <div class="dashboard-chart mt-30">
                 <canvas id="chartFirmasMes" height="120"></canvas>
             </div>
 
+            <!-- Gráfico tipo de firma -->
             <div class="dashboard-chart mt-30">
                 <canvas id="chartTipoFirma" height="120"></canvas>
+            </div>
+
+            <!-- Tabla Evolutivo -->
+            <h3 class="mt-40">📈 Evolutivo por año</h3>
+            <div class="tabla-scroll-x mt-10">
+                <table id="tabla-evolutivo" class="tabla-excel tabla-sticky">
+                    <thead>
+                        <tr>
+                            <th>Año</th>
+                            <th>Total</th>
+                            <th>Presencial</th>
+                            <th>VC</th>
+                            <th>Media días</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
 
             <button class="btn-primary mt-20" onclick="informeReunion()">Informe para reunión</button>
