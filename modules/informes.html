@@ -4,26 +4,67 @@
         <h2 class="titulo-modulo">📘 Informes Premium</h2>
 
         <!-- GRID DE INFORMES -->
-        <div class="grid-informes">
+<div class="grid-informes">
 
-            <div class="informe-card" onclick="cargarInforme('apoderados')">🧑‍💼 Informe por Apoderados</div>
-            <div class="informe-card" onclick="cargarInforme('oficinas')">🏢 Informe por Oficinas</div>
-            <div class="informe-card" onclick="cargarInforme('centros')">🏬 Informe por Centros</div>
-            <div class="informe-card" onclick="cargarInforme('circuitos')">🔄 Informe por Circuitos</div>
-            <div class="informe-card" onclick="cargarInforme('tipoGestion')">📑 Tipo de Gestión</div>
-            <div class="informe-card" onclick="cargarInforme('tipoFirma')">✍️ Tipo de Firma</div>
-            <div class="informe-card" onclick="cargarInforme('mes')">📅 Informe por Mes</div>
-            <div class="informe-card" onclick="cargarInforme('anio')">📆 Informe por Año</div>
-            <div class="informe-card" onclick="cargarInforme('evolutivo')">📈 Informe Evolutivo</div>
-            <div class="informe-card" onclick="cargarInforme('comparativo')">⚖️ Informe Comparativo</div>
-            <div class="informe-card" onclick="cargarInforme('vc')">💼 Informe VC</div>
-            <div class="informe-card" onclick="cargarInforme('sla')">⏱️ Informe SLA</div>
+    <button class="btn-inf" onclick="cargarInforme('general')">
+        <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/></svg>
+        Informe General
+    </button>
 
-        </div>
+    <button class="btn-inf" onclick="cargarInforme('apoderados')">
+        <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4"/></svg>
+        Por Apoderado
+    </button>
 
-        <!-- CONTENEDOR DONDE SE CARGA EL INFORME -->
-        <div id="informeContainer" class="card-glass mt-30" style="display:none;"></div>
+    <button class="btn-inf" onclick="cargarInforme('oficinas')">
+        <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
+        Por Oficina
+    </button>
 
-    </div>
+    <button class="btn-inf" onclick="cargarInforme('centros')">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg>
+        Por Centro
+    </button>
+
+    <button class="btn-inf" onclick="cargarInforme('circuitos')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
+        Por Circuito
+    </button>
+
+    <button class="btn-inf" onclick="cargarInforme('tipo_gestion')">
+        <svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg>
+        Por Tipo Gestión
+    </button>
+
+    <button class="btn-inf" onclick="cargarInforme('tipo_firma')">
+        <svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg>
+        Por Tipo Firma
+    </button>
+
+    <button class="btn-inf" onclick="cargarInforme('canal')">
+        <svg viewBox="0 0 24 24"><path d="M3 8h18M3 16h18"/></svg>
+        Por Canal
+    </button>
+
+    <button class="btn-inf" onclick="cargarInforme('evolutivo')">
+        <svg viewBox="0 0 24 24"><path d="M12 6v6l4 2"/></svg>
+        Evolutivo Multianual
+    </button>
+
+    <button class="btn-inf" onclick="cargarInforme('comparativo')">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg>
+        Comparativo
+    </button>
+
+    <button class="btn-inf" onclick="cargarInforme('vc')">
+        <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4"/></svg>
+        Videoconferencias
+    </button>
+
+    <button class="btn-inf" onclick="cargarInforme('sla')">
+        <svg viewBox="0 0 24 24"><path d="M12 6v6l4 2"/></svg>
+        SLA
+    </button>
+
+</div>
 </template>
-
