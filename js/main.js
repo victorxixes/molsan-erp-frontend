@@ -35,7 +35,8 @@ async function cargarModulo(nombre) {
             "permisos": "Permisos del Sistema",
             "backup": "Backup de Datos",
             "restore": "Restauración de Backups",
-            "informes-premium": "Informes Premium"
+            "informes-premium": "Informes Premium",
+            "informes-dinamicos": "Informes Dinámicos"
         };
         title.textContent = nombresBonitos[nombre] || nombre;
     }
@@ -43,6 +44,7 @@ async function cargarModulo(nombre) {
     // Inicializar módulo
     try {
         switch (nombre) {
+
             case "dashboard":
                 await initDashboard();
                 break;
@@ -70,11 +72,12 @@ async function cargarModulo(nombre) {
             case "informes-premium":
                 await initInformesPremium();
                 break;
+
+            case "informes-dinamicos":
+                await initInformesDinamicos();
+                break;
         }
-case "informes-dinamicos":
-    await initInformesDinamicos();
-    break;
- }
+
     } catch (err) {
         console.error("Error cargando módulo:", nombre, err);
         cont.innerHTML = `
