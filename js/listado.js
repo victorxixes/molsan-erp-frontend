@@ -7,6 +7,22 @@ let paginaActual = 1;
 const filasPorPagina = 50;
 
 /* ============================================================
+   FORMATEAR FECHA A DD/MM/AAAA
+============================================================ */
+function formatearFechaES(valor) {
+    if (!valor) return "";
+
+    const d = new Date(valor);
+    if (isNaN(d.getTime())) return valor;
+
+    const dia = String(d.getDate()).padStart(2, "0");
+    const mes = String(d.getMonth() + 1).padStart(2, "0");
+    const año = d.getFullYear();
+
+    return `${dia}/${mes}/${año}`;
+}
+
+/* ============================================================
    INICIALIZAR LISTADO
 ============================================================ */
 async function initListado() {
@@ -55,7 +71,6 @@ async function aplicarFiltros() {
 function coincideFiltro(f, filtros) {
     if (filtros.expediente && !String(f.expediente).includes(filtros.expediente)) return false;
 
-    // CORREGIDO: apoderado real
     if (filtros.apoderado && !String(f.apoderado ?? "").toLowerCase().includes(filtros.apoderado.toLowerCase())) return false;
 
     if (filtros.oficina && !String(f.oficina).toLowerCase().includes(filtros.oficina.toLowerCase())) return false;
@@ -114,7 +129,7 @@ function renderTabla(datos) {
         tr.innerHTML = `
             <td>${f.expediente}</td>
             <td>${f.oficina}</td>
-            <td>${f.fecha_alta}</td>
+            <td>${formatearFechaES(f.fecha_alta)}</td>
             <td>${f.contrato}</td>
             <td>${f.tipo_provision}</td>
             <td>${f.notario}</td>
@@ -122,10 +137,10 @@ function renderTabla(datos) {
             <td>${f.municipio}</td>
             <td>${f.comunidad}</td>
             <td>${f.protocolo}</td>
-            <td>${f.fecha_protocolo}</td>
+            <td>${formatearFechaES(f.fecha_protocolo)}</td>
             <td>${f.vc}</td>
             <td>${f.apoderado}</td>
-            <td>${f.envio_notario}</td>
+            <td>${formatearFechaES(f.envio_notario)}</td>
             <td>${f.dias}</td>
 
             <td>${f.mes}</td>
@@ -133,8 +148,6 @@ function renderTabla(datos) {
             <td>${f.centro}</td>
             <td>${f.tipo_gestion}</td>
             <td>${f.centro_que_firma}</td>
-
-   
 
             <td class="${getClaseCircuito(f.circuito)}">${f.circuito}</td>
             <td class="${getClaseFirma(f.tipo_firma)}">${f.tipo_firma}</td>
@@ -179,7 +192,7 @@ function verDetalle(expediente) {
         <table class="tabla-detalle">
             <tr><td><b>Expediente:</b></td><td>${f.expediente}</td></tr>
             <tr><td><b>Oficina:</b></td><td>${f.oficina}</td></tr>
-            <tr><td><b>Fecha Alta:</b></td><td>${f.fecha_alta}</td></tr>
+            <tr><td><b>Fecha Alta:</b></td><td>${formatearFechaES(f.fecha_alta)}</td></tr>
             <tr><td><b>Contrato:</b></td><td>${f.contrato}</td></tr>
             <tr><td><b>Tipo Provisión:</b></td><td>${f.tipo_provision}</td></tr>
             <tr><td><b>Notario:</b></td><td>${f.notario}</td></tr>
@@ -187,20 +200,16 @@ function verDetalle(expediente) {
             <tr><td><b>Municipio:</b></td><td>${f.municipio}</td></tr>
             <tr><td><b>Comunidad:</b></td><td>${f.comunidad}</td></tr>
             <tr><td><b>Protocolo:</b></td><td>${f.protocolo}</td></tr>
-            <tr><td><b>Fecha Protocolo:</b></td><td>${f.fecha_protocolo}</td></tr>
+            <tr><td><b>Fecha Protocolo:</b></td><td>${formatearFechaES(f.fecha_protocolo)}</td></tr>
             <tr><td><b>V.C.:</b></td><td>${f.vc}</td></tr>
             <tr><td><b>Apoderado:</b></td><td>${f.apoderado}</td></tr>
-            <tr><td><b>Envio Notario:</b></td><td>${f.envio_notario}</td></tr>
+            <tr><td><b>Envio Notario:</b></td><td>${formatearFechaES(f.envio_notario)}</td></tr>
             <tr><td><b>Días:</b></td><td>${f.dias}</td></tr>
             <tr><td><b>Mes:</b></td><td>${f.mes}</td></tr>
             <tr><td><b>Año:</b></td><td>${f.anio}</td></tr>
             <tr><td><b>Centro:</b></td><td>${f.centro}</td></tr>
             <tr><td><b>Tipo Gestión:</b></td><td>${f.tipo_gestion}</td></tr>
-           
             <tr><td><b>Centro que firma:</b></td><td>${f.centro_que_firma}</td></tr>
-
-         
-
             <tr><td><b>Circuito:</b></td><td>${f.circuito}</td></tr>
             <tr><td><b>Tipo Firma:</b></td><td>${f.tipo_firma}</td></tr>
         </table>
