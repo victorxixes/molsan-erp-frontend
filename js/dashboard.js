@@ -323,3 +323,6 @@ function crearChartTipoFirma(kpis) {
         }
     });
 }
+function informeReunion() {
+    alert("Función pendiente de implementar.");
+}
