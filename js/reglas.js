@@ -40,9 +40,9 @@ function aplicarReglas(f) {
     f.centro_que_firma = f.centro;
 
     /* ============================================================
-       5) TIPO GESTIÓN
+       5) TIPO GESTIÓN (ADAPTADO A TUS REGLAS DE EXCEL)
     ============================================================= */
-    f.tipo_gestion = f.tipo_provision;
+    f.tipo_gestion = normalizarTipoGestion(f.tipo_provision);
 
     /* ============================================================
        6) NOMBRE / APELLIDOS (si vienen juntos)
@@ -52,6 +52,11 @@ function aplicarReglas(f) {
         f.nombre = partes.shift();
         f.apellidos = partes.join(" ");
     }
+
+    /* ============================================================
+       6B) APODERADO — CAPITALIZAR (ADAPTADO A TU PETICIÓN)
+    ============================================================= */
+    f.apoderado = capitalizarNombre(f.apoderado);
 
     /* ============================================================
        7) TIPO FIRMA (N/S)
@@ -111,6 +116,61 @@ function normalizarFecha(v) {
 }
 
 /* ============================================================
+   TIPO GESTIÓN — Reglas exactas del Excel
+============================================================ */
+function normalizarTipoGestion(valor) {
+    if (!valor) return "";
+
+    const v = valor.trim().toLowerCase();
+
+    // Casos explícitos de "Sin provisión"
+    if (v === "cancelacion sin provision" ||
+        v === "cancelación sin provisión") {
+        return "Sin provisión";
+    }
+
+    // Casos explícitos de "Con provisión"
+    const conProvision = [
+        "cancelacion con provision",
+        "cancelación con provisión",
+        "cancelación",
+        "constitución",
+        "subrogación",
+        "novación",
+        "cradon",
+        "crandon",
+        "credit agricole sud mediterranee",
+        "gesticaixa",
+        "gestinova 99 sl",
+        "molsan gestion y tramitacion sl",
+        "one pekig road sl",
+        "otro doc. vinc gtg",
+        "sanchez molina abogados",
+        "sareb"
+    ];
+
+    if (conProvision.includes(v)) {
+        return "Con provisión";
+    }
+
+    // Por defecto
+    return "Con provisión";
+}
+
+/* ============================================================
+   APODERADO — Capitalizar nombre
+============================================================ */
+function capitalizarNombre(nombre) {
+    if (!nombre) return "";
+
+    return nombre
+        .toLowerCase()
+        .split(" ")
+        .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+        .join(" ");
+}
+
+/* ============================================================
    CIRCUITO NOTARIAL
 ============================================================ */
 function getCircuito(notario) {
@@ -128,7 +188,7 @@ function getCircuito(notario) {
         "Rosa María Pérez Paniagua",
         "María del Camino Quiroga Martínez",
         "Ana María Fortuny Subirats",
-            ];
+    ];
 
     const canarias = [
         "David Gracia Fuentes",
