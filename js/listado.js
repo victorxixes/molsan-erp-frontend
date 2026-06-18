@@ -132,12 +132,9 @@ function renderTabla(datos) {
             <td>${f.anio}</td>
             <td>${f.centro}</td>
             <td>${f.tipo_gestion}</td>
-            <td>${f.nombre}</td>
-            <td>${f.apellidos}</td>
             <td>${f.centro_que_firma}</td>
 
-            <td>${f.contrato2}</td>
-            <td>${f.notario2}</td>
+   
 
             <td class="${getClaseCircuito(f.circuito)}">${f.circuito}</td>
             <td class="${getClaseFirma(f.tipo_firma)}">${f.tipo_firma}</td>
@@ -195,17 +192,14 @@ function verDetalle(expediente) {
             <tr><td><b>Apoderado:</b></td><td>${f.apoderado}</td></tr>
             <tr><td><b>Envio Notario:</b></td><td>${f.envio_notario}</td></tr>
             <tr><td><b>Días:</b></td><td>${f.dias}</td></tr>
-
             <tr><td><b>Mes:</b></td><td>${f.mes}</td></tr>
             <tr><td><b>Año:</b></td><td>${f.anio}</td></tr>
             <tr><td><b>Centro:</b></td><td>${f.centro}</td></tr>
             <tr><td><b>Tipo Gestión:</b></td><td>${f.tipo_gestion}</td></tr>
-            <tr><td><b>Nombre:</b></td><td>${f.nombre}</td></tr>
-            <tr><td><b>Apellidos:</b></td><td>${f.apellidos}</td></tr>
+           
             <tr><td><b>Centro que firma:</b></td><td>${f.centro_que_firma}</td></tr>
 
-            <tr><td><b>Contrato 2:</b></td><td>${f.contrato2}</td></tr>
-            <tr><td><b>Notario 2:</b></td><td>${f.notario2}</td></tr>
+         
 
             <tr><td><b>Circuito:</b></td><td>${f.circuito}</td></tr>
             <tr><td><b>Tipo Firma:</b></td><td>${f.tipo_firma}</td></tr>
