@@ -4,67 +4,60 @@
         <h2 class="titulo-modulo">📘 Informes Premium</h2>
 
         <!-- GRID DE INFORMES -->
-<div class="grid-informes">
+<template id="tpl-informes-premium">
+    <div class="modulo-wrapper fade-in">
 
-    <button class="btn-inf" onclick="cargarInforme('general')">
-        <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/></svg>
-        Informe General
-    </button>
+        <h2 class="titulo-modulo">📘 Informes Premium</h2>
 
-    <button class="btn-inf" onclick="cargarInforme('apoderados')">
-        <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4"/></svg>
-        Por Apoderado
-    </button>
+       <div class="inf-grid">
 
-    <button class="btn-inf" onclick="cargarInforme('oficinas')">
-        <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
-        Por Oficina
-    </button>
+    <div class="inf-card" onclick="generarInformeGeneral()">
+        <div class="inf-icon">📘</div>
+        <div class="inf-title">Informe General</div>
+        <div class="inf-desc">Resumen completo del periodo</div>
+    </div>
 
-    <button class="btn-inf" onclick="cargarInforme('centros')">
-        <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg>
-        Por Centro
-    </button>
+    <div class="inf-card" onclick="generarInformeAnual()">
+        <div class="inf-icon">📅</div>
+        <div class="inf-title">Informe Anual</div>
+        <div class="inf-desc">Comparativa año a año</div>
+    </div>
 
-    <button class="btn-inf" onclick="cargarInforme('circuitos')">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
-        Por Circuito
-    </button>
+    <div class="inf-card" onclick="generarInformeMensual()">
+        <div class="inf-icon">🗓️</div>
+        <div class="inf-title">Informe Mensual</div>
+        <div class="inf-desc">Actividad del mes</div>
+    </div>
 
-    <button class="btn-inf" onclick="cargarInforme('tipo_gestion')">
-        <svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg>
-        Por Tipo Gestión
-    </button>
+    <div class="inf-card" onclick="generarInformeApoderados()">
+        <div class="inf-icon">🧑‍💼</div>
+        <div class="inf-title">Por Apoderado</div>
+        <div class="inf-desc">Ranking y rendimiento</div>
+    </div>
 
-    <button class="btn-inf" onclick="cargarInforme('tipo_firma')">
-        <svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg>
-        Por Tipo Firma
-    </button>
+    <div class="inf-card" onclick="generarInformeOficinas()">
+        <div class="inf-icon">🏢</div>
+        <div class="inf-title">Por Oficina</div>
+        <div class="inf-desc">Actividad por centro</div>
+    </div>
 
-    <button class="btn-inf" onclick="cargarInforme('canal')">
-        <svg viewBox="0 0 24 24"><path d="M3 8h18M3 16h18"/></svg>
-        Por Canal
-    </button>
+    <div class="inf-card" onclick="generarInformeCircuito()">
+        <div class="inf-icon">🛣️</div>
+        <div class="inf-title">Por Circuito</div>
+        <div class="inf-desc">Península / Canarias / Externo</div>
+    </div>
 
-    <button class="btn-inf" onclick="cargarInforme('evolutivo')">
-        <svg viewBox="0 0 24 24"><path d="M12 6v6l4 2"/></svg>
-        Evolutivo Multianual
-    </button>
+    <div class="inf-card" onclick="generarInformeTipoFirma()">
+        <div class="inf-icon">✍️</div>
+        <div class="inf-title">Tipo de Firma</div>
+        <div class="inf-desc">Presencial / VC</div>
+    </div>
 
-    <button class="btn-inf" onclick="cargarInforme('comparativo')">
-        <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg>
-        Comparativo
-    </button>
-
-    <button class="btn-inf" onclick="cargarInforme('vc')">
-        <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4"/></svg>
-        Videoconferencias
-    </button>
-
-    <button class="btn-inf" onclick="cargarInforme('sla')">
-        <svg viewBox="0 0 24 24"><path d="M12 6v6l4 2"/></svg>
-        SLA
-    </button>
+    <div class="inf-card" onclick="generarInformeTiempos()">
+        <div class="inf-icon">⏱️</div>
+        <div class="inf-title">Tiempos Medios</div>
+        <div class="inf-desc">Días entre fases</div>
+    </div>
 
 </div>
 </template>
