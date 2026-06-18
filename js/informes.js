@@ -125,10 +125,18 @@ async function generarInformeMensual() {
 }
 
 /* ============================================================
-   INFORME POR APODERADOS
+   INFORME POR APODERADOS (CORREGIDO)
 ============================================================ */
 async function generarInformeApoderados() {
-    const kpis = obtenerKPIs();
+    const datos = await obtenerFirmas();
+
+    // Agrupar por apoderado real
+    const mapa = {};
+    datos.forEach(f => {
+        const apo = f.apoderado || "Sin apoderado";
+        if (!mapa[apo]) mapa[apo] = 0;
+        mapa[apo]++;
+    });
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
@@ -143,10 +151,10 @@ async function generarInformeApoderados() {
     chartActual = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: Object.keys(kpis.por_apoderado),
+            labels: Object.keys(mapa),
             datasets: [{
                 label: "Firmas",
-                data: Object.values(kpis.por_apoderado),
+                data: Object.values(mapa),
                 backgroundColor: "#3b82f6"
             }]
         }
@@ -154,15 +162,23 @@ async function generarInformeApoderados() {
 }
 
 /* ============================================================
-   INFORME POR OFICINAS
+   INFORME POR OFICINAS (CORREGIDO → CENTRO)
 ============================================================ */
 async function generarInformeOficinas() {
-    const kpis = obtenerKPIs();
+    const datos = await obtenerFirmas();
+
+    // Agrupar por centro (Cancela / Oficina)
+    const mapa = {};
+    datos.forEach(f => {
+        const centro = f.centro || "Sin centro";
+        if (!mapa[centro]) mapa[centro] = 0;
+        mapa[centro]++;
+    });
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
-        <h3>Informe por Oficina</h3>
+        <h3>Informe por Centro</h3>
         <canvas id="chartOfi"></canvas>
     `;
 
@@ -172,9 +188,9 @@ async function generarInformeOficinas() {
     chartActual = new Chart(ctx, {
         type: "pie",
         data: {
-            labels: Object.keys(kpis.por_oficina),
+            labels: Object.keys(mapa),
             datasets: [{
-                data: Object.values(kpis.por_oficina),
+                data: Object.values(mapa),
                 backgroundColor: ["#ef4444", "#3b82f6", "#10b981", "#f59e0b"]
             }]
         }
@@ -239,15 +255,50 @@ async function generarInformeTipoFirma() {
 }
 
 /* ============================================================
-   INFORME DE TIEMPOS MEDIOS
+   INFORME DE TIEMPOS MEDIOS (CORREGIDO)
 ============================================================ */
 async function generarInformeTiempos() {
-    const kpis = obtenerKPIs();
+    const datos = await obtenerFirmas();
+
+    // Agrupar por apoderado + tipo gestión
+    const mapa = {};
+
+    datos.forEach(f => {
+        const clave = `${f.apoderado || "Sin apoderado"} — ${f.tipo_gestion || "Sin gestión"}`;
+        if (!mapa[clave]) mapa[clave] = { total: 0, suma: 0 };
+        mapa[clave].total++;
+        mapa[clave].suma += Number(f.dias) || 0;
+    });
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
-    cont.innerHTML = `
-        <h3>Tiempos Medios de Gestión</h3>
-        <p>Media de días: <strong>${kpis.media_dias}</strong></p>
+
+    let html = `
+        <h3>Tiempos Medios por Apoderado y Gestión</h3>
+        <table class="tabla-excel mt-20">
+            <thead>
+                <tr>
+                    <th>Apoderado — Gestión</th>
+                    <th>Media días</th>
+                    <th>Total firmas</th>
+                </tr>
+            </thead>
+            <tbody>
     `;
+
+    Object.keys(mapa).forEach(k => {
+        const m = mapa[k];
+        const media = (m.suma / m.total).toFixed(2);
+        html += `
+            <tr>
+                <td>${k}</td>
+                <td>${media}</td>
+                <td>${m.total}</td>
+            </tr>
+        `;
+    });
+
+    html += `</tbody></table>`;
+
+    cont.innerHTML = html;
 }

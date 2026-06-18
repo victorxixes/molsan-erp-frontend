@@ -1,39 +1,43 @@
 /* ============================================================
-   REGLAS DE NORMALIZACIÓN — GLASS LUXE 2027
+   REGLAS DE NORMALIZACIÓN — GLASS LUXE 2027 (VERSIÓN FINAL)
 ============================================================ */
 
 function aplicarReglas(f) {
 
     /* ============================================================
-       1) FECHAS → dd/mm/yyyy
+       1) FECHAS → SIEMPRE DD/MM/AAAA
     ============================================================= */
     f.fecha_alta = normalizarFecha(f.fecha_alta);
     f.fecha_protocolo = normalizarFecha(f.fecha_protocolo);
     f.envio_notario = normalizarFecha(f.envio_notario);
 
     /* ============================================================
-       2) MES / AÑO (de fecha protocolo)
+       2) MES (nombre) + AÑO (número)
     ============================================================= */
     if (f.fecha_protocolo) {
         const [d, m, y] = f.fecha_protocolo.split("/");
-        f.mes = Number(m);
-        f.anio = Number(y);
+
+        const nombresMes = [
+            "enero","febrero","marzo","abril","mayo","junio",
+            "julio","agosto","septiembre","octubre","noviembre","diciembre"
+        ];
+
+        f.mes = nombresMes[Number(m) - 1] || "";
+        f.anio = Number(y) || "";
     } else {
         f.mes = "";
         f.anio = "";
     }
 
     /* ============================================================
-       3) CENTRO (oficina original)
+       3) CENTRO (regla exacta)
     ============================================================= */
-    f.centro = f.oficina;
+    f.centro = String(f.oficina) === "5316" ? "Cancela" : "Oficina";
 
     /* ============================================================
-       4) CENTRO QUE FIRMA (regla 5316)
+       4) CENTRO QUE FIRMA (igual que centro)
     ============================================================= */
-    f.centro_que_firma = (String(f.oficina) === "5316")
-        ? "Cancela"
-        : "Oficina";
+    f.centro_que_firma = f.centro;
 
     /* ============================================================
        5) TIPO GESTIÓN
@@ -60,7 +64,7 @@ function aplicarReglas(f) {
     f.circuito = getCircuito(f.notario);
 
     /* ============================================================
-       9) CAMPOS DUPLICADOS
+       9) DUPLICADOS
     ============================================================= */
     f.contrato2 = f.contrato;
     f.notario2 = f.notario;
@@ -91,7 +95,7 @@ function normalizarFecha(v) {
 }
 
 /* ============================================================
-   CIRCUITO NOTARIAL — EXACTO SEGÚN TU EXCEL
+   CIRCUITO NOTARIAL
 ============================================================ */
 function getCircuito(notario) {
     if (!notario) return "Circuito Externo";
@@ -102,15 +106,13 @@ function getCircuito(notario) {
         "María Dolores Giménez Arbona",
         "Gonzalo Sauca Núñez de Prado",
         "Isabel Molinos Gil",
-        "Raúl González Fuentes",
-        "María Isabel Gabarró Miquel",
+        "Raúl González Fuentes",        
         "Javier Micó Giner",
         "Jesús Javier Benavides Lima",
         "Rosa María Pérez Paniagua",
         "María del Camino Quiroga Martínez",
         "Ana María Fortuny Subirats",
-        "Miguel de Páramo Argüelles"
-    ];
+            ];
 
     const canarias = [
         "David Gracia Fuentes",
@@ -127,7 +129,7 @@ function getCircuito(notario) {
 }
 
 /* ============================================================
-   TIPO DE FIRMA — EXACTO SEGÚN TU EXCEL (N/S)
+   TIPO DE FIRMA (N/S)
 ============================================================ */
 function getTipoFirma(valor) {
     if (!valor) return "Desconocido";
