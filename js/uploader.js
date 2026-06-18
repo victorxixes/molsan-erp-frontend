@@ -1,51 +1,45 @@
 /* ============================================================
-   UPLOADER — Importación de Excel (Glass Luxe 2027)
+   UPLOADER — GLASS LUXE 2027
 ============================================================ */
 
-function initUploader() {
-    const input = document.getElementById("excelFile");
+async function initUploader() {
+    console.log("📂 initUploader() ejecutado");
+
+    const fileInput = document.getElementById("excelFile");
     const btn = document.getElementById("btnImportar");
     const barra = document.getElementById("progreso-barra");
     const texto = document.getElementById("progreso-texto");
 
-    if (!input || !btn) {
-        console.error("Uploader: faltan elementos en el DOM");
+    if (!fileInput || !btn) {
+        console.warn("Uploader: elementos no encontrados");
         return;
     }
 
     btn.onclick = async () => {
-        if (!input.files || !input.files.length) {
-            alert("Selecciona un fichero Excel primero.");
+        const file = fileInput.files[0];
+        if (!file) {
+            alert("Selecciona un archivo Excel primero.");
             return;
         }
 
-        const file = input.files[0];
-
+        btn.disabled = true;
         barra.style.width = "0%";
-        texto.textContent = "Procesando fichero...";
+        texto.textContent = "Iniciando importación...";
 
         try {
-            // 1) Importar y guardar en IndexedDB
-            const filas = await importarExcel(file, (porcentaje) => {
-                barra.style.width = porcentaje + "%";
-                texto.textContent = `Progreso: ${porcentaje}%`;
+            await importarExcel(file, (pct) => {
+                barra.style.width = pct + "%";
+                texto.textContent = `Progreso: ${pct}%`;
             });
 
-            console.log("Importación completada. Filas:", filas.length);
-            texto.textContent = `Importación completada. Filas: ${filas.length}`;
-
-            // 2) Recalcular KPIs
-            await recalcularKPIs();
-
-            // 3) Cambiar de módulo al terminar → AQUÍ ESTABA EL PROBLEMA
-            //    Antes llamabas a initDashboard() / initListado() directamente,
-            //    pero sus templates no estaban montados.
-            cargarModulo("dashboard");   // mostramos el dashboard ya con datos
+            texto.textContent = "Importación completada.";
+            console.log("Importación completada.");
 
         } catch (err) {
-            console.error("Error importando Excel:", err);
-            alert("Error importando el fichero. Revisa la consola.");
-            texto.textContent = "Error en la importación.";
+            console.error("Error en importación:", err);
+            texto.textContent = "Error en importación.";
         }
+
+        btn.disabled = false;
     };
 }

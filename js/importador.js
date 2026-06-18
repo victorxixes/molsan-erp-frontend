@@ -104,7 +104,7 @@ async function procesarExcel(file, onProgress) {
                 }
 
                 /* ============================================================
-                   5) RECALCULAR KPIs
+                   5) RECALCULAR KPIs (sin cargar Dashboard)
                 ============================================================= */
                 await recalcularKPIs();
 
