@@ -107,36 +107,38 @@ function aplicarReglas(f) {
 function normalizarFecha(v) {
     if (!v) return "";
 
+    let d;
+
     // Excel numérico
     if (typeof v === "number") {
-        const d = new Date((v - 25569) * 86400 * 1000);
-        return d.toLocaleDateString("es-ES");
+        d = new Date((v - 25569) * 86400 * 1000);
     }
-
-    // ISO completo: 2024-06-18T00:00:00.000Z
-    if (/^\d{4}-\d{2}-\d{2}T/.test(v)) {
-        const d = new Date(v);
-        return d.toLocaleDateString("es-ES");
+    // ISO completo
+    else if (/^\d{4}-\d{2}-\d{2}T/.test(v)) {
+        d = new Date(v);
     }
-
     // yyyy-mm-dd
-    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
-        const [y, m, d] = v.split("-");
-        return `${d}/${m}/${y}`;
+    else if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+        const [y, m, d2] = v.split("-");
+        return `${d2}/${m}/${y}`;
     }
-
     // dd/mm/yyyy ya correcto
-    if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
+    else if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
         return v;
     }
-
     // fallback
-    const d = new Date(v);
-    if (!isNaN(d.getTime())) {
-        return d.toLocaleDateString("es-ES");
+    else {
+        d = new Date(v);
     }
 
-    return v;
+    if (isNaN(d)) return "";
+
+    // 🔥 SIEMPRE devolver DD/MM/AAAA con 4 dígitos
+    const dia = String(d.getDate()).padStart(2, "0");
+    const mes = String(d.getMonth() + 1).padStart(2, "0");
+    const anio = d.getFullYear();
+
+    return `${dia}/${mes}/${anio}`;
 }
 
 /* ============================================================
