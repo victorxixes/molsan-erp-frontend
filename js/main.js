@@ -36,7 +36,17 @@ async function cargarModulo(nombre) {
             "backup": "Backup de Datos",
             "restore": "Restauración de Backups",
             "informes-premium": "Informes Premium",
-            "informes-dinamicos": "Informes Dinámicos"
+            "informes-dinamicos": "Informes Dinámicos",
+
+            // 🔹 NUEVOS PANELES
+            "panel-anual": "Panel Anual",
+            "panel-mensual": "Panel Mensual",
+            "panel-apoderados": "Panel Apoderados",
+            "panel-tipo-firma": "Panel Tipo de Firma",
+            "panel-tipo-gestion": "Panel Tipo de Gestión",
+            "panel-oficinas": "Panel Oficinas",
+            "panel-circuito": "Panel Circuito Notarial",
+            "panel-sla": "Panel SLA / Tiempos"
         };
         title.textContent = nombresBonitos[nombre] || nombre;
     }
@@ -76,6 +86,42 @@ async function cargarModulo(nombre) {
 
             case "informes-dinamicos":
                 await initInformesDinamicos();
+                break;
+
+            /* ==========================
+               NUEVOS PANELES PREMIUM
+            ========================== */
+
+            case "panel-anual":
+                await initPanelAnual();
+                break;
+
+            case "panel-mensual":
+                await initPanelMensual();
+                break;
+
+            case "panel-apoderados":
+                await initPanelApoderados();
+                break;
+
+            case "panel-tipo-firma":
+                await initPanelTipoFirma();
+                break;
+
+            case "panel-tipo-gestion":
+                await initPanelTipoGestion();
+                break;
+
+            case "panel-oficinas":
+                await initPanelOficinas();
+                break;
+
+            case "panel-circuito":
+                await initPanelCircuito();
+                break;
+
+            case "panel-sla":
+                await initPanelSLA();
                 break;
         }
 
