@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL TIPO GESTIÓN — GLASS LUXE 2027
+   PANEL TIPO GESTIÓN — PREMIUM 2027
 ============================================================ */
 
 let PTG_DATOS = [];
@@ -15,17 +15,10 @@ async function initPanelTipoGestion() {
 
     PTG_DATOS = datos;
 
-    // Agrupar por año, mes y tipo gestión
     PTG_POR_ANIO = ptg_groupByAnioMesTipo(PTG_DATOS);
 
-    // Rellenar selector
     ptg_fillSelectAnios();
-
-    // Seleccionar último año
     ptg_selectUltimoAnio();
-
-    // Render gráfico anual global
-    ptg_renderChartAnualGlobal();
 }
 
 /* Agrupar por año, mes y tipo gestión */
@@ -33,13 +26,11 @@ function ptg_groupByAnioMesTipo(datos) {
     const map = {};
 
     for (const f of datos) {
-        const anio = Number(f.anio) || 0;
-        if (!anio) continue;
-
-        const mes = f.mes || "";
-        if (!mes) continue;
-
+        const anio = Number(f.anio);
+        const mes = f.mes;
         const tipo = f.tipo_gestion || "Con provisión";
+
+        if (!anio || !mes) continue;
 
         if (!map[anio]) {
             map[anio] = {
@@ -73,7 +64,7 @@ function ptg_groupByAnioMesTipo(datos) {
         r.total++;
         m.total++;
 
-        const d = Number(f.dias) || 0;
+        const d = Number(f.dias);
 
         if (tipo.toLowerCase().includes("con provisión")) {
             r.con++;
@@ -99,14 +90,12 @@ function ptg_groupByAnioMesTipo(datos) {
     return map;
 }
 
-/* Rellenar selector de años */
+/* Select años */
 function ptg_fillSelectAnios() {
     const sel = document.getElementById("ptg-select-anio");
     sel.innerHTML = "";
 
-    const anios = Object.keys(PTG_POR_ANIO)
-        .map(a => Number(a))
-        .sort((a, b) => a - b);
+    const anios = Object.keys(PTG_POR_ANIO).map(Number).sort((a,b)=>a-b);
 
     for (const anio of anios) {
         const opt = document.createElement("option");
@@ -116,7 +105,6 @@ function ptg_fillSelectAnios() {
     }
 }
 
-/* Seleccionar último año */
 function ptg_selectUltimoAnio() {
     const sel = document.getElementById("ptg-select-anio");
     sel.value = sel.options[sel.options.length - 1].value;
@@ -126,33 +114,32 @@ function ptg_selectUltimoAnio() {
 /* Cambio de año */
 function ptg_onChangeAnio() {
     const sel = document.getElementById("ptg-select-anio");
-    const anio = Number(sel.value) || 0;
+    const anio = Number(sel.value);
 
     const info = PTG_POR_ANIO[anio];
     if (!info) return;
 
     ptg_renderKpis(info);
     ptg_renderTablaMeses(info);
+    ptg_renderChartAnual(info);
     ptg_renderChartMensual(info);
 }
 
 /* KPIs */
 function ptg_renderKpis(info) {
     const total = info.total;
-    const con = info.con;
-    const sin = info.sin;
 
-    const pctCon = total ? ((con / total) * 100).toFixed(1) + "%" : "0%";
-    const pctSin = total ? ((sin / total) * 100).toFixed(1) + "%" : "0%";
+    const pctCon = total ? ((info.con / total) * 100).toFixed(1) + "%" : "0%";
+    const pctSin = total ? ((info.sin / total) * 100).toFixed(1) + "%" : "0%";
 
     const slaCon = info.cuentaDiasCon ? (info.sumaDiasCon / info.cuentaDiasCon).toFixed(1) : "0";
     const slaSin = info.cuentaDiasSin ? (info.sumaDiasSin / info.cuentaDiasSin).toFixed(1) : "0";
 
-    document.getElementById("ptg-kpi-total").textContent = total;
-    document.getElementById("ptg-kpi-con").textContent = pctCon;
-    document.getElementById("ptg-kpi-sin").textContent = pctSin;
-    document.getElementById("ptg-kpi-sla-con").textContent = slaCon;
-    document.getElementById("ptg-kpi-sla-sin").textContent = slaSin;
+    document.getElementById("kpi_total").textContent = total;
+    document.getElementById("kpi_con").textContent = pctCon;
+    document.getElementById("kpi_sin").textContent = pctSin;
+    document.getElementById("kpi_sla_con").textContent = slaCon;
+    document.getElementById("kpi_sla_sin").textContent = slaSin;
 }
 
 /* Tabla mensual */
@@ -170,11 +157,7 @@ function ptg_renderTablaMeses(info) {
         if (!m) continue;
 
         const total = m.total;
-        const con = m.con;
-        const sin = m.sin;
-
-        const pctCon = total ? ((con / total) * 100).toFixed(1) + "%" : "0%";
-
+        const pctCon = total ? ((m.con / total) * 100).toFixed(1) + "%" : "0%";
         const slaCon = m.cuentaDiasCon ? (m.sumaDiasCon / m.cuentaDiasCon).toFixed(1) : "0";
         const slaSin = m.cuentaDiasSin ? (m.sumaDiasSin / m.cuentaDiasSin).toFixed(1) : "0";
 
@@ -182,8 +165,8 @@ function ptg_renderTablaMeses(info) {
         tr.innerHTML = `
             <td>${mes}</td>
             <td>${total}</td>
-            <td>${con}</td>
-            <td>${sin}</td>
+            <td>${m.con}</td>
+            <td>${m.sin}</td>
             <td>${pctCon}</td>
             <td>${slaCon}</td>
             <td>${slaSin}</td>
@@ -192,54 +175,43 @@ function ptg_renderTablaMeses(info) {
     }
 }
 
-/* Gráfico anual global */
-function ptg_renderChartAnualGlobal() {
+/* Gráfico anual */
+function ptg_renderChartAnual(info) {
     const ctx = document.getElementById("ptg-chart-anual");
 
-    const anios = Object.keys(PTG_POR_ANIO)
-        .map(a => Number(a))
-        .sort((a, b) => a - b);
-
-    const dataCon = anios.map(a => PTG_POR_ANIO[a].con);
-    const dataSin = anios.map(a => PTG_POR_ANIO[a].sin);
+    const labels = Object.keys(info.meses);
+    const dataCon = labels.map(m => info.meses[m].con);
+    const dataSin = labels.map(m => info.meses[m].sin);
 
     if (PTG_CHART_ANUAL) PTG_CHART_ANUAL.destroy();
 
     PTG_CHART_ANUAL = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: anios,
+            labels,
             datasets: [
                 {
                     label: "Con provisión",
                     data: dataCon,
-                    backgroundColor: "rgba(80, 200, 255, 0.4)",
-                    borderColor: "rgba(80, 200, 255, 1)",
+                    backgroundColor: "rgba(80,200,255,0.4)",
+                    borderColor: "rgba(80,200,255,1)",
                     borderWidth: 1.5
                 },
                 {
                     label: "Sin provisión",
                     data: dataSin,
-                    backgroundColor: "rgba(255, 150, 80, 0.4)",
-                    borderColor: "rgba(255, 150, 80, 1)",
+                    backgroundColor: "rgba(255,150,80,0.4)",
+                    borderColor: "rgba(255,150,80,1)",
                     borderWidth: 1.5
                 }
             ]
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { labels: { color: "#fff" } }
-            },
+            plugins: { legend: { labels: { color: "#111" }}},
             scales: {
-                x: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                },
-                y: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                }
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
             }
         }
     });
@@ -249,22 +221,9 @@ function ptg_renderChartAnualGlobal() {
 function ptg_renderChartMensual(info) {
     const ctx = document.getElementById("ptg-chart-mensual");
 
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
-
-    const labels = [];
-    const dataCon = [];
-    const dataSin = [];
-
-    for (const mes of mesesOrden) {
-        const m = info.meses[mes];
-        if (!m) continue;
-        labels.push(mes);
-        dataCon.push(m.con);
-        dataSin.push(m.sin);
-    }
+    const labels = Object.keys(info.meses);
+    const dataCon = labels.map(m => info.meses[m].con);
+    const dataSin = labels.map(m => info.meses[m].sin);
 
     if (PTG_CHART_MENSUAL) PTG_CHART_MENSUAL.destroy();
 
@@ -276,16 +235,16 @@ function ptg_renderChartMensual(info) {
                 {
                     label: "Con provisión",
                     data: dataCon,
-                    borderColor: "rgba(80, 200, 255, 1)",
-                    backgroundColor: "rgba(80, 200, 255, 0.2)",
+                    borderColor: "rgba(80,200,255,1)",
+                    backgroundColor: "rgba(80,200,255,0.2)",
                     borderWidth: 1.5,
                     tension: 0.2
                 },
                 {
                     label: "Sin provisión",
                     data: dataSin,
-                    borderColor: "rgba(255, 150, 80, 1)",
-                    backgroundColor: "rgba(255, 150, 80, 0.2)",
+                    borderColor: "rgba(255,150,80,1)",
+                    backgroundColor: "rgba(255,150,80,0.2)",
                     borderWidth: 1.5,
                     tension: 0.2
                 }
@@ -293,18 +252,10 @@ function ptg_renderChartMensual(info) {
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { labels: { color: "#fff" } }
-            },
+            plugins: { legend: { labels: { color: "#111" }}},
             scales: {
-                x: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                },
-                y: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                }
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
             }
         }
     });

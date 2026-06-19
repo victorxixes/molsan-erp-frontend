@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL OFICINAS — GLASS LUXE 2027
+   PANEL OFICINAS — PREMIUM 2027
 ============================================================ */
 
 let POF_DATOS = [];
@@ -15,13 +15,9 @@ async function initPanelOficinas() {
 
     POF_DATOS = datos;
 
-    // Agrupar por año, oficina y mes
     POF_POR_ANIO = pof_groupByAnioOficinaMes(POF_DATOS);
 
-    // Rellenar selector
     pof_fillSelectAnios();
-
-    // Seleccionar último año
     pof_selectUltimoAnio();
 }
 
@@ -30,18 +26,18 @@ function pof_groupByAnioOficinaMes(datos) {
     const map = {};
 
     for (const f of datos) {
-        const anio = Number(f.anio) || 0;
-        if (!anio) continue;
-
+        const anio = Number(f.anio);
         const oficina = f.oficina || "Sin oficina";
-        const mes = f.mes || "";
+        const mes = f.mes;
+
+        if (!anio || !mes) continue;
 
         if (!map[anio]) {
             map[anio] = {
                 total: 0,
+                vc: 0,
                 sumaDias: 0,
                 cuentaDias: 0,
-                vc: 0,
                 oficinas: {}
             };
         }
@@ -63,14 +59,12 @@ function pof_groupByAnioOficinaMes(datos) {
         r.total++;
         o.total++;
 
-        // VC
         if (f.tipo_firma === "VideoConferencia") {
             r.vc++;
             o.vc++;
         }
 
-        // SLA
-        const d = Number(f.dias) || 0;
+        const d = Number(f.dias);
         if (d > 0) {
             r.sumaDias += d;
             r.cuentaDias++;
@@ -78,25 +72,18 @@ function pof_groupByAnioOficinaMes(datos) {
             o.cuentaDias++;
         }
 
-        // Mensual por oficina
-        if (mes) {
-            o.mensual[mes] = (o.mensual[mes] || 0) + 1;
-        }
+        o.mensual[mes] = (o.mensual[mes] || 0) + 1;
     }
 
     return map;
 }
 
-/* Rellenar selector de años */
+/* Select años */
 function pof_fillSelectAnios() {
     const sel = document.getElementById("pof-select-anio");
-    if (!sel) return;
-
     sel.innerHTML = "";
 
-    const anios = Object.keys(POF_POR_ANIO)
-        .map(a => Number(a))
-        .sort((a, b) => a - b);
+    const anios = Object.keys(POF_POR_ANIO).map(Number).sort((a,b)=>a-b);
 
     for (const anio of anios) {
         const opt = document.createElement("option");
@@ -106,11 +93,8 @@ function pof_fillSelectAnios() {
     }
 }
 
-/* Seleccionar último año */
 function pof_selectUltimoAnio() {
     const sel = document.getElementById("pof-select-anio");
-    if (!sel || !sel.options.length) return;
-
     sel.value = sel.options[sel.options.length - 1].value;
     pof_onChangeAnio();
 }
@@ -118,10 +102,7 @@ function pof_selectUltimoAnio() {
 /* Cambio de año */
 function pof_onChangeAnio() {
     const sel = document.getElementById("pof-select-anio");
-    if (!sel) return;
-
-    const anio = Number(sel.value) || 0;
-    if (!anio) return;
+    const anio = Number(sel.value);
 
     const info = POF_POR_ANIO[anio];
     if (!info) return;
@@ -138,9 +119,9 @@ function pof_renderKpis(info) {
     const sla = info.cuentaDias ? (info.sumaDias / info.cuentaDias).toFixed(1) : "0";
     const pctVC = total ? ((info.vc / total) * 100).toFixed(1) + "%" : "0%";
 
-    // Oficina más activa
     let topOf = "-";
     let max = -Infinity;
+
     for (const ofi in info.oficinas) {
         if (info.oficinas[ofi].total > max) {
             max = info.oficinas[ofi].total;
@@ -148,64 +129,49 @@ function pof_renderKpis(info) {
         }
     }
 
-    document.getElementById("pof-kpi-total").textContent = total;
-    document.getElementById("pof-kpi-sla").textContent = sla;
-    document.getElementById("pof-kpi-vc").textContent = pctVC;
-    document.getElementById("pof-kpi-top-oficina").textContent = topOf;
+    document.getElementById("kpi_total").textContent = total;
+    document.getElementById("kpi_sla").textContent = sla;
+    document.getElementById("kpi_vc").textContent = pctVC;
+    document.getElementById("kpi_oficina").textContent = topOf;
 }
 
-/* Tabla ranking oficinas (devuelve oficina top) */
+/* Tabla oficinas */
 function pof_renderTablaOficinas(info) {
     const tbody = document.querySelector("#pof-tabla-oficinas tbody");
-    if (!tbody) return null;
-
     tbody.innerHTML = "";
 
     const lista = Object.entries(info.oficinas).map(([nombre, o]) => {
-        const mediaDias = o.cuentaDias ? (o.sumaDias / o.cuentaDias).toFixed(1) : "0";
         const pctVC = o.total ? ((o.vc / o.total) * 100).toFixed(1) + "%" : "0%";
-        return {
-            nombre,
-            total: o.total,
-            mediaDias,
-            pctVC
-        };
+        const sla = o.cuentaDias ? (o.sumaDias / o.cuentaDias).toFixed(1) : "0";
+        return { nombre, total: o.total, pctVC, sla };
     });
 
-    lista.sort((a, b) => b.total - a.total);
-
-    let topOficina = lista.length ? lista[0].nombre : null;
+    lista.sort((a,b)=>b.total - a.total);
 
     for (const ofi of lista) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${ofi.nombre}</td>
             <td>${ofi.total}</td>
-            <td>${ofi.mediaDias}</td>
+            <td>${ofi.sla}</td>
             <td>${ofi.pctVC}</td>
         `;
         tbody.appendChild(tr);
     }
 
-    return topOficina;
+    return lista.length ? lista[0].nombre : null;
 }
 
-/* Gráfico firmas por oficina */
+/* Gráfico ranking oficinas */
 function pof_renderChartOficinas(info) {
     const ctx = document.getElementById("pof-chart-oficinas");
-    if (!ctx) return;
-
-    const labels = [];
-    const data = [];
 
     const lista = Object.entries(info.oficinas)
         .map(([nombre, o]) => ({ nombre, total: o.total }))
-        .sort((a, b) => b.total - a.total);
+        .sort((a,b)=>b.total - a.total);
 
-    for (const ofi of lista) {
-        labels.push(ofi.nombre);
-        data.push(ofi.total);
-    }
+    const labels = lista.map(o => o.nombre);
+    const data = lista.map(o => o.total);
 
     if (POF_CHART_OFICINAS) POF_CHART_OFICINAS.destroy();
 
@@ -223,27 +189,19 @@ function pof_renderChartOficinas(info) {
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
+            plugins: { legend: { display: false }},
             scales: {
-                x: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                },
-                y: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                }
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
             }
         }
     });
 }
 
-/* Gráfico evolución mensual de la oficina top */
+/* Gráfico evolución mensual oficina top */
 function pof_renderChartMensualTop(info, topOficina) {
     const ctx = document.getElementById("pof-chart-mensual-top");
-    if (!ctx || !topOficina) return;
+    if (!topOficina) return;
 
     const ofi = info.oficinas[topOficina];
     if (!ofi) return;
@@ -258,10 +216,8 @@ function pof_renderChartMensualTop(info, topOficina) {
 
     for (const mes of mesesOrden) {
         const v = ofi.mensual[mes] || 0;
-        if (v > 0) {
-            labels.push(mes);
-            data.push(v);
-        }
+        labels.push(mes);
+        data.push(v);
     }
 
     if (POF_CHART_MENSUAL_TOP) POF_CHART_MENSUAL_TOP.destroy();
@@ -281,18 +237,10 @@ function pof_renderChartMensualTop(info, topOficina) {
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { labels: { color: "#fff" } }
-            },
+            plugins: { legend: { display: false }},
             scales: {
-                x: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                },
-                y: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                }
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
             }
         }
     });

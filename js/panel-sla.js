@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL SLA — GLASS LUXE 2027
+   PANEL SLA — PREMIUM 2027
 ============================================================ */
 
 let SLA_DATOS = [];
@@ -17,13 +17,9 @@ async function initPanelSLA() {
 
     SLA_DATOS = datos;
 
-    // Agrupar por año, mes, apoderado, oficina, circuito
     SLA_POR_ANIO = sla_groupByAnio(SLA_DATOS);
 
-    // Rellenar selector
     sla_fillSelectAnios();
-
-    // Seleccionar último año
     sla_selectUltimoAnio();
 }
 
@@ -32,15 +28,14 @@ function sla_groupByAnio(datos) {
     const map = {};
 
     for (const f of datos) {
-        const anio = Number(f.anio) || 0;
-        if (!anio) continue;
-
-        const mes = f.mes || "";
+        const anio = Number(f.anio);
+        const mes = f.mes;
         const ap = f.apoderado || "Sin apoderado";
         const of = f.oficina || "Sin oficina";
         const ci = f.circuito || "Externo";
+        const d = Number(f.dias);
 
-        const d = Number(f.dias) || 0;
+        if (!anio || !mes) continue;
 
         if (!map[anio]) {
             map[anio] = {
@@ -53,22 +48,16 @@ function sla_groupByAnio(datos) {
 
         const r = map[anio];
 
-        // Meses
-        if (!r.meses[mes]) {
-            r.meses[mes] = { dias: [], total: 0 };
-        }
+        if (!r.meses[mes]) r.meses[mes] = { dias: [], total: 0 };
         r.meses[mes].dias.push(d);
         r.meses[mes].total++;
 
-        // Apoderados
         if (!r.apoderados[ap]) r.apoderados[ap] = [];
         r.apoderados[ap].push(d);
 
-        // Oficinas
         if (!r.oficinas[of]) r.oficinas[of] = [];
         r.oficinas[of].push(d);
 
-        // Circuitos
         if (!r.circuitos[ci]) r.circuitos[ci] = [];
         r.circuitos[ci].push(d);
     }
@@ -76,14 +65,12 @@ function sla_groupByAnio(datos) {
     return map;
 }
 
-/* Rellenar selector */
+/* Select años */
 function sla_fillSelectAnios() {
     const sel = document.getElementById("sla-select-anio");
     sel.innerHTML = "";
 
-    const anios = Object.keys(SLA_POR_ANIO)
-        .map(a => Number(a))
-        .sort((a, b) => a - b);
+    const anios = Object.keys(SLA_POR_ANIO).map(Number).sort((a,b)=>a-b);
 
     for (const anio of anios) {
         const opt = document.createElement("option");
@@ -93,7 +80,6 @@ function sla_fillSelectAnios() {
     }
 }
 
-/* Seleccionar último año */
 function sla_selectUltimoAnio() {
     const sel = document.getElementById("sla-select-anio");
     sel.value = sel.options[sel.options.length - 1].value;
@@ -103,7 +89,7 @@ function sla_selectUltimoAnio() {
 /* Cambio de año */
 function sla_onChangeAnio() {
     const sel = document.getElementById("sla-select-anio");
-    const anio = Number(sel.value) || 0;
+    const anio = Number(sel.value);
 
     const info = SLA_POR_ANIO[anio];
     if (!info) return;
@@ -128,7 +114,6 @@ function sla_renderKpis(info) {
     const min = todos.length ? Math.min(...todos) : 0;
     const max = todos.length ? Math.max(...todos) : 0;
 
-    // Mes más rápido
     let topMes = "-";
     let mejor = Infinity;
 
@@ -142,10 +127,10 @@ function sla_renderKpis(info) {
         }
     }
 
-    document.getElementById("sla-kpi-media").textContent = media;
-    document.getElementById("sla-kpi-min").textContent = min;
-    document.getElementById("sla-kpi-max").textContent = max;
-    document.getElementById("sla-kpi-top-mes").textContent = topMes;
+    document.getElementById("kpi_media").textContent = media;
+    document.getElementById("kpi_min").textContent = min;
+    document.getElementById("kpi_max").textContent = max;
+    document.getElementById("kpi_top_mes").textContent = topMes;
 }
 
 /* Tabla mensual */
@@ -209,18 +194,18 @@ function sla_renderChartMensual(info) {
             datasets: [{
                 label: "SLA mensual",
                 data,
-                borderColor: "rgba(80, 200, 255, 1)",
-                backgroundColor: "rgba(80, 200, 255, 0.2)",
+                borderColor: "rgba(80,200,255,1)",
+                backgroundColor: "rgba(80,200,255,0.2)",
                 borderWidth: 1.5,
                 tension: 0.2
             }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { labels: { color: "#fff" } } },
+            plugins: { legend: { labels: { color: "#111" }}},
             scales: {
-                x: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)" } },
-                y: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)" } }
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
             }
         }
     });
@@ -257,10 +242,10 @@ function sla_renderChartApoderados(info) {
         },
         options: {
             responsive: true,
-            plugins: { legend: { labels: { color: "#fff" } } },
+            plugins: { legend: { labels: { color: "#111" }}},
             scales: {
-                x: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)" } },
-                y: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)" } }
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
             }
         }
     });
@@ -297,10 +282,10 @@ function sla_renderChartOficinas(info) {
         },
         options: {
             responsive: true,
-            plugins: { legend: { labels: { color: "#fff" } } },
+            plugins: { legend: { labels: { color: "#111" }}},
             scales: {
-                x: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)" } },
-                y: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)" } }
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
             }
         }
     });
@@ -337,10 +322,10 @@ function sla_renderChartCircuitos(info) {
         },
         options: {
             responsive: true,
-            plugins: { legend: { labels: { color: "#fff" } } },
+            plugins: { legend: { labels: { color: "#111" }}},
             scales: {
-                x: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)" } },
-                y: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)" } }
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
             }
         }
     });

@@ -1,224 +1,205 @@
 /* ============================================================
-   PANEL APODERADOS — GLASS LUXE 2027
+   PANEL APODERADOS — PREMIUM 2027
 ============================================================ */
 
-let PAPO_DATOS = [];
-let PAPO_POR_APODERADO = {};
-let PAPO_CHARTS = {};
+let PAP_DATOS = [];
+let PAP_POR_ANIO = {};
+let PAP_CHART_APODERADOS = null;
 
 async function initPanelApoderados() {
-    console.log("🧑‍💼 initPanelApoderados() ejecutado");
+    console.log("👤 initPanelApoderados() ejecutado");
 
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
 
-    PAPO_DATOS = datos;
+    PAP_DATOS = datos;
 
-    // Agrupar por apoderado
-    PAPO_POR_APODERADO = papo_groupByApoderado(PAPO_DATOS);
+    PAP_POR_ANIO = pap_groupByAnioApoderado(PAP_DATOS);
 
-    // Rellenar selector
-    papo_fillSelect();
-
-    // Seleccionar primer apoderado
-    papo_onChangeApoderado();
+    pap_fillSelectAnios();
+    pap_selectUltimoAnio();
 }
 
-/* Agrupar datos por apoderado */
-function papo_groupByApoderado(datos) {
+/* Agrupar por año y apoderado */
+function pap_groupByAnioApoderado(datos) {
     const map = {};
 
     for (const f of datos) {
+        const anio = Number(f.anio);
         const ap = f.apoderado || "Sin apoderado";
 
-        if (!map[ap]) {
-            map[ap] = {
-                firmas: [],
-                oficinas: {},
-                circuitos: {},
-                tipoFirma: {},
-                tipoGestion: {},
-                mensual: {}
+        if (!anio) continue;
+
+        if (!map[anio]) {
+            map[anio] = {
+                total: 0,
+                vc: 0,
+                presencial: 0,
+                sumaDias: 0,
+                cuentaDias: 0,
+                apoderados: {}
             };
         }
 
-        const m = map[ap];
+        const r = map[anio];
 
-        m.firmas.push(f);
+        if (!r.apoderados[ap]) {
+            r.apoderados[ap] = {
+                total: 0,
+                vc: 0,
+                presencial: 0,
+                sumaDias: 0,
+                cuentaDias: 0
+            };
+        }
 
-        // Oficina
-        m.oficinas[f.oficina] = (m.oficinas[f.oficina] || 0) + 1;
+        const a = r.apoderados[ap];
 
-        // Circuito
-        m.circuitos[f.circuito] = (m.circuitos[f.circuito] || 0) + 1;
+        r.total++;
+        a.total++;
 
-        // Tipo firma
-        m.tipoFirma[f.tipo_firma] = (m.tipoFirma[f.tipo_firma] || 0) + 1;
+        if (f.tipo_firma === "VideoConferencia") {
+            r.vc++;
+            a.vc++;
+        } else {
+            r.presencial++;
+            a.presencial++;
+        }
 
-        // Tipo gestión
-        m.tipoGestion[f.tipo_gestion] = (m.tipoGestion[f.tipo_gestion] || 0) + 1;
-
-        // Mensual
-        const claveMes = `${f.anio}-${f.mes}`;
-        m.mensual[claveMes] = (m.mensual[claveMes] || 0) + 1;
+        const d = Number(f.dias);
+        if (d > 0) {
+            r.sumaDias += d;
+            r.cuentaDias++;
+            a.sumaDias += d;
+            a.cuentaDias++;
+        }
     }
 
     return map;
 }
 
-/* Rellenar selector */
-function papo_fillSelect() {
-    const sel = document.getElementById("pa-select-apoderado");
+/* Select años */
+function pap_fillSelectAnios() {
+    const sel = document.getElementById("pap-select-anio");
     sel.innerHTML = "";
 
-    const aps = Object.keys(PAPO_POR_APODERADO).sort();
+    const anios = Object.keys(PAP_POR_ANIO).map(Number).sort((a,b)=>a-b);
 
-    for (const ap of aps) {
+    for (const anio of anios) {
         const opt = document.createElement("option");
-        opt.value = ap;
-        opt.textContent = ap;
+        opt.value = anio;
+        opt.textContent = anio;
         sel.appendChild(opt);
     }
 }
 
-/* Cambio de apoderado */
-function papo_onChangeApoderado() {
-    const sel = document.getElementById("pa-select-apoderado");
-    const ap = sel.value;
+function pap_selectUltimoAnio() {
+    const sel = document.getElementById("pap-select-anio");
+    sel.value = sel.options[sel.options.length - 1].value;
+    pap_onChangeAnio();
+}
 
-    const info = PAPO_POR_APODERADO[ap];
+/* Cambio de año */
+function pap_onChangeAnio() {
+    const sel = document.getElementById("pap-select-anio");
+    const anio = Number(sel.value);
+
+    const info = PAP_POR_ANIO[anio];
     if (!info) return;
 
-    papo_renderKpis(ap, info);
-    papo_renderCharts(ap, info);
+    pap_renderKpis(info);
+    pap_renderTablaApoderados(info);
+    pap_renderChartApoderados(info);
 }
 
-/* Render KPIs */
-function papo_renderKpis(ap, info) {
-    const total = info.firmas.length;
+/* KPIs */
+function pap_renderKpis(info) {
+    const total = info.total;
+    const sla = info.cuentaDias ? (info.sumaDias / info.cuentaDias).toFixed(1) : "0";
+    const pctVC = total ? ((info.vc / total) * 100).toFixed(1) + "%" : "0%";
 
-    // SLA
-    const dias = info.firmas.map(f => Number(f.dias) || 0).filter(d => d > 0);
-    const sla = dias.length ? (dias.reduce((a,b)=>a+b,0) / dias.length).toFixed(1) : "0";
+    let topAp = "-";
+    let max = -Infinity;
 
-    // VC
-    const vc = info.tipoFirma["VideoConferencia"] || 0;
-    const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
-
-    // Con provisión
-    const conProv = Object.entries(info.tipoGestion)
-        .filter(([k]) => k.toLowerCase().includes("con provisión"))
-        .reduce((a, [_, v]) => a + v, 0);
-
-    const pctProv = total ? ((conProv / total) * 100).toFixed(1) + "%" : "0%";
-
-    // Oficina dominante
-    const topOf = papo_getTop(info.oficinas);
-
-    // Circuito dominante
-    const topCi = papo_getTop(info.circuitos);
-
-    document.getElementById("papo-kpi-total").textContent = total;
-    document.getElementById("papo-kpi-sla").textContent = sla;
-    document.getElementById("papo-kpi-vc").textContent = pctVC;
-    document.getElementById("papo-kpi-prov").textContent = pctProv;
-    document.getElementById("papo-kpi-oficina").textContent = topOf;
-    document.getElementById("papo-kpi-circuito").textContent = topCi;
-}
-
-/* Render charts */
-function papo_renderCharts(ap, info) {
-    // Destruir charts previos
-    for (const k in PAPO_CHARTS) {
-        PAPO_CHARTS[k].destroy();
+    for (const ap in info.apoderados) {
+        if (info.apoderados[ap].total > max) {
+            max = info.apoderados[ap].total;
+            topAp = ap;
+        }
     }
 
-    // Mensual
-    PAPO_CHARTS.mensual = papo_chart(
-        "papo-chart-mensual",
-        "line",
-        Object.keys(info.mensual),
-        Object.values(info.mensual),
-        "Evolución mensual"
-    );
-
-    // Tipo firma
-    PAPO_CHARTS.tipoFirma = papo_chart(
-        "papo-chart-tipo-firma",
-        "doughnut",
-        Object.keys(info.tipoFirma),
-        Object.values(info.tipoFirma),
-        "Tipo de firma"
-    );
-
-    // Tipo gestión
-    PAPO_CHARTS.tipoGestion = papo_chart(
-        "papo-chart-tipo-gestion",
-        "doughnut",
-        Object.keys(info.tipoGestion),
-        Object.values(info.tipoGestion),
-        "Tipo de gestión"
-    );
-
-    // Oficinas
-    PAPO_CHARTS.oficinas = papo_chart(
-        "papo-chart-oficinas",
-        "bar",
-        Object.keys(info.oficinas),
-        Object.values(info.oficinas),
-        "Oficinas"
-    );
-
-    // Circuitos
-    PAPO_CHARTS.circuitos = papo_chart(
-        "papo-chart-circuitos",
-        "bar",
-        Object.keys(info.circuitos),
-        Object.values(info.circuitos),
-        "Circuitos"
-    );
+    document.getElementById("kpi_total").textContent = total;
+    document.getElementById("kpi_sla").textContent = sla;
+    document.getElementById("kpi_vc").textContent = pctVC;
+    document.getElementById("kpi_apoderado").textContent = topAp;
 }
 
-/* Crear chart */
-function papo_chart(id, tipo, labels, data, label) {
-    const ctx = document.getElementById(id);
-    return new Chart(ctx, {
-        type: tipo,
+/* Tabla detalle apoderados */
+function pap_renderTablaApoderados(info) {
+    const tbody = document.querySelector("#pap-tabla-apoderados tbody");
+    tbody.innerHTML = "";
+
+    const lista = Object.entries(info.apoderados).map(([nombre, a]) => {
+        const pctVC = a.total ? ((a.vc / a.total) * 100).toFixed(1) + "%" : "0%";
+        const sla = a.cuentaDias ? (a.sumaDias / a.cuentaDias).toFixed(1) : "0";
+        return {
+            nombre,
+            total: a.total,
+            presencial: a.presencial,
+            vc: a.vc,
+            pctVC,
+            sla
+        };
+    });
+
+    lista.sort((a,b)=>b.total - a.total);
+
+    for (const ap of lista) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${ap.nombre}</td>
+            <td>${ap.total}</td>
+            <td>${ap.presencial}</td>
+            <td>${ap.vc}</td>
+            <td>${ap.pctVC}</td>
+            <td>${ap.sla}</td>
+        `;
+        tbody.appendChild(tr);
+    }
+}
+
+/* Gráfico ranking apoderados */
+function pap_renderChartApoderados(info) {
+    const ctx = document.getElementById("pap-chart-apoderados");
+
+    const lista = Object.entries(info.apoderados)
+        .map(([nombre, a]) => ({ nombre, total: a.total }))
+        .sort((a,b)=>b.total - a.total);
+
+    const labels = lista.map(a => a.nombre);
+    const data = lista.map(a => a.total);
+
+    if (PAP_CHART_APODERADOS) PAP_CHART_APODERADOS.destroy();
+
+    PAP_CHART_APODERADOS = new Chart(ctx, {
+        type: "bar",
         data: {
             labels,
             datasets: [{
-                label,
+                label: "Firmas por apoderado",
                 data,
-                backgroundColor: [
-                    "rgba(80,200,255,0.4)",
-                    "rgba(255,150,80,0.4)",
-                    "rgba(150,255,80,0.4)",
-                    "rgba(255,80,200,0.4)"
-                ],
-                borderColor: "rgba(255,255,255,0.8)",
+                backgroundColor: "rgba(80, 200, 255, 0.4)",
+                borderColor: "rgba(80, 200, 255, 1)",
                 borderWidth: 1.5
             }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { labels: { color: "#fff" } } },
+            plugins: { legend: { display: false }},
             scales: {
-                x: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)" } },
-                y: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)" } }
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
             }
         }
     });
-}
-
-/* Obtener clave con mayor valor */
-function papo_getTop(obj) {
-    let top = "-";
-    let max = -Infinity;
-    for (const k in obj) {
-        if (obj[k] > max) {
-            max = obj[k];
-            top = k;
-        }
-    }
-    return top;
 }

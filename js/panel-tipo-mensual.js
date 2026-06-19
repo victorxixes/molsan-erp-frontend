@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL MENSUAL — GLASS LUXE 2027
+   PANEL MENSUAL — PREMIUM 2027
 ============================================================ */
 
 let PM_DATOS = [];
@@ -14,13 +14,9 @@ async function initPanelMensual() {
 
     PM_DATOS = datos;
 
-    // Agrupar por año y mes
     PM_POR_ANIO = pm_groupByAnioMes(PM_DATOS);
 
-    // Rellenar selector de años
     pm_fillSelectAnios();
-
-    // Seleccionar último año
     pm_selectUltimoAnio();
 }
 
@@ -29,11 +25,10 @@ function pm_groupByAnioMes(datos) {
     const map = {};
 
     for (const f of datos) {
-        const anio = Number(f.anio) || 0;
-        if (!anio) continue;
+        const anio = Number(f.anio);
+        const mes = f.mes;
 
-        const mes = f.mes || "";
-        if (!mes) continue;
+        if (!anio || !mes) continue;
 
         if (!map[anio]) {
             map[anio] = {
@@ -63,7 +58,6 @@ function pm_groupByAnioMes(datos) {
         r.total++;
         m.total++;
 
-        // Tipo firma
         if (f.tipo_firma === "VideoConferencia") {
             r.vc++;
             m.vc++;
@@ -72,8 +66,7 @@ function pm_groupByAnioMes(datos) {
             m.presencial++;
         }
 
-        // SLA
-        const d = Number(f.dias) || 0;
+        const d = Number(f.dias);
         if (d > 0) {
             r.sumaDias += d;
             r.cuentaDias++;
@@ -85,16 +78,12 @@ function pm_groupByAnioMes(datos) {
     return map;
 }
 
-/* Rellenar selector de años */
+/* Select años */
 function pm_fillSelectAnios() {
     const sel = document.getElementById("pm-select-anio");
-    if (!sel) return;
-
     sel.innerHTML = "";
 
-    const anios = Object.keys(PM_POR_ANIO)
-        .map(a => Number(a))
-        .sort((a, b) => a - b);
+    const anios = Object.keys(PM_POR_ANIO).map(Number).sort((a,b)=>a-b);
 
     for (const anio of anios) {
         const opt = document.createElement("option");
@@ -104,11 +93,8 @@ function pm_fillSelectAnios() {
     }
 }
 
-/* Seleccionar último año */
 function pm_selectUltimoAnio() {
     const sel = document.getElementById("pm-select-anio");
-    if (!sel || !sel.options.length) return;
-
     sel.value = sel.options[sel.options.length - 1].value;
     pm_onChangeAnio();
 }
@@ -116,28 +102,25 @@ function pm_selectUltimoAnio() {
 /* Cambio de año */
 function pm_onChangeAnio() {
     const sel = document.getElementById("pm-select-anio");
-    if (!sel) return;
-
-    const anio = Number(sel.value) || 0;
-    if (!anio) return;
+    const anio = Number(sel.value);
 
     const info = PM_POR_ANIO[anio];
     if (!info) return;
 
-    pm_renderKpis(anio, info);
+    pm_renderKpis(info);
     pm_renderTablaMeses(info);
     pm_renderChartMeses(info);
 }
 
-/* Render KPIs */
-function pm_renderKpis(anio, info) {
+/* KPIs */
+function pm_renderKpis(info) {
     const total = info.total;
-    const dias = info.cuentaDias ? (info.sumaDias / info.cuentaDias).toFixed(1) : "0";
+    const sla = info.cuentaDias ? (info.sumaDias / info.cuentaDias).toFixed(1) : "0";
     const pctVC = total ? ((info.vc / total) * 100).toFixed(1) + "%" : "0%";
 
-    // Mes más fuerte
     let topMes = "-";
     let max = -Infinity;
+
     for (const mes in info.meses) {
         if (info.meses[mes].total > max) {
             max = info.meses[mes].total;
@@ -145,17 +128,15 @@ function pm_renderKpis(anio, info) {
         }
     }
 
-    document.getElementById("pm-kpi-total").textContent = total;
-    document.getElementById("pm-kpi-sla").textContent = dias;
-    document.getElementById("pm-kpi-vc").textContent = pctVC;
-    document.getElementById("pm-kpi-top-mes").textContent = topMes;
+    document.getElementById("kpi_total").textContent = total;
+    document.getElementById("kpi_sla").textContent = sla;
+    document.getElementById("kpi_vc").textContent = pctVC;
+    document.getElementById("kpi_top_mes").textContent = topMes;
 }
 
-/* Render tabla mensual */
+/* Tabla mensual */
 function pm_renderTablaMeses(info) {
     const tbody = document.querySelector("#pm-tabla-meses tbody");
-    if (!tbody) return;
-
     tbody.innerHTML = "";
 
     const mesesOrden = [
@@ -168,28 +149,25 @@ function pm_renderTablaMeses(info) {
         if (!m) continue;
 
         const total = m.total;
-        const vc = m.vc;
-        const presencial = m.presencial;
-        const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
-        const mediaDias = m.cuentaDias ? (m.sumaDias / m.cuentaDias).toFixed(1) : "0";
+        const pctVC = total ? ((m.vc / total) * 100).toFixed(1) + "%" : "0%";
+        const sla = m.cuentaDias ? (m.sumaDias / m.cuentaDias).toFixed(1) : "0";
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${mes}</td>
             <td>${total}</td>
-            <td>${presencial}</td>
-            <td>${vc}</td>
+            <td>${m.presencial}</td>
+            <td>${m.vc}</td>
             <td>${pctVC}</td>
-            <td>${mediaDias}</td>
+            <td>${sla}</td>
         `;
         tbody.appendChild(tr);
     }
 }
 
-/* Render gráfico mensual */
+/* Gráfico mensual */
 function pm_renderChartMeses(info) {
     const ctx = document.getElementById("pm-chart-meses");
-    if (!ctx) return;
 
     const mesesOrden = [
         "enero","febrero","marzo","abril","mayo","junio",
@@ -206,9 +184,7 @@ function pm_renderChartMeses(info) {
         data.push(m.total);
     }
 
-    if (PM_CHART_MESES) {
-        PM_CHART_MESES.destroy();
-    }
+    if (PM_CHART_MESES) PM_CHART_MESES.destroy();
 
     PM_CHART_MESES = new Chart(ctx, {
         type: "bar",
@@ -224,18 +200,10 @@ function pm_renderChartMeses(info) {
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
+            plugins: { legend: { display: false }},
             scales: {
-                x: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                },
-                y: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                }
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
             }
         }
     });

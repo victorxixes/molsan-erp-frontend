@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL CIRCUITO — GLASS LUXE 2027
+   PANEL CIRCUITO — PREMIUM 2027
 ============================================================ */
 
 let PCI_DATOS = [];
@@ -15,17 +15,10 @@ async function initPanelCircuito() {
 
     PCI_DATOS = datos;
 
-    // Agrupar por año, mes y circuito
     PCI_POR_ANIO = pci_groupByAnioMesCircuito(PCI_DATOS);
 
-    // Rellenar selector
     pci_fillSelectAnios();
-
-    // Seleccionar último año
     pci_selectUltimoAnio();
-
-    // Render gráfico anual global
-    pci_renderChartAnualGlobal();
 }
 
 /* Agrupar por año, mes y circuito */
@@ -33,13 +26,11 @@ function pci_groupByAnioMesCircuito(datos) {
     const map = {};
 
     for (const f of datos) {
-        const anio = Number(f.anio) || 0;
-        if (!anio) continue;
-
-        const mes = f.mes || "";
-        if (!mes) continue;
-
+        const anio = Number(f.anio);
+        const mes = f.mes;
         const circuito = f.circuito || "Externo";
+
+        if (!anio || !mes) continue;
 
         if (!map[anio]) {
             map[anio] = {
@@ -71,7 +62,6 @@ function pci_groupByAnioMesCircuito(datos) {
         r.total++;
         m.total++;
 
-        // Circuito
         if (circuito === "Circuito Península") {
             r.peninsula++;
             m.peninsula++;
@@ -83,8 +73,7 @@ function pci_groupByAnioMesCircuito(datos) {
             m.externo++;
         }
 
-        // SLA
-        const d = Number(f.dias) || 0;
+        const d = Number(f.dias);
         if (d > 0) {
             r.sumaDias += d;
             r.cuentaDias++;
@@ -96,14 +85,12 @@ function pci_groupByAnioMesCircuito(datos) {
     return map;
 }
 
-/* Rellenar selector de años */
+/* Select años */
 function pci_fillSelectAnios() {
     const sel = document.getElementById("pci-select-anio");
     sel.innerHTML = "";
 
-    const anios = Object.keys(PCI_POR_ANIO)
-        .map(a => Number(a))
-        .sort((a, b) => a - b);
+    const anios = Object.keys(PCI_POR_ANIO).map(Number).sort((a,b)=>a-b);
 
     for (const anio of anios) {
         const opt = document.createElement("option");
@@ -113,7 +100,6 @@ function pci_fillSelectAnios() {
     }
 }
 
-/* Seleccionar último año */
 function pci_selectUltimoAnio() {
     const sel = document.getElementById("pci-select-anio");
     sel.value = sel.options[sel.options.length - 1].value;
@@ -123,13 +109,14 @@ function pci_selectUltimoAnio() {
 /* Cambio de año */
 function pci_onChangeAnio() {
     const sel = document.getElementById("pci-select-anio");
-    const anio = Number(sel.value) || 0;
+    const anio = Number(sel.value);
 
     const info = PCI_POR_ANIO[anio];
     if (!info) return;
 
     pci_renderKpis(info);
     pci_renderTablaMeses(info);
+    pci_renderChartAnual(info);
     pci_renderChartMensual(info);
 }
 
@@ -137,23 +124,20 @@ function pci_onChangeAnio() {
 function pci_renderKpis(info) {
     const total = info.total;
 
-    // Dominante
     const dom = [
         { n: "Península", v: info.peninsula },
         { n: "Canarias", v: info.canarias },
         { n: "Externo", v: info.externo }
-    ].sort((a, b) => b.v - a.v)[0].n;
+    ].sort((a,b)=>b.v - a.v)[0].n;
 
     const sla = info.cuentaDias ? (info.sumaDias / info.cuentaDias).toFixed(1) : "0";
 
-    const vc = info.externo; // Externo suele tener más VC, pero usamos total VC real si lo quieres
+    const pctVC = total ? ((info.externo / total) * 100).toFixed(1) + "%" : "0%";
 
-    const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
-
-    document.getElementById("pci-kpi-total").textContent = total;
-    document.getElementById("pci-kpi-top-circuito").textContent = dom;
-    document.getElementById("pci-kpi-sla").textContent = sla;
-    document.getElementById("pci-kpi-vc").textContent = pctVC;
+    document.getElementById("kpi_total").textContent = total;
+    document.getElementById("kpi_circuito").textContent = dom;
+    document.getElementById("kpi_sla").textContent = sla;
+    document.getElementById("kpi_vc").textContent = pctVC;
 }
 
 /* Tabla mensual */
@@ -174,7 +158,6 @@ function pci_renderTablaMeses(info) {
         const pctPen = total ? ((m.peninsula / total) * 100).toFixed(1) + "%" : "0%";
         const pctCan = total ? ((m.canarias / total) * 100).toFixed(1) + "%" : "0%";
         const pctExt = total ? ((m.externo / total) * 100).toFixed(1) + "%" : "0%";
-
         const sla = m.cuentaDias ? (m.sumaDias / m.cuentaDias).toFixed(1) : "0";
 
         const tr = document.createElement("tr");
@@ -193,62 +176,51 @@ function pci_renderTablaMeses(info) {
     }
 }
 
-/* Gráfico anual global */
-function pci_renderChartAnualGlobal() {
+/* Gráfico anual */
+function pci_renderChartAnual(info) {
     const ctx = document.getElementById("pci-chart-anual");
 
-    const anios = Object.keys(PCI_POR_ANIO)
-        .map(a => Number(a))
-        .sort((a, b) => a - b);
-
-    const dataPen = anios.map(a => PCI_POR_ANIO[a].peninsula);
-    const dataCan = anios.map(a => PCI_POR_ANIO[a].canarias);
-    const dataExt = anios.map(a => PCI_POR_ANIO[a].externo);
+    const labels = Object.keys(info.meses);
+    const dataPen = labels.map(m => info.meses[m].peninsula);
+    const dataCan = labels.map(m => info.meses[m].canarias);
+    const dataExt = labels.map(m => info.meses[m].externo);
 
     if (PCI_CHART_ANUAL) PCI_CHART_ANUAL.destroy();
 
     PCI_CHART_ANUAL = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: anios,
+            labels,
             datasets: [
                 {
                     label: "Península",
                     data: dataPen,
-                    backgroundColor: "rgba(80, 200, 255, 0.4)",
-                    borderColor: "rgba(80, 200, 255, 1)",
+                    backgroundColor: "rgba(80,200,255,0.4)",
+                    borderColor: "rgba(80,200,255,1)",
                     borderWidth: 1.5
                 },
                 {
                     label: "Canarias",
                     data: dataCan,
-                    backgroundColor: "rgba(255, 150, 80, 0.4)",
-                    borderColor: "rgba(255, 150, 80, 1)",
+                    backgroundColor: "rgba(255,150,80,0.4)",
+                    borderColor: "rgba(255,150,80,1)",
                     borderWidth: 1.5
                 },
                 {
                     label: "Externo",
                     data: dataExt,
-                    backgroundColor: "rgba(150, 255, 80, 0.4)",
-                    borderColor: "rgba(150, 255, 80, 1)",
+                    backgroundColor: "rgba(150,255,80,0.4)",
+                    borderColor: "rgba(150,255,80,1)",
                     borderWidth: 1.5
                 }
             ]
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { labels: { color: "#fff" } }
-            },
+            plugins: { legend: { labels: { color: "#111" }}},
             scales: {
-                x: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                },
-                y: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                }
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
             }
         }
     });
@@ -258,25 +230,10 @@ function pci_renderChartAnualGlobal() {
 function pci_renderChartMensual(info) {
     const ctx = document.getElementById("pci-chart-mensual");
 
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
-
-    const labels = [];
-    const dataPen = [];
-    const dataCan = [];
-    const dataExt = [];
-
-    for (const mes of mesesOrden) {
-        const m = info.meses[mes];
-        if (!m) continue;
-
-        labels.push(mes);
-        dataPen.push(m.peninsula);
-        dataCan.push(m.canarias);
-        dataExt.push(m.externo);
-    }
+    const labels = Object.keys(info.meses);
+    const dataPen = labels.map(m => info.meses[m].peninsula);
+    const dataCan = labels.map(m => info.meses[m].canarias);
+    const dataExt = labels.map(m => info.meses[m].externo);
 
     if (PCI_CHART_MENSUAL) PCI_CHART_MENSUAL.destroy();
 
@@ -288,24 +245,24 @@ function pci_renderChartMensual(info) {
                 {
                     label: "Península",
                     data: dataPen,
-                    borderColor: "rgba(80, 200, 255, 1)",
-                    backgroundColor: "rgba(80, 200, 255, 0.2)",
+                    borderColor: "rgba(80,200,255,1)",
+                    backgroundColor: "rgba(80,200,255,0.2)",
                     borderWidth: 1.5,
                     tension: 0.2
                 },
                 {
                     label: "Canarias",
                     data: dataCan,
-                    borderColor: "rgba(255, 150, 80, 1)",
-                    backgroundColor: "rgba(255, 150, 80, 0.2)",
+                    borderColor: "rgba(255,150,80,1)",
+                    backgroundColor: "rgba(255,150,80,0.2)",
                     borderWidth: 1.5,
                     tension: 0.2
                 },
                 {
                     label: "Externo",
                     data: dataExt,
-                    borderColor: "rgba(150, 255, 80, 1)",
-                    backgroundColor: "rgba(150, 255, 80, 0.2)",
+                    borderColor: "rgba(150,255,80,1)",
+                    backgroundColor: "rgba(150,255,80,0.2)",
                     borderWidth: 1.5,
                     tension: 0.2
                 }
@@ -313,18 +270,10 @@ function pci_renderChartMensual(info) {
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { labels: { color: "#fff" } }
-            },
+            plugins: { legend: { labels: { color: "#111" }}},
             scales: {
-                x: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                },
-                y: {
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255,255,255,0.1)" }
-                }
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
             }
         }
     });
