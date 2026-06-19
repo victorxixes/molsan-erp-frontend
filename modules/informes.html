@@ -3,61 +3,60 @@
 
         <h2 class="titulo-modulo">📘 Informes Premium</h2>
 
-        <!-- GRID DE INFORMES -->
-<template id="tpl-informes-premium">
-    <div class="modulo-wrapper fade-in">
+        <div class="inf-grid">
 
-        <h2 class="titulo-modulo">📘 Informes Premium</h2>
+            <div class="inf-card" onclick="generarInformeGeneral()">
+                <div class="inf-icon">📘</div>
+                <div class="inf-title">Informe General</div>
+                <div class="inf-desc">Resumen completo del periodo</div>
+            </div>
 
-       <div class="inf-grid">
+            <div class="inf-card" onclick="generarInformeAnual()">
+                <div class="inf-icon">📅</div>
+                <div class="inf-title">Informe Anual</div>
+                <div class="inf-desc">Comparativa año a año</div>
+            </div>
 
-    <div class="inf-card" onclick="generarInformeGeneral()">
-        <div class="inf-icon">📘</div>
-        <div class="inf-title">Informe General</div>
-        <div class="inf-desc">Resumen completo del periodo</div>
+            <div class="inf-card" onclick="generarInformeMensual()">
+                <div class="inf-icon">🗓️</div>
+                <div class="inf-title">Informe Mensual</div>
+                <div class="inf-desc">Actividad del mes</div>
+            </div>
+
+            <div class="inf-card" onclick="generarInformeApoderados()">
+                <div class="inf-icon">🧑‍💼</div>
+                <div class="inf-title">Por Apoderado</div>
+                <div class="inf-desc">Ranking y rendimiento</div>
+            </div>
+
+            <div class="inf-card" onclick="generarInformeOficinas()">
+                <div class="inf-icon">🏢</div>
+                <div class="inf-title">Por Oficina</div>
+                <div class="inf-desc">Actividad por centro</div>
+            </div>
+
+            <div class="inf-card" onclick="generarInformeCircuito()">
+                <div class="inf-icon">🛣️</div>
+                <div class="inf-title">Por Circuito</div>
+                <div class="inf-desc">Península / Canarias / Externo</div>
+            </div>
+
+            <div class="inf-card" onclick="generarInformeTipoFirma()">
+                <div class="inf-icon">✍️</div>
+                <div class="inf-title">Tipo de Firma</div>
+                <div class="inf-desc">Presencial / VC</div>
+            </div>
+
+            <div class="inf-card" onclick="generarInformeTiempos()">
+                <div class="inf-icon">⏱️</div>
+                <div class="inf-title">Tiempos Medios</div>
+                <div class="inf-desc">Días entre fases</div>
+            </div>
+
+        </div>
+
+        <!-- 🔥 CONTENEDOR DONDE SE PINTAN LOS INFORMES -->
+        <div id="informeContainer" class="card-glass p-20 mt-20" style="display:none;"></div>
+
     </div>
-
-    <div class="inf-card" onclick="generarInformeAnual()">
-        <div class="inf-icon">📅</div>
-        <div class="inf-title">Informe Anual</div>
-        <div class="inf-desc">Comparativa año a año</div>
-    </div>
-
-    <div class="inf-card" onclick="generarInformeMensual()">
-        <div class="inf-icon">🗓️</div>
-        <div class="inf-title">Informe Mensual</div>
-        <div class="inf-desc">Actividad del mes</div>
-    </div>
-
-    <div class="inf-card" onclick="generarInformeApoderados()">
-        <div class="inf-icon">🧑‍💼</div>
-        <div class="inf-title">Por Apoderado</div>
-        <div class="inf-desc">Ranking y rendimiento</div>
-    </div>
-
-    <div class="inf-card" onclick="generarInformeOficinas()">
-        <div class="inf-icon">🏢</div>
-        <div class="inf-title">Por Oficina</div>
-        <div class="inf-desc">Actividad por centro</div>
-    </div>
-
-    <div class="inf-card" onclick="generarInformeCircuito()">
-        <div class="inf-icon">🛣️</div>
-        <div class="inf-title">Por Circuito</div>
-        <div class="inf-desc">Península / Canarias / Externo</div>
-    </div>
-
-    <div class="inf-card" onclick="generarInformeTipoFirma()">
-        <div class="inf-icon">✍️</div>
-        <div class="inf-title">Tipo de Firma</div>
-        <div class="inf-desc">Presencial / VC</div>
-    </div>
-
-    <div class="inf-card" onclick="generarInformeTiempos()">
-        <div class="inf-icon">⏱️</div>
-        <div class="inf-title">Tiempos Medios</div>
-        <div class="inf-desc">Días entre fases</div>
-    </div>
-
-</div>
 </template>
