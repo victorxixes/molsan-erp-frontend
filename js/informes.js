@@ -28,39 +28,126 @@ function resetChart() {
 }
 
 /* ============================================================
-   INFORME GENERAL
+   INFORME GENERAL — GLASS LUXE 2027
 ============================================================ */
 async function generarInformeGeneral() {
-    const datos = await obtenerFirmas();
-    const kpis = obtenerKPIs();
+    const firmas = await obtenerFirmas();
 
+    // ============================
+    // CÁLCULO DE KPIs
+    // ============================
+    const totalFirmas = firmas.length;
+
+    const mediaDias = (
+        firmas.reduce((acc, f) => acc + (Number(f.dias) || 0), 0) / totalFirmas
+    ).toFixed(1);
+
+    const totalVC = firmas.filter(f => f.tipo_firma === "VideoConferencia").length;
+    const pctVC = ((totalVC / totalFirmas) * 100).toFixed(1);
+
+    const totalConProvision = firmas.filter(f => f.tipo_gestion === "Con provisión").length;
+    const pctProvision = ((totalConProvision / totalFirmas) * 100).toFixed(1);
+
+    // Oficina más activa
+    const oficinas = {};
+    firmas.forEach(f => {
+        oficinas[f.oficina] = (oficinas[f.oficina] || 0) + 1;
+    });
+    const oficinaTop = Object.entries(oficinas).sort((a,b)=>b[1]-a[1])[0][0];
+
+    // Circuito dominante
+    const circuitos = {};
+    firmas.forEach(f => {
+        circuitos[f.circuito] = (circuitos[f.circuito] || 0) + 1;
+    });
+    const circuitoTop = Object.entries(circuitos).sort((a,b)=>b[1]-a[1])[0][0];
+
+    // ============================
+    // GRÁFICO: FIRMAS POR MES
+    // ============================
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const firmasPorMes = mesesOrden.map(mes =>
+        firmas.filter(f => f.mes === mes).length
+    );
+
+    // ============================
+    // RENDER HTML
+    // ============================
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
-    cont.innerHTML = `
-        <h3>Informe General</h3>
 
-        <div class="kpi-grid">
-            <div class="kpi-box">Total firmas: ${kpis.total_registros}</div>
-            <div class="kpi-box">Media días: ${kpis.media_dias}</div>
-            <div class="kpi-box">Presenciales: ${kpis.por_tipo_firma?.Presencial ?? 0}</div>
-            <div class="kpi-box">Videoconferencias: ${kpis.por_tipo_firma?.VideoConferencia ?? 0}</div>
+    cont.innerHTML = `
+        <h2 class="titulo-modulo">📘 Informe General</h2>
+
+        <!-- KPIs PREMIUM -->
+        <div class="kpi-box">
+            <div class="kpi-item">
+                <div class="kpi-label">Total firmas</div>
+                <div class="kpi-value">${totalFirmas.toLocaleString()}</div>
+            </div>
+
+            <div class="kpi-item">
+                <div class="kpi-label">Media días (SLA)</div>
+                <div class="kpi-value">${mediaDias}</div>
+            </div>
+
+            <div class="kpi-item">
+                <div class="kpi-label">% VC</div>
+                <div class="kpi-value">${pctVC}%</div>
+            </div>
+
+            <div class="kpi-item">
+                <div class="kpi-label">% Con provisión</div>
+                <div class="kpi-value">${pctProvision}%</div>
+            </div>
+
+            <div class="kpi-item">
+                <div class="kpi-label">Oficina más activa</div>
+                <div class="kpi-value">${oficinaTop}</div>
+            </div>
+
+            <div class="kpi-item">
+                <div class="kpi-label">Circuito dominante</div>
+                <div class="kpi-value">${circuitoTop}</div>
+            </div>
         </div>
 
-        <canvas id="chartGeneral" class="mt-20"></canvas>
+        <!-- GRÁFICO -->
+        <div class="card-glass" style="margin-top:20px;">
+            <h3>📊 Firmas por mes</h3>
+            <canvas id="graficoGeneralMeses" height="120"></canvas>
+        </div>
     `;
 
+    // ============================
+    // DIBUJAR GRÁFICO
+    // ============================
     resetChart();
 
-    const ctx = document.getElementById("chartGeneral");
+    const ctx = document.getElementById("graficoGeneralMeses").getContext("2d");
+
     chartActual = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: Object.keys(kpis.por_mes),
+            labels: mesesOrden,
             datasets: [{
-                label: "Firmas por mes",
-                data: Object.values(kpis.por_mes),
-                backgroundColor: "#0ea5e9"
+                label: "Firmas",
+                data: firmasPorMes,
+                backgroundColor: "rgba(14,165,233,0.6)",
+                borderColor: "rgba(14,165,233,1)",
+                borderWidth: 2,
+                borderRadius: 6
             }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
         }
     });
 }
@@ -74,8 +161,10 @@ async function generarInformeAnual() {
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
-        <h3>Informe Anual</h3>
-        <canvas id="chartAnual"></canvas>
+        <h2 class="titulo-modulo">📅 Informe Anual</h2>
+        <div class="card-glass mt-20">
+            <canvas id="chartAnual"></canvas>
+        </div>
     `;
 
     resetChart();
@@ -89,6 +178,7 @@ async function generarInformeAnual() {
                 label: "Firmas por año",
                 data: Object.values(kpis.por_anio),
                 borderColor: "#10b981",
+                borderWidth: 3,
                 fill: false
             }]
         }
@@ -104,8 +194,10 @@ async function generarInformeMensual() {
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
-        <h3>Informe Mensual</h3>
-        <canvas id="chartMensual"></canvas>
+        <h2 class="titulo-modulo">🗓️ Informe Mensual</h2>
+        <div class="card-glass mt-20">
+            <canvas id="chartMensual"></canvas>
+        </div>
     `;
 
     resetChart();
@@ -125,12 +217,11 @@ async function generarInformeMensual() {
 }
 
 /* ============================================================
-   INFORME POR APODERADOS (CORREGIDO)
+   INFORME POR APODERADOS
 ============================================================ */
 async function generarInformeApoderados() {
     const datos = await obtenerFirmas();
 
-    // Agrupar por apoderado real
     const mapa = {};
     datos.forEach(f => {
         const apo = f.apoderado || "Sin apoderado";
@@ -141,8 +232,10 @@ async function generarInformeApoderados() {
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
-        <h3>Informe por Apoderado</h3>
-        <canvas id="chartApo"></canvas>
+        <h2 class="titulo-modulo">🧑‍💼 Informe por Apoderado</h2>
+        <div class="card-glass mt-20">
+            <canvas id="chartApo"></canvas>
+        </div>
     `;
 
     resetChart();
@@ -162,12 +255,11 @@ async function generarInformeApoderados() {
 }
 
 /* ============================================================
-   INFORME POR OFICINAS (CORREGIDO → CENTRO)
+   INFORME POR OFICINAS (CENTRO)
 ============================================================ */
 async function generarInformeOficinas() {
     const datos = await obtenerFirmas();
 
-    // Agrupar por centro (Cancela / Oficina)
     const mapa = {};
     datos.forEach(f => {
         const centro = f.centro || "Sin centro";
@@ -178,8 +270,10 @@ async function generarInformeOficinas() {
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
-        <h3>Informe por Centro</h3>
-        <canvas id="chartOfi"></canvas>
+        <h2 class="titulo-modulo">🏢 Informe por Centro</h2>
+        <div class="card-glass mt-20">
+            <canvas id="chartOfi"></canvas>
+        </div>
     `;
 
     resetChart();
@@ -206,8 +300,10 @@ async function generarInformeCircuito() {
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
-        <h3>Informe por Circuito</h3>
-        <canvas id="chartCircuito"></canvas>
+        <h2 class="titulo-modulo">🛣️ Informe por Circuito</h2>
+        <div class="card-glass mt-20">
+            <canvas id="chartCircuito"></canvas>
+        </div>
     `;
 
     resetChart();
@@ -234,8 +330,10 @@ async function generarInformeTipoFirma() {
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
-        <h3>Informe por Tipo de Firma</h3>
-        <canvas id="chartTipoFirma"></canvas>
+        <h2 class="titulo-modulo">✍️ Informe por Tipo de Firma</h2>
+        <div class="card-glass mt-20">
+            <canvas id="chartTipoFirma"></canvas>
+        </div>
     `;
 
     resetChart();
@@ -255,12 +353,11 @@ async function generarInformeTipoFirma() {
 }
 
 /* ============================================================
-   INFORME DE TIEMPOS MEDIOS (CORREGIDO)
+   INFORME DE TIEMPOS MEDIOS
 ============================================================ */
 async function generarInformeTiempos() {
     const datos = await obtenerFirmas();
 
-    // Agrupar por apoderado + tipo gestión
     const mapa = {};
 
     datos.forEach(f => {
@@ -274,7 +371,8 @@ async function generarInformeTiempos() {
     cont.style.display = "block";
 
     let html = `
-        <h3>Tiempos Medios por Apoderado y Gestión</h3>
+        <h2 class="titulo-modulo">⏱️ Tiempos Medios por Apoderado y Gestión</h2>
+        <div class="card-glass mt-20">
         <table class="tabla-excel mt-20">
             <thead>
                 <tr>
@@ -298,7 +396,7 @@ async function generarInformeTiempos() {
         `;
     });
 
-    html += `</tbody></table>`;
+    html += `</tbody></table></div>`;
 
     cont.innerHTML = html;
 }
