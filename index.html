@@ -114,6 +114,606 @@
 <!-- ============================
      TEMPLATES DE MÓDULOS
 ============================ -->
+<!-- PANEL APODERADOS -->
+<template id="tpl-panel-apoderados">
+    <div class="modulo-wrapper fade-in panel-apoderados-wrapper">
+
+        <h2 class="titulo-modulo">🧑‍💼 Panel de Apoderados — Glass Luxe 2027</h2>
+
+        <!-- SELECTOR DE APODERADO -->
+        <div class="pa-filtros card-glass">
+            <div>
+                <label for="pa-select-apoderado">Apoderado</label>
+                <select id="pa-select-apoderado" onchange="papo_onChangeApoderado()"></select>
+            </div>
+        </div>
+
+        <!-- KPIs PRINCIPALES -->
+        <div class="pa-kpis card-glass mt-20">
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">Total firmas</span>
+                <span class="pa-kpi-value" id="papo-kpi-total">0</span>
+            </div>
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">Media días (SLA)</span>
+                <span class="pa-kpi-value" id="papo-kpi-sla">0</span>
+            </div>
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">% VC</span>
+                <span class="pa-kpi-value" id="papo-kpi-vc">0%</span>
+            </div>
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">% Con provisión</span>
+                <span class="pa-kpi-value" id="papo-kpi-prov">0%</span>
+            </div>
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">Oficina más activa</span>
+                <span class="pa-kpi-value" id="papo-kpi-oficina">-</span>
+            </div>
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">Circuito dominante</span>
+                <span class="pa-kpi-value" id="papo-kpi-circuito">-</span>
+            </div>
+        </div>
+
+        <!-- EVOLUCIÓN MENSUAL -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Evolución mensual</h3>
+            <canvas id="papo-chart-mensual" height="120"></canvas>
+        </div>
+
+        <!-- DISTRIBUCIÓN TIPO FIRMA -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Tipo de firma</h3>
+            <canvas id="papo-chart-tipo-firma" height="120"></canvas>
+        </div>
+
+        <!-- DISTRIBUCIÓN TIPO GESTIÓN -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Tipo de gestión</h3>
+            <canvas id="papo-chart-tipo-gestion" height="120"></canvas>
+        </div>
+
+        <!-- DISTRIBUCIÓN OFICINAS -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Oficinas</h3>
+            <canvas id="papo-chart-oficinas" height="120"></canvas>
+        </div>
+
+        <!-- DISTRIBUCIÓN CIRCUITOS -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Circuitos</h3>
+            <canvas id="papo-chart-circuitos" height="120"></canvas>
+        </div>
+
+    </div>
+</template>
+<!-- PANEL TIPO FIRMA -->
+<template id="tpl-panel-tipo-firma">
+    <div class="modulo-wrapper fade-in panel-tipo-firma-wrapper">
+
+        <h2 class="titulo-modulo">✍️ Panel Tipo de Firma — Glass Luxe 2027</h2>
+
+        <!-- SELECTOR DE AÑO -->
+        <div class="ptf-filtros card-glass">
+            <div>
+                <label for="ptf-select-anio">Año</label>
+                <select id="ptf-select-anio" onchange="ptf_onChangeAnio()"></select>
+            </div>
+        </div>
+
+        <!-- KPIs PRINCIPALES -->
+        <div class="ptf-kpis card-glass mt-20">
+            <div class="ptf-kpi">
+                <span class="ptf-kpi-label">Total firmas</span>
+                <span class="ptf-kpi-value" id="ptf-kpi-total">0</span>
+            </div>
+            <div class="ptf-kpi">
+                <span class="ptf-kpi-label">% Presencial</span>
+                <span class="ptf-kpi-value" id="ptf-kpi-pres">0%</span>
+            </div>
+            <div class="ptf-kpi">
+                <span class="ptf-kpi-label">% VC</span>
+                <span class="ptf-kpi-value" id="ptf-kpi-vc">0%</span>
+            </div>
+            <div class="ptf-kpi">
+                <span class="ptf-kpi-label">Media días Presencial</span>
+                <span class="ptf-kpi-value" id="ptf-kpi-sla-pres">0</span>
+            </div>
+            <div class="ptf-kpi">
+                <span class="ptf-kpi-label">Media días VC</span>
+                <span class="ptf-kpi-value" id="ptf-kpi-sla-vc">0</span>
+            </div>
+        </div>
+
+        <!-- DISTRIBUCIÓN ANUAL PRESENCIAL vs VC -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Distribución anual Presencial / VC</h3>
+            <canvas id="ptf-chart-anual" height="120"></canvas>
+        </div>
+
+        <!-- EVOLUCIÓN MENSUAL POR TIPO DE FIRMA -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Evolución mensual por tipo de firma</h3>
+            <canvas id="ptf-chart-mensual" height="120"></canvas>
+        </div>
+
+        <!-- TABLA DETALLE POR MES -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Detalle mensual</h3>
+            <div class="tabla-scroll-x mt-10">
+                <table class="tabla-excel tabla-sticky" id="ptf-tabla-meses">
+                    <thead>
+                        <tr>
+                            <th>Mes</th>
+                            <th>Total</th>
+                            <th>Presencial</th>
+                            <th>VC</th>
+                            <th>% VC</th>
+                            <th>Media días Presencial</th>
+                            <th>Media días VC</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</template>
+<!-- PANEL TIPO GESTIÓN -->
+<template id="tpl-panel-tipo-gestion">
+    <div class="modulo-wrapper fade-in panel-tipo-gestion-wrapper">
+
+        <h2 class="titulo-modulo">📄 Panel Tipo de Gestión — Glass Luxe 2027</h2>
+
+        <!-- SELECTOR DE AÑO -->
+        <div class="ptg-filtros card-glass">
+            <div>
+                <label for="ptg-select-anio">Año</label>
+                <select id="ptg-select-anio" onchange="ptg_onChangeAnio()"></select>
+            </div>
+        </div>
+
+        <!-- KPIs PRINCIPALES -->
+        <div class="ptg-kpis card-glass mt-20">
+            <div class="ptg-kpi">
+                <span class="ptg-kpi-label">Total firmas</span>
+                <span class="ptg-kpi-value" id="ptg-kpi-total">0</span>
+            </div>
+            <div class="ptg-kpi">
+                <span class="ptg-kpi-label">% Con provisión</span>
+                <span class="ptg-kpi-value" id="ptg-kpi-con">0%</span>
+            </div>
+            <div class="ptg-kpi">
+                <span class="ptg-kpi-label">% Sin provisión</span>
+                <span class="ptg-kpi-value" id="ptg-kpi-sin">0%</span>
+            </div>
+            <div class="ptg-kpi">
+                <span class="ptg-kpi-label">Media días Con provisión</span>
+                <span class="ptg-kpi-value" id="ptg-kpi-sla-con">0</span>
+            </div>
+            <div class="ptg-kpi">
+                <span class="ptg-kpi-label">Media días Sin provisión</span>
+                <span class="ptg-kpi-value" id="ptg-kpi-sla-sin">0</span>
+            </div>
+        </div>
+
+        <!-- DISTRIBUCIÓN ANUAL -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Distribución anual Con / Sin provisión</h3>
+            <canvas id="ptg-chart-anual" height="120"></canvas>
+        </div>
+
+        <!-- EVOLUCIÓN MENSUAL -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Evolución mensual por tipo de gestión</h3>
+            <canvas id="ptg-chart-mensual" height="120"></canvas>
+        </div>
+
+        <!-- TABLA DETALLE POR MES -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Detalle mensual</h3>
+            <div class="tabla-scroll-x mt-10">
+                <table class="tabla-excel tabla-sticky" id="ptg-tabla-meses">
+                    <thead>
+                        <tr>
+                            <th>Mes</th>
+                            <th>Total</th>
+                            <th>Con provisión</th>
+                            <th>Sin provisión</th>
+                            <th>% Con provisión</th>
+                            <th>Media días Con</th>
+                            <th>Media días Sin</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</template>
+<!-- PANEL OFICINAS -->
+<template id="tpl-panel-oficinas">
+    <div class="modulo-wrapper fade-in panel-oficinas-wrapper">
+
+        <h2 class="titulo-modulo">🏢 Panel Oficinas — Glass Luxe 2027</h2>
+
+        <!-- SELECTOR DE AÑO -->
+        <div class="pof-filtros card-glass">
+            <div>
+                <label for="pof-select-anio">Año</label>
+                <select id="pof-select-anio" onchange="pof_onChangeAnio()"></select>
+            </div>
+        </div>
+
+        <!-- KPIs PRINCIPALES -->
+        <div class="pof-kpis card-glass mt-20">
+            <div class="pof-kpi">
+                <span class="pof-kpi-label">Total firmas año</span>
+                <span class="pof-kpi-value" id="pof-kpi-total">0</span>
+            </div>
+            <div class="pof-kpi">
+                <span class="pof-kpi-label">Oficina más activa</span>
+                <span class="pof-kpi-value" id="pof-kpi-top-oficina">-</span>
+            </div>
+            <div class="pof-kpi">
+                <span class="pof-kpi-label">Media días (SLA)</span>
+                <span class="pof-kpi-value" id="pof-kpi-sla">0</span>
+            </div>
+            <div class="pof-kpi">
+                <span class="pof-kpi-label">% VC</span>
+                <span class="pof-kpi-value" id="pof-kpi-vc">0%</span>
+            </div>
+        </div>
+
+        <!-- RANKING OFICINAS -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Ranking de oficinas</h3>
+            <div class="tabla-scroll-x mt-10">
+                <table class="tabla-excel" id="pof-tabla-oficinas">
+                    <thead>
+                        <tr>
+                            <th>Oficina</th>
+                            <th>Firmas</th>
+                            <th>Media días</th>
+                            <th>% VC</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- GRÁFICO FIRMAS POR OFICINA -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Firmas por oficina</h3>
+            <canvas id="pof-chart-oficinas" height="120"></canvas>
+        </div>
+
+        <!-- GRÁFICO EVOLUCIÓN MENSUAL (OFICINA TOP) -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Evolución mensual oficina top</h3>
+            <canvas id="pof-chart-mensual-top" height="120"></canvas>
+        </div>
+
+    </div>
+</template>
+<!-- PANEL CIRCUITO -->
+<template id="tpl-panel-circuito">
+    <div class="modulo-wrapper fade-in panel-circuito-wrapper">
+
+        <h2 class="titulo-modulo">🛣️ Panel Circuito Notarial — Glass Luxe 2027</h2>
+
+        <!-- SELECTOR DE AÑO -->
+        <div class="pci-filtros card-glass">
+            <div>
+                <label for="pci-select-anio">Año</label>
+                <select id="pci-select-anio" onchange="pci_onChangeAnio()"></select>
+            </div>
+        </div>
+
+        <!-- KPIs PRINCIPALES -->
+        <div class="pci-kpis card-glass mt-20">
+            <div class="pci-kpi">
+                <span class="pci-kpi-label">Total firmas</span>
+                <span class="pci-kpi-value" id="pci-kpi-total">0</span>
+            </div>
+            <div class="pci-kpi">
+                <span class="pci-kpi-label">Circuito dominante</span>
+                <span class="pci-kpi-value" id="pci-kpi-top-circuito">-</span>
+            </div>
+            <div class="pci-kpi">
+                <span class="pci-kpi-label">Media días (SLA)</span>
+                <span class="pci-kpi-value" id="pci-kpi-sla">0</span>
+            </div>
+            <div class="pci-kpi">
+                <span class="pci-kpi-label">% VC</span>
+                <span class="pci-kpi-value" id="pci-kpi-vc">0%</span>
+            </div>
+        </div>
+
+        <!-- DISTRIBUCIÓN ANUAL -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Distribución anual por circuito</h3>
+            <canvas id="pci-chart-anual" height="120"></canvas>
+        </div>
+
+        <!-- EVOLUCIÓN MENSUAL -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Evolución mensual por circuito</h3>
+            <canvas id="pci-chart-mensual" height="120"></canvas>
+        </div>
+
+        <!-- TABLA DETALLE POR MES -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Detalle mensual</h3>
+            <div class="tabla-scroll-x mt-10">
+                <table class="tabla-excel tabla-sticky" id="pci-tabla-meses">
+                    <thead>
+                        <tr>
+                            <th>Mes</th>
+                            <th>Total</th>
+                            <th>Península</th>
+                            <th>Canarias</th>
+                            <th>Externo</th>
+                            <th>% Península</th>
+                            <th>% Canarias</th>
+                            <th>% Externo</th>
+                            <th>Media días</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</template>
+<!-- PANEL SLA -->
+<template id="tpl-panel-sla">
+    <div class="modulo-wrapper fade-in panel-sla-wrapper">
+
+        <h2 class="titulo-modulo">⏱️ Panel SLA / Tiempos — Glass Luxe 2027</h2>
+
+        <!-- SELECTOR DE AÑO -->
+        <div class="sla-filtros card-glass">
+            <div>
+                <label for="sla-select-anio">Año</label>
+                <select id="sla-select-anio" onchange="sla_onChangeAnio()"></select>
+            </div>
+        </div>
+
+        <!-- KPIs PRINCIPALES -->
+        <div class="sla-kpis card-glass mt-20">
+            <div class="sla-kpi">
+                <span class="sla-kpi-label">Media días (SLA)</span>
+                <span class="sla-kpi-value" id="sla-kpi-media">0</span>
+            </div>
+            <div class="sla-kpi">
+                <span class="sla-kpi-label">SLA más rápido</span>
+                <span class="sla-kpi-value" id="sla-kpi-min">0</span>
+            </div>
+            <div class="sla-kpi">
+                <span class="sla-kpi-label">SLA más lento</span>
+                <span class="sla-kpi-value" id="sla-kpi-max">0</span>
+            </div>
+            <div class="sla-kpi">
+                <span class="sla-kpi-label">Mes más rápido</span>
+                <span class="sla-kpi-value" id="sla-kpi-top-mes">-</span>
+            </div>
+        </div>
+
+        <!-- EVOLUCIÓN MENSUAL SLA -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Evolución mensual del SLA</h3>
+            <canvas id="sla-chart-mensual" height="120"></canvas>
+        </div>
+
+        <!-- SLA POR APODERADO -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">SLA por apoderado</h3>
+            <canvas id="sla-chart-apoderados" height="120"></canvas>
+        </div>
+
+        <!-- SLA POR OFICINA -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">SLA por oficina</h3>
+            <canvas id="sla-chart-oficinas" height="120"></canvas>
+        </div>
+
+        <!-- SLA POR CIRCUITO -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">SLA por circuito</h3>
+            <canvas id="sla-chart-circuitos" height="120"></canvas>
+        </div>
+
+        <!-- TABLA DETALLE MENSUAL -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Detalle mensual</h3>
+            <div class="tabla-scroll-x mt-10">
+                <table class="tabla-excel tabla-sticky" id="sla-tabla-meses">
+                    <thead>
+                        <tr>
+                            <th>Mes</th>
+                            <th>Media días</th>
+                            <th>Mínimo</th>
+                            <th>Máximo</th>
+                            <th>Nº Firmas</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</template>
+
+<!-- PANEL MENSUAL -->
+<template id="tpl-panel-mensual">
+    <div class="modulo-wrapper fade-in panel-mensual-wrapper">
+
+        <h2 class="titulo-modulo">📅 Panel Mensual — Glass Luxe 2027</h2>
+
+        <!-- SELECTOR DE AÑO -->
+        <div class="pm-filtros card-glass">
+            <div>
+                <label for="pm-select-anio">Año</label>
+                <select id="pm-select-anio" onchange="pm_onChangeAnio()"></select>
+            </div>
+        </div>
+
+        <!-- KPIs PRINCIPALES -->
+        <div class="pm-kpis card-glass mt-20">
+            <div class="pm-kpi">
+                <span class="pm-kpi-label">Total firmas año</span>
+                <span class="pm-kpi-value" id="pm-kpi-total">0</span>
+            </div>
+            <div class="pm-kpi">
+                <span class="pm-kpi-label">Media días (SLA)</span>
+                <span class="pm-kpi-value" id="pm-kpi-sla">0</span>
+            </div>
+            <div class="pm-kpi">
+                <span class="pm-kpi-label">% VC</span>
+                <span class="pm-kpi-value" id="pm-kpi-vc">0%</span>
+            </div>
+            <div class="pm-kpi">
+                <span class="pm-kpi-label">Mes más fuerte</span>
+                <span class="pm-kpi-value" id="pm-kpi-top-mes">-</span>
+            </div>
+        </div>
+
+        <!-- EVOLUCIÓN MENSUAL (BARRAS) -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Firmas por mes</h3>
+            <canvas id="pm-chart-meses" height="120"></canvas>
+        </div>
+
+        <!-- TABLA MENSUAL -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Resumen mensual</h3>
+            <div class="tabla-scroll-x mt-10">
+                <table class="tabla-excel tabla-sticky" id="pm-tabla-meses">
+                    <thead>
+                        <tr>
+                            <th>Mes</th>
+                            <th>Total</th>
+                            <th>Presencial</th>
+                            <th>VC</th>
+                            <th>% VC</th>
+                            <th>Media días</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</template>
+
+<!-- PANEL ANUAL -->
+<template id="tpl-panel-anual">
+    <div class="modulo-wrapper fade-in panel-anual-wrapper">
+
+        <h2 class="titulo-modulo">📈 Panel Anual — Glass Luxe 2027</h2>
+
+        <!-- SELECTOR DE AÑO -->
+        <div class="panel-anual-filtros card-glass">
+            <div>
+                <label for="pa-select-anio">Año</label>
+                <select id="pa-select-anio" onchange="pa_onChangeAnio()"></select>
+            </div>
+        </div>
+
+        <!-- KPIs PRINCIPALES -->
+        <div class="panel-anual-kpis card-glass mt-20">
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">Total firmas</span>
+                <span class="pa-kpi-value" id="pa-kpi-total">0</span>
+            </div>
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">Variación vs año anterior</span>
+                <span class="pa-kpi-value" id="pa-kpi-var">0%</span>
+            </div>
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">Media días (SLA)</span>
+                <span class="pa-kpi-value" id="pa-kpi-sla">0</span>
+            </div>
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">% VC / % Presencial</span>
+                <span class="pa-kpi-value" id="pa-kpi-vc">0% / 0%</span>
+            </div>
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">Top apoderado</span>
+                <span class="pa-kpi-value" id="pa-kpi-top-apoderado">-</span>
+            </div>
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">Oficina más activa</span>
+                <span class="pa-kpi-value" id="pa-kpi-top-oficina">-</span>
+            </div>
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">Circuito dominante</span>
+                <span class="pa-kpi-value" id="pa-kpi-top-circuito">-</span>
+            </div>
+            <div class="pa-kpi">
+                <span class="pa-kpi-label">Tipo gestión dominante</span>
+                <span class="pa-kpi-value" id="pa-kpi-top-gestion">-</span>
+            </div>
+        </div>
+
+        <!-- GRÁFICO EVOLUTIVO ANUAL -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Evolución anual de firmas</h3>
+            <canvas id="pa-chart-anual" height="120"></canvas>
+        </div>
+
+        <!-- TABLA RESUMEN ANUAL -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Resumen por año</h3>
+            <div class="tabla-scroll-x mt-10">
+                <table class="tabla-excel tabla-sticky" id="pa-tabla-anual">
+                    <thead>
+                        <tr>
+                            <th>Año</th>
+                            <th>Total</th>
+                            <th>Presencial</th>
+                            <th>VC</th>
+                            <th>% VC</th>
+                            <th>Media días</th>
+                            <th>Var. %</th>
+                            <th>Top apoderado</th>
+                            <th>Top oficina</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- RANKING APODERADOS -->
+        <div class="card-glass mt-20">
+            <h3 class="subtitulo-modulo">Top apoderados del año</h3>
+            <div class="tabla-scroll-x mt-10">
+                <table class="tabla-excel" id="pa-tabla-apoderados">
+                    <thead>
+                        <tr>
+                            <th>Apoderado</th>
+                            <th>Firmas</th>
+                            <th>Media días</th>
+                            <th>% VC</th>
+                            <th>% Con provisión</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</template>
 
 <!-- DASHBOARD -->
 <template id="tpl-dashboard">
@@ -351,53 +951,58 @@
 
         <h2 class="titulo-modulo">📘 Informes Premium</h2>
 
-        <div class="grid-informes">
+       <div class="inf-grid">
 
-            <button class="btn-inf" onclick="generarInformeGeneral()">
-                <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/></svg>
-                Informe General
-            </button>
-
-            <button class="btn-inf" onclick="generarInformeAnual()">
-                <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/></svg>
-                Informe Anual
-            </button>
-
-            <button class="btn-inf" onclick="generarInformeMensual()">
-                <svg viewBox="0 0 24 24"><path d="M3 8h18M3 16h18"/></svg>
-                Informe Mensual
-            </button>
-
-            <button class="btn-inf" onclick="generarInformeApoderados()">
-                <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4"/></svg>
-                Por Apoderado
-            </button>
-
-            <button class="btn-inf" onclick="generarInformeOficinas()">
-                <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
-                Por Oficina
-            </button>
-
-            <button class="btn-inf" onclick="generarInformeCircuito()">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
-                Por Circuito
-            </button>
-
-            <button class="btn-inf" onclick="generarInformeTipoFirma()">
-                <svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg>
-                Por Tipo de Firma
-            </button>
-
-            <button class="btn-inf" onclick="generarInformeTiempos()">
-                <svg viewBox="0 0 24 24"><path d="M12 6v6l4 2"/></svg>
-                Tiempos Medios
-            </button>
-
-        </div>
-
-        <div id="informeContainer" class="card-glass mt-30" style="display:none;"></div>
-
+    <div class="inf-card" onclick="generarInformeGeneral()">
+        <div class="inf-icon">📘</div>
+        <div class="inf-title">Informe General</div>
+        <div class="inf-desc">Resumen completo del periodo</div>
     </div>
+
+    <div class="inf-card" onclick="generarInformeAnual()">
+        <div class="inf-icon">📅</div>
+        <div class="inf-title">Informe Anual</div>
+        <div class="inf-desc">Comparativa año a año</div>
+    </div>
+
+    <div class="inf-card" onclick="generarInformeMensual()">
+        <div class="inf-icon">🗓️</div>
+        <div class="inf-title">Informe Mensual</div>
+        <div class="inf-desc">Actividad del mes</div>
+    </div>
+
+    <div class="inf-card" onclick="generarInformeApoderados()">
+        <div class="inf-icon">🧑‍💼</div>
+        <div class="inf-title">Por Apoderado</div>
+        <div class="inf-desc">Ranking y rendimiento</div>
+    </div>
+
+    <div class="inf-card" onclick="generarInformeOficinas()">
+        <div class="inf-icon">🏢</div>
+        <div class="inf-title">Por Oficina</div>
+        <div class="inf-desc">Actividad por centro</div>
+    </div>
+
+    <div class="inf-card" onclick="generarInformeCircuito()">
+        <div class="inf-icon">🛣️</div>
+        <div class="inf-title">Por Circuito</div>
+        <div class="inf-desc">Península / Canarias / Externo</div>
+    </div>
+
+    <div class="inf-card" onclick="generarInformeTipoFirma()">
+        <div class="inf-icon">✍️</div>
+        <div class="inf-title">Tipo de Firma</div>
+        <div class="inf-desc">Presencial / VC</div>
+    </div>
+
+    <div class="inf-card" onclick="generarInformeTiempos()">
+        <div class="inf-icon">⏱️</div>
+        <div class="inf-title">Tiempos Medios</div>
+        <div class="inf-desc">Días entre fases</div>
+    </div>
+
+</div>
+
 </template>
 
 <!-- INFORMES DINÁMICOS -->
@@ -487,6 +1092,14 @@
 <script src="js/informes-dinamicos.js?v=2"></script>
 <script src="js/permisos.js?v=2"></script>
 <script src="js/configuracion.js?v=2"></script>
+<script src="js/panel-tipo-anual.js?v=2"></script>
+<script src="js/panel-tipo-apoderados.js?v=2"></script>
+<script src="js/panel-tipo-mensual.js?v=2"></script>
+<script src="js/panel-tipo-firma.js?v=2"></script>
+<script src="js/panel-tipo-gestion.js?v=2"></script>
+<script src="js/panel-tipo-oficinas.js?v=2"></script>
+<script src="js/panel-tipo-circuito.js?v=2"></script>
+<script src="js/panel-tipo-sla.js?v=2"></script>
 
 <!-- 3) Dashboard SIEMPRE después de todo lo anterior -->
 <script src="js/dashboard.js?v=2"></script>
