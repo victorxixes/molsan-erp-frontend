@@ -1,5 +1,5 @@
 /* ============================================================
-   REGLAS DE NORMALIZACIÓN — GLASS LUXE 2027 (VERSIÓN FINAL)
+   REGLAS DE NORMALIZACIÓN — GLASS LUXE 2027 (VERSIÓN CORRECTA)
 ============================================================ */
 
 function aplicarReglas(f) {
@@ -12,7 +12,7 @@ function aplicarReglas(f) {
     f.envio_notario = normalizarFecha(f.envio_notario);
 
     /* ============================================================
-       2) MES (nombre) + AÑO (número)
+       2) MES + AÑO (a partir de FECHA PROTOCOLO)
     ============================================================= */
     if (f.fecha_protocolo) {
         const [d, m, y] = f.fecha_protocolo.split("/");
@@ -23,11 +23,35 @@ function aplicarReglas(f) {
         ];
 
         f.mes = nombresMes[Number(m) - 1] || "";
-        f.anio = Number(y) || "";
+        f.anio = Number(y) || null;
     } else {
         f.mes = "";
-        f.anio = "";
+        f.anio = null;
     }
+
+    /* ============================================================
+       3) SI NO HAY FECHA PROTOCOLO → USAR FECHA ALTA
+    ============================================================= */
+    if (!f.anio && f.fecha_alta) {
+        const fecha = new Date(f.fecha_alta);
+        if (!isNaN(fecha)) {
+            f.mes = fecha.getMonth() + 1;
+            f.anio = fecha.getFullYear();
+        }
+    }
+
+    /* ============================================================
+       4) SI EL EXCEL TRAE AÑO CORTO (12, 13, 24…)
+    ============================================================= */
+    if (!f.anio || f.anio < 100) {
+        const anioNum = Number(f["Año"] ?? 0);
+        if (anioNum > 0) {
+            f.anio = 2000 + anioNum;
+        }
+    }
+
+    return f;
+}
 
     /* ============================================================
        3) CENTRO (regla exacta)
