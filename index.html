@@ -102,29 +102,57 @@
 <template id="tpl-panel-apoderados">
 <div class="panel-wrapper fade-in">
 
-    <h2 class="titulo-modulo">👤 Panel Apoderados</h2>
+    <h2 class="titulo-modulo">🧑‍💼 Panel Apoderados</h2>
 
-    <div class="panel-filtros">
-        <div>
+    <!-- ============================================================
+         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
+    ============================================================= -->
+    <div class="panel-header">
+
+        <!-- IZQUIERDA: SELECTOR DE AÑO -->
+        <div class="panel-header-left">
             <label>Año</label>
             <select id="pap-select-anio"></select>
         </div>
+
+        <!-- DERECHA: KPIS -->
+        <div class="panel-header-right kpi-panel">
+
+            <div class="kpi-card">
+                <div class="kpi-label">Total firmas</div>
+                <div class="kpi-value" id="pap-kpi-total">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">SLA medio</div>
+                <div class="kpi-value" id="pap-kpi-sla">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">% VC</div>
+                <div class="kpi-value" id="pap-kpi-vc">0%</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Apoderado top</div>
+                <div class="kpi-value" id="pap-kpi-apoderado">-</div>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="kpi-panel">
-        <div class="kpi-card"><div class="kpi-label">Total firmas</div><div class="kpi-value" id="pap-kpi-total">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">SLA medio</div><div class="kpi-value" id="pap-kpi-sla">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">% VC</div><div class="kpi-value" id="pap-kpi-vc">0%</div></div>
-        <div class="kpi-card"><div class="kpi-label">Apoderado top</div><div class="kpi-value" id="pap-kpi-apoderado">-</div></div>
-    </div>
+    <!-- ============================================================
+         CONTENIDO DEL PANEL
+    ============================================================= -->
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Ranking por apoderado</h3>
+        <h3 class="subtitulo-modulo">Ranking de Apoderados</h3>
         <canvas id="pap-chart-apoderados"></canvas>
     </div>
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Detalle por apoderado</h3>
+        <h3 class="subtitulo-modulo">Detalle por Apoderado</h3>
         <table id="pap-tabla-apoderados">
             <thead>
                 <tr>
@@ -142,7 +170,6 @@
 
 </div>
 </template>
-
 <!-- ============================================================
      PANEL TIPO FIRMA
 ============================================================ -->
@@ -151,29 +178,51 @@
 
     <h2 class="titulo-modulo">✍️ Panel Tipo de Firma</h2>
 
-    <div class="panel-filtros">
-        <div>
+    <!-- ============================================================
+         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
+    ============================================================= -->
+    <div class="panel-header">
+
+        <!-- IZQUIERDA: SELECTOR DE AÑO -->
+        <div class="panel-header-left">
             <label>Año</label>
             <select id="ptf-select-anio"></select>
         </div>
+
+        <!-- DERECHA: KPIS -->
+        <div class="panel-header-right kpi-panel">
+
+            <div class="kpi-card">
+                <div class="kpi-label">Total firmas</div>
+                <div class="kpi-value" id="ptf-kpi-total">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">% VC</div>
+                <div class="kpi-value" id="ptf-kpi-vc">0%</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">% Presencial</div>
+                <div class="kpi-value" id="ptf-kpi-pres">0%</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Mes más fuerte</div>
+                <div class="kpi-value" id="ptf-kpi-top-mes">-</div>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="kpi-panel">
-        <div class="kpi-card"><div class="kpi-label">Total firmas</div><div class="kpi-value" id="ptf-kpi-total">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">% Presencial</div><div class="kpi-value" id="ptf-kpi-pres">0%</div></div>
-        <div class="kpi-card"><div class="kpi-label">% VC</div><div class="kpi-value" id="ptf-kpi-vc">0%</div></div>
-        <div class="kpi-card"><div class="kpi-label">SLA Presencial</div><div class="kpi-value" id="ptf-kpi-sla-pres">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">SLA VC</div><div class="kpi-value" id="ptf-kpi-sla-vc">0</div></div>
-    </div>
+    <!-- ============================================================
+         CONTENIDO DEL PANEL
+    ============================================================= -->
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Distribución anual por tipo de firma</h3>
-        <canvas id="ptf-chart-anual"></canvas>
-    </div>
-
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Evolución mensual por tipo de firma</h3>
-        <canvas id="ptf-chart-mensual"></canvas>
+        <h3 class="subtitulo-modulo">Distribución por tipo de firma</h3>
+        <canvas id="ptf-chart-tipo-firma"></canvas>
     </div>
 
     <div class="panel-contenido mt-20">
@@ -186,8 +235,7 @@
                     <th>Presencial</th>
                     <th>VC</th>
                     <th>% VC</th>
-                    <th>SLA Pres</th>
-                    <th>SLA VC</th>
+                    <th>SLA</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -196,7 +244,6 @@
 
 </div>
 </template>
-
 <!-- ============================================================
      PANEL TIPO GESTIÓN
 ============================================================ -->
@@ -205,41 +252,69 @@
 
     <h2 class="titulo-modulo">📄 Panel Tipo de Gestión</h2>
 
-    <div class="panel-filtros">
-        <div>
+    <!-- ============================================================
+         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
+    ============================================================= -->
+    <div class="panel-header">
+
+        <!-- IZQUIERDA: SELECTOR DE AÑO -->
+        <div class="panel-header-left">
             <label>Año</label>
             <select id="ptg-select-anio"></select>
         </div>
+
+        <!-- DERECHA: KPIS -->
+        <div class="panel-header-right kpi-panel">
+
+            <div class="kpi-card">
+                <div class="kpi-label">Total firmas</div>
+                <div class="kpi-value" id="ptg-kpi-total">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">% Con provisión</div>
+                <div class="kpi-value" id="ptg-kpi-con">0%</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">% Sin provisión</div>
+                <div class="kpi-value" id="ptg-kpi-sin">0%</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">SLA Con</div>
+                <div class="kpi-value" id="ptg-kpi-sla-con">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">SLA Sin</div>
+                <div class="kpi-value" id="ptg-kpi-sla-sin">0</div>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="kpi-panel">
-        <div class="kpi-card"><div class="kpi-label">Total firmas</div><div class="kpi-value" id="ptg-kpi-total">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">% Con provisión</div><div class="kpi-value" id="ptg-kpi-con">0%</div></div>
-        <div class="kpi-card"><div class="kpi-label">% Sin provisión</div><div class="kpi-value" id="ptg-kpi-sin">0%</div></div>
-        <div class="kpi-card"><div class="kpi-label">SLA Con provisión</div><div class="kpi-value" id="ptg-kpi-sla-con">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">SLA Sin provisión</div><div class="kpi-value" id="ptg-kpi-sla-sin">0</div></div>
+    <!-- ============================================================
+         CONTENIDO DEL PANEL
+    ============================================================= -->
+
+    <div class="panel-contenido mt-20">
+        <h3 class="subtitulo-modulo">Distribución por tipo de gestión</h3>
+        <canvas id="ptg-chart-tipo-gestion"></canvas>
     </div>
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Distribución anual por tipo de gestión</h3>
-        <canvas id="ptg-chart-anual"></canvas>
-    </div>
-
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Evolución mensual por tipo de gestión</h3>
-        <canvas id="ptg-chart-mensual"></canvas>
-    </div>
-
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Detalle mensual</h3>
-        <table id="ptg-tabla-meses">
+        <h3 class="subtitulo-modulo">Detalle por tipo de gestión</h3>
+        <table id="ptg-tabla-gestion">
             <thead>
                 <tr>
-                    <th>Mes</th>
+                    <th>Tipo Gestión</th>
                     <th>Total</th>
                     <th>Con provisión</th>
                     <th>Sin provisión</th>
                     <th>% Con</th>
+                    <th>% Sin</th>
                     <th>SLA Con</th>
                     <th>SLA Sin</th>
                 </tr>
@@ -259,39 +334,64 @@
 
     <h2 class="titulo-modulo">🏢 Panel Oficinas</h2>
 
-    <div class="panel-filtros">
-        <div>
+    <!-- ============================================================
+         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
+    ============================================================= -->
+    <div class="panel-header">
+
+        <!-- IZQUIERDA: SELECTOR DE AÑO -->
+        <div class="panel-header-left">
             <label>Año</label>
             <select id="pof-select-anio"></select>
         </div>
+
+        <!-- DERECHA: KPIS -->
+        <div class="panel-header-right kpi-panel">
+
+            <div class="kpi-card">
+                <div class="kpi-label">Total firmas</div>
+                <div class="kpi-value" id="pof-kpi-total">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">SLA medio</div>
+                <div class="kpi-value" id="pof-kpi-sla">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">% VC</div>
+                <div class="kpi-value" id="pof-kpi-vc">0%</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Oficina top</div>
+                <div class="kpi-value" id="pof-kpi-oficina">-</div>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="kpi-panel">
-        <div class="kpi-card"><div class="kpi-label">Total firmas</div><div class="kpi-value" id="pof-kpi-total">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">SLA medio</div><div class="kpi-value" id="pof-kpi-sla">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">% VC</div><div class="kpi-value" id="pof-kpi-vc">0%</div></div>
-        <div class="kpi-card"><div class="kpi-label">Oficina top</div><div class="kpi-value" id="pof-kpi-oficina">-</div></div>
-    </div>
+    <!-- ============================================================
+         CONTENIDO DEL PANEL
+    ============================================================= -->
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Ranking por oficina</h3>
+        <h3 class="subtitulo-modulo">Ranking de Oficinas</h3>
         <canvas id="pof-chart-oficinas"></canvas>
     </div>
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Evolución mensual — Oficina top</h3>
-        <canvas id="pof-chart-mensual-top"></canvas>
-    </div>
-
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Detalle por oficina</h3>
+        <h3 class="subtitulo-modulo">Detalle por Oficina</h3>
         <table id="pof-tabla-oficinas">
             <thead>
                 <tr>
                     <th>Oficina</th>
                     <th>Total</th>
-                    <th>SLA</th>
+                    <th>Presencial</th>
+                    <th>VC</th>
                     <th>% VC</th>
+                    <th>SLA</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -301,6 +401,7 @@
 </div>
 </template>
 
+
 <!-- ============================================================
      PANEL CIRCUITO
 ============================================================ -->
@@ -309,43 +410,63 @@
 
     <h2 class="titulo-modulo">🛣️ Panel Circuito</h2>
 
-    <div class="panel-filtros">
-        <div>
+    <!-- ============================================================
+         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
+    ============================================================= -->
+    <div class="panel-header">
+
+        <!-- IZQUIERDA: SELECTOR DE AÑO -->
+        <div class="panel-header-left">
             <label>Año</label>
             <select id="pci-select-anio"></select>
         </div>
+
+        <!-- DERECHA: KPIS -->
+        <div class="panel-header-right kpi-panel">
+
+            <div class="kpi-card">
+                <div class="kpi-label">Total firmas</div>
+                <div class="kpi-value" id="pci-kpi-total">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Circuito top</div>
+                <div class="kpi-value" id="pci-kpi-circuito">-</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">SLA medio</div>
+                <div class="kpi-value" id="pci-kpi-sla">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">% VC</div>
+                <div class="kpi-value" id="pci-kpi-vc">0%</div>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="kpi-panel">
-        <div class="kpi-card"><div class="kpi-label">Total firmas</div><div class="kpi-value" id="pci-kpi-total">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">Circuito dominante</div><div class="kpi-value" id="pci-kpi-circuito">-</div></div>
-        <div class="kpi-card"><div class="kpi-label">SLA medio</div><div class="kpi-value" id="pci-kpi-sla">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">% VC</div><div class="kpi-value" id="pci-kpi-vc">0%</div></div>
+    <!-- ============================================================
+         CONTENIDO DEL PANEL
+    ============================================================= -->
+
+    <div class="panel-contenido mt-20">
+        <h3 class="subtitulo-modulo">Distribución por Circuito</h3>
+        <canvas id="pci-chart-circuito"></canvas>
     </div>
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Distribución anual por circuito</h3>
-        <canvas id="pci-chart-anual"></canvas>
-    </div>
-
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Evolución mensual por circuito</h3>
-        <canvas id="pci-chart-mensual"></canvas>
-    </div>
-
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Detalle mensual</h3>
-        <table id="pci-tabla-meses">
+        <h3 class="subtitulo-modulo">Detalle por Circuito</h3>
+        <table id="pci-tabla-circuito">
             <thead>
                 <tr>
-                    <th>Mes</th>
+                    <th>Circuito</th>
                     <th>Total</th>
-                    <th>Península</th>
-                    <th>Canarias</th>
-                    <th>Externo</th>
-                    <th>% Pen</th>
-                    <th>% Can</th>
-                    <th>% Ext</th>
+                    <th>Presencial</th>
+                    <th>VC</th>
+                    <th>% VC</th>
                     <th>SLA</th>
                 </tr>
             </thead>
@@ -364,27 +485,55 @@
 
     <h2 class="titulo-modulo">📅 Panel Mensual</h2>
 
-    <div class="panel-filtros">
-        <div>
+    <!-- ============================================================
+         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
+    ============================================================= -->
+    <div class="panel-header">
+
+        <!-- IZQUIERDA: SELECTOR DE AÑO -->
+        <div class="panel-header-left">
             <label>Año</label>
             <select id="pm-select-anio"></select>
         </div>
+
+        <!-- DERECHA: KPIS -->
+        <div class="panel-header-right kpi-panel">
+
+            <div class="kpi-card">
+                <div class="kpi-label">Total firmas</div>
+                <div class="kpi-value" id="pm-kpi-total">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">SLA medio</div>
+                <div class="kpi-value" id="pm-kpi-sla">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">% VC</div>
+                <div class="kpi-value" id="pm-kpi-vc">0%</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Mes más fuerte</div>
+                <div class="kpi-value" id="pm-kpi-top-mes">-</div>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="kpi-panel">
-        <div class="kpi-card"><div class="kpi-label">Total firmas</div><div class="kpi-value" id="pm-kpi-total">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">SLA medio</div><div class="kpi-value" id="pm-kpi-sla">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">% VC</div><div class="kpi-value" id="pm-kpi-vc">0%</div></div>
-        <div class="kpi-card"><div class="kpi-label">Mes más fuerte</div><div class="kpi-value" id="pm-kpi-top-mes">-</div></div>
-    </div>
+    <!-- ============================================================
+         CONTENIDO DEL PANEL
+    ============================================================= -->
 
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Evolución mensual</h3>
-        <canvas id="pm-chart-meses"></canvas>
+        <canvas id="pm-chart-mensual"></canvas>
     </div>
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Detalle mensual</h3>
+        <h3 class="subtitulo-modulo">Detalle por mes</h3>
         <table id="pm-tabla-meses">
             <thead>
                 <tr>
@@ -402,28 +551,56 @@
 
 </div>
 </template>
-
 <!-- ============================================================
      PANEL ANUAL
 ============================================================ -->
+
 <template id="tpl-panel-anual">
 <div class="panel-wrapper fade-in">
 
     <h2 class="titulo-modulo">📆 Panel Anual</h2>
 
-    <div class="panel-filtros">
-        <div>
+    <!-- ============================================================
+         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
+    ============================================================= -->
+    <div class="panel-header">
+
+        <!-- IZQUIERDA: SELECTOR DE AÑO -->
+        <div class="panel-header-left">
             <label>Año</label>
             <select id="pa-select-anio"></select>
         </div>
+
+        <!-- DERECHA: KPIS -->
+        <div class="panel-header-right kpi-panel">
+
+            <div class="kpi-card">
+                <div class="kpi-label">Total firmas</div>
+                <div class="kpi-value" id="pa-kpi-total">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">SLA medio</div>
+                <div class="kpi-value" id="pa-kpi-sla">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">% VC</div>
+                <div class="kpi-value" id="pa-kpi-vc">0%</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">Mes más fuerte</div>
+                <div class="kpi-value" id="pa-kpi-top-mes">-</div>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="kpi-panel">
-        <div class="kpi-card"><div class="kpi-label">Total firmas</div><div class="kpi-value" id="pa-kpi-total">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">SLA medio</div><div class="kpi-value" id="pa-kpi-sla">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">% VC</div><div class="kpi-value" id="pa-kpi-vc">0%</div></div>
-        <div class="kpi-card"><div class="kpi-label">Mes más fuerte</div><div class="kpi-value" id="pa-kpi-top-mes">-</div></div>
-    </div>
+    <!-- ============================================================
+         CONTENIDO DEL PANEL
+    ============================================================= -->
 
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Evolución anual</h3>
@@ -456,43 +633,68 @@
 <template id="tpl-panel-sla">
 <div class="panel-wrapper fade-in">
 
-    <h2 class="titulo-modulo">⏱️ Panel SLA</h2>
+    <h2 class="titulo-modulo">⏱️ Panel SLA / Tiempos</h2>
 
-    <div class="panel-filtros">
-        <div>
+    <!-- ============================================================
+         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
+    ============================================================= -->
+    <div class="panel-header">
+
+        <!-- IZQUIERDA: SELECTOR DE AÑO -->
+        <div class="panel-header-left">
             <label>Año</label>
             <select id="sla-select-anio"></select>
         </div>
+
+        <!-- DERECHA: KPIS -->
+        <div class="panel-header-right kpi-panel">
+
+            <div class="kpi-card">
+                <div class="kpi-label">Total firmas</div>
+                <div class="kpi-value" id="sla-kpi-total">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">SLA medio</div>
+                <div class="kpi-value" id="sla-kpi-sla">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">SLA Con provisión</div>
+                <div class="kpi-value" id="sla-kpi-con">0</div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-label">SLA Sin provisión</div>
+                <div class="kpi-value" id="sla-kpi-sin">0</div>
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="kpi-panel">
-        <div class="kpi-card"><div class="kpi-label">SLA medio</div><div class="kpi-value" id="sla-kpi-media">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">SLA mínimo</div><div class="kpi-value" id="sla-kpi-min">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">SLA máximo</div><div class="kpi-value" id="sla-kpi-max">0</div></div>
-        <div class="kpi-card"><div class="kpi-label">Mes más rápido</div><div class="kpi-value" id="sla-kpi-top-mes">-</div></div>
-    </div>
+    <!-- ============================================================
+         CONTENIDO DEL PANEL
+    ============================================================= -->
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Evolución mensual del SLA</h3>
-        <canvas id="sla-chart-mensual"></canvas>
+        <h3 class="subtitulo-modulo">Evolución del SLA</h3>
+        <canvas id="sla-chart-evolucion"></canvas>
     </div>
 
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">SLA por circuito</h3>
-        <canvas id="sla-chart-circuitos"></canvas>
-    </div>
-
-    <!-- TABLA DETALLE -->
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Detalle mensual</h3>
         <table id="sla-tabla-meses">
             <thead>
                 <tr>
                     <th>Mes</th>
-                    <th>SLA medio</th>
-                    <th>Mínimo</th>
-                    <th>Máximo</th>
                     <th>Total</th>
+                    <th>SLA</th>
+                    <th>SLA Con</th>
+                    <th>SLA Sin</th>
+                    <th>Presencial</th>
+                    <th>VC</th>
+                    <th>% VC</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -501,6 +703,7 @@
 
 </div>
 </template>
+
 <!-- ============================================================
      DASHBOARD
 ============================================================ -->
