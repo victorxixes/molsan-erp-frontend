@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL SLA — PREMIUM 2027
+   PANEL SLA — PREMIUM 2027 (CORREGIDO)
 ============================================================ */
 
 let SLA_DATOS = [];
@@ -127,10 +127,11 @@ function sla_renderKpis(info) {
         }
     }
 
-    document.getElementById("kpi_media").textContent = media;
-    document.getElementById("kpi_min").textContent = min;
-    document.getElementById("kpi_max").textContent = max;
-    document.getElementById("kpi_top_mes").textContent = topMes;
+    // 🔥 IDS CORREGIDOS
+    document.getElementById("sla-kpi-media").textContent = media;
+    document.getElementById("sla-kpi-min").textContent = min;
+    document.getElementById("sla-kpi-max").textContent = max;
+    document.getElementById("sla-kpi-top-mes").textContent = topMes;
 }
 
 /* Tabla mensual */

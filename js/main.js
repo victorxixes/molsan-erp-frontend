@@ -56,7 +56,6 @@ async function cargarModulo(nombre) {
         switch (nombre) {
 
             case "dashboard":
-                // 🔥 FIX CRÍTICO: retrasar initDashboard hasta que el DOM esté pintado
                 setTimeout(() => initDashboard(), 0);
                 break;
 
@@ -135,7 +134,6 @@ async function cargarModulo(nombre) {
         `;
     }
 
-    // Aplicar permisos después de cargar el módulo
     aplicarPermisos();
 }
 
@@ -144,13 +142,10 @@ async function cargarModulo(nombre) {
 ============================================================ */
 window.addEventListener("DOMContentLoaded", async () => {
 
-    // 1) Esperar a que IndexedDB esté listo
     await initDB();
 
-    // 2) Restaurar estado del sidebar
     const estado = localStorage.getItem("molsan_sidebar") === "collapsed";
     aplicarEstadoSidebar(estado);
 
-    // 3) ❌ NO cargar Dashboard automáticamente
-    // cargarModulo("dashboard");
+    cargarModulo("dashboard"); // ✔ Cargar Dashboard al inicio
 });

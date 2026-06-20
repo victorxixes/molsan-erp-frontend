@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL APODERADOS — PREMIUM 2027
+   PANEL APODERADOS — PREMIUM 2027 (CORREGIDO)
 ============================================================ */
 
 let PAP_DATOS = [];
@@ -128,10 +128,11 @@ function pap_renderKpis(info) {
         }
     }
 
-    document.getElementById("kpi_total").textContent = total;
-    document.getElementById("kpi_sla").textContent = sla;
-    document.getElementById("kpi_vc").textContent = pctVC;
-    document.getElementById("kpi_apoderado").textContent = topAp;
+    // 🔥 IDS CORREGIDOS
+    document.getElementById("pap-kpi-total").textContent = total;
+    document.getElementById("pap-kpi-sla").textContent = sla;
+    document.getElementById("pap-kpi-vc").textContent = pctVC;
+    document.getElementById("pap-kpi-apoderado").textContent = topAp;
 }
 
 /* Tabla detalle apoderados */

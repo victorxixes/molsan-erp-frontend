@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL ANUAL — PREMIUM 2027
+   PANEL ANUAL — PREMIUM 2027 (CORREGIDO)
 ============================================================ */
 
 let PA_DATOS = [];
@@ -128,10 +128,11 @@ function pa_renderKpis(info) {
         }
     }
 
-    document.getElementById("kpi_total").textContent = total;
-    document.getElementById("kpi_sla").textContent = sla;
-    document.getElementById("kpi_vc").textContent = pctVC;
-    document.getElementById("kpi_top_mes").textContent = topMes;
+    // 🔥 IDS CORREGIDOS
+    document.getElementById("pa-kpi-total").textContent = total;
+    document.getElementById("pa-kpi-sla").textContent = sla;
+    document.getElementById("pa-kpi-vc").textContent = pctVC;
+    document.getElementById("pa-kpi-top-mes").textContent = topMes;
 }
 
 /* Tabla mensual */

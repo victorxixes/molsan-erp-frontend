@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL CIRCUITO — PREMIUM 2027
+   PANEL CIRCUITO — PREMIUM 2027 (CORREGIDO)
 ============================================================ */
 
 let PCI_DATOS = [];
@@ -134,10 +134,11 @@ function pci_renderKpis(info) {
 
     const pctVC = total ? ((info.externo / total) * 100).toFixed(1) + "%" : "0%";
 
-    document.getElementById("kpi_total").textContent = total;
-    document.getElementById("kpi_circuito").textContent = dom;
-    document.getElementById("kpi_sla").textContent = sla;
-    document.getElementById("kpi_vc").textContent = pctVC;
+    // 🔥 IDS CORREGIDOS
+    document.getElementById("pci-kpi-total").textContent = total;
+    document.getElementById("pci-kpi-circuito").textContent = dom;
+    document.getElementById("pci-kpi-sla").textContent = sla;
+    document.getElementById("pci-kpi-vc").textContent = pctVC;
 }
 
 /* Tabla mensual */

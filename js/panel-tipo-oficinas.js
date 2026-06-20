@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL OFICINAS — PREMIUM 2027
+   PANEL OFICINAS — PREMIUM 2027 (CORREGIDO)
 ============================================================ */
 
 let POF_DATOS = [];
@@ -129,10 +129,11 @@ function pof_renderKpis(info) {
         }
     }
 
-    document.getElementById("kpi_total").textContent = total;
-    document.getElementById("kpi_sla").textContent = sla;
-    document.getElementById("kpi_vc").textContent = pctVC;
-    document.getElementById("kpi_oficina").textContent = topOf;
+    // 🔥 IDS CORREGIDOS
+    document.getElementById("pof-kpi-total").textContent = total;
+    document.getElementById("pof-kpi-sla").textContent = sla;
+    document.getElementById("pof-kpi-vc").textContent = pctVC;
+    document.getElementById("pof-kpi-oficina").textContent = topOf;
 }
 
 /* Tabla oficinas */

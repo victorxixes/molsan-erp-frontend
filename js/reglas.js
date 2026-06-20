@@ -1,5 +1,5 @@
 /* ============================================================
-   REGLAS DE NORMALIZACIÓN — GLASS LUXE 2027 (VERSIÓN CORRECTA)
+   REGLAS DE NORMALIZACIÓN — GLASS LUXE 2027 (VERSIÓN FINAL)
 ============================================================ */
 
 function aplicarReglas(f) {
@@ -30,13 +30,16 @@ function aplicarReglas(f) {
     }
 
     /* ============================================================
-       3) SI NO HAY FECHA PROTOCOLO → USAR FECHA ALTA
+       3) SI NO HAY FECHA PROTOCOLO → USAR FECHA ALTA (DD/MM/AAAA)
     ============================================================= */
     if (!f.anio && f.fecha_alta) {
-        const fecha = new Date(f.fecha_alta);
-        if (!isNaN(fecha)) {
-            f.mes = fecha.getMonth() + 1;
-            f.anio = fecha.getFullYear();
+        const [d, m, y] = f.fecha_alta.split("/");
+        if (d && m && y) {
+            f.mes = [
+                "enero","febrero","marzo","abril","mayo","junio",
+                "julio","agosto","septiembre","octubre","noviembre","diciembre"
+            ][Number(m) - 1] || "";
+            f.anio = Number(y);
         }
     }
 
@@ -50,26 +53,23 @@ function aplicarReglas(f) {
         }
     }
 
-    return f;
-}
-
     /* ============================================================
-       3) CENTRO (regla exacta)
+       5) CENTRO (regla exacta)
     ============================================================= */
     f.centro = String(f.oficina) === "5316" ? "Cancela" : "Oficina";
 
     /* ============================================================
-       4) CENTRO QUE FIRMA (igual que centro)
+       6) CENTRO QUE FIRMA
     ============================================================= */
     f.centro_que_firma = f.centro;
 
     /* ============================================================
-       5) TIPO GESTIÓN (ADAPTADO A TUS REGLAS DE EXCEL)
+       7) TIPO GESTIÓN (ADAPTADO A TUS REGLAS DE EXCEL)
     ============================================================= */
     f.tipo_gestion = normalizarTipoGestion(f.tipo_provision);
 
     /* ============================================================
-       6) NOMBRE / APELLIDOS (si vienen juntos)
+       8) NOMBRE / APELLIDOS (si vienen juntos)
     ============================================================= */
     if (f.nombre_completo) {
         const partes = f.nombre_completo.trim().split(" ");
@@ -78,22 +78,22 @@ function aplicarReglas(f) {
     }
 
     /* ============================================================
-       6B) APODERADO — CAPITALIZAR (ADAPTADO A TU PETICIÓN)
+       9) APODERADO — CAPITALIZAR
     ============================================================= */
     f.apoderado = capitalizarNombre(f.apoderado);
 
     /* ============================================================
-       7) TIPO FIRMA (N/S)
+       10) TIPO FIRMA (N/S)
     ============================================================= */
     f.tipo_firma = getTipoFirma(f.vc);
 
     /* ============================================================
-       8) CIRCUITO NOTARIAL
+       11) CIRCUITO NOTARIAL
     ============================================================= */
     f.circuito = getCircuito(f.notario);
 
     /* ============================================================
-       9) DUPLICADOS
+       12) DUPLICADOS
     ============================================================= */
     f.contrato2 = f.contrato;
     f.notario2 = f.notario;
@@ -133,7 +133,6 @@ function normalizarFecha(v) {
 
     if (isNaN(d)) return "";
 
-    // 🔥 SIEMPRE devolver DD/MM/AAAA con 4 dígitos
     const dia = String(d.getDate()).padStart(2, "0");
     const mes = String(d.getMonth() + 1).padStart(2, "0");
     const anio = d.getFullYear();
@@ -149,13 +148,11 @@ function normalizarTipoGestion(valor) {
 
     const v = valor.trim().toLowerCase();
 
-    // Casos explícitos de "Sin provisión"
     if (v === "cancelacion sin provision" ||
         v === "cancelación sin provisión") {
         return "Sin provisión";
     }
 
-    // Casos explícitos de "Con provisión"
     const conProvision = [
         "cancelacion con provision",
         "cancelación con provisión",
@@ -179,7 +176,6 @@ function normalizarTipoGestion(valor) {
         return "Con provisión";
     }
 
-    // Por defecto
     return "Con provisión";
 }
 

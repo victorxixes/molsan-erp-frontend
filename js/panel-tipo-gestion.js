@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL TIPO GESTIÓN — PREMIUM 2027
+   PANEL TIPO GESTIÓN — PREMIUM 2027 (CORREGIDO)
 ============================================================ */
 
 let PTG_DATOS = [];
@@ -135,11 +135,12 @@ function ptg_renderKpis(info) {
     const slaCon = info.cuentaDiasCon ? (info.sumaDiasCon / info.cuentaDiasCon).toFixed(1) : "0";
     const slaSin = info.cuentaDiasSin ? (info.sumaDiasSin / info.cuentaDiasSin).toFixed(1) : "0";
 
-    document.getElementById("kpi_total").textContent = total;
-    document.getElementById("kpi_con").textContent = pctCon;
-    document.getElementById("kpi_sin").textContent = pctSin;
-    document.getElementById("kpi_sla_con").textContent = slaCon;
-    document.getElementById("kpi_sla_sin").textContent = slaSin;
+    // 🔥 IDS CORREGIDOS
+    document.getElementById("ptg-kpi-total").textContent = total;
+    document.getElementById("ptg-kpi-con").textContent = pctCon;
+    document.getElementById("ptg-kpi-sin").textContent = pctSin;
+    document.getElementById("ptg-kpi-sla-con").textContent = slaCon;
+    document.getElementById("ptg-kpi-sla-sin").textContent = slaSin;
 }
 
 /* Tabla mensual */

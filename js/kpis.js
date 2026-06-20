@@ -1,9 +1,9 @@
 /* ============================================================
-   KPIS MOLSAN — Cálculo automático (IndexedDB + Glass Luxe 2027)
+   KPIS MOLSAN — GLASS LUXE 2027 (VERSIÓN FINAL)
 ============================================================ */
 
 async function recalcularKPIs() {
-    const datos = await obtenerFirmas(); // ← IndexedDB
+    const datos = await obtenerFirmas(); // IndexedDB
 
     let totalRegistros = 0;
 
@@ -21,15 +21,36 @@ async function recalcularKPIs() {
 
         totalRegistros++;
 
-        const mes = normalizarClave(fila.mes);
-        const anio = normalizarClave(fila.anio);
-        const apo = normalizarClave(fila.nombre);
-        const ofi = normalizarClave(fila.oficina);
+        /* ============================================================
+           NORMALIZACIÓN CORRECTA PARA KPIs
+        ============================================================= */
+
+        // Mes numérico (1–12)
+        const mesNum = obtenerMesNumero(fila.mes);
+
+        // Año
+        const anio = Number(fila.anio) || 0;
+
+        // Apoderado real
+        const apo = normalizarClave(fila.apoderado);
+
+        // Oficina real (centro)
+        const ofi = normalizarClave(fila.centro);
+
+        // Circuito notarial
         const cir = normalizarClave(fila.circuito);
+
+        // Tipo firma
         const tipo = normalizarClave(fila.tipo_firma);
+
+        // Días SLA
         const dias = Number(fila.dias) || 0;
 
-        incrementar(porMes, mes);
+        /* ============================================================
+           INCREMENTAR CONTADORES
+        ============================================================= */
+
+        incrementar(porMes, mesNum);
         incrementar(porAnio, anio);
         incrementar(porApoderado, apo);
         incrementar(porOficina, ofi);
@@ -41,7 +62,7 @@ async function recalcularKPIs() {
 
     const mediaDias = totalRegistros ? (sumaDias / totalRegistros) : 0;
 
-    const rankingApoderados = ordenarRanking(porApoderado, "nombre");
+    const rankingApoderados = ordenarRanking(porApoderado, "apoderado");
     const rankingOficinas = ordenarRanking(porOficina, "oficina");
 
     const kpis = {
@@ -89,4 +110,19 @@ function ordenarRanking(obj, campo) {
     return Object.entries(obj)
         .map(([k, total]) => ({ [campo]: k, total }))
         .sort((a, b) => b.total - a.total);
+}
+
+/* ============================================================
+   Convertir "enero" → 1, "febrero" → 2...
+============================================================ */
+function obtenerMesNumero(mesTexto) {
+    if (!mesTexto) return 0;
+
+    const nombres = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const idx = nombres.indexOf(String(mesTexto).toLowerCase());
+    return idx >= 0 ? idx + 1 : 0;
 }

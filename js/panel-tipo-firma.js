@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL TIPO FIRMA — PREMIUM 2027
+   PANEL TIPO FIRMA — PREMIUM 2027 (CORREGIDO)
 ============================================================ */
 
 let PTF_DATOS = [];
@@ -135,11 +135,12 @@ function ptf_renderKpis(info) {
     const slaPres = info.cuentaDiasPres ? (info.sumaDiasPres / info.cuentaDiasPres).toFixed(1) : "0";
     const slaVC = info.cuentaDiasVC ? (info.sumaDiasVC / info.cuentaDiasVC).toFixed(1) : "0";
 
-    document.getElementById("kpi_total").textContent = total;
-    document.getElementById("kpi_pres").textContent = pctPres;
-    document.getElementById("kpi_vc").textContent = pctVC;
-    document.getElementById("kpi_sla_pres").textContent = slaPres;
-    document.getElementById("kpi_sla_vc").textContent = slaVC;
+    // 🔥 IDS CORREGIDOS
+    document.getElementById("ptf-kpi-total").textContent = total;
+    document.getElementById("ptf-kpi-pres").textContent = pctPres;
+    document.getElementById("ptf-kpi-vc").textContent = pctVC;
+    document.getElementById("ptf-kpi-sla-pres").textContent = slaPres;
+    document.getElementById("ptf-kpi-sla-vc").textContent = slaVC;
 }
 
 /* Tabla mensual */
