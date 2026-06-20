@@ -1,0 +1,169 @@
+/* ============================================================
+   MOLSAN MOTION 2027 — SISTEMA DE ANIMACIONES PREMIUM
+   Microinteracciones + Transiciones + Easing profesional
+============================================================ */
+
+/* ============================================================
+   1. TOKENS DE MOTION (velocidades + easing)
+============================================================ */
+
+:root {
+    --motion-fast: 120ms;
+    --motion-normal: 220ms;
+    --motion-slow: 380ms;
+
+    --ease-soft: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================================
+   2. ANIMACIONES DE ENTRADA (fade, slide, scale)
+============================================================ */
+
+.fade-in {
+    animation: fadeIn var(--motion-normal) var(--ease-soft);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.fade-up {
+    animation: fadeUp var(--motion-normal) var(--ease-emphasized);
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-scale {
+    animation: fadeScale var(--motion-normal) var(--ease-emphasized);
+}
+
+@keyframes fadeScale {
+    from { opacity: 0; transform: scale(0.94); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* ============================================================
+   3. HOVER MAGNÉTICO (botones + cards)
+============================================================ */
+
+.hover-magnetic {
+    transition: transform var(--motion-normal) var(--ease-emphasized),
+                box-shadow var(--motion-normal) var(--ease-soft);
+}
+
+.hover-magnetic:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--m-shadow-medium);
+}
+
+/* ============================================================
+   4. RIPPLE SUAVE (botones)
+============================================================ */
+
+.btn-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-ripple::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--m-primary-soft);
+    opacity: 0;
+    transform: scale(0.4);
+    border-radius: inherit;
+    transition: opacity var(--motion-fast) var(--ease-soft),
+                transform var(--motion-normal) var(--ease-emphasized);
+}
+
+.btn-ripple:active::after {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* ============================================================
+   5. ELEVACIÓN DINÁMICA (cards + paneles)
+============================================================ */
+
+.elevate {
+    transition: transform var(--motion-normal) var(--ease-emphasized),
+                box-shadow var(--motion-normal) var(--ease-soft);
+}
+
+.elevate:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--m-shadow-strong);
+}
+
+/* ============================================================
+   6. MICROINTERACCIONES EN KPIs
+============================================================ */
+
+.kpi-animate {
+    animation: kpiPop var(--motion-normal) var(--ease-spring);
+}
+
+@keyframes kpiPop {
+    0%   { transform: scale(0.92); opacity: 0; }
+    60%  { transform: scale(1.04); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+/* ============================================================
+   7. ANIMACIÓN DE FILAS EN TABLAS
+============================================================ */
+
+.table-row-appear {
+    animation: rowAppear var(--motion-normal) var(--ease-soft);
+}
+
+@keyframes rowAppear {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   8. MODALES — ENTRADA SUAVE
+============================================================ */
+
+.modal-animate {
+    animation: modalIn var(--motion-normal) var(--ease-emphasized);
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ============================================================
+   9. SIDEBAR — DESPLAZAMIENTO FLUIDO
+============================================================ */
+
+.sidebar-slide {
+    animation: sidebarSlide var(--motion-normal) var(--ease-soft);
+}
+
+@keyframes sidebarSlide {
+    from { opacity: 0; transform: translateX(-20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ============================================================
+   10. TRANSICIÓN ENTRE MÓDULOS
+============================================================ */
+
+.module-transition {
+    animation: moduleFade var(--motion-normal) var(--ease-soft);
+}
+
+@keyframes moduleFade {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

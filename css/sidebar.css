@@ -1,60 +1,82 @@
 /* ============================================================
-   SIDEBAR GLASS LUXE 2027 — COMPLETO
+   SIDEBAR — MOLSAN ERP SAAS PREMIUM 2027
+   Glass Luxe Dark + Animaciones + UI Framework
+============================================================ */
+
+/* ============================================================
+   CONTENEDOR PRINCIPAL
 ============================================================ */
 
 .sidebar {
-    width: 240px;
-    background: #0f172a;
-    color: #e2e8f0;
+    width: var(--molsan-sidebar-width);
     height: 100vh;
+
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 9000;
+
+    background: rgba(15,23,42,0.92); /* Navy Glass Luxe */
+    backdrop-filter: blur(14px);
+
+    border-right: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 4px 0 18px rgba(0,0,0,0.25);
+
     overflow-y: auto;
-    border-right: 1px solid rgba(255,255,255,0.05);
-    padding-top: 10px;
-    transition: width 0.25s ease;
-    z-index: 9999;
+    padding-top: 12px;
+
+    transition: width 0.28s ease;
 }
 
 .sidebar.collapsed {
     width: 70px;
 }
 
-/* LISTA */
+/* ============================================================
+   LISTA
+============================================================ */
+
 .sidebar ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-/* ITEMS */
+/* ============================================================
+   ITEMS
+============================================================ */
+
 .menu-item {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+
     padding: 0.85rem 1rem;
     cursor: pointer;
+
     border-bottom: 1px solid rgba(255,255,255,0.04);
     transition: background 0.2s ease, padding 0.25s ease;
     position: relative;
 }
 
 .menu-item:hover {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.10);
 }
 
 .menu-item.active {
-    background: rgba(56,189,248,0.15);
-    border-left: 3px solid #38bdf8;
+    background: rgba(56,189,248,0.18);
+    border-left: 3px solid var(--molsan-primary);
 }
 
+/* ICONO */
 .menu-item .icon {
-    font-size: 1.2rem;
-    width: 24px;
+    font-size: 1.25rem;
+    width: 26px;
     text-align: center;
+    color: #e2e8f0;
 }
 
+/* TEXTO */
 .menu-item .text {
     font-size: 0.95rem;
     white-space: nowrap;
@@ -69,7 +91,7 @@
 }
 
 /* ============================================================
-   TOOLTIP PREMIUM
+   TOOLTIP GLASS LUXE
 ============================================================ */
 
 .menu-item .tooltip {
@@ -77,17 +99,24 @@
     left: 80px;
     top: 50%;
     transform: translateY(-50%);
-    background: #ffffff;
-    color: #0f172a;
+
+    background: var(--molsan-bg-glass);
+    backdrop-filter: blur(12px);
+
+    color: var(--molsan-text-main);
     padding: 0.35rem 0.6rem;
-    border-radius: 6px;
-    border: 1px solid rgba(0,0,0,0.1);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+    border-radius: var(--molsan-radius-sm);
+    border: 1px solid var(--molsan-border-glass);
+    box-shadow: var(--molsan-shadow-medium);
+
     white-space: nowrap;
     font-size: 0.8rem;
+
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.15s ease, transform 0.15s ease;
+
     z-index: 9999;
 }
 
@@ -111,35 +140,33 @@
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.18);
     border-radius: 4px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.28);
 }
 
 /* ============================================================
-   BOTÓN TOGGLE SIDEBAR — Minimalista y SIN bloquear clics
+   BOTÓN TOGGLE — Minimalista Premium
 ============================================================ */
 
 .sidebar-toggle-btn {
-    position: absolute;   /* ← YA NO BLOQUEA EL SIDEBAR */
+    position: absolute;
     top: 15px;
     left: 15px;
-    z-index: 10;          /* ← YA NO TAPA NADA */
+    z-index: 10;
 
-    background: transparent !important;
-    border: none !important;
-    backdrop-filter: none !important;
+    background: transparent;
+    border: none;
 
     padding: 6px;
-    border-radius: 6px;
+    border-radius: var(--molsan-radius-sm);
 
     cursor: pointer;
     color: #e2e8f0;
 
-    box-shadow: none !important;
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 

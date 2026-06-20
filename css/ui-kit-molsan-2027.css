@@ -1,0 +1,256 @@
+/* ============================================================
+   UI-KIT MOLSAN 2027 — COMPONENTES BASE
+============================================================ */
+
+/* BADGES */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid var(--m-border-soft);
+    background: var(--m-bg-soft);
+    color: var(--m-text-secondary);
+}
+
+.badge-primary {
+    border-color: var(--m-primary);
+    background: var(--m-primary-soft);
+    color: var(--m-primary-dark);
+}
+
+.badge-danger {
+    border-color: #ef4444;
+    background: rgba(239,68,68,0.08);
+    color: #b91c1c;
+}
+
+/* ALERTS */
+.alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--m-radius-md);
+    border: 1px solid var(--m-border-soft);
+    background: var(--m-bg-soft);
+    font-size: 0.85rem;
+}
+
+.alert-primary {
+    border-color: var(--m-primary);
+    background: var(--m-primary-soft);
+    color: var(--m-primary-dark);
+}
+/* ============================================================
+   AUTOCOMPLETE — INTEGRADO EN UI-KIT MOLSAN 2027
+============================================================ */
+
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.autocomplete-input {
+    width: 100%;
+    padding: 0.55rem 0.7rem;
+    border-radius: var(--m-radius-md);
+    border: 1px solid var(--m-border-soft);
+    background: #FFFFFF;
+    color: var(--m-text-main);
+    font-size: 0.9rem;
+    transition: var(--m-transition-fast);
+}
+
+.autocomplete-input:focus {
+    outline: none;
+    border-color: var(--m-primary);
+    box-shadow: 0 0 0 1px var(--m-primary-soft);
+}
+
+.autocomplete-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--m-bg-card-strong);
+    border-radius: var(--m-radius-md);
+    border: 1px solid var(--m-border-soft);
+    box-shadow: var(--m-shadow-medium);
+    margin-top: 4px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.autocomplete-item {
+    padding: 0.55rem 0.7rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--m-text-secondary);
+    transition: var(--m-transition-fast);
+}
+
+.autocomplete-item:hover {
+    background: var(--m-primary-soft);
+    color: var(--m-primary-dark);
+}
+
+.alert-danger {
+    border-color: #ef4444;
+    background: rgba(239,68,68,0.06);
+    color: #b91c1c;
+}
+
+/* TOOLTIP (simple) */
+.tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip {
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--m-bg-card-strong);
+    color: var(--m-text-main);
+    padding: 0.35rem 0.55rem;
+    border-radius: var(--m-radius-sm);
+    font-size: 0.75rem;
+    border: 1px solid var(--m-border-soft);
+    box-shadow: var(--m-shadow-soft);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--motion-fast) var(--ease-soft),
+                transform var(--motion-fast) var(--ease-soft);
+}
+
+.tooltip-wrapper:hover .tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-2px);
+}
+
+/* TABS */
+.tabs {
+    display: flex;
+    gap: 0.4rem;
+    border-bottom: 1px solid var(--m-border-soft);
+    margin-bottom: 0.8rem;
+}
+
+.tab {
+    padding: 0.45rem 0.8rem;
+    border-radius: var(--m-radius-md) var(--m-radius-md) 0 0;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: var(--m-text-secondary);
+    border: 1px solid transparent;
+    border-bottom: none;
+    background: transparent;
+    transition: var(--m-transition-fast);
+}
+
+.tab:hover {
+    color: var(--m-primary-dark);
+}
+
+.tab.active {
+    background: var(--m-bg-card);
+    border-color: var(--m-border-soft);
+    border-bottom-color: var(--m-bg-card);
+    color: var(--m-primary-dark);
+}
+
+/* DROPDOWN SIMPLE */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    min-width: 180px;
+    background: var(--m-bg-card-strong);
+    border-radius: var(--m-radius-md);
+    border: 1px solid var(--m-border-soft);
+    box-shadow: var(--m-shadow-medium);
+    padding: 0.35rem 0;
+    z-index: 100;
+}
+
+.dropdown-item {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: var(--m-text-secondary);
+    transition: var(--m-transition-fast);
+}
+
+.dropdown-item:hover {
+    background: var(--m-primary-soft);
+    color: var(--m-primary-dark);
+}
+
+/* SKELETON LOADING */
+.skeleton {
+    background: linear-gradient(90deg, #e5edf5 0%, #f5f7fb 50%, #e5edf5 100%);
+    background-size: 200% 100%;
+    animation: skeletonPulse 1.4s ease-in-out infinite;
+    border-radius: 999px;
+}
+
+@keyframes skeletonPulse {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+/* ============================================================
+   TABLAS PREMIUM — INTEGRADO EN UI-KIT MOLSAN 2027
+============================================================ */
+
+.table-premium {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--m-bg-card);
+    border-radius: var(--m-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--m-shadow-soft);
+    font-size: 0.88rem;
+}
+
+.table-premium thead th {
+    background: var(--m-primary-soft);
+    color: var(--m-primary-dark);
+    padding: 0.7rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--m-border-soft);
+}
+
+.table-premium tbody td {
+    padding: 0.55rem 0.7rem;
+    border-bottom: 1px solid var(--m-border-soft);
+    color: var(--m-text-secondary);
+}
+
+.table-premium tbody tr:nth-child(even) {
+    background: var(--m-bg-soft);
+}
+
+.table-premium tbody tr:hover td {
+    background: var(--m-primary-soft);
+    color: var(--m-primary-dark);
+}
+
+/* Sticky header */
+.table-sticky thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    backdrop-filter: blur(8px);
+}

@@ -1,130 +1,150 @@
 /* ============================================================
-   INFORMES PREMIUM — GLASS LUXE 2027
-   Tarjetas, Grid, Animaciones y Contenedor
+   INFORMES — MOLSAN ERP SAAS PREMIUM 2027
+   Tarjetas + Contenedor + Tablas + Gráficos + Botones
 ============================================================ */
 
-/* GRID RESPONSIVE */
+/* ============================================================
+   GRID DE TARJETAS DE INFORMES
+============================================================ */
+
 .grid-informes {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 22px;
     margin-top: 25px;
 }
 
-/* TARJETAS PREMIUM */
+/* ============================================================
+   TARJETAS DE INFORME (Menú principal)
+============================================================ */
+
 .informe-card {
-    background: rgba(255,255,255,0.75);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255,255,255,0.35);
-    border-radius: 14px;
-    padding: 22px 18px;
+    background: var(--molsan-bg-card);
+    border: 1px solid var(--molsan-border-soft);
+    border-radius: var(--molsan-radius-lg);
+    padding: 20px;
+
     cursor: pointer;
     font-size: 1rem;
     font-weight: 500;
-    color: #0f172a;
+    color: var(--molsan-text-main);
     text-align: center;
-    box-shadow: 0 8px 20px rgba(15,23,42,0.08);
-    transition: all 0.25s ease;
-    user-select: none;
+
+    box-shadow: var(--molsan-shadow-soft);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
-/* HOVER PREMIUM */
 .informe-card:hover {
-    background: rgba(14,165,233,0.18);
-    border-color: #0EA5E9;
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 12px 28px rgba(15,23,42,0.12);
+    background: var(--molsan-primary-soft);
+    border-color: var(--molsan-primary);
+    transform: translateY(-4px);
+    box-shadow: var(--molsan-shadow-medium);
 }
 
-/* ICONOS MÁS GRANDES */
-.informe-card::first-letter {
-    font-size: 1.4rem;
+/* Icono dentro de la tarjeta (si usas emojis o letras) */
+.informe-card .icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    display: block;
 }
 
-/* CONTENEDOR DEL INFORME */
+/* ============================================================
+   CONTENEDOR DEL INFORME
+============================================================ */
+
 #informeContainer {
-    animation: fadeInInforme 0.35s ease;
+    margin-top: 25px;
     padding: 25px;
+
+    background: var(--molsan-bg-card);
+    border: 1px solid var(--molsan-border-soft);
+    border-radius: var(--molsan-radius-lg);
+
+    box-shadow: var(--molsan-shadow-medium);
+    backdrop-filter: blur(10px);
+
+    animation: fadeInUp 0.35s ease-out;
 }
 
-/* ANIMACIÓN DE ENTRADA */
-@keyframes fadeInInforme {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+/* ============================================================
+   TABLAS DENTRO DE INFORMES (unificadas con tables-excel.css)
+============================================================ */
 
-/* TABLAS PREMIUM DENTRO DE INFORMES */
 #informeContainer table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
+
+    background: var(--molsan-bg-card);
+    border-radius: var(--molsan-radius-md);
     overflow: hidden;
+    box-shadow: var(--molsan-shadow-soft);
 }
 
 #informeContainer th {
-    background: #0EA5E9;
-    color: white;
+    background: var(--molsan-primary-soft);
+    color: var(--molsan-primary-dark);
     padding: 10px;
     font-weight: 600;
     text-align: left;
+    border-bottom: 1px solid var(--molsan-border-soft);
 }
 
 #informeContainer td {
     padding: 10px;
-    border-bottom: 1px solid rgba(0,0,0,0.08);
+    border-bottom: 1px solid var(--molsan-border-soft);
+    color: var(--molsan-text-secondary);
 }
 
 #informeContainer tr:hover td {
-    background: rgba(14,165,233,0.12);
+    background: var(--molsan-primary-soft);
 }
 
-/* GRÁFICOS */
-#informeContainer canvas {
-    margin-top: 25px;
-    background: rgba(255,255,255,0.6);
-    border-radius: 12px;
-    padding: 10px;
-}
 /* ============================================================
-   BOTONES INFORMES PREMIUM — Glass Luxe 2027
+   GRÁFICOS DENTRO DE INFORMES
 ============================================================ */
 
+#informeContainer canvas {
+    margin-top: 25px;
+    width: 100% !important;
+    height: auto !important;
+
+    background: var(--molsan-bg-card);
+    border: 1px solid var(--molsan-border-soft);
+    border-radius: var(--molsan-radius-md);
+    padding: 12px;
+
+    box-shadow: var(--molsan-shadow-soft);
+}
+
 /* ============================================================
-   BOTONES INFORMES PREMIUM — ICONOS ANIMADOS
+   BOTONES DE INFORMES (unificados con .btn-primary)
 ============================================================ */
 
 .btn-inf {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.6rem;
 
-    background: #0ea5e9;
-    border: 1px solid #0284c7;
-    color: #ffffff;
+    background: var(--molsan-primary);
+    border: 1px solid var(--molsan-primary-dark);
+    color: var(--molsan-text-invert);
 
     padding: 0.75rem 1.1rem;
-    border-radius: 10px;
+    border-radius: var(--molsan-radius-md);
 
     font-size: 0.95rem;
     font-weight: 500;
     cursor: pointer;
 
     transition: background 0.2s ease, transform 0.2s ease;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
 }
 
-/* Iconos animados */
+.btn-inf:hover {
+    background: var(--molsan-primary-dark);
+    transform: translateY(-2px);
+}
+
 .btn-inf svg {
     width: 20px;
     height: 20px;
@@ -132,15 +152,7 @@
     transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
-/* Animación al pasar el ratón */
 .btn-inf:hover svg {
     transform: translateX(4px) scale(1.1);
     opacity: 0.9;
 }
-
-/* Hover premium */
-.btn-inf:hover {
-    background: #0284c7;
-    transform: translateY(-2px);
-}
-

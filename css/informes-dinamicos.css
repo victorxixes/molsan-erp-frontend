@@ -1,117 +1,125 @@
 /* ============================================================
-   INFORMES DINÁMICOS — GLASS LUXE 2027
-   Estilos premium, independientes y sin colisiones
+   INFORMES DINÁMICOS — MOLSAN ERP SAAS PREMIUM 2027
+   Compatible con Glass Luxe Light + UI Framework
 ============================================================ */
 
-/* CONTENEDOR GENERAL */
+/* ============================================================
+   HEADER DE INFORMES DINÁMICOS
+============================================================ */
+
 .informes-header {
     display: flex;
     gap: 20px;
     align-items: flex-end;
     flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
 .informes-header .label {
     font-weight: 600;
-    color: #d0d0d0;
+    color: var(--molsan-text-secondary);
     margin-bottom: 5px;
 }
 
+/* Acciones (botones, exportar, etc.) */
 .informes-actions {
     display: flex;
     gap: 10px;
 }
 
-/* SELECTS Y INPUTS */
+/* ============================================================
+   INPUTS / SELECTS
+============================================================ */
+
 .input-select,
 .input-text {
     width: 180px;
     padding: 8px 10px;
-    border-radius: 6px;
-    border: 1px solid #444;
-    background: rgba(255,255,255,0.05);
-    color: white;
+
+    background: var(--molsan-bg-card);
+    border: 1px solid var(--molsan-border-soft);
+    border-radius: var(--molsan-radius-md);
+
+    color: var(--molsan-text-main);
+    font-size: 0.9rem;
+
+    transition: var(--molsan-transition-fast);
 }
 
-/* TABLA */
-.table-excel {
+.input-select:focus,
+.input-text:focus {
+    border-color: var(--molsan-primary);
+    box-shadow: 0 0 0 1px var(--molsan-primary-soft);
+}
+
+/* ============================================================
+   TABLA DINÁMICA (usa el sistema Excel Premium)
+============================================================ */
+
+.informes-dinamicos-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
-    background: rgba(255,255,255,0.03);
+    font-size: 0.9rem;
+
+    background: var(--molsan-bg-card);
+    border-radius: var(--molsan-radius-lg);
+    overflow: hidden;
+
+    box-shadow: var(--molsan-shadow-soft);
 }
 
-.table-excel th {
-    background: rgba(255,255,255,0.08);
+.informes-dinamicos-table th {
+    background: var(--molsan-primary-soft);
+    color: var(--molsan-primary-dark);
     padding: 10px;
-    text-align: left;
     font-weight: 600;
-    border-bottom: 1px solid #444;
+    border-bottom: 1px solid var(--molsan-border-soft);
 }
 
-.table-excel td {
-    padding: 8px;
-    border-bottom: 1px solid #333;
+.informes-dinamicos-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--molsan-border-soft);
+    color: var(--molsan-text-secondary);
 }
 
-/* SCROLL */
+.informes-dinamicos-table tr:hover td {
+    background: var(--molsan-primary-soft);
+}
+
+/* Scroll horizontal */
 .tabla-scroll-x {
     overflow-x: auto;
     padding-bottom: 10px;
 }
 
-/* TÍTULO DEL INFORME */
+/* ============================================================
+   TÍTULO DEL INFORME
+============================================================ */
+
 #tituloInformeActual {
-    font-size: 20px;
+    font-size: 1.3rem;
     font-weight: 700;
     margin-bottom: 15px;
-    color: #fff;
+    color: var(--molsan-text-main);
 }
 
-/* BOTONES */
-.btn-primary {
-    background: #007bff;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 6px;
-    cursor: pointer;
-    color: white;
-    transition: 0.2s;
-}
+/* ============================================================
+   TARJETAS GLASS LUXE
+============================================================ */
 
-.btn-primary:hover {
-    background: #0066d6;
-}
-
-.btn-secondary {
-    background: #555;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 6px;
-    cursor: pointer;
-    color: white;
-    transition: 0.2s;
-}
-
-.btn-secondary:hover {
-    background: #666;
-}
-
-/* TARJETAS */
 .card-glass {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
+    background: var(--molsan-bg-glass);
+    border: 1px solid var(--molsan-border-glass);
+    border-radius: var(--molsan-radius-lg);
     padding: 20px;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--molsan-shadow-medium);
 }
 
-/* ANIMACIÓN */
+/* ============================================================
+   ANIMACIÓN
+============================================================ */
+
 .fade-in {
-    animation: fadeIn 0.4s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
+    animation: fadeInUp 0.35s ease-out;
 }

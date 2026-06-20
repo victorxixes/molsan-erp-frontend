@@ -1,0 +1,149 @@
+/* ============================================================
+   PANELES — MOLSAN ERP SAAS PREMIUM 2027
+   Paneles Anual, Mensual, Oficinas, Circuito, SLA, etc.
+============================================================ */
+
+/* ============================================================
+   WRAPPER GENERAL
+============================================================ */
+
+.panel-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    animation: fadeInUp 0.35s ease-out;
+}
+
+/* ============================================================
+   FILTROS DE PANEL — Glass Luxe Light
+============================================================ */
+
+.panel-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+
+    background: var(--molsan-bg-card);
+    border: 1px solid var(--molsan-border-soft);
+    border-radius: var(--molsan-radius-lg);
+    padding: 16px 20px;
+
+    box-shadow: var(--molsan-shadow-soft);
+    backdrop-filter: blur(10px);
+}
+
+.panel-filtros label {
+    font-size: 0.8rem;
+    color: var(--molsan-text-secondary);
+    margin-bottom: 4px;
+    display: block;
+}
+
+.panel-filtros select,
+.panel-filtros input {
+    background: var(--molsan-bg-card);
+    border: 1px solid var(--molsan-border-soft);
+    border-radius: var(--molsan-radius-md);
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
+    color: var(--molsan-text-main);
+    transition: var(--molsan-transition-fast);
+}
+
+.panel-filtros select:focus,
+.panel-filtros input:focus {
+    border-color: var(--molsan-primary);
+    box-shadow: 0 0 0 1px var(--molsan-primary-soft);
+}
+
+/* ============================================================
+   SUBTÍTULOS
+============================================================ */
+
+.subtitulo-modulo {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--molsan-text-main);
+    margin-bottom: 8px;
+}
+
+/* ============================================================
+   CONTENEDOR DE RESULTADOS — Glass Luxe Light
+============================================================ */
+
+.panel-contenido {
+    background: var(--molsan-bg-card);
+    border: 1px solid var(--molsan-border-soft);
+    border-radius: var(--molsan-radius-lg);
+    padding: 20px;
+
+    box-shadow: var(--molsan-shadow-medium);
+    backdrop-filter: blur(10px);
+}
+
+/* ============================================================
+   KPIs CORPORATIVOS — YA DEFINIDOS EN EL THEME
+============================================================ */
+
+.kpi-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.kpi-card {
+    background: var(--molsan-bg-card);
+    border: 1px solid var(--molsan-border-soft);
+    border-radius: var(--molsan-radius-md);
+    padding: 16px 20px;
+
+    box-shadow: var(--molsan-shadow-soft);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--molsan-shadow-medium);
+}
+
+.kpi-label {
+    font-size: 0.85rem;
+    color: var(--molsan-text-secondary);
+    margin-bottom: 4px;
+}
+
+.kpi-value {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--molsan-primary-dark);
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 900px) {
+    .panel-filtros {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 600px) {
+    .kpi-panel {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+}
+
+/* ============================================================
+   UTILIDADES
+============================================================ */
+
+.mt-10 { margin-top: 10px; }
+.mt-20 { margin-top: 20px; }
+.mt-30 { margin-top: 30px; }
+
+.p-10 { padding: 10px; }
+.p-20 { padding: 20px; }

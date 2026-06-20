@@ -1,48 +1,118 @@
 /* ============================================================
-   LISTADO — MOLSAN CLEAN LIGHT
+   LISTADO — MOLSAN ERP SAAS PREMIUM 2027
+   Filtros + Chips + Tablas Glass Luxe Light
 ============================================================ */
 
+/* ============================================================
+   FILTROS
+============================================================ */
 
-
-.filtros-grid input {
-    background: #FFFFFF;
-    border: 1px solid var(--molsan-border-soft);
-    color: var(--molsan-text-main);
-    border-radius: 10px;
-    padding: 0.55rem;
+.filtros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
 }
+
+.filtros-grid input,
+.filtros-grid select {
+    background: var(--molsan-bg-card);
+    border: 1px solid var(--molsan-border-soft);
+    border-radius: var(--molsan-radius-md);
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
+    color: var(--molsan-text-main);
+    transition: var(--molsan-transition-fast);
+}
+
+.filtros-grid input:focus,
+.filtros-grid select:focus {
+    border-color: var(--molsan-primary);
+    box-shadow: 0 0 0 1px var(--molsan-primary-soft);
+}
+
+/* ============================================================
+   CHIPS (Filtros rápidos)
+============================================================ */
 
 .chip {
     background: var(--molsan-primary-soft);
     border: 1px solid var(--molsan-primary);
     color: var(--molsan-primary-dark);
+
+    padding: 0.35rem 0.75rem;
     border-radius: 20px;
-    padding: 0.35rem 0.7rem;
-    transition: 0.2s;
+
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: var(--molsan-transition-fast);
+    user-select: none;
+}
+
+.chip:hover {
+    background: var(--molsan-primary);
+    color: var(--molsan-text-invert);
 }
 
 .chip.active {
     background: var(--molsan-primary);
-    color: #FFFFFF;
+    color: var(--molsan-text-invert);
 }
 
+/* ============================================================
+   TABLA LISTADO — Glass Luxe Light
+============================================================ */
+
 .tabla-listado {
-    background: #FFFFFF;
-    border-radius: 14px;
+    width: 100%;
+    background: var(--molsan-bg-card);
+    border-radius: var(--molsan-radius-lg);
     border: 1px solid var(--molsan-border-soft);
+    box-shadow: var(--molsan-shadow-soft);
     overflow: hidden;
 }
 
+/* Scroll horizontal premium */
+.tabla-listado-wrapper {
+    overflow-x: auto;
+    border-radius: var(--molsan-radius-lg);
+}
+
+.tabla-listado-wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+.tabla-listado-wrapper::-webkit-scrollbar-thumb {
+    background: var(--molsan-border-strong);
+    border-radius: 10px;
+}
+.tabla-listado-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--molsan-primary);
+}
+
+/* Cabecera */
 .tabla-listado th {
     background: var(--molsan-bg-soft);
     color: var(--molsan-text-secondary);
-    padding: 0.6rem;
+    padding: 0.65rem;
+    font-size: 0.85rem;
+    text-align: left;
+    border-bottom: 1px solid var(--molsan-border-soft);
 }
 
+/* Celdas */
 .tabla-listado td {
-    padding: 0.55rem;
+    padding: 0.55rem 0.65rem;
+    font-size: 0.9rem;
+    color: var(--molsan-text-main);
+    border-bottom: 1px solid var(--molsan-border-soft);
 }
 
+/* Hover premium */
 .tabla-listado tr:hover {
     background: var(--molsan-primary-soft);
+}
+
+/* Última fila sin borde */
+.tabla-listado tr:last-child td {
+    border-bottom: none;
 }

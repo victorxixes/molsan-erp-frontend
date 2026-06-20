@@ -1,76 +1,88 @@
-/* ============================
-   DASHBOARD PREMIUM 2027
-============================ */
+/* ============================================================
+   DASHBOARD — MOLSAN ERP SAAS PREMIUM 2027
+   KPIs + Gráficos + Animaciones + Glass Luxe Light
+============================================================ */
 
-/* Fade-in del módulo */
+/* ============================================================
+   ANIMACIÓN DE ENTRADA DEL MÓDULO
+============================================================ */
+
 .modulo-wrapper.fade-in {
-    animation: dashFadeIn 0.4s ease-out;
+    animation: fadeInUp 0.35s ease-out;
 }
 
-@keyframes dashFadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
+/* ============================================================
+   KPIs — USAN EL SISTEMA CORPORATIVO DEL THEME
+============================================================ */
 
-/* Tarjetas KPI dinámicas */
-.kpi-grid {
+.dashboard-kpis {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 1rem;
-    margin: 1rem 0 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+    margin-bottom: 25px;
 }
 
-.kpi-box {
-    background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(240,240,255,0.9));
-    border-radius: 12px;
-    padding: 0.8rem 1rem;
-    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
-    border: 1px solid rgba(255,255,255,0.6);
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+.dashboard-kpi {
+    background: var(--molsan-bg-card);
+    border: 1px solid var(--molsan-border-soft);
+    border-radius: var(--molsan-radius-md);
+    padding: 16px 20px;
+
+    box-shadow: var(--molsan-shadow-soft);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.kpi-box:hover {
+.dashboard-kpi:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
-    background: linear-gradient(135deg, rgba(255,255,255,1), rgba(220,235,255,1));
+    box-shadow: var(--molsan-shadow-medium);
 }
 
-.kpi-box-title {
-    font-size: 0.8rem;
+.dashboard-kpi-title {
+    font-size: 0.85rem;
     color: var(--molsan-text-secondary);
+    margin-bottom: 4px;
 }
 
-.kpi-box-value {
-    font-size: 1.2rem;
+.dashboard-kpi-value {
+    font-size: 1.4rem;
     font-weight: 600;
     color: var(--molsan-primary-dark);
 }
 
-/* Cards de gráficos con efecto glass */
-.card-glass {
-    background: rgba(20,20,30,0.85);
-    border-radius: 16px;
-    padding: 1rem 1.2rem;
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+/* ============================================================
+   TARJETAS DE GRÁFICOS (Glass Luxe Light)
+============================================================ */
+
+.dashboard-card {
+    background: var(--molsan-bg-card);
+    border-radius: var(--molsan-radius-lg);
+    padding: 1.2rem;
+    border: 1px solid var(--molsan-border-soft);
+    box-shadow: var(--molsan-shadow-medium);
     backdrop-filter: blur(10px);
+    margin-top: 1.5rem;
+    transition: box-shadow 0.25s ease;
 }
 
-/* Canvas con transición suave */
-.card-glass canvas {
+.dashboard-card:hover {
+    box-shadow: var(--molsan-shadow-strong);
+}
+
+/* Canvas */
+.dashboard-card canvas {
     width: 100%;
     transition: opacity 0.3s ease;
 }
 
-/* Gráficos */
+/* ============================================================
+   GRÁFICOS (compatibles con Chart.js)
+============================================================ */
+
 .dashboard-chart {
-    background: #FFFFFF;
-    border-radius: 14px;
+    background: var(--molsan-bg-card);
+    border-radius: var(--molsan-radius-lg);
     padding: 1.2rem;
     border: 1px solid var(--molsan-border-soft);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+    box-shadow: var(--molsan-shadow-soft);
     margin-top: 1.5rem;
 }
