@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL APODERADOS — PREMIUM 2027 (CORREGIDO)
+   PANEL APODERADOS — PREMIUM 2027 (MEJORADO + MESES)
 ============================================================ */
 
 let PAP_DATOS = [];
@@ -20,15 +20,18 @@ async function initPanelApoderados() {
     pap_selectUltimoAnio();
 }
 
-/* Agrupar por año y apoderado */
+/* ============================================================
+   AGRUPAR POR AÑO → APODERADO → MES
+============================================================ */
 function pap_groupByAnioApoderado(datos) {
     const map = {};
 
     for (const f of datos) {
         const anio = Number(f.anio);
         const ap = f.apoderado || "Sin apoderado";
+        const mes = f.mes || "";
 
-        if (!anio) continue;
+        if (!anio || !mes) continue;
 
         if (!map[anio]) {
             map[anio] = {
@@ -49,23 +52,36 @@ function pap_groupByAnioApoderado(datos) {
                 vc: 0,
                 presencial: 0,
                 sumaDias: 0,
-                cuentaDias: 0
+                cuentaDias: 0,
+                meses: {}   // ← NUEVO
             };
         }
 
         const a = r.apoderados[ap];
 
-        r.total++;
-        a.total++;
-
-        if (f.tipo_firma === "VideoConferencia") {
-            r.vc++;
-            a.vc++;
-        } else {
-            r.presencial++;
-            a.presencial++;
+        if (!a.meses[mes]) {
+            a.meses[mes] = {
+                total: 0,
+                vc: 0,
+                presencial: 0
+            };
         }
 
+        const m = a.meses[mes];
+
+        // Totales globales
+        r.total++;
+        a.total++;
+        m.total++;
+
+        // Tipo firma
+        if (f.tipo_firma === "VideoConferencia") {
+            r.vc++; a.vc++; m.vc++;
+        } else {
+            r.presencial++; a.presencial++; m.presencial++;
+        }
+
+        // SLA
         const d = Number(f.dias);
         if (d > 0) {
             r.sumaDias += d;
@@ -78,7 +94,9 @@ function pap_groupByAnioApoderado(datos) {
     return map;
 }
 
-/* Select años */
+/* ============================================================
+   SELECT AÑOS
+============================================================ */
 function pap_fillSelectAnios() {
     const sel = document.getElementById("pap-select-anio");
     sel.innerHTML = "";
@@ -99,7 +117,9 @@ function pap_selectUltimoAnio() {
     pap_onChangeAnio();
 }
 
-/* Cambio de año */
+/* ============================================================
+   CAMBIO DE AÑO
+============================================================ */
 function pap_onChangeAnio() {
     const sel = document.getElementById("pap-select-anio");
     const anio = Number(sel.value);
@@ -112,7 +132,9 @@ function pap_onChangeAnio() {
     pap_renderChartApoderados(info);
 }
 
-/* KPIs */
+/* ============================================================
+   KPIs
+============================================================ */
 function pap_renderKpis(info) {
     const total = info.total;
     const sla = info.cuentaDias ? (info.sumaDias / info.cuentaDias).toFixed(1) : "0";
@@ -128,28 +150,41 @@ function pap_renderKpis(info) {
         }
     }
 
-    // 🔥 IDS CORREGIDOS
     document.getElementById("pap-kpi-total").textContent = total;
     document.getElementById("pap-kpi-sla").textContent = sla;
     document.getElementById("pap-kpi-vc").textContent = pctVC;
     document.getElementById("pap-kpi-apoderado").textContent = topAp;
 }
 
-/* Tabla detalle apoderados */
+/* ============================================================
+   TABLA DETALLE APODERADOS (CON MESES)
+============================================================ */
 function pap_renderTablaApoderados(info) {
     const tbody = document.querySelector("#pap-tabla-apoderados tbody");
     tbody.innerHTML = "";
 
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
     const lista = Object.entries(info.apoderados).map(([nombre, a]) => {
         const pctVC = a.total ? ((a.vc / a.total) * 100).toFixed(1) + "%" : "0%";
         const sla = a.cuentaDias ? (a.sumaDias / a.cuentaDias).toFixed(1) : "0";
+
+        const meses = mesesOrden.map(m => {
+            const mm = a.meses[m];
+            return mm ? mm.total : 0;
+        });
+
         return {
             nombre,
             total: a.total,
             presencial: a.presencial,
             vc: a.vc,
             pctVC,
-            sla
+            sla,
+            meses
         };
     });
 
@@ -157,6 +192,7 @@ function pap_renderTablaApoderados(info) {
 
     for (const ap of lista) {
         const tr = document.createElement("tr");
+
         tr.innerHTML = `
             <td>${ap.nombre}</td>
             <td>${ap.total}</td>
@@ -164,12 +200,16 @@ function pap_renderTablaApoderados(info) {
             <td>${ap.vc}</td>
             <td>${ap.pctVC}</td>
             <td>${ap.sla}</td>
+            ${ap.meses.map(v => `<td>${v}</td>`).join("")}
         `;
+
         tbody.appendChild(tr);
     }
 }
 
-/* Gráfico ranking apoderados */
+/* ============================================================
+   GRÁFICO RANKING APODERADOS
+============================================================ */
 function pap_renderChartApoderados(info) {
     const ctx = document.getElementById("pap-chart-apoderados");
 
