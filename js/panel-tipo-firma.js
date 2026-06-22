@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL TIPO FIRMA — PREMIUM 2027 (CORREGIDO)
+   PANEL TIPO FIRMA — PREMIUM 2027 (CORREGIDO Y BLINDADO)
 ============================================================ */
 
 let PTF_DATOS = [];
@@ -7,14 +7,27 @@ let PTF_POR_ANIO = {};
 let PTF_CHART_ANUAL = null;
 let PTF_CHART_MENSUAL = null;
 
+/* Helper seguro */
+function safeSet(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return false;
+    el.textContent = value;
+    return true;
+}
+
 async function initPanelTipoFirma() {
     console.log("✍️ initPanelTipoFirma() ejecutado");
+
+    // 🛑 Si el panel NO está cargado en el DOM → detener
+    if (!document.getElementById("ptf-select-anio")) {
+        console.warn("⏳ Panel Tipo Firma aún no está en el DOM. initPanelTipoFirma() detenido.");
+        return;
+    }
 
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
 
     PTF_DATOS = datos;
-
     PTF_POR_ANIO = ptf_groupByAnioMesTipo(PTF_DATOS);
 
     ptf_fillSelectAnios();
@@ -37,10 +50,6 @@ function ptf_groupByAnioMesTipo(datos) {
                 total: 0,
                 presencial: 0,
                 vc: 0,
-                sumaDiasPres: 0,
-                cuentaDiasPres: 0,
-                sumaDiasVC: 0,
-                cuentaDiasVC: 0,
                 meses: {}
             };
         }
@@ -51,11 +60,7 @@ function ptf_groupByAnioMesTipo(datos) {
             r.meses[mes] = {
                 total: 0,
                 presencial: 0,
-                vc: 0,
-                sumaDiasPres: 0,
-                cuentaDiasPres: 0,
-                sumaDiasVC: 0,
-                cuentaDiasVC: 0
+                vc: 0
             };
         }
 
@@ -64,26 +69,12 @@ function ptf_groupByAnioMesTipo(datos) {
         r.total++;
         m.total++;
 
-        const d = Number(f.dias);
-
         if (tipo === "VideoConferencia") {
             r.vc++;
             m.vc++;
-            if (d > 0) {
-                r.sumaDiasVC += d;
-                r.cuentaDiasVC++;
-                m.sumaDiasVC += d;
-                m.cuentaDiasVC++;
-            }
         } else {
             r.presencial++;
             m.presencial++;
-            if (d > 0) {
-                r.sumaDiasPres += d;
-                r.cuentaDiasPres++;
-                m.sumaDiasPres += d;
-                m.cuentaDiasPres++;
-            }
         }
     }
 
@@ -93,6 +84,8 @@ function ptf_groupByAnioMesTipo(datos) {
 /* Select años */
 function ptf_fillSelectAnios() {
     const sel = document.getElementById("ptf-select-anio");
+    if (!sel) return;
+
     sel.innerHTML = "";
 
     const anios = Object.keys(PTF_POR_ANIO).map(Number).sort((a,b)=>a-b);
@@ -107,6 +100,8 @@ function ptf_fillSelectAnios() {
 
 function ptf_selectUltimoAnio() {
     const sel = document.getElementById("ptf-select-anio");
+    if (!sel || sel.options.length === 0) return;
+
     sel.value = sel.options[sel.options.length - 1].value;
     ptf_onChangeAnio();
 }
@@ -114,8 +109,9 @@ function ptf_selectUltimoAnio() {
 /* Cambio de año */
 function ptf_onChangeAnio() {
     const sel = document.getElementById("ptf-select-anio");
-    const anio = Number(sel.value);
+    if (!sel) return;
 
+    const anio = Number(sel.value);
     const info = PTF_POR_ANIO[anio];
     if (!info) return;
 
@@ -132,20 +128,21 @@ function ptf_renderKpis(info) {
     const pctPres = total ? ((info.presencial / total) * 100).toFixed(1) + "%" : "0%";
     const pctVC = total ? ((info.vc / total) * 100).toFixed(1) + "%" : "0%";
 
-    const slaPres = info.cuentaDiasPres ? (info.sumaDiasPres / info.cuentaDiasPres).toFixed(1) : "0";
-    const slaVC = info.cuentaDiasVC ? (info.sumaDiasVC / info.cuentaDiasVC).toFixed(1) : "0";
+    // 🛡️ USAMOS safeSet → nunca rompe
+    safeSet("ptf-kpi-total", total);
+    safeSet("ptf-kpi-pres", pctPres);
+    safeSet("ptf-kpi-vc", pctVC);
 
-    // 🔥 IDS CORREGIDOS
-    document.getElementById("ptf-kpi-total").textContent = total;
-    document.getElementById("ptf-kpi-pres").textContent = pctPres;
-    document.getElementById("ptf-kpi-vc").textContent = pctVC;
-    document.getElementById("ptf-kpi-sla-pres").textContent = slaPres;
-    document.getElementById("ptf-kpi-sla-vc").textContent = slaVC;
+    // Estos dos NO existen en tu HTML → safeSet los ignora sin romper
+    safeSet("ptf-kpi-sla-pres", "-");
+    safeSet("ptf-kpi-sla-vc", "-");
 }
 
 /* Tabla mensual */
 function ptf_renderTablaMeses(info) {
     const tbody = document.querySelector("#ptf-tabla-meses tbody");
+    if (!tbody) return;
+
     tbody.innerHTML = "";
 
     const mesesOrden = [
@@ -159,8 +156,6 @@ function ptf_renderTablaMeses(info) {
 
         const total = m.total;
         const pctVC = total ? ((m.vc / total) * 100).toFixed(1) + "%" : "0%";
-        const slaPres = m.cuentaDiasPres ? (m.sumaDiasPres / m.cuentaDiasPres).toFixed(1) : "0";
-        const slaVC = m.cuentaDiasVC ? (m.sumaDiasVC / m.cuentaDiasVC).toFixed(1) : "0";
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -169,8 +164,6 @@ function ptf_renderTablaMeses(info) {
             <td>${m.presencial}</td>
             <td>${m.vc}</td>
             <td>${pctVC}</td>
-            <td>${slaPres}</td>
-            <td>${slaVC}</td>
         `;
         tbody.appendChild(tr);
     }
@@ -179,6 +172,7 @@ function ptf_renderTablaMeses(info) {
 /* Gráfico anual */
 function ptf_renderChartAnual(info) {
     const ctx = document.getElementById("ptf-chart-anual");
+    if (!ctx) return;
 
     const labels = Object.keys(info.meses);
     const dataPres = labels.map(m => info.meses[m].presencial);
@@ -206,14 +200,6 @@ function ptf_renderChartAnual(info) {
                     borderWidth: 1.5
                 }
             ]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: "#111" }}},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
         }
     });
 }
@@ -221,6 +207,7 @@ function ptf_renderChartAnual(info) {
 /* Gráfico mensual */
 function ptf_renderChartMensual(info) {
     const ctx = document.getElementById("ptf-chart-mensual");
+    if (!ctx) return;
 
     const labels = Object.keys(info.meses);
     const dataPres = labels.map(m => info.meses[m].presencial);
@@ -250,14 +237,6 @@ function ptf_renderChartMensual(info) {
                     tension: 0.2
                 }
             ]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: "#111" }}},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
         }
     });
 }
