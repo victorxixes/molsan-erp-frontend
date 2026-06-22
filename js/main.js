@@ -73,13 +73,15 @@ async function cargarModulo(nombre) {
 
 
     /* ============================================================
-       5. INICIALIZAR MÓDULO
-    ============================================================ */
-    try {
+   5. INICIALIZAR MÓDULO (DESPUÉS DE INSERTAR HTML)
+============================================================ */
+try {
+    setTimeout(async () => {
+
         switch (nombre) {
 
             case "dashboard":
-                setTimeout(() => initDashboard(), 0);
+                initDashboard();
                 break;
 
             case "listado":
@@ -110,9 +112,6 @@ async function cargarModulo(nombre) {
                 await initInformesDinamicos();
                 break;
 
-            /* ==========================
-               PANELES PREMIUM
-            ========================== */
             case "panel-anual":
                 await initPanelAnual();
                 break;
@@ -146,17 +145,17 @@ async function cargarModulo(nombre) {
                 break;
         }
 
-    } catch (err) {
+    }, 100); // 👈 RETRASO PARA ASEGURAR QUE EL HTML YA ESTÁ INSERTADO
 
-        console.error("❌ Error cargando módulo:", nombre, err);
-
-        cont.innerHTML = `
-            <div class="card-glass error-box fadeUp">
-                <h3>Error cargando el módulo</h3>
-                <p>${err.message}</p>
-            </div>
-        `;
-    }
+} catch (err) {
+    console.error("❌ Error cargando módulo:", nombre, err);
+    cont.innerHTML = `
+        <div class="card-glass error-box fadeUp">
+            <h3>Error cargando el módulo</h3>
+            <p>${err.message}</p>
+        </div>
+    `;
+}
 
 
     /* ============================================================
