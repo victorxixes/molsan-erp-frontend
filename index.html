@@ -2,11 +2,10 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>MOLSAN ERP — Glass Luxe 2027</title>
+    <title>MOLSAN - Control estadístico</title>
 
-    <!-- CSS -->
+    <!-- CSS PRINCIPAL -->
     <link rel="stylesheet" href="css/molsan.css">
-    <link rel="stylesheet" href="css/informes-dinamicos.css">
 
     <!-- Librerías externas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -15,94 +14,141 @@
     <script>
         window.v = Date.now(); /* Romper caché */
     </script>
-
-    <style>
-        .main-header {
-            margin-left: 240px !important;
-            position: relative;
-            z-index: 10;
-        }
-
-        .module-container {
-            margin-left: 240px !important;
-        }
-
-        .sidebar {
-            width: 240px;
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            z-index: 9999;
-        }
-    </style>
 </head>
 
 <body>
 
-<!-- ICONOS SVG -->
-<svg style="display:none;">
-    <symbol id="icon-menu" viewBox="0 0 24 24">
-        <path d="M3 6h18M3 12h18M3 18h18"/>
-    </symbol>
-    <symbol id="icon-close" viewBox="0 0 24 24">
-        <path d="M6 6l12 12M6 18L18 6"/>
-    </symbol>
-</svg>
+<div class="app-shell">
 
-<!-- BOTÓN SIDEBAR -->
-<button id="sidebarToggle" class="sidebar-toggle-btn">
-    <svg class="icon"><use href="#icon-menu"></use></svg>
-</button>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <ul>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-    <ul>
-        <li class="menu-item" onclick="cargarModulo('dashboard')">📊 Dashboard</li>
-        <li class="menu-item" onclick="cargarModulo('listado')">📄 Listado</li>
-        <li class="menu-item" onclick="cargarModulo('uploader')">📂 Importar Excel</li>
-        <li class="menu-item" onclick="cargarModulo('configuracion')">⚙️ Configuración</li>
-        <li class="menu-item" onclick="cargarModulo('permisos')">🔐 Permisos</li>
-        <li class="menu-item" onclick="cargarModulo('backup')">💾 Backup</li>
-        <li class="menu-item" onclick="cargarModulo('restore')">♻️ Restaurar</li>
+            <li class="menu-item" onclick="cargarModulo('dashboard')">
+                <span class="icon">📊</span>
+                <span class="text">Dashboard</span>
+            </li>
 
-        <hr>
+            <li class="menu-item" onclick="cargarModulo('listado')">
+                <span class="icon">📄</span>
+                <span class="text">Listado</span>
+            </li>
 
-        <li class="menu-item" onclick="cargarModulo('informes-premium')">📘 Informes Premium</li>
-        <li class="menu-item" onclick="cargarModulo('informes-dinamicos')">📑 Informes Dinámicos</li>
+            <li class="menu-item" onclick="cargarModulo('uploader')">
+                <span class="icon">📂</span>
+                <span class="text">Importar Excel</span>
+            </li>
 
-        <hr>
+            <li class="menu-item" onclick="cargarModulo('configuracion')">
+                <span class="icon">⚙️</span>
+                <span class="text">Configuración</span>
+            </li>
 
-        <!-- PANELES PREMIUM -->
-        <li class="menu-item" onclick="cargarModulo('panel-anual')">📆 Panel Anual</li>
-        <li class="menu-item" onclick="cargarModulo('panel-mensual')">📅 Panel Mensual</li>
-        <li class="menu-item" onclick="cargarModulo('panel-apoderados')">🧑‍💼 Panel Apoderados</li>
-        <li class="menu-item" onclick="cargarModulo('panel-tipo-firma')">✍️ Tipo Firma</li>
-        <li class="menu-item" onclick="cargarModulo('panel-tipo-gestion')">📄 Tipo Gestión</li>
-        <li class="menu-item" onclick="cargarModulo('panel-oficinas')">🏢 Oficinas</li>
-        <li class="menu-item" onclick="cargarModulo('panel-circuito')">🛣️ Circuito</li>
-        <li class="menu-item" onclick="cargarModulo('panel-sla')">⏱️ SLA / Tiempos</li>
-    </ul>
+            <li class="menu-item" onclick="cargarModulo('permisos')">
+                <span class="icon">🔐</span>
+                <span class="text">Permisos</span>
+            </li>
+
+            <li class="menu-item" onclick="cargarModulo('backup')">
+                <span class="icon">💾</span>
+                <span class="text">Backup</span>
+            </li>
+
+            <li class="menu-item" onclick="cargarModulo('restore')">
+                <span class="icon">♻️</span>
+                <span class="text">Restaurar</span>
+            </li>
+
+            <hr>
+
+            <li class="menu-item" onclick="cargarModulo('informes-premium')">
+                <span class="icon">📘</span>
+                <span class="text">Informes Premium</span>
+            </li>
+
+            <li class="menu-item" onclick="cargarModulo('informes-dinamicos')">
+                <span class="icon">📑</span>
+                <span class="text">Informes Dinámicos</span>
+            </li>
+
+            <hr>
+
+            <li class="menu-item" onclick="cargarModulo('panel-anual')">
+                <span class="icon">📆</span>
+                <span class="text">Panel Anual</span>
+            </li>
+
+            <li class="menu-item" onclick="cargarModulo('panel-mensual')">
+                <span class="icon">📅</span>
+                <span class="text">Panel Mensual</span>
+            </li>
+
+            <li class="menu-item" onclick="cargarModulo('panel-apoderados')">
+                <span class="icon">🧑‍</span>
+                <span class="text">Panel Apoderados</span>
+            </li>
+
+            <li class="menu-item" onclick="cargarModulo('panel-tipo-firma')">
+                <span class="icon">✍️</span>
+                <span class="text">Tipo Firma</span>
+            </li>
+
+            <li class="menu-item" onclick="cargarModulo('panel-tipo-gestion')">
+                <span class="icon">📄</span>
+                <span class="text">Tipo Gestión</span>
+            </li>
+
+            <li class="menu-item" onclick="cargarModulo('panel-oficinas')">
+                <span class="icon">🏢</span>
+                <span class="text">Origen de encargo</span>
+            </li>
+
+            <li class="menu-item" onclick="cargarModulo('panel-circuito')">
+                <span class="icon">🛣️</span>
+                <span class="text">Circuito notarial</span>
+            </li>
+
+            <li class="menu-item" onclick="cargarModulo('panel-sla')">
+                <span class="icon">⏱️</span>
+                <span class="text">SLA / Tiempos</span>
+            </li>
+
+        </ul>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="app-main">
+
+        <!-- TOPBAR -->
+        <header class="app-topbar">
+            <h2 id="module-title" class="titulo-modulo"></h2>
+
+            <!-- BOTÓN SIDEBAR -->
+            <button id="sidebarToggle" class="sidebar-toggle-btn">
+                <svg class="icon"><use href="#icon-menu"></use></svg>
+            </button>
+        </header>
+
+        <!-- CONTENIDO DEL MÓDULO -->
+        <div class="app-main-inner">
+            <div id="module-container" class="fade-in"></div>
+        </div>
+
+    </main>
+
 </div>
 
-<!-- CABECERA -->
-<header class="main-header">
-    <h1>MOLSAN ERP — Glass Luxe 2027</h1>
-    <h2 id="module-title" class="module-title"></h2>
-</header>
+</body>
+</html>
 
-<!-- AVISO PERMISOS -->
-<div id="avisoPermisos" style="display:none;"></div>
 
-<!-- CONTENEDOR PRINCIPAL -->
-<div id="module-container" class="module-container"></div>
 <!-- ============================================================
      PANEL APODERADOS
 ============================================================ -->
 <template id="tpl-panel-apoderados">
 <div class="panel-wrapper fade-in">
 
-    <h2 class="titulo-modulo">🧑‍💼 Panel Apoderados</h2>
+    <h2 class="titulo-modulo">🧑‍ Panel Apoderados</h2>
 
     <!-- ============================================================
          BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
@@ -408,7 +454,7 @@
 <template id="tpl-panel-circuito">
 <div class="panel-wrapper fade-in">
 
-    <h2 class="titulo-modulo">🛣️ Panel Circuito</h2>
+    <h2 class="titulo-modulo">🛣️ Panel Circuito notarial</h2>
 
     <!-- ============================================================
          BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
@@ -750,7 +796,9 @@
                 </table>
             </div>
 
-            <button class="btn-primary mt-20" onclick="informeReunion()">Informe para reunión</button>
+            <button class="m-btn-soft m-btn-round" onclick="informeReunion()">
+    Informe para reunión
+</button>
 
         </div>
 
@@ -779,7 +827,7 @@
                 <input id="filtroDiasMax" placeholder="Días máx">
             </div>
 
-            <button class="btn-primary mt-10" onclick="aplicarFiltros()">Aplicar filtros</button>
+            <button class="m-btn-soft m-btn-round" onclick="aplicarFiltros()">Aplicar filtros</button>
 
             <div id="chipsFiltros" class="chips mt-10"></div>
 
@@ -823,7 +871,7 @@
                 <button id="btnNext" class="btn-secondary" onclick="siguientePagina()">Siguiente</button>
             </div>
 
-            <button class="btn-primary mt-20" onclick="exportarFiltrados()">Exportar CSV</button>
+            <button class="m-btn-soft m-btn-round" onclick="exportarFiltrados()">Exportar CSV</button>
 
         </div>
 
@@ -848,7 +896,7 @@
                 <input type="file" id="excelFile" accept=".xlsx,.xls" class="input-file" />
             </div>
 
-            <button id="btnImportar" class="btn-primary w-100 mt-20">
+            <button id="btnImportar" class="btn btn-primary btn-sm">
                 Procesar Excel
             </button>
 
@@ -862,6 +910,9 @@
     </div>
 </template>
 
+<!-- ============================================================
+     CONFIGURACIÓN
+============================================================ -->
 <!-- ============================================================
      CONFIGURACIÓN
 ============================================================ -->
@@ -896,18 +947,40 @@
 
         <div class="card-glass p-20">
 
-            <label><input type="checkbox" id="permImportar"> Importar Excel</label>
-            <label><input type="checkbox" id="permBorrar"> Borrar datos</label>
-            <label><input type="checkbox" id="permRestaurar"> Restaurar backups</label>
-            <label><input type="checkbox" id="permExportar"> Exportar CSV</label>
-            <label><input type="checkbox" id="permVerTodo"> Ver Informes Premium</label>
+            <label class="m-checkbox">
+                <input type="checkbox" id="permImportar">
+                Importar Excel
+            </label>
 
-            <button class="btn-primary mt-20" onclick="guardarPermisos()">Guardar</button>
+            <label class="m-checkbox">
+                <input type="checkbox" id="permBorrar">
+                Borrar datos
+            </label>
+
+            <label class="m-checkbox">
+                <input type="checkbox" id="permRestaurar">
+                Restaurar backups
+            </label>
+
+            <label class="m-checkbox">
+                <input type="checkbox" id="permExportar">
+                Exportar CSV
+            </label>
+
+            <label class="m-checkbox">
+                <input type="checkbox" id="permVerTodo">
+                Ver Informes Premium
+            </label>
+
+            <button class="m-btn m-btn-primary m-btn-round m-btn-sm mt-20" onclick="guardarPermisos()">
+                Guardar
+            </button>
 
         </div>
 
     </div>
 </template>
+
 
 <!-- ============================================================
      BACKUP
@@ -918,13 +991,15 @@
         <h2 class="titulo-modulo">💾 Backup</h2>
 
         <div class="card-glass p-20">
-            <button class="btn-primary" onclick="crearBackup()">Crear Backup</button>
+            <button class="m-btn m-btn-primary m-btn-round m-btn-sm" onclick="crearBackup()">
+                Crear Backup
+            </button>
+
             <div id="backupInfo" class="mt-20"></div>
         </div>
 
     </div>
 </template>
-
 <!-- ============================================================
      RESTORE
 ============================================================ -->
@@ -935,11 +1010,21 @@
 
         <div class="card-glass p-20">
 
-            <input type="file" id="restoreFile" accept=".json" class="input-file">
+            <div class="m-field">
+                <input type="file" id="restoreFile" accept=".json" class="m-input">
+            </div>
 
-            <button id="btnVistaPrevia" class="btn-secondary mt-20">Vista previa</button>
-            <button id="btnRestaurar" class="btn-primary mt-10">Restaurar</button>
-            <button id="btnCancelar" class="btn-secondary mt-10">Cancelar</button>
+            <button id="btnVistaPrevia" class="m-btn m-btn-secondary m-btn-sm m-btn-round">
+                Vista previa
+            </button>
+
+            <button id="btnRestaurar" class="m-btn m-btn-primary m-btn-sm m-btn-round">
+                Restaurar
+            </button>
+
+            <button id="btnCancelar" class="m-btn m-btn-ghost m-btn-sm m-btn-round">
+                Cancelar
+            </button>
 
             <div id="restorePreview" class="mt-20"></div>
 
@@ -947,7 +1032,6 @@
 
     </div>
 </template>
-
 <!-- ============================================================
      INFORMES PREMIUM
 ============================================================ -->
@@ -1012,7 +1096,6 @@
 
     </div>
 </template>
-
 <!-- ============================================================
      INFORMES DINÁMICOS
 ============================================================ -->
@@ -1026,24 +1109,31 @@
             <div class="card-glass p-20 mt-20">
                 <div class="informes-header">
 
-                    <div>
-                        <label class="label">Tipo de informe</label>
-                        <select id="selectInforme" class="input-select"></select>
+                    <div class="m-field">
+                        <label class="m-label">Tipo de informe</label>
+                        <div class="m-select-wrapper">
+                            <select id="selectInforme" class="m-select"></select>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="label">Año (opcional)</label>
-                        <input id="filtroAnioInforme" class="input-text" placeholder="Ej: 2024">
+                    <div class="m-field">
+                        <label class="m-label">Año (opcional)</label>
+                        <input id="filtroAnioInforme" class="m-input" placeholder="Ej: 2024">
                     </div>
 
-                    <div>
-                        <label class="label">Mes (opcional)</label>
-                        <input id="filtroMesInforme" class="input-text" placeholder="1-12">
+                    <div class="m-field">
+                        <label class="m-label">Mes (opcional)</label>
+                        <input id="filtroMesInforme" class="m-input" placeholder="1-12">
                     </div>
 
                     <div class="informes-actions">
-                        <button class="btn-primary" onclick="generarInformeDinamico()">Generar</button>
-                        <button class="btn-secondary" onclick="imprimirInformeDinamico()">Imprimir</button>
+                        <button class="m-btn m-btn-primary m-btn-sm m-btn-round" onclick="generarInformeDinamico()">
+                            Generar
+                        </button>
+
+                        <button class="m-btn m-btn-secondary m-btn-sm m-btn-round" onclick="imprimirInformeDinamico()">
+                            Imprimir
+                        </button>
                     </div>
 
                 </div>
@@ -1061,7 +1151,6 @@
     </div>
 
 </template>
-
 <!-- ============================================================
      MODAL DETALLE
 ============================================================ -->
@@ -1070,13 +1159,15 @@
 
         <div class="modal-header">
             <h3 id="detalleTitulo">Detalle del expediente</h3>
-            <button class="modal-close" onclick="cerrarModalDetalle()">✕</button>
+            <button class="m-btn m-btn-ghost m-btn-xs m-btn-round" onclick="cerrarModalDetalle()">✕</button>
         </div>
 
         <div class="modal-body" id="detalleContenido"></div>
 
         <div class="modal-footer">
-            <button class="btn-secondary" onclick="cerrarModalDetalle()">Cerrar</button>
+            <button class="m-btn m-btn-secondary m-btn-sm m-btn-round" onclick="cerrarModalDetalle()">
+                Cerrar
+            </button>
         </div>
 
     </div>
