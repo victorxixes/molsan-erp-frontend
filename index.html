@@ -137,65 +137,73 @@
 <!-- ============================================================
      PANEL APODERADOS
 ============================================================ -->
+<!-- ============================================================
+     PANEL APODERADOS — PREMIUM 2027
+============================================================ -->
 <template id="tpl-panel-apoderados">
-<div class="panel-wrapper fade-in">
+    <div class="modulo-wrapper fade-in panel-apoderados-wrapper">
 
-    <h2 class="titulo-modulo">🧑‍ Panel Apoderados</h2>
+        <h2 class="titulo-modulo">👤 Panel Apoderados</h2>
 
-    <div class="panel-header">
-        <div class="panel-header-left">
-            <label>Año</label>
-            <select id="pap-select-anio"></select>
+        <div class="card-glass p-20">
+
+            <!-- Selector de año -->
+            <div class="flex gap-10 align-center mb-20">
+                <label for="pap-select-anio" class="label-select">Año:</label>
+                <select id="pap-select-anio" class="m-select"></select>
+            </div>
+
+            <!-- KPIs -->
+            <div class="kpi-grid">
+                <div class="kpi-box">Total firmas: <span id="pap-kpi-total">0</span></div>
+                <div class="kpi-box">Media días: <span id="pap-kpi-sla">0</span></div>
+                <div class="kpi-box">Videoconferencias: <span id="pap-kpi-vc">0%</span></div>
+                <div class="kpi-box">Top apoderado: <span id="pap-kpi-apoderado">-</span></div>
+            </div>
+
+            <!-- Tabla detalle apoderados -->
+            <h3 class="mt-40">📄 Detalle por apoderado (mes a mes)</h3>
+
+            <div class="tabla-scroll-x mt-10">
+                <table id="pap-tabla-apoderados" class="table-premium table-sticky tabla-excel">
+                    <thead>
+                        <tr>
+                            <th>Apoderado</th>
+                            <th>Total</th>
+                            <th>Presencial</th>
+                            <th>VC</th>
+                            <th>% VC</th>
+                            <th>SLA</th>
+
+                            <!-- Meses -->
+                            <th>Enero</th>
+                            <th>Febrero</th>
+                            <th>Marzo</th>
+                            <th>Abril</th>
+                            <th>Mayo</th>
+                            <th>Junio</th>
+                            <th>Julio</th>
+                            <th>Agosto</th>
+                            <th>Septiembre</th>
+                            <th>Octubre</th>
+                            <th>Noviembre</th>
+                            <th>Diciembre</th>
+                        </tr>
+                    </thead>
+
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Gráfico -->
+            <h3 class="mt-40">📊 Ranking de apoderados</h3>
+            <div class="dashboard-chart mt-20">
+                <canvas id="pap-chart-apoderados" height="120"></canvas>
+            </div>
+
         </div>
 
-        <div class="panel-header-right kpi-panel">
-            <div class="kpi-card">
-                <div class="kpi-label">Total firmas</div>
-                <div class="kpi-value" id="pap-kpi-total">0</div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-label">SLA medio</div>
-                <div class="kpi-value" id="pap-kpi-sla">0</div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-label">% VC</div>
-                <div class="kpi-value" id="pap-kpi-vc">0%</div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-label">Apoderado top</div>
-                <div class="kpi-value" id="pap-kpi-apoderado">-</div>
-            </div>
-        </div>
     </div>
-
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Ranking de Apoderados</h3>
-        <canvas id="pap-chart-apoderados"></canvas>
-    </div>
-
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Detalle por Apoderado</h3>
-
-        <table id="pap-tabla-apoderados" class="table-premium table-sticky">
-            <thead>
-                <tr>
-                    <th>Apoderado</th>
-                    <th>Total</th>
-                    <th>Presencial</th>
-                    <th>VC</th>
-                    <th>% VC</th>
-                    <th>SLA</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-    </div>
-
-</div>
 </template>
 
 
