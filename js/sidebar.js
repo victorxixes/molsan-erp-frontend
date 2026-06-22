@@ -1,5 +1,5 @@
 /* ============================================================
-   SIDEBAR — Glass Luxe 2027 (Premium + Persistente)
+   SIDEBAR — Glass Luxe 2027 (Premium + Persistente + Motion)
 ============================================================ */
 
 function aplicarEstadoSidebar(colapsado) {
@@ -8,14 +8,19 @@ function aplicarEstadoSidebar(colapsado) {
     const body = document.body;
 
     if (!sidebar || !toggleBtn) {
-        console.warn("Sidebar no encontrado en el DOM.");
+        console.warn("⚠️ Sidebar no encontrado en el DOM.");
         return;
     }
 
+    /* ============================================================
+       ESTADO: COLAPSADO
+    ============================================================ */
     if (colapsado) {
+
         sidebar.classList.add("collapsed");
         body.classList.add("sidebar-collapsed");
 
+        // Icono menú (abrir)
         toggleBtn.innerHTML = `
             <svg class="icon"><use href="#icon-menu"></use></svg>
         `;
@@ -23,9 +28,14 @@ function aplicarEstadoSidebar(colapsado) {
         localStorage.setItem("molsan_sidebar", "collapsed");
 
     } else {
+
+        /* ============================================================
+           ESTADO: EXPANDIDO
+        ============================================================ */
         sidebar.classList.remove("collapsed");
         body.classList.remove("sidebar-collapsed");
 
+        // Icono cerrar (colapsar)
         toggleBtn.innerHTML = `
             <svg class="icon"><use href="#icon-close"></use></svg>
         `;
@@ -33,6 +43,8 @@ function aplicarEstadoSidebar(colapsado) {
         localStorage.setItem("molsan_sidebar", "expanded");
     }
 
-    // Notificar a tooltips premium
+    /* ============================================================
+       NOTIFICAR A TOOLTIP + LAYOUT ENGINE
+    ============================================================ */
     document.dispatchEvent(new Event("sidebarChanged"));
 }

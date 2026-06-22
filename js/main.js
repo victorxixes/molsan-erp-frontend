@@ -1,32 +1,51 @@
 /* ============================================================
    MOLSAN ERP — GLASS LUXE 2027
-   MOTOR PRINCIPAL DE MÓDULOS
+   MOTOR PRINCIPAL DE MÓDULOS + Motion 2027 + UX Premium
 ============================================================ */
 
 async function cargarModulo(nombre) {
 
-    // Quitar selección previa
+    /* ============================================================
+       1. MARCAR ITEM ACTIVO EN SIDEBAR
+    ============================================================ */
     document.querySelectorAll(".menu-item").forEach(i => i.classList.remove("active"));
 
-    // Activar el menú actual
     const item = [...document.querySelectorAll(".menu-item")]
         .find(i => i.getAttribute("onclick")?.includes(nombre));
+
     if (item) item.classList.add("active");
 
-    // Cargar plantilla
+
+    /* ============================================================
+       2. OBTENER PLANTILLA Y CONTENEDOR
+    ============================================================ */
     const tpl = document.getElementById(`tpl-${nombre}`);
     const cont = document.getElementById("module-container");
     const title = document.getElementById("module-title");
 
     if (!tpl || !cont) {
-        console.error("No se encontró el módulo:", nombre);
+        console.error("❌ No se encontró el módulo:", nombre);
         return;
     }
 
-    cont.innerHTML = "";
-    cont.appendChild(tpl.content.cloneNode(true));
 
-    // Títulos bonitos
+    /* ============================================================
+       3. EFECTO DE TRANSICIÓN (Motion 2027)
+    ============================================================ */
+    cont.classList.remove("fadeUp");
+    cont.style.opacity = 0;
+
+    setTimeout(() => {
+        cont.innerHTML = "";
+        cont.appendChild(tpl.content.cloneNode(true));
+        cont.classList.add("fadeUp");
+        cont.style.opacity = 1;
+    }, 80);
+
+
+    /* ============================================================
+       4. TÍTULOS BONITOS
+    ============================================================ */
     if (title) {
         const nombresBonitos = {
             "dashboard": "Dashboard",
@@ -38,7 +57,7 @@ async function cargarModulo(nombre) {
             "informes-premium": "Informes Premium",
             "informes-dinamicos": "Informes Dinámicos",
 
-            // 🔹 NUEVOS PANELES
+            // Paneles Premium
             "panel-anual": "Panel Anual",
             "panel-mensual": "Panel Mensual",
             "panel-apoderados": "Panel Apoderados",
@@ -48,10 +67,14 @@ async function cargarModulo(nombre) {
             "panel-circuito": "Panel Circuito Notarial",
             "panel-sla": "Panel SLA / Tiempos"
         };
+
         title.textContent = nombresBonitos[nombre] || nombre;
     }
 
-    // Inicializar módulo
+
+    /* ============================================================
+       5. INICIALIZAR MÓDULO
+    ============================================================ */
     try {
         switch (nombre) {
 
@@ -88,9 +111,8 @@ async function cargarModulo(nombre) {
                 break;
 
             /* ==========================
-               NUEVOS PANELES PREMIUM
+               PANELES PREMIUM
             ========================== */
-
             case "panel-anual":
                 await initPanelAnual();
                 break;
@@ -125,27 +147,37 @@ async function cargarModulo(nombre) {
         }
 
     } catch (err) {
-        console.error("Error cargando módulo:", nombre, err);
+
+        console.error("❌ Error cargando módulo:", nombre, err);
+
         cont.innerHTML = `
-            <div class="card-glass error-box">
+            <div class="card-glass error-box fadeUp">
                 <h3>Error cargando el módulo</h3>
                 <p>${err.message}</p>
             </div>
         `;
     }
 
+
+    /* ============================================================
+       6. APLICAR PERMISOS
+    ============================================================ */
     aplicarPermisos();
 }
 
+
 /* ============================================================
-   INICIALIZACIÓN GLOBAL — CORREGIDA
+   INICIALIZACIÓN GLOBAL — GLASS LUXE 2027
 ============================================================ */
 window.addEventListener("DOMContentLoaded", async () => {
 
+    // 1) IndexedDB
     await initDB();
 
+    // 2) Estado del sidebar
     const estado = localStorage.getItem("molsan_sidebar") === "collapsed";
     aplicarEstadoSidebar(estado);
 
-    cargarModulo("dashboard"); // ✔ Cargar Dashboard al inicio
+    // 3) Cargar Dashboard al inicio
+    cargarModulo("dashboard");
 });
