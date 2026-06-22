@@ -119,15 +119,7 @@
     <!-- CONTENIDO PRINCIPAL -->
     <main class="app-main">
 
-        <!-- TOPBAR -->
-        <header class="app-topbar">
-            <h2 id="module-title" class="titulo-modulo"></h2>
-
-            <!-- BOTÓN SIDEBAR -->
-            <button id="sidebarToggle" class="sidebar-toggle-btn">
-                <svg class="icon"><use href="#icon-menu"></use></svg>
-            </button>
-        </header>
+       
 
         <!-- CONTENIDO DEL MÓDULO -->
         <div class="app-main-inner">
@@ -150,20 +142,13 @@
 
     <h2 class="titulo-modulo">🧑‍ Panel Apoderados</h2>
 
-    <!-- ============================================================
-         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
-    ============================================================= -->
     <div class="panel-header">
-
-        <!-- IZQUIERDA: SELECTOR DE AÑO -->
         <div class="panel-header-left">
             <label>Año</label>
             <select id="pap-select-anio"></select>
         </div>
 
-        <!-- DERECHA: KPIS -->
         <div class="panel-header-right kpi-panel">
-
             <div class="kpi-card">
                 <div class="kpi-label">Total firmas</div>
                 <div class="kpi-value" id="pap-kpi-total">0</div>
@@ -183,14 +168,8 @@
                 <div class="kpi-label">Apoderado top</div>
                 <div class="kpi-value" id="pap-kpi-apoderado">-</div>
             </div>
-
         </div>
-
     </div>
-
-    <!-- ============================================================
-         CONTENIDO DEL PANEL
-    ============================================================= -->
 
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Ranking de Apoderados</h3>
@@ -199,7 +178,8 @@
 
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Detalle por Apoderado</h3>
-        <table id="pap-tabla-apoderados">
+
+        <table id="pap-tabla-apoderados" class="table-premium table-sticky">
             <thead>
                 <tr>
                     <th>Apoderado</th>
@@ -212,10 +192,13 @@
             </thead>
             <tbody></tbody>
         </table>
+
     </div>
 
 </div>
 </template>
+
+
 <!-- ============================================================
      PANEL TIPO FIRMA
 ============================================================ -->
@@ -224,20 +207,13 @@
 
     <h2 class="titulo-modulo">✍️ Panel Tipo de Firma</h2>
 
-    <!-- ============================================================
-         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
-    ============================================================= -->
     <div class="panel-header">
-
-        <!-- IZQUIERDA: SELECTOR DE AÑO -->
         <div class="panel-header-left">
             <label>Año</label>
             <select id="ptf-select-anio"></select>
         </div>
 
-        <!-- DERECHA: KPIS -->
         <div class="panel-header-right kpi-panel">
-
             <div class="kpi-card">
                 <div class="kpi-label">Total firmas</div>
                 <div class="kpi-value" id="ptf-kpi-total">0</div>
@@ -257,14 +233,8 @@
                 <div class="kpi-label">Mes más fuerte</div>
                 <div class="kpi-value" id="ptf-kpi-top-mes">-</div>
             </div>
-
         </div>
-
     </div>
-
-    <!-- ============================================================
-         CONTENIDO DEL PANEL
-    ============================================================= -->
 
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Distribución por tipo de firma</h3>
@@ -273,7 +243,8 @@
 
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Detalle mensual</h3>
-        <table id="ptf-tabla-meses">
+
+        <table id="ptf-tabla-meses" class="table-premium table-sticky">
             <thead>
                 <tr>
                     <th>Mes</th>
@@ -286,10 +257,13 @@
             </thead>
             <tbody></tbody>
         </table>
+
     </div>
 
 </div>
 </template>
+
+
 <!-- ============================================================
      PANEL TIPO GESTIÓN
 ============================================================ -->
@@ -298,20 +272,13 @@
 
     <h2 class="titulo-modulo">📄 Panel Tipo de Gestión</h2>
 
-    <!-- ============================================================
-         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
-    ============================================================= -->
     <div class="panel-header">
-
-        <!-- IZQUIERDA: SELECTOR DE AÑO -->
         <div class="panel-header-left">
             <label>Año</label>
             <select id="ptg-select-anio"></select>
         </div>
 
-        <!-- DERECHA: KPIS -->
         <div class="panel-header-right kpi-panel">
-
             <div class="kpi-card">
                 <div class="kpi-label">Total firmas</div>
                 <div class="kpi-value" id="ptg-kpi-total">0</div>
@@ -336,23 +303,13 @@
                 <div class="kpi-label">SLA Sin</div>
                 <div class="kpi-value" id="ptg-kpi-sla-sin">0</div>
             </div>
-
         </div>
-
-    </div>
-
-    <!-- ============================================================
-         CONTENIDO DEL PANEL
-    ============================================================= -->
-
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Distribución por tipo de gestión</h3>
-        <canvas id="ptg-chart-tipo-gestion"></canvas>
     </div>
 
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Detalle por tipo de gestión</h3>
-        <table id="ptg-tabla-gestion">
+
+        <table id="ptg-tabla-gestion" class="table-premium table-sticky">
             <thead>
                 <tr>
                     <th>Tipo Gestión</th>
@@ -367,10 +324,12 @@
             </thead>
             <tbody></tbody>
         </table>
+
     </div>
 
 </div>
 </template>
+
 
 <!-- ============================================================
      PANEL OFICINAS
@@ -380,20 +339,13 @@
 
     <h2 class="titulo-modulo">🏢 Panel Oficinas</h2>
 
-    <!-- ============================================================
-         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
-    ============================================================= -->
     <div class="panel-header">
-
-        <!-- IZQUIERDA: SELECTOR DE AÑO -->
         <div class="panel-header-left">
             <label>Año</label>
             <select id="pof-select-anio"></select>
         </div>
 
-        <!-- DERECHA: KPIS -->
         <div class="panel-header-right kpi-panel">
-
             <div class="kpi-card">
                 <div class="kpi-label">Total firmas</div>
                 <div class="kpi-value" id="pof-kpi-total">0</div>
@@ -413,14 +365,8 @@
                 <div class="kpi-label">Oficina top</div>
                 <div class="kpi-value" id="pof-kpi-oficina">-</div>
             </div>
-
         </div>
-
     </div>
-
-    <!-- ============================================================
-         CONTENIDO DEL PANEL
-    ============================================================= -->
 
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Ranking de Oficinas</h3>
@@ -429,7 +375,8 @@
 
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Detalle por Oficina</h3>
-        <table id="pof-tabla-oficinas">
+
+        <table id="pof-tabla-oficinas" class="table-premium table-sticky">
             <thead>
                 <tr>
                     <th>Oficina</th>
@@ -442,12 +389,11 @@
             </thead>
             <tbody></tbody>
         </table>
+
     </div>
 
 </div>
 </template>
-
-
 <!-- ============================================================
      PANEL CIRCUITO
 ============================================================ -->
@@ -456,18 +402,13 @@
 
     <h2 class="titulo-modulo">🛣️ Panel Circuito notarial</h2>
 
-    <!-- ============================================================
-         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
-    ============================================================= -->
     <div class="panel-header">
 
-        <!-- IZQUIERDA: SELECTOR DE AÑO -->
         <div class="panel-header-left">
             <label>Año</label>
             <select id="pci-select-anio"></select>
         </div>
 
-        <!-- DERECHA: KPIS -->
         <div class="panel-header-right kpi-panel">
 
             <div class="kpi-card">
@@ -494,10 +435,6 @@
 
     </div>
 
-    <!-- ============================================================
-         CONTENIDO DEL PANEL
-    ============================================================= -->
-
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Distribución por Circuito</h3>
         <canvas id="pci-chart-circuito"></canvas>
@@ -505,7 +442,8 @@
 
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Detalle por Circuito</h3>
-        <table id="pci-tabla-circuito">
+
+        <table id="pci-tabla-circuito" class="table-premium table-sticky">
             <thead>
                 <tr>
                     <th>Circuito</th>
@@ -518,10 +456,12 @@
             </thead>
             <tbody></tbody>
         </table>
+
     </div>
 
 </div>
 </template>
+
 
 <!-- ============================================================
      PANEL MENSUAL
@@ -531,18 +471,13 @@
 
     <h2 class="titulo-modulo">📅 Panel Mensual</h2>
 
-    <!-- ============================================================
-         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
-    ============================================================= -->
     <div class="panel-header">
 
-        <!-- IZQUIERDA: SELECTOR DE AÑO -->
         <div class="panel-header-left">
             <label>Año</label>
             <select id="pm-select-anio"></select>
         </div>
 
-        <!-- DERECHA: KPIS -->
         <div class="panel-header-right kpi-panel">
 
             <div class="kpi-card">
@@ -569,10 +504,6 @@
 
     </div>
 
-    <!-- ============================================================
-         CONTENIDO DEL PANEL
-    ============================================================= -->
-
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Evolución mensual</h3>
         <canvas id="pm-chart-mensual"></canvas>
@@ -580,7 +511,8 @@
 
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Detalle por mes</h3>
-        <table id="pm-tabla-meses">
+
+        <table id="pm-tabla-meses" class="table-premium table-sticky">
             <thead>
                 <tr>
                     <th>Mes</th>
@@ -593,31 +525,28 @@
             </thead>
             <tbody></tbody>
         </table>
+
     </div>
 
 </div>
 </template>
+
+
 <!-- ============================================================
      PANEL ANUAL
 ============================================================ -->
-
 <template id="tpl-panel-anual">
 <div class="panel-wrapper fade-in">
 
     <h2 class="titulo-modulo">📆 Panel Anual</h2>
 
-    <!-- ============================================================
-         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
-    ============================================================= -->
     <div class="panel-header">
 
-        <!-- IZQUIERDA: SELECTOR DE AÑO -->
         <div class="panel-header-left">
             <label>Año</label>
             <select id="pa-select-anio"></select>
         </div>
 
-        <!-- DERECHA: KPIS -->
         <div class="panel-header-right kpi-panel">
 
             <div class="kpi-card">
@@ -644,34 +573,37 @@
 
     </div>
 
-    <!-- ============================================================
-         CONTENIDO DEL PANEL
-    ============================================================= -->
+<!-- ============================================================
+     CONTENIDO DEL PANEL ANUAL
+============================================================ -->
 
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Evolución anual</h3>
-        <canvas id="pa-chart-anual"></canvas>
-    </div>
+<div class="panel-contenido mt-20">
+    <h3 class="subtitulo-modulo">Evolución anual</h3>
+    <canvas id="pa-chart-anual"></canvas>
+</div>
 
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Detalle por mes</h3>
-        <table id="pa-tabla-meses">
-            <thead>
-                <tr>
-                    <th>Mes</th>
-                    <th>Total</th>
-                    <th>Presencial</th>
-                    <th>VC</th>
-                    <th>% VC</th>
-                    <th>SLA</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+<div class="panel-contenido mt-20">
+    <h3 class="subtitulo-modulo">Detalle por mes</h3>
+
+    <table id="pa-tabla-meses" class="table-premium table-sticky">
+        <thead>
+            <tr>
+                <th>Mes</th>
+                <th>Total</th>
+                <th>Presencial</th>
+                <th>VC</th>
+                <th>% VC</th>
+                <th>SLA</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+</div>
 
 </div>
 </template>
+
 
 <!-- ============================================================
      PANEL SLA
@@ -681,18 +613,13 @@
 
     <h2 class="titulo-modulo">⏱️ Panel SLA / Tiempos</h2>
 
-    <!-- ============================================================
-         BLOQUE UNIFICADO (AÑO IZQUIERDA + KPIS DERECHA)
-    ============================================================= -->
     <div class="panel-header">
 
-        <!-- IZQUIERDA: SELECTOR DE AÑO -->
         <div class="panel-header-left">
             <label>Año</label>
             <select id="sla-select-anio"></select>
         </div>
 
-        <!-- DERECHA: KPIS -->
         <div class="panel-header-right kpi-panel">
 
             <div class="kpi-card">
@@ -719,10 +646,6 @@
 
     </div>
 
-    <!-- ============================================================
-         CONTENIDO DEL PANEL
-    ============================================================= -->
-
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Evolución del SLA</h3>
         <canvas id="sla-chart-evolucion"></canvas>
@@ -730,7 +653,8 @@
 
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Detalle mensual</h3>
-        <table id="sla-tabla-meses">
+
+        <table id="sla-tabla-meses" class="table-premium table-sticky">
             <thead>
                 <tr>
                     <th>Mes</th>
@@ -745,6 +669,7 @@
             </thead>
             <tbody></tbody>
         </table>
+
     </div>
 
 </div>
@@ -780,21 +705,21 @@
             </div>
 
             <!-- Tabla Evolutivo -->
-            <h3 class="mt-40">📈 Evolutivo por año</h3>
-            <div class="tabla-scroll-x mt-10">
-                <table id="tabla-evolutivo" class="tabla-excel tabla-sticky">
-                    <thead>
-                        <tr>
-                            <th>Año</th>
-                            <th>Total</th>
-                            <th>Presencial</th>
-                            <th>VC</th>
-                            <th>Media días</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+<h3 class="mt-40">📈 Evolutivo por año</h3>
+<div class="tabla-scroll-x mt-10">
+    <table id="tabla-evolutivo" class="table-premium table-sticky tabla-excel">
+        <thead>
+            <tr>
+                <th>Año</th>
+                <th>Total</th>
+                <th>Presencial</th>
+                <th>VC</th>
+                <th>Media días</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 
             <button class="m-btn-soft m-btn-round" onclick="informeReunion()">
     Informe para reunión
@@ -804,7 +729,6 @@
 
     </div>
 </template>
-
 <!-- ============================================================
      LISTADO
 ============================================================ -->
@@ -832,7 +756,7 @@
             <div id="chipsFiltros" class="chips mt-10"></div>
 
             <div class="tabla-scroll-x mt-20">
-                <table class="tabla-listado tabla-sticky">
+                <table class="table-premium table-sticky tabla-listado">
                     <thead>
                         <tr>
                             <th onclick="ordenarPor('expediente')">Expediente</th>
@@ -1097,6 +1021,8 @@
 
     </div>
 </template>
+
+
 <!-- ============================================================
      INFORMES DINÁMICOS
 ============================================================ -->
@@ -1144,7 +1070,7 @@
                 <h3 class="titulo-modulo" id="tituloInformeActual">Informe</h3>
 
                 <div id="contenedorTablaInforme" class="tabla-scroll-x mt-20">
-                    <table id="tablaInformeDinamico" class="table-excel"></table>
+                    <table id="tablaInformeDinamico" class="table-premium table-sticky"></table>
                 </div>
             </div>
 
