@@ -135,10 +135,7 @@
 
 
 <!-- ============================================================
-     PANEL APODERADOS
-============================================================ -->
-<!-- ============================================================
-     PANEL APODERADOS — PREMIUM 2027
+     PANEL APODERADOS — PREMIUM 2027 (AVANZADO)
 ============================================================ -->
 <template id="tpl-panel-apoderados">
     <div class="modulo-wrapper fade-in panel-apoderados-wrapper">
@@ -150,15 +147,27 @@
             <!-- Selector de año -->
             <div class="flex gap-10 align-center mb-20">
                 <label for="pap-select-anio" class="label-select">Año:</label>
-                <select id="pap-select-anio" class="m-select"></select>
+                <select id="pap-select-anio" class="m-select" onchange="pap_onChangeAnio()"></select>
             </div>
 
             <!-- KPIs -->
             <div class="kpi-grid">
-                <div class="kpi-box">Total firmas: <span id="pap-kpi-total">0</span></div>
-                <div class="kpi-box">Media días: <span id="pap-kpi-sla">0</span></div>
-                <div class="kpi-box">Videoconferencias: <span id="pap-kpi-vc">0%</span></div>
-                <div class="kpi-box">Top apoderado: <span id="pap-kpi-apoderado">-</span></div>
+                <div class="kpi-box">
+                    <span class="kpi-label">Total firmas</span>
+                    <span class="kpi-value" id="pap-kpi-total">0</span>
+                </div>
+                <div class="kpi-box">
+                    <span class="kpi-label">Media días (SLA)</span>
+                    <span class="kpi-value" id="pap-kpi-sla">0</span>
+                </div>
+                <div class="kpi-box">
+                    <span class="kpi-label">% Videoconferencia</span>
+                    <span class="kpi-value" id="pap-kpi-vc">0%</span>
+                </div>
+                <div class="kpi-box">
+                    <span class="kpi-label">Top apoderado</span>
+                    <span class="kpi-value" id="pap-kpi-apoderado">-</span>
+                </div>
             </div>
 
             <!-- Tabla detalle apoderados -->
@@ -171,6 +180,7 @@
                             <th>Apoderado</th>
                             <th>Total</th>
                             <th>Presencial</th>
+                            <th>% Presencial</th>
                             <th>VC</th>
                             <th>% VC</th>
                             <th>SLA</th>
@@ -190,15 +200,20 @@
                             <th>Diciembre</th>
                         </tr>
                     </thead>
-
                     <tbody></tbody>
                 </table>
             </div>
 
-            <!-- Gráfico -->
-            <h3 class="mt-40">📊 Ranking de apoderados</h3>
+            <!-- Gráfico ranking apoderados -->
+            <h3 class="mt-40">📊 Ranking de apoderados (total anual)</h3>
             <div class="dashboard-chart mt-20">
                 <canvas id="pap-chart-apoderados" height="120"></canvas>
+            </div>
+
+            <!-- Gráfico mensual global -->
+            <h3 class="mt-40">📈 Evolución mensual global (Presencial vs VC)</h3>
+            <div class="dashboard-chart mt-20">
+                <canvas id="pap-chart-mensual" height="120"></canvas>
             </div>
 
         </div>
