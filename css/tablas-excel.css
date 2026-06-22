@@ -1,0 +1,126 @@
+/* ============================================================
+   TABLAS EXCEL — GLASS LUXE 2027
+   Usado en Paneles, Informes Dinámicos y Premium
+============================================================ */
+
+/* CONTENEDOR SCROLL */
+.tabla-scroll-x {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 10px;
+}
+
+/* TABLA BASE */
+.table-excel,
+.tabla-excel,
+.tabla-listado,
+.tabla-panel {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(8px);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+
+/* CABECERA */
+.table-excel thead th,
+.tabla-excel thead th,
+.tabla-panel thead th {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid rgba(0,0,0,0.1);
+    white-space: nowrap;
+}
+
+/* CELDAS */
+.table-excel td,
+.tabla-excel td,
+.tabla-panel td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    color: #222;
+}
+
+/* ZEBRA ROWS */
+.table-excel tbody tr:nth-child(even),
+.tabla-excel tbody tr:nth-child(even),
+.tabla-panel tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.55);
+}
+
+/* HOVER */
+.table-excel tbody tr:hover,
+.tabla-excel tbody tr:hover,
+.tabla-panel tbody tr:hover {
+    background: rgba(0,0,0,0.05);
+    transition: 0.15s ease;
+}
+
+/* NUMÉRICOS */
+.table-excel td.num,
+.tabla-excel td.num,
+.tabla-panel td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* CABECERA CLICKABLE (ORDENAR) */
+.table-excel thead th.sortable:hover,
+.tabla-excel thead th.sortable:hover {
+    cursor: pointer;
+    background: rgba(255,255,255,0.95);
+}
+
+/* BORDES REDONDEADOS */
+.table-excel thead tr:first-child th:first-child,
+.tabla-excel thead tr:first-child th:first-child {
+    border-top-left-radius: 10px;
+}
+
+.table-excel thead tr:first-child th:last-child,
+.tabla-excel thead tr:first-child th:last-child {
+    border-top-right-radius: 10px;
+}
+
+/* FOOTER (si existe) */
+.table-excel tfoot td {
+    background: rgba(255,255,255,0.9);
+    font-weight: 600;
+    border-top: 2px solid rgba(0,0,0,0.15);
+}
+
+/* ============================================================
+   MODO OSCURO (si lo activas en el futuro)
+============================================================ */
+body.dark .table-excel,
+body.dark .tabla-excel,
+body.dark .tabla-panel {
+    background: rgba(20,20,20,0.55);
+    color: #eee;
+}
+
+body.dark .table-excel thead th,
+body.dark .tabla-excel thead th {
+    background: rgba(30,30,30,0.85);
+    color: #fff;
+}
+
+body.dark .table-excel tbody tr:nth-child(even),
+body.dark .tabla-excel tbody tr:nth-child(even) {
+    background: rgba(255,255,255,0.05);
+}
+
+body.dark .table-excel tbody tr:hover,
+body.dark .tabla-excel tbody tr:hover {
+    background: rgba(255,255,255,0.08);
+}
