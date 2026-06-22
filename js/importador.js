@@ -27,7 +27,7 @@ function mapearCamposExcel(f) {
         nombre_completo: f["Nombre"] ?? "",
         centro_que_firma_raw: f["Centro que firma"] ?? "",
 
-        // Campos que generaremos después
+        // Campos generados por reglas
         mes: "",
         anio: "",
         centro: "",
@@ -40,6 +40,68 @@ function mapearCamposExcel(f) {
         circuito: "",
         tipo_firma: ""
     };
+}
+
+/* ============================================================
+   APLICAR REGLAS — GENERA MES, AÑO, TIPO FIRMA, CIRCUITO, ETC.
+============================================================ */
+function aplicarReglas(f) {
+
+    /* ------------------------------
+       1) FECHA → MES + AÑO
+    ------------------------------ */
+    let fecha = null;
+
+    if (f.fecha_alta) fecha = new Date(f.fecha_alta);
+    else if (f.fecha_protocolo) fecha = new Date(f.fecha_protocolo);
+
+    if (fecha && !isNaN(fecha)) {
+        f.anio = fecha.getFullYear();
+        f.mes = fecha.toLocaleString("es-ES", { month: "long" }).toLowerCase();
+    } else {
+        f.anio = "";
+        f.mes = "";
+    }
+
+    /* ------------------------------
+       2) TIPO FIRMA
+    ------------------------------ */
+    f.tipo_firma = (String(f.vc).toUpperCase() === "S")
+        ? "VideoConferencia"
+        : "Presencial";
+
+    /* ------------------------------
+       3) CIRCUITO NOTARIAL
+    ------------------------------ */
+    const prov = (f.provincia || "").toLowerCase();
+
+    if (prov.includes("las palmas") || prov.includes("santa cruz")) {
+        f.circuito = "Canarias";
+    } else if (
+        prov.includes("barcelona") ||
+        prov.includes("madrid") ||
+        prov.includes("valencia") ||
+        prov.includes("sevilla") ||
+        prov.includes("zaragoza")
+    ) {
+        f.circuito = "Península";
+    } else {
+        f.circuito = "Externo";
+    }
+
+    /* ------------------------------
+       4) TIPO GESTIÓN
+    ------------------------------ */
+    f.tipo_gestion = (f.tipo_provision || "").toLowerCase().includes("sin")
+        ? "Sin provisión"
+        : "Con provisión";
+
+    /* ------------------------------
+       5) CENTRO
+    ------------------------------ */
+    f.centro = f.oficina || "";
+
+    return f;
 }
 
 /* ============================================================
