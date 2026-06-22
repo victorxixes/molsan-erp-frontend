@@ -1,6 +1,6 @@
 /* ============================================================
    PANELES — MOLSAN ERP SAAS PREMIUM 2027
-   Paneles Anual, Mensual, Oficinas, Circuito, SLA, etc.
+   Adaptado a Glass Luxe Light + UI-Kit + Motion + Layout Engine
 ============================================================ */
 
 /* ============================================================
@@ -11,7 +11,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.6rem;
-    animation: fadeInUp 0.35s ease-out;
+    animation: fadeUp var(--motion-normal) var(--ease-emphasized);
 }
 
 /* ============================================================
@@ -24,37 +24,38 @@
     gap: 1rem;
     align-items: flex-end;
 
-    background: var(--molsan-bg-card);
-    border: 1px solid var(--molsan-border-soft);
-    border-radius: var(--molsan-radius-lg);
+    background: var(--m-bg-card);
+    border: 1px solid var(--m-border-soft);
+    border-radius: var(--m-radius-lg);
     padding: 16px 20px;
 
-    box-shadow: var(--molsan-shadow-soft);
+    box-shadow: var(--m-shadow-soft);
     backdrop-filter: blur(10px);
 }
 
 .panel-filtros label {
     font-size: 0.8rem;
-    color: var(--molsan-text-secondary);
+    color: var(--m-text-secondary);
     margin-bottom: 4px;
     display: block;
 }
 
+/* Inputs del UI-Kit */
 .panel-filtros select,
 .panel-filtros input {
-    background: var(--molsan-bg-card);
-    border: 1px solid var(--molsan-border-soft);
-    border-radius: var(--molsan-radius-md);
+    background: #FFFFFF;
+    border: 1px solid var(--m-border-soft);
+    border-radius: var(--m-radius-md);
     padding: 0.55rem 0.7rem;
     font-size: 0.9rem;
-    color: var(--molsan-text-main);
-    transition: var(--molsan-transition-fast);
+    color: var(--m-text-main);
+    transition: var(--motion-fast) var(--ease-soft);
 }
 
 .panel-filtros select:focus,
 .panel-filtros input:focus {
-    border-color: var(--molsan-primary);
-    box-shadow: 0 0 0 1px var(--molsan-primary-soft);
+    border-color: var(--m-primary);
+    box-shadow: 0 0 0 1px var(--m-primary-soft);
 }
 
 /* ============================================================
@@ -64,7 +65,7 @@
 .subtitulo-modulo {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--molsan-text-main);
+    color: var(--m-text-main);
     margin-bottom: 8px;
 }
 
@@ -73,12 +74,12 @@
 ============================================================ */
 
 .panel-contenido {
-    background: var(--molsan-bg-card);
-    border: 1px solid var(--molsan-border-soft);
-    border-radius: var(--molsan-radius-lg);
+    background: var(--m-bg-card);
+    border: 1px solid var(--m-border-soft);
+    border-radius: var(--m-radius-lg);
     padding: 20px;
 
-    box-shadow: var(--molsan-shadow-medium);
+    box-shadow: var(--m-shadow-medium);
     backdrop-filter: blur(10px);
 }
 
@@ -94,30 +95,31 @@
 }
 
 .kpi-card {
-    background: var(--molsan-bg-card);
-    border: 1px solid var(--molsan-border-soft);
-    border-radius: var(--molsan-radius-md);
+    background: var(--m-bg-card);
+    border: 1px solid var(--m-border-soft);
+    border-radius: var(--m-radius-md);
     padding: 16px 20px;
 
-    box-shadow: var(--molsan-shadow-soft);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: var(--m-shadow-soft);
+    transition: transform var(--motion-normal) var(--ease-emphasized),
+                box-shadow var(--motion-normal) var(--ease-soft);
 }
 
 .kpi-card:hover {
     transform: translateY(-3px);
-    box-shadow: var(--molsan-shadow-medium);
+    box-shadow: var(--m-shadow-medium);
 }
 
 .kpi-label {
     font-size: 0.85rem;
-    color: var(--molsan-text-secondary);
+    color: var(--m-text-secondary);
     margin-bottom: 4px;
 }
 
 .kpi-value {
     font-size: 1.4rem;
     font-weight: 600;
-    color: var(--molsan-primary-dark);
+    color: var(--m-primary-dark);
 }
 
 /* ============================================================

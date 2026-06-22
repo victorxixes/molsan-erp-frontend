@@ -1,44 +1,24 @@
 /* ============================================================
-   MOLSAN ERP — GLASS LUXE LIGHT 2027
-   ARCHIVO MAESTRO DE ESTILOS (SAAS PREMIUM)
+   MOLSAN ERP — GLASS LUXE 2027
+   ARCHIVO MAESTRO DE ESTILOS (SOLO IMPORTS)
 ============================================================ */
-
-/* ============================================================
-   1. THEME BASE (variables + reset + layout + core)
-============================================================ */
+/* THEME */
 @import url("theme-molsan-light.css");
 
-/* ============================================================
-   2. SISTEMA DE MOTION (animaciones premium)
-============================================================ */
+/* MOTION */
 @import url("motion-molsan-2027.css");
 
-/* ============================================================
-   3. UI KIT (componentes globales)
-============================================================ */
+/* UI KIT GENERAL */
 @import url("ui-kit-molsan-2027.css");
 
-/* ============================================================
-   4. LAYOUT ENGINE (grid + spacing + responsive)
-============================================================ */
+/* LAYOUT ENGINE */
+@import url("layout-engine.css");
 @import url("layout-molsan-2027.css");
 
-/* ============================================================
-   5. CHARTS (estilo premium para gráficos)
-============================================================ */
+/* CHARTS */
 @import url("charts-molsan-2027.css");
 
-/* ============================================================
-   6. COMPONENTES GLOBALES (legacy compatibles)
-============================================================ */
-@import url("buttons.css");
-@import url("modals.css");
-@import url("autocompletado.css");
-@import url("tables-excel.css"); /* Se convertirá en tables.css global */
-
-/* ============================================================
-   7. MÓDULOS (cada módulo solo contiene estilos propios)
-============================================================ */
+/* COMPONENTES */
 @import url("sidebar.css");
 @import url("dashboard.css");
 @import url("listado.css");
@@ -46,8 +26,5 @@
 @import url("informes-dinamicos.css");
 @import url("paneles.css");
 
-/* ============================================================
-   8. OBSOLETOS / ELIMINADOS
-============================================================ */
-/* @import url("reports.css"); */ /* Eliminado definitivamente */
-
+/* BOTONES — SIEMPRE AL FINAL */
+@import url("buttons.css");

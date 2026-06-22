@@ -254,3 +254,363 @@
     z-index: 5;
     backdrop-filter: blur(8px);
 }
+/* ============================================================
+   INPUTS — MOLSAN UI KIT 2027 (GLASS LUXE)
+============================================================ */
+
+/* RESET SOLO PARA INPUTS */
+.m-input,
+.m-select,
+.m-textarea {
+    all: unset;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* WRAPPER GENERAL */
+.m-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 1rem;
+}
+
+/* LABEL */
+.m-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--m-text-secondary);
+}
+
+/* INPUT BASE */
+.m-input,
+.m-select,
+.m-textarea {
+    padding: 0.55rem 0.75rem;
+    background: rgba(255,255,255,0.85);
+    border: 1px solid var(--m-border-soft);
+    border-radius: var(--m-radius-md);
+    font-size: 0.9rem;
+    color: var(--m-text-main);
+    transition:
+        border var(--m-transition-fast),
+        box-shadow var(--m-transition-fast),
+        background var(--m-transition-fast);
+}
+
+/* FOCUS */
+.m-input:focus,
+.m-select:focus,
+.m-textarea:focus {
+    border-color: var(--m-primary);
+    box-shadow: 0 0 0 2px var(--m-primary-soft);
+    background: rgba(255,255,255,0.95);
+}
+
+/* TEXTAREA */
+.m-textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+/* ============================================================
+   INPUT CON ICONO
+============================================================ */
+
+.m-input-icon {
+    position: relative;
+}
+
+.m-input-icon input.m-input {
+    padding-left: 2.2rem;
+}
+
+.m-input-icon svg {
+    position: absolute;
+    left: 0.65rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    opacity: 0.6;
+}
+
+/* ============================================================
+   ESTADOS: ERROR / SUCCESS
+============================================================ */
+
+.m-field.error .m-input,
+.m-field.error .m-select,
+.m-field.error .m-textarea {
+    border-color: #ff4d4d;
+    box-shadow: 0 0 0 2px rgba(255,77,77,0.25);
+}
+
+.m-field.error .m-label {
+    color: #d93636;
+}
+
+.m-field.success .m-input,
+.m-field.success .m-select,
+.m-field.success .m-textarea {
+    border-color: #2ecc71;
+    box-shadow: 0 0 0 2px rgba(46,204,113,0.25);
+}
+
+.m-field.success .m-label {
+    color: #1e9e55;
+}
+
+/* ============================================================
+   INPUT DESHABILITADO
+============================================================ */
+
+.m-input:disabled,
+.m-select:disabled,
+.m-textarea:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ============================================================
+   INPUT GLASS LUXE (VARIANTE)
+============================================================ */
+
+.m-input-glass {
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--m-border-glass);
+}
+
+.m-input-glass:focus {
+    background: rgba(255,255,255,0.75);
+    border-color: var(--m-primary);
+    box-shadow: 0 0 0 2px var(--m-primary-soft);
+}
+/* ============================================================
+   SELECTS — MOLSAN UI KIT 2027 (GLASS LUXE)
+============================================================ */
+
+.m-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.m-select {
+    appearance: none;
+    width: 100%;
+    padding: 0.55rem 2.2rem 0.55rem 0.75rem;
+
+    background: rgba(255,255,255,0.85);
+    border: 1px solid var(--m-border-soft);
+    border-radius: var(--m-radius-md);
+
+    font-size: 0.9rem;
+    color: var(--m-text-main);
+
+    transition: var(--m-transition-fast);
+}
+
+.m-select:focus {
+    border-color: var(--m-primary);
+    box-shadow: 0 0 0 2px var(--m-primary-soft);
+    background: rgba(255,255,255,0.95);
+}
+
+/* Flecha premium */
+.m-select-wrapper::after {
+    content: "▾";
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.9rem;
+    color: var(--m-text-secondary);
+    pointer-events: none;
+}
+/* ============================================================
+   CHECKBOX — GLASS LUXE 2027
+============================================================ */
+
+.m-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.m-checkbox input {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--m-border-strong);
+    background: white;
+    transition: var(--m-transition-fast);
+}
+
+.m-checkbox input:checked {
+    background: var(--m-primary);
+    border-color: var(--m-primary);
+}
+
+.m-checkbox input:checked::after {
+    content: "✓";
+    color: white;
+    font-size: 12px;
+    position: relative;
+    left: 3px;
+    top: -1px;
+}
+
+/* ============================================================
+   SWITCH — GLASS LUXE 2027
+============================================================ */
+
+.m-switch {
+    position: relative;
+    width: 42px;
+    height: 22px;
+}
+
+.m-switch input {
+    appearance: none;
+    width: 100%;
+    height: 100%;
+    background: var(--m-border-soft);
+    border-radius: 50px;
+    position: relative;
+    cursor: pointer;
+    transition: var(--m-transition-fast);
+}
+
+.m-switch input::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: var(--m-transition-fast);
+    box-shadow: var(--m-shadow-soft);
+}
+
+.m-switch input:checked {
+    background: var(--m-primary);
+}
+
+.m-switch input:checked::after {
+    transform: translateX(20px);
+}
+/* ============================================================
+   INPUTS LABEL FLOTANTE — MATERIAL 3 + GLASS LUXE
+============================================================ */
+
+.m-field-float {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.m-field-float input {
+    width: 100%;
+    padding: 1rem 0.75rem 0.45rem 0.75rem;
+
+    background: rgba(255,255,255,0.85);
+    border: 1px solid var(--m-border-soft);
+    border-radius: var(--m-radius-md);
+
+    font-size: 0.95rem;
+    color: var(--m-text-main);
+
+    transition: var(--m-transition-fast);
+}
+
+.m-field-float input:focus {
+    border-color: var(--m-primary);
+    box-shadow: 0 0 0 2px var(--m-primary-soft);
+    background: rgba(255,255,255,0.95);
+}
+
+/* LABEL flotante */
+.m-field-float label {
+    position: absolute;
+    left: 0.75rem;
+    top: 0.9rem;
+
+    font-size: 0.9rem;
+    color: var(--m-text-secondary);
+
+    pointer-events: none;
+    transition: var(--m-transition-fast);
+}
+
+/* Cuando hay texto o focus → flota */
+.m-field-float input:focus + label,
+.m-field-float input:not(:placeholder-shown) + label {
+    top: -8px;
+    left: 6px;
+    font-size: 0.75rem;
+    background: var(--m-bg);
+    padding: 0 4px;
+    color: var(--m-primary-dark);
+}
+/* ============================================================
+   RADIO BUTTONS — MOLSAN UI KIT 2027 (GLASS LUXE)
+============================================================ */
+
+.m-radio {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Ocultamos el radio original */
+.m-radio input {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--m-border-strong);
+    background: white;
+    transition: var(--m-transition-fast);
+    position: relative;
+}
+
+/* Círculo interior */
+.m-radio input::after {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--m-primary);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: var(--m-transition-fast);
+}
+
+/* Seleccionado */
+.m-radio input:checked {
+    border-color: var(--m-primary);
+    box-shadow: 0 0 0 3px var(--m-primary-soft);
+}
+
+.m-radio input:checked::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Hover */
+.m-radio:hover input {
+    border-color: var(--m-primary);
+}
+
+/* Deshabilitado */
+.m-radio input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

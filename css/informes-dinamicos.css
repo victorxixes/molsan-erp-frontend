@@ -1,6 +1,6 @@
 /* ============================================================
    INFORMES DINÁMICOS — MOLSAN ERP SAAS PREMIUM 2027
-   Compatible con Glass Luxe Light + UI Framework
+   Adaptado a Glass Luxe Light + UI-Kit + Motion + Layout Engine
 ============================================================ */
 
 /* ============================================================
@@ -17,7 +17,7 @@
 
 .informes-header .label {
     font-weight: 600;
-    color: var(--molsan-text-secondary);
+    color: var(--m-text-secondary);
     margin-bottom: 5px;
 }
 
@@ -28,68 +28,84 @@
 }
 
 /* ============================================================
-   INPUTS / SELECTS
+   INPUTS (UI-KIT)
 ============================================================ */
 
 .input-select,
 .input-text {
     width: 180px;
-    padding: 8px 10px;
+    padding: 0.55rem 0.7rem;
 
-    background: var(--molsan-bg-card);
-    border: 1px solid var(--molsan-border-soft);
-    border-radius: var(--molsan-radius-md);
+    background: #FFFFFF;
+    border: 1px solid var(--m-border-soft);
+    border-radius: var(--m-radius-md);
 
-    color: var(--molsan-text-main);
+    color: var(--m-text-main);
     font-size: 0.9rem;
 
-    transition: var(--molsan-transition-fast);
+    transition: var(--motion-fast) var(--ease-soft);
 }
 
 .input-select:focus,
 .input-text:focus {
-    border-color: var(--molsan-primary);
-    box-shadow: 0 0 0 1px var(--molsan-primary-soft);
+    border-color: var(--m-primary);
+    box-shadow: 0 0 0 1px var(--m-primary-soft);
 }
 
 /* ============================================================
-   TABLA DINÁMICA (usa el sistema Excel Premium)
+   TABLA DINÁMICA (Table Premium 2027)
 ============================================================ */
 
 .informes-dinamicos-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.9rem;
-
-    background: var(--molsan-bg-card);
-    border-radius: var(--molsan-radius-lg);
+    background: var(--m-bg-card);
+    border-radius: var(--m-radius-lg);
     overflow: hidden;
-
-    box-shadow: var(--molsan-shadow-soft);
+    box-shadow: var(--m-shadow-soft);
+    font-size: 0.88rem;
 }
 
-.informes-dinamicos-table th {
-    background: var(--molsan-primary-soft);
-    color: var(--molsan-primary-dark);
+.informes-dinamicos-table thead th {
+    background: var(--m-primary-soft);
+    color: var(--m-primary-dark);
     padding: 10px;
     font-weight: 600;
-    border-bottom: 1px solid var(--molsan-border-soft);
+    border-bottom: 1px solid var(--m-border-soft);
 }
 
-.informes-dinamicos-table td {
+.informes-dinamicos-table tbody td {
     padding: 8px 10px;
-    border-bottom: 1px solid var(--molsan-border-soft);
-    color: var(--molsan-text-secondary);
+    border-bottom: 1px solid var(--m-border-soft);
+    color: var(--m-text-secondary);
 }
 
-.informes-dinamicos-table tr:hover td {
-    background: var(--molsan-primary-soft);
+.informes-dinamicos-table tbody tr:nth-child(even) {
+    background: var(--m-bg-soft);
 }
 
-/* Scroll horizontal */
+.informes-dinamicos-table tbody tr:hover td {
+    background: var(--m-primary-soft);
+    color: var(--m-primary-dark);
+}
+
+/* Scroll horizontal (Layout Engine) */
 .tabla-scroll-x {
     overflow-x: auto;
     padding-bottom: 10px;
+}
+
+.tabla-scroll-x::-webkit-scrollbar {
+    height: 6px;
+}
+
+.tabla-scroll-x::-webkit-scrollbar-thumb {
+    background: var(--m-border-strong);
+    border-radius: 10px;
+}
+
+.tabla-scroll-x::-webkit-scrollbar-thumb:hover {
+    background: var(--m-primary);
 }
 
 /* ============================================================
@@ -97,10 +113,10 @@
 ============================================================ */
 
 #tituloInformeActual {
-    font-size: 1.3rem;
+    font-size: 1.35rem;
     font-weight: 700;
     margin-bottom: 15px;
-    color: var(--molsan-text-main);
+    color: var(--m-text-main);
 }
 
 /* ============================================================
@@ -108,18 +124,18 @@
 ============================================================ */
 
 .card-glass {
-    background: var(--molsan-bg-glass);
-    border: 1px solid var(--molsan-border-glass);
-    border-radius: var(--molsan-radius-lg);
+    background: var(--m-bg-glass);
+    border: 1px solid var(--m-border-glass);
+    border-radius: var(--m-radius-lg);
     padding: 20px;
     backdrop-filter: blur(12px);
-    box-shadow: var(--molsan-shadow-medium);
+    box-shadow: var(--m-shadow-medium);
 }
 
 /* ============================================================
-   ANIMACIÓN
+   ANIMACIÓN (Motion 2027)
 ============================================================ */
 
 .fade-in {
-    animation: fadeInUp 0.35s ease-out;
+    animation: fadeUp var(--motion-normal) var(--ease-emphasized);
 }

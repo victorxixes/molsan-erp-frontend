@@ -1,6 +1,6 @@
 /* ============================================================
    LISTADO — MOLSAN ERP SAAS PREMIUM 2027
-   Filtros + Chips + Tablas Glass Luxe Light
+   Adaptado a Glass Luxe Light + UI-Kit + Motion + Layout Engine
 ============================================================ */
 
 /* ============================================================
@@ -16,19 +16,19 @@
 
 .filtros-grid input,
 .filtros-grid select {
-    background: var(--molsan-bg-card);
-    border: 1px solid var(--molsan-border-soft);
-    border-radius: var(--molsan-radius-md);
+    background: #FFFFFF;
+    border: 1px solid var(--m-border-soft);
+    border-radius: var(--m-radius-md);
     padding: 0.55rem 0.7rem;
     font-size: 0.9rem;
-    color: var(--molsan-text-main);
-    transition: var(--molsan-transition-fast);
+    color: var(--m-text-main);
+    transition: var(--motion-fast) var(--ease-soft);
 }
 
 .filtros-grid input:focus,
 .filtros-grid select:focus {
-    border-color: var(--molsan-primary);
-    box-shadow: 0 0 0 1px var(--molsan-primary-soft);
+    border-color: var(--m-primary);
+    box-shadow: 0 0 0 1px var(--m-primary-soft);
 }
 
 /* ============================================================
@@ -36,27 +36,27 @@
 ============================================================ */
 
 .chip {
-    background: var(--molsan-primary-soft);
-    border: 1px solid var(--molsan-primary);
-    color: var(--molsan-primary-dark);
+    background: var(--m-primary-soft);
+    border: 1px solid var(--m-primary);
+    color: var(--m-primary-dark);
 
     padding: 0.35rem 0.75rem;
     border-radius: 20px;
 
     cursor: pointer;
     font-size: 0.85rem;
-    transition: var(--molsan-transition-fast);
+    transition: var(--motion-fast) var(--ease-soft);
     user-select: none;
 }
 
 .chip:hover {
-    background: var(--molsan-primary);
-    color: var(--molsan-text-invert);
+    background: var(--m-primary);
+    color: var(--m-text-invert);
 }
 
 .chip.active {
-    background: var(--molsan-primary);
-    color: var(--molsan-text-invert);
+    background: var(--m-primary);
+    color: var(--m-text-invert);
 }
 
 /* ============================================================
@@ -65,51 +65,51 @@
 
 .tabla-listado {
     width: 100%;
-    background: var(--molsan-bg-card);
-    border-radius: var(--molsan-radius-lg);
-    border: 1px solid var(--molsan-border-soft);
-    box-shadow: var(--molsan-shadow-soft);
+    background: var(--m-bg-card);
+    border-radius: var(--m-radius-lg);
+    border: 1px solid var(--m-border-soft);
+    box-shadow: var(--m-shadow-soft);
     overflow: hidden;
 }
 
 /* Scroll horizontal premium */
 .tabla-listado-wrapper {
     overflow-x: auto;
-    border-radius: var(--molsan-radius-lg);
+    border-radius: var(--m-radius-lg);
 }
 
 .tabla-listado-wrapper::-webkit-scrollbar {
     height: 6px;
 }
 .tabla-listado-wrapper::-webkit-scrollbar-thumb {
-    background: var(--molsan-border-strong);
+    background: var(--m-border-strong);
     border-radius: 10px;
 }
 .tabla-listado-wrapper::-webkit-scrollbar-thumb:hover {
-    background: var(--molsan-primary);
+    background: var(--m-primary);
 }
 
 /* Cabecera */
 .tabla-listado th {
-    background: var(--molsan-bg-soft);
-    color: var(--molsan-text-secondary);
+    background: var(--m-bg-soft);
+    color: var(--m-text-secondary);
     padding: 0.65rem;
     font-size: 0.85rem;
     text-align: left;
-    border-bottom: 1px solid var(--molsan-border-soft);
+    border-bottom: 1px solid var(--m-border-soft);
 }
 
 /* Celdas */
 .tabla-listado td {
     padding: 0.55rem 0.65rem;
     font-size: 0.9rem;
-    color: var(--molsan-text-main);
-    border-bottom: 1px solid var(--molsan-border-soft);
+    color: var(--m-text-main);
+    border-bottom: 1px solid var(--m-border-soft);
 }
 
 /* Hover premium */
 .tabla-listado tr:hover {
-    background: var(--molsan-primary-soft);
+    background: var(--m-primary-soft);
 }
 
 /* Última fila sin borde */

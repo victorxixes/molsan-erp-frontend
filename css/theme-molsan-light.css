@@ -1,59 +1,43 @@
 /* ============================================================
    THEME MOLSAN LIGHT — GLASS LUXE 2027
-   Paleta corporativa del logo (Light Mode)
 ============================================================ */
 
-/* ============================================================
-   1. VARIABLES — SISTEMA DE DISEÑO
-============================================================ */
+/* VARIABLES */
 :root {
-    /* Fondo general */
     --m-bg: #FFFFFF;
     --m-bg-soft: #F7F9FC;
     --m-bg-card: rgba(255,255,255,0.82);
     --m-bg-card-strong: rgba(255,255,255,0.92);
     --m-bg-glass: rgba(255,255,255,0.75);
 
-    /* Texto */
-    --m-text-main: #0A3A67;        /* Azul fuerte del logo */
-    --m-text-secondary: #4B5A6A;   /* Azul grisáceo */
+    --m-text-main: #0A3A67;
+    --m-text-secondary: #4B5A6A;
     --m-text-muted: #7A8A9A;
     --m-text-invert: #FFFFFF;
 
-    /* Primario corporativo */
-    --m-primary: #4DB5FF;          /* Azul claro del logo */
+    --m-primary: #4DB5FF;
     --m-primary-soft: rgba(77,181,255,0.15);
-    --m-primary-dark: #0A3A67;     /* Azul fuerte del logo */
+    --m-primary-dark: #0A3A67;
 
-    /* Bordes */
     --m-border-soft: #D9E2EC;
     --m-border-strong: #B8C7D6;
     --m-border-glass: rgba(180,195,210,0.45);
 
-    /* Radios */
     --m-radius-sm: 6px;
     --m-radius-md: 10px;
     --m-radius-lg: 14px;
 
-    /* Sombras */
     --m-shadow-soft: 0 6px 18px rgba(0,0,0,0.06);
     --m-shadow-medium: 0 10px 30px rgba(0,0,0,0.10);
     --m-shadow-strong: 0 18px 45px rgba(0,0,0,0.16);
 
-    /* Blur */
-    --m-blur: blur(12px);
-
-    /* Transiciones */
     --m-transition-fast: 0.18s ease;
     --m-transition-normal: 0.25s ease;
 
-    /* Layout */
     --m-sidebar-width: 240px;
 }
 
-/* ============================================================
-   2. RESET + BASE
-============================================================ */
+/* RESET */
 *,
 *::before,
 *::after {
@@ -73,36 +57,37 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-img {
-    max-width: 100%;
-    display: block;
-}
-
-button {
-    font: inherit;
-}
-
 /* ============================================================
-   3. LAYOUT PRINCIPAL
+   LAYOUT PRINCIPAL — APP SHELL
 ============================================================ */
+
 .app-shell {
     display: flex;
     min-height: 100vh;
+    width: 100%;
 }
 
 .app-main {
     flex: 1;
-    margin-left: var(--m-sidebar-width);
     display: flex;
     flex-direction: column;
+    margin-left: var(--m-sidebar-width);
     min-height: 100vh;
+    transition: margin-left var(--m-transition-normal);
+}
+
+body.sidebar-collapsed .app-main {
+    margin-left: 70px;
 }
 
 .app-main-inner {
-    padding: 1.5rem 1.75rem;
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
 }
 
-/* Topbar */
+/* TOPBAR */
 .app-topbar {
     position: sticky;
     top: 0;
@@ -116,51 +101,16 @@ button {
     justify-content: space-between;
 }
 
-/* Títulos de módulo */
 .titulo-modulo {
     font-size: 1.35rem;
     font-weight: 700;
     color: var(--m-text-main);
-    margin-bottom: 0.75rem;
-}
-
-/* Wrapper genérico de módulo */
-.modulo-wrapper {
-    background: var(--m-bg-card);
-    border-radius: var(--m-radius-lg);
-    border: 1px solid var(--m-border-soft);
-    box-shadow: var(--m-shadow-soft);
-    padding: 1.25rem 1.5rem;
 }
 
 /* ============================================================
-   4. TIPOGRAFÍA Y UTILIDADES
+   INPUTS
 ============================================================ */
-.text-muted {
-    color: var(--m-text-muted);
-}
 
-.text-secondary {
-    color: var(--m-text-secondary);
-}
-
-.mt-10 { margin-top: 10px; }
-.mt-20 { margin-top: 20px; }
-.mt-30 { margin-top: 30px; }
-
-.mb-10 { margin-bottom: 10px; }
-.mb-20 { margin-bottom: 20px; }
-
-.p-10 { padding: 10px; }
-.p-20 { padding: 20px; }
-
-.section {
-    margin-bottom: 1.5rem;
-}
-
-/* ============================================================
-   5. INPUTS / FORMULARIOS BASE
-============================================================ */
 .input-base,
 select,
 textarea {
@@ -182,17 +132,10 @@ textarea:focus {
     box-shadow: 0 0 0 1px var(--m-primary-soft);
 }
 
-/* Labels */
-.label-sm {
-    font-size: 0.8rem;
-    color: var(--m-text-secondary);
-    margin-bottom: 4px;
-    display: block;
-}
-
 /* ============================================================
-   6. CARDS BASE GLASS LUXE
+   CARDS
 ============================================================ */
+
 .card {
     background: var(--m-bg-card);
     border-radius: var(--m-radius-lg);
@@ -211,44 +154,9 @@ textarea:focus {
 }
 
 /* ============================================================
-   7. GRID DE KPIs BASE
+   TABLAS BASE
 ============================================================ */
-.kpi-panel {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 18px;
-    margin-bottom: 25px;
-}
 
-.kpi-card {
-    background: var(--m-bg-card);
-    border-radius: var(--m-radius-md);
-    border: 1px solid var(--m-border-soft);
-    padding: 14px 18px;
-    box-shadow: var(--m-shadow-soft);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.kpi-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--m-shadow-medium);
-}
-
-.kpi-label {
-    font-size: 0.85rem;
-    color: var(--m-text-secondary);
-    margin-bottom: 4px;
-}
-
-.kpi-value {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: var(--m-primary-dark);
-}
-
-/* ============================================================
-   8. TABLAS BASE
-============================================================ */
 .table-base {
     width: 100%;
     border-collapse: collapse;
@@ -266,53 +174,20 @@ textarea:focus {
     border-bottom: 1px solid var(--m-border-soft);
 }
 
-.table-base th {
-    color: var(--m-text-secondary);
-    font-weight: 600;
-    text-align: left;
-}
-
-.table-base tbody tr:nth-child(odd) {
-    background: #FFFFFF;
-}
-
-.table-base tbody tr:nth-child(even) {
-    background: #F7F9FC;
-}
-
 .table-base tbody tr:hover {
     background: var(--m-primary-soft);
 }
 
 /* ============================================================
-   9. SCROLL HORIZONTAL
+   ANIMACIONES
 ============================================================ */
-.scroll-x {
-    overflow-x: auto;
-    width: 100%;
-}
 
-.scroll-x::-webkit-scrollbar {
-    height: 6px;
-}
-
-.scroll-x::-webkit-scrollbar-thumb {
-    background: var(--m-border-strong);
-    border-radius: 10px;
-}
-
-.scroll-x::-webkit-scrollbar-thumb:hover {
-    background: var(--m-primary);
-}
-
-/* ============================================================
-   10. ANIMACIONES BASE
-============================================================ */
 @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-.anim-fade-in-up {
+.fadeUp {
     animation: fadeInUp 0.35s ease-out;
 }
+

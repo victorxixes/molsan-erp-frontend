@@ -1,6 +1,6 @@
 /* ============================================================
    DASHBOARD — MOLSAN ERP SAAS PREMIUM 2027
-   KPIs + Gráficos + Animaciones + Glass Luxe Light
+   Adaptado a Glass Luxe Light + UI-Kit + Motion + Charts
 ============================================================ */
 
 /* ============================================================
@@ -8,11 +8,11 @@
 ============================================================ */
 
 .modulo-wrapper.fade-in {
-    animation: fadeInUp 0.35s ease-out;
+    animation: fadeUp var(--motion-normal) var(--ease-emphasized);
 }
 
 /* ============================================================
-   KPIs — USAN EL SISTEMA CORPORATIVO DEL THEME
+   KPIs — SISTEMA CORPORATIVO 2027
 ============================================================ */
 
 .dashboard-kpis {
@@ -23,66 +23,70 @@
 }
 
 .dashboard-kpi {
-    background: var(--molsan-bg-card);
-    border: 1px solid var(--molsan-border-soft);
-    border-radius: var(--molsan-radius-md);
+    background: var(--m-bg-card);
+    border: 1px solid var(--m-border-soft);
+    border-radius: var(--m-radius-md);
     padding: 16px 20px;
 
-    box-shadow: var(--molsan-shadow-soft);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: var(--m-shadow-soft);
+    transition: transform var(--motion-normal) var(--ease-emphasized),
+                box-shadow var(--motion-normal) var(--ease-soft);
 }
 
 .dashboard-kpi:hover {
     transform: translateY(-3px);
-    box-shadow: var(--molsan-shadow-medium);
+    box-shadow: var(--m-shadow-medium);
 }
 
 .dashboard-kpi-title {
     font-size: 0.85rem;
-    color: var(--molsan-text-secondary);
+    color: var(--m-text-secondary);
     margin-bottom: 4px;
 }
 
 .dashboard-kpi-value {
     font-size: 1.4rem;
     font-weight: 600;
-    color: var(--molsan-primary-dark);
+    color: var(--m-primary-dark);
 }
 
 /* ============================================================
-   TARJETAS DE GRÁFICOS (Glass Luxe Light)
+   TARJETAS DE GRÁFICOS — GLASS LUXE LIGHT
 ============================================================ */
 
 .dashboard-card {
-    background: var(--molsan-bg-card);
-    border-radius: var(--molsan-radius-lg);
+    background: var(--m-bg-card);
+    border-radius: var(--m-radius-lg);
     padding: 1.2rem;
-    border: 1px solid var(--molsan-border-soft);
-    box-shadow: var(--molsan-shadow-medium);
+    border: 1px solid var(--m-border-soft);
+    box-shadow: var(--m-shadow-medium);
     backdrop-filter: blur(10px);
     margin-top: 1.5rem;
-    transition: box-shadow 0.25s ease;
+
+    transition: box-shadow var(--motion-normal) var(--ease-soft),
+                transform var(--motion-normal) var(--ease-emphasized);
 }
 
 .dashboard-card:hover {
-    box-shadow: var(--molsan-shadow-strong);
+    box-shadow: var(--m-shadow-strong);
+    transform: translateY(-3px);
 }
 
 /* Canvas */
 .dashboard-card canvas {
     width: 100%;
-    transition: opacity 0.3s ease;
+    transition: opacity var(--motion-normal) var(--ease-soft);
 }
 
 /* ============================================================
-   GRÁFICOS (compatibles con Chart.js)
+   GRÁFICOS (Charts 2027)
 ============================================================ */
 
 .dashboard-chart {
-    background: var(--molsan-bg-card);
-    border-radius: var(--molsan-radius-lg);
+    background: var(--m-bg-card);
+    border-radius: var(--m-radius-lg);
     padding: 1.2rem;
-    border: 1px solid var(--molsan-border-soft);
-    box-shadow: var(--molsan-shadow-soft);
+    border: 1px solid var(--m-border-soft);
+    box-shadow: var(--m-shadow-soft);
     margin-top: 1.5rem;
 }

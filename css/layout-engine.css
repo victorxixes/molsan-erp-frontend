@@ -1,0 +1,104 @@
+/* ============================================================
+   MOLSAN LAYOUT ENGINE 2027 — GRID + SPACING + BREAKPOINTS
+============================================================ */
+
+/* CONTENEDOR */
+.container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+    max-width: 1280px;
+}
+
+/* GRID */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+}
+
+.col {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    flex: 1 0 0;
+}
+
+.col-3 { flex: 0 0 25%; max-width: 25%; }
+.col-4 { flex: 0 0 33.333%; max-width: 33.333%; }
+.col-6 { flex: 0 0 50%; max-width: 50%; }
+.col-8 { flex: 0 0 66.666%; max-width: 66.666%; }
+.col-9 { flex: 0 0 75%; max-width: 75%; }
+.col-12 { flex: 0 0 100%; max-width: 100%; }
+
+/* BREAKPOINTS */
+@media (max-width: 1024px) {
+    .col-lg-12 { flex: 0 0 100%; max-width: 100%; }
+}
+
+@media (max-width: 768px) {
+    .col-md-12 { flex: 0 0 100%; max-width: 100%; }
+    .app-main-inner { padding: 1rem; }
+}
+
+@media (max-width: 640px) {
+    .col-sm-12 { flex: 0 0 100%; max-width: 100%; }
+}
+
+/* SPACING */
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+
+.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+.py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+
+/* LAYOUTS PREDEFINIDOS */
+.layout-dashboard {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+    .layout-dashboard {
+        grid-template-columns: 1fr;
+    }
+}
+
+.layout-two-columns {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 1.25rem;
+}
+
+@media (max-width: 900px) {
+    .layout-two-columns {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* SCROLL HORIZONTAL */
+.table-scroll-x {
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: 8px;
+}
+
+.table-scroll-x::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-scroll-x::-webkit-scrollbar-thumb {
+    background: var(--m-border-strong);
+    border-radius: 10px;
+}
+
+.table-scroll-x::-webkit-scrollbar-thumb:hover {
+    background: var(--m-primary);
+}
