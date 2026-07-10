@@ -1,23 +1,40 @@
 /* ============================================================
-   PANEL ANUAL — PREMIUM 2027 (CORREGIDO)
+   PANEL ANUAL — PREMIUM 2027 (COMPATIBLE CON TU HTML)
 ============================================================ */
 
 let PA_DATOS = [];
 let PA_POR_ANIO = {};
-let PA_CHART_ANUAL = null;
+let PA_CHART = null;
+
+/* Helper seguro */
+function paSafeSet(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return false;
+    el.textContent = value;
+    return true;
+}
 
 async function initPanelAnual() {
     console.log("📆 initPanelAnual() ejecutado");
+
+    // Si el panel no está en el DOM → detener
+    if (!document.getElementById("pa-select-anio")) {
+        console.warn("⏳ Panel Anual aún no está en el DOM. initPanelAnual() detenido.");
+        return;
+    }
 
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
 
     PA_DATOS = datos;
-
     PA_POR_ANIO = pa_groupByAnioMes(PA_DATOS);
 
     pa_fillSelectAnios();
     pa_selectUltimoAnio();
+
+    // Listener del selector de año
+    document.getElementById("pa-select-anio")
+        .addEventListener("change", pa_onChangeAnio);
 }
 
 /* Agrupar por año y mes */
@@ -27,51 +44,33 @@ function pa_groupByAnioMes(datos) {
     for (const f of datos) {
         const anio = Number(f.anio);
         const mes = f.mes;
+        const dias = Number(f.dias);
+        const esVC = (f.tipo_firma === "VideoConferencia");
 
         if (!anio || !mes) continue;
 
-        if (!map[anio]) {
-            map[anio] = {
-                meses: {},
+        if (!map[anio]) map[anio] = {};
+
+        if (!map[anio][mes]) {
+            map[anio][mes] = {
                 total: 0,
-                vc: 0,
                 presencial: 0,
+                vc: 0,
                 sumaDias: 0,
                 cuentaDias: 0
             };
         }
 
-        const r = map[anio];
-
-        if (!r.meses[mes]) {
-            r.meses[mes] = {
-                total: 0,
-                vc: 0,
-                presencial: 0,
-                sumaDias: 0,
-                cuentaDias: 0
-            };
-        }
-
-        const m = r.meses[mes];
+        const r = map[anio][mes];
 
         r.total++;
-        m.total++;
 
-        if (f.tipo_firma === "VideoConferencia") {
-            r.vc++;
-            m.vc++;
-        } else {
-            r.presencial++;
-            m.presencial++;
-        }
+        if (esVC) r.vc++;
+        else r.presencial++;
 
-        const d = Number(f.dias);
-        if (d > 0) {
-            r.sumaDias += d;
+        if (dias > 0) {
+            r.sumaDias += dias;
             r.cuentaDias++;
-            m.sumaDias += d;
-            m.cuentaDias++;
         }
     }
 
@@ -81,6 +80,8 @@ function pa_groupByAnioMes(datos) {
 /* Select años */
 function pa_fillSelectAnios() {
     const sel = document.getElementById("pa-select-anio");
+    if (!sel) return;
+
     sel.innerHTML = "";
 
     const anios = Object.keys(PA_POR_ANIO).map(Number).sort((a,b)=>a-b);
@@ -95,6 +96,8 @@ function pa_fillSelectAnios() {
 
 function pa_selectUltimoAnio() {
     const sel = document.getElementById("pa-select-anio");
+    if (!sel || sel.options.length === 0) return;
+
     sel.value = sel.options[sel.options.length - 1].value;
     pa_onChangeAnio();
 }
@@ -102,42 +105,56 @@ function pa_selectUltimoAnio() {
 /* Cambio de año */
 function pa_onChangeAnio() {
     const sel = document.getElementById("pa-select-anio");
-    const anio = Number(sel.value);
+    if (!sel) return;
 
+    const anio = Number(sel.value);
     const info = PA_POR_ANIO[anio];
     if (!info) return;
 
     pa_renderKpis(info);
-    pa_renderTablaMeses(info);
-    pa_renderChartAnual(info);
+    pa_renderTabla(info);
+    pa_renderChart(info);
 }
 
 /* KPIs */
 function pa_renderKpis(info) {
-    const total = info.total;
-    const sla = info.cuentaDias ? (info.sumaDias / info.cuentaDias).toFixed(1) : "0";
-    const pctVC = total ? ((info.vc / total) * 100).toFixed(1) + "%" : "0%";
+    let total = 0;
+    let vc = 0;
+    let sumaDias = 0;
+    let cuentaDias = 0;
 
     let topMes = "-";
-    let max = -Infinity;
+    let maxMes = 0;
 
-    for (const mes in info.meses) {
-        if (info.meses[mes].total > max) {
-            max = info.meses[mes].total;
+    for (const mes in info) {
+        const r = info[mes];
+
+        total += r.total;
+        vc += r.vc;
+
+        sumaDias += r.sumaDias;
+        cuentaDias += r.cuentaDias;
+
+        if (r.total > maxMes) {
+            maxMes = r.total;
             topMes = mes;
         }
     }
 
-    // 🔥 IDS CORREGIDOS
-    document.getElementById("pa-kpi-total").textContent = total;
-    document.getElementById("pa-kpi-sla").textContent = sla;
-    document.getElementById("pa-kpi-vc").textContent = pctVC;
-    document.getElementById("pa-kpi-top-mes").textContent = topMes;
+    const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
+    const sla = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
+
+    paSafeSet("pa-kpi-total", total);
+    paSafeSet("pa-kpi-sla", sla);
+    paSafeSet("pa-kpi-vc", pctVC);
+    paSafeSet("pa-kpi-top-mes", topMes);
 }
 
 /* Tabla mensual */
-function pa_renderTablaMeses(info) {
+function pa_renderTabla(info) {
     const tbody = document.querySelector("#pa-tabla-meses tbody");
+    if (!tbody) return;
+
     tbody.innerHTML = "";
 
     const mesesOrden = [
@@ -146,19 +163,18 @@ function pa_renderTablaMeses(info) {
     ];
 
     for (const mes of mesesOrden) {
-        const m = info.meses[mes];
-        if (!m) continue;
+        const r = info[mes];
+        if (!r) continue;
 
-        const total = m.total;
-        const pctVC = total ? ((m.vc / total) * 100).toFixed(1) + "%" : "0%";
-        const sla = m.cuentaDias ? (m.sumaDias / m.cuentaDias).toFixed(1) : "0";
+        const sla = r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : "0";
+        const pctVC = r.total ? ((r.vc / r.total) * 100).toFixed(1) + "%" : "0%";
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${mes}</td>
-            <td>${total}</td>
-            <td>${m.presencial}</td>
-            <td>${m.vc}</td>
+            <td>${r.total}</td>
+            <td>${r.presencial}</td>
+            <td>${r.vc}</td>
             <td>${pctVC}</td>
             <td>${sla}</td>
         `;
@@ -166,36 +182,25 @@ function pa_renderTablaMeses(info) {
     }
 }
 
-/* Gráfico anual */
-function pa_renderChartAnual(info) {
+/* Gráfico evolución anual */
+function pa_renderChart(info) {
     const ctx = document.getElementById("pa-chart-anual");
+    if (!ctx) return;
 
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    const meses = Object.keys(info);
+    const data = meses.map(m => info[m].total);
 
-    const labels = [];
-    const data = [];
+    if (PA_CHART) PA_CHART.destroy();
 
-    for (const mes of mesesOrden) {
-        const m = info.meses[mes];
-        if (!m) continue;
-        labels.push(mes);
-        data.push(m.total);
-    }
-
-    if (PA_CHART_ANUAL) PA_CHART_ANUAL.destroy();
-
-    PA_CHART_ANUAL = new Chart(ctx, {
+    PA_CHART = new Chart(ctx, {
         type: "line",
         data: {
-            labels,
+            labels: meses,
             datasets: [{
-                label: "Firmas por mes",
+                label: "Total firmas",
                 data,
-                borderColor: "rgba(80, 200, 255, 1)",
-                backgroundColor: "rgba(80, 200, 255, 0.2)",
+                borderColor: "rgba(80,200,255,1)",
+                backgroundColor: "rgba(80,200,255,0.2)",
                 borderWidth: 1.5,
                 tension: 0.2
             }]
