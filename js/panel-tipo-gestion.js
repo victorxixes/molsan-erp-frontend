@@ -261,3 +261,20 @@ function ptg_renderChartMensual(info) {
         }
     });
 }
+/* ============================================================
+   ACTIVAR PANEL Y LISTENER DEL SELECTOR DE AÑO
+============================================================ */
+
+document.addEventListener("DOMContentLoaded", () => {
+    const panel = document.getElementById("panel-tipo-gestion");
+    if (!panel) return;
+
+    // Inicializar panel al entrar
+    initPanelTipoGestion();
+
+    // Listener del selector de año
+    const sel = document.getElementById("ptg-select-anio");
+    if (sel) {
+        sel.addEventListener("change", ptg_onChangeAnio);
+    }
+});
