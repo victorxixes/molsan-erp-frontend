@@ -1,11 +1,10 @@
 /* ============================================================
-   PANEL TIPO FIRMA — PREMIUM 2027 (CORREGIDO Y BLINDADO)
+   PANEL TIPO FIRMA — PREMIUM 2027 (COMPATIBLE CON TU HTML)
 ============================================================ */
 
 let PTF_DATOS = [];
 let PTF_POR_ANIO = {};
-let PTF_CHART_ANUAL = null;
-let PTF_CHART_MENSUAL = null;
+let PTF_CHART = null;
 
 /* Helper seguro */
 function safeSet(id, value) {
@@ -18,7 +17,7 @@ function safeSet(id, value) {
 async function initPanelTipoFirma() {
     console.log("✍️ initPanelTipoFirma() ejecutado");
 
-    // 🛑 Si el panel NO está cargado en el DOM → detener
+    // Si el panel no está en el DOM → detener
     if (!document.getElementById("ptf-select-anio")) {
         console.warn("⏳ Panel Tipo Firma aún no está en el DOM. initPanelTipoFirma() detenido.");
         return;
@@ -32,6 +31,10 @@ async function initPanelTipoFirma() {
 
     ptf_fillSelectAnios();
     ptf_selectUltimoAnio();
+
+    // Listener del selector de año
+    document.getElementById("ptf-select-anio")
+        .addEventListener("change", ptf_onChangeAnio);
 }
 
 /* Agrupar por año, mes y tipo firma */
@@ -117,8 +120,7 @@ function ptf_onChangeAnio() {
 
     ptf_renderKpis(info);
     ptf_renderTablaMeses(info);
-    ptf_renderChartAnual(info);
-    ptf_renderChartMensual(info);
+    ptf_renderChart(info);
 }
 
 /* KPIs */
@@ -128,14 +130,22 @@ function ptf_renderKpis(info) {
     const pctPres = total ? ((info.presencial / total) * 100).toFixed(1) + "%" : "0%";
     const pctVC = total ? ((info.vc / total) * 100).toFixed(1) + "%" : "0%";
 
-    // 🛡️ USAMOS safeSet → nunca rompe
     safeSet("ptf-kpi-total", total);
     safeSet("ptf-kpi-pres", pctPres);
     safeSet("ptf-kpi-vc", pctVC);
 
-    // Estos dos NO existen en tu HTML → safeSet los ignora sin romper
-    safeSet("ptf-kpi-sla-pres", "-");
-    safeSet("ptf-kpi-sla-vc", "-");
+    // Mes más fuerte
+    let topMes = "-";
+    let max = 0;
+
+    for (const mes in info.meses) {
+        if (info.meses[mes].total > max) {
+            max = info.meses[mes].total;
+            topMes = mes;
+        }
+    }
+
+    safeSet("ptf-kpi-top-mes", topMes);
 }
 
 /* Tabla mensual */
@@ -169,18 +179,18 @@ function ptf_renderTablaMeses(info) {
     }
 }
 
-/* Gráfico anual */
-function ptf_renderChartAnual(info) {
-    const ctx = document.getElementById("ptf-chart-anual");
+/* Gráfico tipo firma */
+function ptf_renderChart(info) {
+    const ctx = document.getElementById("ptf-chart-tipo-firma");
     if (!ctx) return;
 
     const labels = Object.keys(info.meses);
     const dataPres = labels.map(m => info.meses[m].presencial);
     const dataVC = labels.map(m => info.meses[m].vc);
 
-    if (PTF_CHART_ANUAL) PTF_CHART_ANUAL.destroy();
+    if (PTF_CHART) PTF_CHART.destroy();
 
-    PTF_CHART_ANUAL = new Chart(ctx, {
+    PTF_CHART = new Chart(ctx, {
         type: "bar",
         data: {
             labels,
@@ -198,43 +208,6 @@ function ptf_renderChartAnual(info) {
                     backgroundColor: "rgba(80,200,255,0.4)",
                     borderColor: "rgba(80,200,255,1)",
                     borderWidth: 1.5
-                }
-            ]
-        }
-    });
-}
-
-/* Gráfico mensual */
-function ptf_renderChartMensual(info) {
-    const ctx = document.getElementById("ptf-chart-mensual");
-    if (!ctx) return;
-
-    const labels = Object.keys(info.meses);
-    const dataPres = labels.map(m => info.meses[m].presencial);
-    const dataVC = labels.map(m => info.meses[m].vc);
-
-    if (PTF_CHART_MENSUAL) PTF_CHART_MENSUAL.destroy();
-
-    PTF_CHART_MENSUAL = new Chart(ctx, {
-        type: "line",
-        data: {
-            labels,
-            datasets: [
-                {
-                    label: "Presencial",
-                    data: dataPres,
-                    borderColor: "rgba(150,255,80,1)",
-                    backgroundColor: "rgba(150,255,80,0.2)",
-                    borderWidth: 1.5,
-                    tension: 0.2
-                },
-                {
-                    label: "VC",
-                    data: dataVC,
-                    borderColor: "rgba(80,200,255,1)",
-                    backgroundColor: "rgba(80,200,255,0.2)",
-                    borderWidth: 1.5,
-                    tension: 0.2
                 }
             ]
         }
