@@ -1,11 +1,9 @@
 /* ============================================================
-   PANEL TIPO GESTIÓN — PREMIUM 2027 (CORREGIDO)
+   PANEL TIPO GESTIÓN — PREMIUM 2027 (COMPATIBLE CON TU HTML)
 ============================================================ */
 
 let PTG_DATOS = [];
 let PTG_POR_ANIO = {};
-let PTG_CHART_ANUAL = null;
-let PTG_CHART_MENSUAL = null;
 
 async function initPanelTipoGestion() {
     console.log("📄 initPanelTipoGestion() ejecutado");
@@ -15,40 +13,32 @@ async function initPanelTipoGestion() {
 
     PTG_DATOS = datos;
 
-    PTG_POR_ANIO = ptg_groupByAnioMesTipo(PTG_DATOS);
+    PTG_POR_ANIO = ptg_groupByAnioTipoGestion(PTG_DATOS);
 
     ptg_fillSelectAnios();
     ptg_selectUltimoAnio();
+
+    // Listener del selector de año
+    document.getElementById("ptg-select-anio")
+        .addEventListener("change", ptg_onChangeAnio);
 }
 
-/* Agrupar por año, mes y tipo gestión */
-function ptg_groupByAnioMesTipo(datos) {
+/* Agrupar por año y tipo gestión */
+function ptg_groupByAnioTipoGestion(datos) {
     const map = {};
 
     for (const f of datos) {
         const anio = Number(f.anio);
-        const mes = f.mes;
-        const tipo = f.tipo_gestion || "Con provisión";
+        const tipo = f.tipo_gestion || "Sin tipo";
+        const dias = Number(f.dias);
+        const conPro = (f.tipo_provision || "").toLowerCase().includes("con");
 
-        if (!anio || !mes) continue;
+        if (!anio) continue;
 
-        if (!map[anio]) {
-            map[anio] = {
-                total: 0,
-                con: 0,
-                sin: 0,
-                sumaDiasCon: 0,
-                cuentaDiasCon: 0,
-                sumaDiasSin: 0,
-                cuentaDiasSin: 0,
-                meses: {}
-            };
-        }
+        if (!map[anio]) map[anio] = {};
 
-        const r = map[anio];
-
-        if (!r.meses[mes]) {
-            r.meses[mes] = {
+        if (!map[anio][tipo]) {
+            map[anio][tipo] = {
                 total: 0,
                 con: 0,
                 sin: 0,
@@ -59,30 +49,21 @@ function ptg_groupByAnioMesTipo(datos) {
             };
         }
 
-        const m = r.meses[mes];
+        const r = map[anio][tipo];
 
         r.total++;
-        m.total++;
 
-        const d = Number(f.dias);
-
-        if (tipo.toLowerCase().includes("con provisión")) {
+        if (conPro) {
             r.con++;
-            m.con++;
-            if (d > 0) {
-                r.sumaDiasCon += d;
+            if (dias > 0) {
+                r.sumaDiasCon += dias;
                 r.cuentaDiasCon++;
-                m.sumaDiasCon += d;
-                m.cuentaDiasCon++;
             }
         } else {
             r.sin++;
-            m.sin++;
-            if (d > 0) {
-                r.sumaDiasSin += d;
+            if (dias > 0) {
+                r.sumaDiasSin += dias;
                 r.cuentaDiasSin++;
-                m.sumaDiasSin += d;
-                m.cuentaDiasSin++;
             }
         }
     }
@@ -120,22 +101,32 @@ function ptg_onChangeAnio() {
     if (!info) return;
 
     ptg_renderKpis(info);
-    ptg_renderTablaMeses(info);
-    ptg_renderChartAnual(info);
-    ptg_renderChartMensual(info);
+    ptg_renderTabla(info);
 }
 
 /* KPIs */
 function ptg_renderKpis(info) {
-    const total = info.total;
+    let total = 0, con = 0, sin = 0;
+    let sumaDiasCon = 0, cuentaDiasCon = 0;
+    let sumaDiasSin = 0, cuentaDiasSin = 0;
 
-    const pctCon = total ? ((info.con / total) * 100).toFixed(1) + "%" : "0%";
-    const pctSin = total ? ((info.sin / total) * 100).toFixed(1) + "%" : "0%";
+    for (const tipo in info) {
+        const r = info[tipo];
+        total += r.total;
+        con += r.con;
+        sin += r.sin;
+        sumaDiasCon += r.sumaDiasCon;
+        cuentaDiasCon += r.cuentaDiasCon;
+        sumaDiasSin += r.sumaDiasSin;
+        cuentaDiasSin += r.cuentaDiasSin;
+    }
 
-    const slaCon = info.cuentaDiasCon ? (info.sumaDiasCon / info.cuentaDiasCon).toFixed(1) : "0";
-    const slaSin = info.cuentaDiasSin ? (info.sumaDiasSin / info.cuentaDiasSin).toFixed(1) : "0";
+    const pctCon = total ? ((con / total) * 100).toFixed(1) + "%" : "0%";
+    const pctSin = total ? ((sin / total) * 100).toFixed(1) + "%" : "0%";
 
-    // 🔥 IDS CORREGIDOS
+    const slaCon = cuentaDiasCon ? (sumaDiasCon / cuentaDiasCon).toFixed(1) : "0";
+    const slaSin = cuentaDiasSin ? (sumaDiasSin / cuentaDiasSin).toFixed(1) : "0";
+
     document.getElementById("ptg-kpi-total").textContent = total;
     document.getElementById("ptg-kpi-con").textContent = pctCon;
     document.getElementById("ptg-kpi-sin").textContent = pctSin;
@@ -143,138 +134,31 @@ function ptg_renderKpis(info) {
     document.getElementById("ptg-kpi-sla-sin").textContent = slaSin;
 }
 
-/* Tabla mensual */
-function ptg_renderTablaMeses(info) {
-    const tbody = document.querySelector("#ptg-tabla-meses tbody");
+/* Tabla por tipo de gestión */
+function ptg_renderTabla(info) {
+    const tbody = document.querySelector("#ptg-tabla-gestion tbody");
     tbody.innerHTML = "";
 
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    for (const tipo in info) {
+        const r = info[tipo];
 
-    for (const mes of mesesOrden) {
-        const m = info.meses[mes];
-        if (!m) continue;
+        const pctCon = r.total ? ((r.con / r.total) * 100).toFixed(1) + "%" : "0%";
+        const pctSin = r.total ? ((r.sin / r.total) * 100).toFixed(1) + "%" : "0%";
 
-        const total = m.total;
-        const pctCon = total ? ((m.con / total) * 100).toFixed(1) + "%" : "0%";
-        const slaCon = m.cuentaDiasCon ? (m.sumaDiasCon / m.cuentaDiasCon).toFixed(1) : "0";
-        const slaSin = m.cuentaDiasSin ? (m.sumaDiasSin / m.cuentaDiasSin).toFixed(1) : "0";
+        const slaCon = r.cuentaDiasCon ? (r.sumaDiasCon / r.cuentaDiasCon).toFixed(1) : "0";
+        const slaSin = r.cuentaDiasSin ? (r.sumaDiasSin / r.cuentaDiasSin).toFixed(1) : "0";
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-            <td>${mes}</td>
-            <td>${total}</td>
-            <td>${m.con}</td>
-            <td>${m.sin}</td>
+            <td>${tipo}</td>
+            <td>${r.total}</td>
+            <td>${r.con}</td>
+            <td>${r.sin}</td>
             <td>${pctCon}</td>
+            <td>${pctSin}</td>
             <td>${slaCon}</td>
             <td>${slaSin}</td>
         `;
         tbody.appendChild(tr);
     }
 }
-
-/* Gráfico anual */
-function ptg_renderChartAnual(info) {
-    const ctx = document.getElementById("ptg-chart-anual");
-
-    const labels = Object.keys(info.meses);
-    const dataCon = labels.map(m => info.meses[m].con);
-    const dataSin = labels.map(m => info.meses[m].sin);
-
-    if (PTG_CHART_ANUAL) PTG_CHART_ANUAL.destroy();
-
-    PTG_CHART_ANUAL = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels,
-            datasets: [
-                {
-                    label: "Con provisión",
-                    data: dataCon,
-                    backgroundColor: "rgba(80,200,255,0.4)",
-                    borderColor: "rgba(80,200,255,1)",
-                    borderWidth: 1.5
-                },
-                {
-                    label: "Sin provisión",
-                    data: dataSin,
-                    backgroundColor: "rgba(255,150,80,0.4)",
-                    borderColor: "rgba(255,150,80,1)",
-                    borderWidth: 1.5
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: "#111" }}},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
-        }
-    });
-}
-
-/* Gráfico mensual */
-function ptg_renderChartMensual(info) {
-    const ctx = document.getElementById("ptg-chart-mensual");
-
-    const labels = Object.keys(info.meses);
-    const dataCon = labels.map(m => info.meses[m].con);
-    const dataSin = labels.map(m => info.meses[m].sin);
-
-    if (PTG_CHART_MENSUAL) PTG_CHART_MENSUAL.destroy();
-
-    PTG_CHART_MENSUAL = new Chart(ctx, {
-        type: "line",
-        data: {
-            labels,
-            datasets: [
-                {
-                    label: "Con provisión",
-                    data: dataCon,
-                    borderColor: "rgba(80,200,255,1)",
-                    backgroundColor: "rgba(80,200,255,0.2)",
-                    borderWidth: 1.5,
-                    tension: 0.2
-                },
-                {
-                    label: "Sin provisión",
-                    data: dataSin,
-                    borderColor: "rgba(255,150,80,1)",
-                    backgroundColor: "rgba(255,150,80,0.2)",
-                    borderWidth: 1.5,
-                    tension: 0.2
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: "#111" }}},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
-        }
-    });
-}
-/* ============================================================
-   ACTIVAR PANEL Y LISTENER DEL SELECTOR DE AÑO
-============================================================ */
-
-document.addEventListener("DOMContentLoaded", () => {
-    const panel = document.getElementById("panel-tipo-gestion");
-    if (!panel) return;
-
-    // Inicializar panel al entrar
-    initPanelTipoGestion();
-
-    // Listener del selector de año
-    const sel = document.getElementById("ptg-select-anio");
-    if (sel) {
-        sel.addEventListener("change", ptg_onChangeAnio);
-    }
-});
