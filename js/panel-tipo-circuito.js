@@ -1,84 +1,76 @@
 /* ============================================================
-   PANEL CIRCUITO — PREMIUM 2027 (CORREGIDO)
+   PANEL CIRCUITO — PREMIUM 2027 (COMPATIBLE CON TU HTML)
 ============================================================ */
 
 let PCI_DATOS = [];
 let PCI_POR_ANIO = {};
-let PCI_CHART_ANUAL = null;
-let PCI_CHART_MENSUAL = null;
+let PCI_CHART = null;
+
+/* Helper seguro */
+function pciSafeSet(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return false;
+    el.textContent = value;
+    return true;
+}
 
 async function initPanelCircuito() {
     console.log("🛣️ initPanelCircuito() ejecutado");
+
+    // Si el panel no está en el DOM → detener
+    if (!document.getElementById("pci-select-anio")) {
+        console.warn("⏳ Panel Circuito aún no está en el DOM. initPanelCircuito() detenido.");
+        return;
+    }
 
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
 
     PCI_DATOS = datos;
-
-    PCI_POR_ANIO = pci_groupByAnioMesCircuito(PCI_DATOS);
+    PCI_POR_ANIO = pci_groupByAnioCircuito(PCI_DATOS);
 
     pci_fillSelectAnios();
     pci_selectUltimoAnio();
+
+    // Listener del selector de año
+    document.getElementById("pci-select-anio")
+        .addEventListener("change", pci_onChangeAnio);
 }
 
-/* Agrupar por año, mes y circuito */
-function pci_groupByAnioMesCircuito(datos) {
+/* Agrupar por año y circuito */
+function pci_groupByAnioCircuito(datos) {
     const map = {};
 
     for (const f of datos) {
         const anio = Number(f.anio);
-        const mes = f.mes;
         const circuito = f.circuito || "Externo";
+        const dias = Number(f.dias);
+        const esVC = (f.vc || "").toLowerCase().includes("vc");
 
-        if (!anio || !mes) continue;
+        if (!anio) continue;
 
-        if (!map[anio]) {
-            map[anio] = {
+        if (!map[anio]) map[anio] = {};
+
+        if (!map[anio][circuito]) {
+            map[anio][circuito] = {
                 total: 0,
-                peninsula: 0,
-                canarias: 0,
-                externo: 0,
-                sumaDias: 0,
-                cuentaDias: 0,
-                meses: {}
-            };
-        }
-
-        const r = map[anio];
-
-        if (!r.meses[mes]) {
-            r.meses[mes] = {
-                total: 0,
-                peninsula: 0,
-                canarias: 0,
-                externo: 0,
+                presencial: 0,
+                vc: 0,
                 sumaDias: 0,
                 cuentaDias: 0
             };
         }
 
-        const m = r.meses[mes];
+        const r = map[anio][circuito];
 
         r.total++;
-        m.total++;
 
-        if (circuito === "Circuito Península") {
-            r.peninsula++;
-            m.peninsula++;
-        } else if (circuito === "Circuito Canarias") {
-            r.canarias++;
-            m.canarias++;
-        } else {
-            r.externo++;
-            m.externo++;
-        }
+        if (esVC) r.vc++;
+        else r.presencial++;
 
-        const d = Number(f.dias);
-        if (d > 0) {
-            r.sumaDias += d;
+        if (dias > 0) {
+            r.sumaDias += dias;
             r.cuentaDias++;
-            m.sumaDias += d;
-            m.cuentaDias++;
         }
     }
 
@@ -88,6 +80,8 @@ function pci_groupByAnioMesCircuito(datos) {
 /* Select años */
 function pci_fillSelectAnios() {
     const sel = document.getElementById("pci-select-anio");
+    if (!sel) return;
+
     sel.innerHTML = "";
 
     const anios = Object.keys(PCI_POR_ANIO).map(Number).sort((a,b)=>a-b);
@@ -102,6 +96,8 @@ function pci_fillSelectAnios() {
 
 function pci_selectUltimoAnio() {
     const sel = document.getElementById("pci-select-anio");
+    if (!sel || sel.options.length === 0) return;
+
     sel.value = sel.options[sel.options.length - 1].value;
     pci_onChangeAnio();
 }
@@ -109,173 +105,110 @@ function pci_selectUltimoAnio() {
 /* Cambio de año */
 function pci_onChangeAnio() {
     const sel = document.getElementById("pci-select-anio");
-    const anio = Number(sel.value);
+    if (!sel) return;
 
+    const anio = Number(sel.value);
     const info = PCI_POR_ANIO[anio];
     if (!info) return;
 
     pci_renderKpis(info);
-    pci_renderTablaMeses(info);
-    pci_renderChartAnual(info);
-    pci_renderChartMensual(info);
+    pci_renderTabla(info);
+    pci_renderChart(info);
 }
 
 /* KPIs */
 function pci_renderKpis(info) {
-    const total = info.total;
+    let total = 0;
+    let vc = 0;
+    let presencial = 0;
+    let sumaDias = 0;
+    let cuentaDias = 0;
 
-    const dom = [
-        { n: "Península", v: info.peninsula },
-        { n: "Canarias", v: info.canarias },
-        { n: "Externo", v: info.externo }
-    ].sort((a,b)=>b.v - a.v)[0].n;
+    let circuitoTop = "-";
+    let maxCircuito = 0;
 
-    const sla = info.cuentaDias ? (info.sumaDias / info.cuentaDias).toFixed(1) : "0";
+    for (const circuito in info) {
+        const r = info[circuito];
 
-    const pctVC = total ? ((info.externo / total) * 100).toFixed(1) + "%" : "0%";
+        total += r.total;
+        vc += r.vc;
+        presencial += r.presencial;
 
-    // 🔥 IDS CORREGIDOS
-    document.getElementById("pci-kpi-total").textContent = total;
-    document.getElementById("pci-kpi-circuito").textContent = dom;
-    document.getElementById("pci-kpi-sla").textContent = sla;
-    document.getElementById("pci-kpi-vc").textContent = pctVC;
+        sumaDias += r.sumaDias;
+        cuentaDias += r.cuentaDias;
+
+        if (r.total > maxCircuito) {
+            maxCircuito = r.total;
+            circuitoTop = circuito;
+        }
+    }
+
+    const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
+    const sla = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
+
+    pciSafeSet("pci-kpi-total", total);
+    pciSafeSet("pci-kpi-circuito", circuitoTop);
+    pciSafeSet("pci-kpi-sla", sla);
+    pciSafeSet("pci-kpi-vc", pctVC);
 }
 
-/* Tabla mensual */
-function pci_renderTablaMeses(info) {
-    const tbody = document.querySelector("#pci-tabla-meses tbody");
+/* Tabla por circuito */
+function pci_renderTabla(info) {
+    const tbody = document.querySelector("#pci-tabla-circuito tbody");
+    if (!tbody) return;
+
     tbody.innerHTML = "";
 
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    for (const circuito in info) {
+        const r = info[circuito];
 
-    for (const mes of mesesOrden) {
-        const m = info.meses[mes];
-        if (!m) continue;
-
-        const total = m.total;
-        const pctPen = total ? ((m.peninsula / total) * 100).toFixed(1) + "%" : "0%";
-        const pctCan = total ? ((m.canarias / total) * 100).toFixed(1) + "%" : "0%";
-        const pctExt = total ? ((m.externo / total) * 100).toFixed(1) + "%" : "0%";
-        const sla = m.cuentaDias ? (m.sumaDias / m.cuentaDias).toFixed(1) : "0";
+        const pctVC = r.total ? ((r.vc / r.total) * 100).toFixed(1) + "%" : "0%";
+        const sla = r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : "0";
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-            <td>${mes}</td>
-            <td>${total}</td>
-            <td>${m.peninsula}</td>
-            <td>${m.canarias}</td>
-            <td>${m.externo}</td>
-            <td>${pctPen}</td>
-            <td>${pctCan}</td>
-            <td>${pctExt}</td>
+            <td>${circuito}</td>
+            <td>${r.total}</td>
+            <td>${r.presencial}</td>
+            <td>${r.vc}</td>
+            <td>${pctVC}</td>
             <td>${sla}</td>
         `;
         tbody.appendChild(tr);
     }
 }
 
-/* Gráfico anual */
-function pci_renderChartAnual(info) {
-    const ctx = document.getElementById("pci-chart-anual");
+/* Gráfico por circuito */
+function pci_renderChart(info) {
+    const ctx = document.getElementById("pci-chart-circuito");
+    if (!ctx) return;
 
-    const labels = Object.keys(info.meses);
-    const dataPen = labels.map(m => info.meses[m].peninsula);
-    const dataCan = labels.map(m => info.meses[m].canarias);
-    const dataExt = labels.map(m => info.meses[m].externo);
+    const labels = Object.keys(info);
+    const dataVC = labels.map(c => info[c].vc);
+    const dataPres = labels.map(c => info[c].presencial);
 
-    if (PCI_CHART_ANUAL) PCI_CHART_ANUAL.destroy();
+    if (PCI_CHART) PCI_CHART.destroy();
 
-    PCI_CHART_ANUAL = new Chart(ctx, {
+    PCI_CHART = new Chart(ctx, {
         type: "bar",
         data: {
             labels,
             datasets: [
                 {
-                    label: "Península",
-                    data: dataPen,
-                    backgroundColor: "rgba(80,200,255,0.4)",
-                    borderColor: "rgba(80,200,255,1)",
-                    borderWidth: 1.5
-                },
-                {
-                    label: "Canarias",
-                    data: dataCan,
-                    backgroundColor: "rgba(255,150,80,0.4)",
-                    borderColor: "rgba(255,150,80,1)",
-                    borderWidth: 1.5
-                },
-                {
-                    label: "Externo",
-                    data: dataExt,
+                    label: "Presencial",
+                    data: dataPres,
                     backgroundColor: "rgba(150,255,80,0.4)",
                     borderColor: "rgba(150,255,80,1)",
                     borderWidth: 1.5
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: "#111" }}},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
-        }
-    });
-}
-
-/* Gráfico mensual */
-function pci_renderChartMensual(info) {
-    const ctx = document.getElementById("pci-chart-mensual");
-
-    const labels = Object.keys(info.meses);
-    const dataPen = labels.map(m => info.meses[m].peninsula);
-    const dataCan = labels.map(m => info.meses[m].canarias);
-    const dataExt = labels.map(m => info.meses[m].externo);
-
-    if (PCI_CHART_MENSUAL) PCI_CHART_MENSUAL.destroy();
-
-    PCI_CHART_MENSUAL = new Chart(ctx, {
-        type: "line",
-        data: {
-            labels,
-            datasets: [
+                },
                 {
-                    label: "Península",
-                    data: dataPen,
+                    label: "VC",
+                    data: dataVC,
+                    backgroundColor: "rgba(80,200,255,0.4)",
                     borderColor: "rgba(80,200,255,1)",
-                    backgroundColor: "rgba(80,200,255,0.2)",
-                    borderWidth: 1.5,
-                    tension: 0.2
-                },
-                {
-                    label: "Canarias",
-                    data: dataCan,
-                    borderColor: "rgba(255,150,80,1)",
-                    backgroundColor: "rgba(255,150,80,0.2)",
-                    borderWidth: 1.5,
-                    tension: 0.2
-                },
-                {
-                    label: "Externo",
-                    data: dataExt,
-                    borderColor: "rgba(150,255,80,1)",
-                    backgroundColor: "rgba(150,255,80,0.2)",
-                    borderWidth: 1.5,
-                    tension: 0.2
+                    borderWidth: 1.5
                 }
             ]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: "#111" }}},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
         }
     });
 }
