@@ -1,65 +1,90 @@
 /* ============================================================
-   PANEL SLA — PREMIUM 2027 (CORREGIDO)
+   PANEL SLA — PREMIUM 2027 (COMPATIBLE CON TU HTML)
 ============================================================ */
 
 let SLA_DATOS = [];
 let SLA_POR_ANIO = {};
-let SLA_CHART_MENSUAL = null;
-let SLA_CHART_APODERADOS = null;
-let SLA_CHART_OFICINAS = null;
-let SLA_CHART_CIRCUITOS = null;
+let SLA_CHART = null;
+
+/* Helper seguro */
+function slaSafeSet(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return false;
+    el.textContent = value;
+    return true;
+}
 
 async function initPanelSLA() {
     console.log("⏱️ initPanelSLA() ejecutado");
+
+    // Si el panel no está en el DOM → detener
+    if (!document.getElementById("sla-select-anio")) {
+        console.warn("⏳ Panel SLA aún no está en el DOM. initPanelSLA() detenido.");
+        return;
+    }
 
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
 
     SLA_DATOS = datos;
-
-    SLA_POR_ANIO = sla_groupByAnio(SLA_DATOS);
+    SLA_POR_ANIO = sla_groupByAnioMes(SLA_DATOS);
 
     sla_fillSelectAnios();
     sla_selectUltimoAnio();
+
+    // Listener del selector de año
+    document.getElementById("sla-select-anio")
+        .addEventListener("change", sla_onChangeAnio);
 }
 
-/* Agrupar por año */
-function sla_groupByAnio(datos) {
+/* Agrupar por año y mes */
+function sla_groupByAnioMes(datos) {
     const map = {};
 
     for (const f of datos) {
         const anio = Number(f.anio);
         const mes = f.mes;
-        const ap = f.apoderado || "Sin apoderado";
-        const of = f.oficina || "Sin oficina";
-        const ci = f.circuito || "Externo";
-        const d = Number(f.dias);
+        const dias = Number(f.dias);
+        const tipoProv = (f.tipo_provision || "").toLowerCase();
+        const esVC = (f.tipo_firma === "VideoConferencia");
 
         if (!anio || !mes) continue;
 
-        if (!map[anio]) {
-            map[anio] = {
-                meses: {},
-                apoderados: {},
-                oficinas: {},
-                circuitos: {}
+        if (!map[anio]) map[anio] = {};
+
+        if (!map[anio][mes]) {
+            map[anio][mes] = {
+                total: 0,
+                presencial: 0,
+                vc: 0,
+                sumaDias: 0,
+                cuentaDias: 0,
+                sumaCon: 0,
+                cuentaCon: 0,
+                sumaSin: 0,
+                cuentaSin: 0
             };
         }
 
-        const r = map[anio];
+        const r = map[anio][mes];
 
-        if (!r.meses[mes]) r.meses[mes] = { dias: [], total: 0 };
-        r.meses[mes].dias.push(d);
-        r.meses[mes].total++;
+        r.total++;
 
-        if (!r.apoderados[ap]) r.apoderados[ap] = [];
-        r.apoderados[ap].push(d);
+        if (esVC) r.vc++;
+        else r.presencial++;
 
-        if (!r.oficinas[of]) r.oficinas[of] = [];
-        r.oficinas[of].push(d);
+        if (dias > 0) {
+            r.sumaDias += dias;
+            r.cuentaDias++;
 
-        if (!r.circuitos[ci]) r.circuitos[ci] = [];
-        r.circuitos[ci].push(d);
+            if (tipoProv.includes("con")) {
+                r.sumaCon += dias;
+                r.cuentaCon++;
+            } else {
+                r.sumaSin += dias;
+                r.cuentaSin++;
+            }
+        }
     }
 
     return map;
@@ -68,6 +93,8 @@ function sla_groupByAnio(datos) {
 /* Select años */
 function sla_fillSelectAnios() {
     const sel = document.getElementById("sla-select-anio");
+    if (!sel) return;
+
     sel.innerHTML = "";
 
     const anios = Object.keys(SLA_POR_ANIO).map(Number).sort((a,b)=>a-b);
@@ -82,6 +109,8 @@ function sla_fillSelectAnios() {
 
 function sla_selectUltimoAnio() {
     const sel = document.getElementById("sla-select-anio");
+    if (!sel || sel.options.length === 0) return;
+
     sel.value = sel.options[sel.options.length - 1].value;
     sla_onChangeAnio();
 }
@@ -89,54 +118,54 @@ function sla_selectUltimoAnio() {
 /* Cambio de año */
 function sla_onChangeAnio() {
     const sel = document.getElementById("sla-select-anio");
-    const anio = Number(sel.value);
+    if (!sel) return;
 
+    const anio = Number(sel.value);
     const info = SLA_POR_ANIO[anio];
     if (!info) return;
 
     sla_renderKpis(info);
-    sla_renderTablaMeses(info);
-    sla_renderChartMensual(info);
-    sla_renderChartApoderados(info);
-    sla_renderChartOficinas(info);
-    sla_renderChartCircuitos(info);
+    sla_renderTabla(info);
+    sla_renderChart(info);
 }
 
 /* KPIs */
 function sla_renderKpis(info) {
-    const todos = [];
+    let total = 0;
+    let sumaDias = 0;
+    let cuentaDias = 0;
+    let sumaCon = 0;
+    let cuentaCon = 0;
+    let sumaSin = 0;
+    let cuentaSin = 0;
 
-    for (const mes in info.meses) {
-        todos.push(...info.meses[mes].dias);
+    for (const mes in info) {
+        const r = info[mes];
+
+        total += r.total;
+        sumaDias += r.sumaDias;
+        cuentaDias += r.cuentaDias;
+        sumaCon += r.sumaCon;
+        cuentaCon += r.cuentaCon;
+        sumaSin += r.sumaSin;
+        cuentaSin += r.cuentaSin;
     }
 
-    const media = todos.length ? (todos.reduce((a,b)=>a+b,0) / todos.length).toFixed(1) : "0";
-    const min = todos.length ? Math.min(...todos) : 0;
-    const max = todos.length ? Math.max(...todos) : 0;
+    const sla = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
+    const slaCon = cuentaCon ? (sumaCon / cuentaCon).toFixed(1) : "0";
+    const slaSin = cuentaSin ? (sumaSin / cuentaSin).toFixed(1) : "0";
 
-    let topMes = "-";
-    let mejor = Infinity;
-
-    for (const mes in info.meses) {
-        const arr = info.meses[mes].dias;
-        if (!arr.length) continue;
-        const m = arr.reduce((a,b)=>a+b,0) / arr.length;
-        if (m < mejor) {
-            mejor = m;
-            topMes = mes;
-        }
-    }
-
-    // 🔥 IDS CORREGIDOS
-    document.getElementById("sla-kpi-media").textContent = media;
-    document.getElementById("sla-kpi-min").textContent = min;
-    document.getElementById("sla-kpi-max").textContent = max;
-    document.getElementById("sla-kpi-top-mes").textContent = topMes;
+    slaSafeSet("sla-kpi-total", total);
+    slaSafeSet("sla-kpi-sla", sla);
+    slaSafeSet("sla-kpi-con", slaCon);
+    slaSafeSet("sla-kpi-sin", slaSin);
 }
 
 /* Tabla mensual */
-function sla_renderTablaMeses(info) {
+function sla_renderTabla(info) {
     const tbody = document.querySelector("#sla-tabla-meses tbody");
+    if (!tbody) return;
+
     tbody.innerHTML = "";
 
     const mesesOrden = [
@@ -145,55 +174,48 @@ function sla_renderTablaMeses(info) {
     ];
 
     for (const mes of mesesOrden) {
-        const m = info.meses[mes];
-        if (!m) continue;
+        const r = info[mes];
+        if (!r) continue;
 
-        const arr = m.dias;
-        const media = arr.length ? (arr.reduce((a,b)=>a+b,0) / arr.length).toFixed(1) : "0";
-        const min = arr.length ? Math.min(...arr) : 0;
-        const max = arr.length ? Math.max(...arr) : 0;
+        const sla = r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : "0";
+        const slaCon = r.cuentaCon ? (r.sumaCon / r.cuentaCon).toFixed(1) : "0";
+        const slaSin = r.cuentaSin ? (r.sumaSin / r.cuentaSin).toFixed(1) : "0";
+        const pctVC = r.total ? ((r.vc / r.total) * 100).toFixed(1) + "%" : "0%";
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${mes}</td>
-            <td>${media}</td>
-            <td>${min}</td>
-            <td>${max}</td>
-            <td>${m.total}</td>
+            <td>${r.total}</td>
+            <td>${sla}</td>
+            <td>${slaCon}</td>
+            <td>${slaSin}</td>
+            <td>${r.presencial}</td>
+            <td>${r.vc}</td>
+            <td>${pctVC}</td>
         `;
         tbody.appendChild(tr);
     }
 }
 
-/* Gráfico mensual */
-function sla_renderChartMensual(info) {
-    const ctx = document.getElementById("sla-chart-mensual");
+/* Gráfico evolución SLA */
+function sla_renderChart(info) {
+    const ctx = document.getElementById("sla-chart-evolucion");
+    if (!ctx) return;
 
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    const meses = Object.keys(info);
+    const data = meses.map(m => {
+        const r = info[m];
+        return r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : 0;
+    });
 
-    const labels = [];
-    const data = [];
+    if (SLA_CHART) SLA_CHART.destroy();
 
-    for (const mes of mesesOrden) {
-        const m = info.meses[mes];
-        if (!m) continue;
-        const arr = m.dias;
-        const media = arr.length ? (arr.reduce((a,b)=>a+b,0) / arr.length).toFixed(1) : 0;
-        labels.push(mes);
-        data.push(media);
-    }
-
-    if (SLA_CHART_MENSUAL) SLA_CHART_MENSUAL.destroy();
-
-    SLA_CHART_MENSUAL = new Chart(ctx, {
+    SLA_CHART = new Chart(ctx, {
         type: "line",
         data: {
-            labels,
+            labels: meses,
             datasets: [{
-                label: "SLA mensual",
+                label: "SLA medio",
                 data,
                 borderColor: "rgba(80,200,255,1)",
                 backgroundColor: "rgba(80,200,255,0.2)",
@@ -203,127 +225,7 @@ function sla_renderChartMensual(info) {
         },
         options: {
             responsive: true,
-            plugins: { legend: { labels: { color: "#111" }}},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
-        }
-    });
-}
-
-/* SLA por apoderado */
-function sla_renderChartApoderados(info) {
-    const ctx = document.getElementById("sla-chart-apoderados");
-
-    const labels = [];
-    const data = [];
-
-    for (const ap in info.apoderados) {
-        const arr = info.apoderados[ap];
-        if (!arr.length) continue;
-        const media = arr.reduce((a,b)=>a+b,0) / arr.length;
-        labels.push(ap);
-        data.push(media.toFixed(1));
-    }
-
-    if (SLA_CHART_APODERADOS) SLA_CHART_APODERADOS.destroy();
-
-    SLA_CHART_APODERADOS = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels,
-            datasets: [{
-                label: "SLA por apoderado",
-                data,
-                backgroundColor: "rgba(255,150,80,0.4)",
-                borderColor: "rgba(255,150,80,1)",
-                borderWidth: 1.5
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: "#111" }}},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
-        }
-    });
-}
-
-/* SLA por oficina */
-function sla_renderChartOficinas(info) {
-    const ctx = document.getElementById("sla-chart-oficinas");
-
-    const labels = [];
-    const data = [];
-
-    for (const ofi in info.oficinas) {
-        const arr = info.oficinas[ofi];
-        if (!arr.length) continue;
-        const media = arr.reduce((a,b)=>a+b,0) / arr.length;
-        labels.push(ofi);
-        data.push(media.toFixed(1));
-    }
-
-    if (SLA_CHART_OFICINAS) SLA_CHART_OFICINAS.destroy();
-
-    SLA_CHART_OFICINAS = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels,
-            datasets: [{
-                label: "SLA por oficina",
-                data,
-                backgroundColor: "rgba(150,255,80,0.4)",
-                borderColor: "rgba(150,255,80,1)",
-                borderWidth: 1.5
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: "#111" }}},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
-        }
-    });
-}
-
-/* SLA por circuito */
-function sla_renderChartCircuitos(info) {
-    const ctx = document.getElementById("sla-chart-circuitos");
-
-    const labels = [];
-    const data = [];
-
-    for (const ci in info.circuitos) {
-        const arr = info.circuitos[ci];
-        if (!arr.length) continue;
-        const media = arr.reduce((a,b)=>a+b,0) / arr.length;
-        labels.push(ci);
-        data.push(media.toFixed(1));
-    }
-
-    if (SLA_CHART_CIRCUITOS) SLA_CHART_CIRCUITOS.destroy();
-
-    SLA_CHART_CIRCUITOS = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels,
-            datasets: [{
-                label: "SLA por circuito",
-                data,
-                backgroundColor: "rgba(80,200,255,0.4)",
-                borderColor: "rgba(80,200,255,1)",
-                borderWidth: 1.5
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: "#111" }}},
+            plugins: { legend: { display: false }},
             scales: {
                 x: { ticks: { color: "#111" }},
                 y: { ticks: { color: "#111" }}
