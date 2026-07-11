@@ -1,328 +1,258 @@
 /* ============================================================
-   DASHBOARD — GLASS LUXE 2027 (IndexedDB + KPIs reales)
+   DASHBOARD — COMPARATIVA ANUAL 2027
 ============================================================ */
 
 async function initDashboard() {
-    console.log("📊 initDashboard() ejecutado");
+    console.log("📊 initDashboard() — Comparativa Anual");
 
-    // Verificar que el dashboard está realmente cargado en el DOM
-    if (!document.getElementById("dashboard-root")) {
-        console.warn("⏳ Dashboard no está visible, cancelando initDashboard()");
-        return;
-    }
-
-    const datos = await obtenerFirmas(); // ← IndexedDB
-
-    if (!datos || !datos.length) {
-        console.warn("Dashboard: no hay datos cargados.");
-        const dbg = document.getElementById("debugDashboard");
-        if (dbg) dbg.textContent = "Sin datos en histórico.";
-        return;
-    }
-
-    // Recalcular KPIs y obtenerlos
-    await recalcularKPIs();
-    const kpis = obtenerKPIs();
-
-    actualizarKPIs(kpis, datos);
-
-    // Evolutivo por año
-    generarEvolutivo();
-}
-
-/* ============================================================
-   PINTAR KPIS EN EL DASHBOARD
-============================================================ */
-
-function actualizarKPIs(kpis, datos) {
-
-    const elTotal = document.getElementById("kpiTotal");
-    const elHoy = document.getElementById("kpiHoy");
-    const elMedia = document.getElementById("kpiMedia");
-    const elVC = document.getElementById("kpiVC");
-    const elPresencial = document.getElementById("kpiPresencial");
-
-    if (!elTotal || !elHoy || !elMedia || !elVC || !elPresencial) {
-        console.warn("❌ No se encontraron los elementos KPI en el HTML");
-        return;
-    }
-
-    const total = kpis.total_registros || 0;
-    const mediaDias = kpis.media_dias || 0;
-    const vc = kpis.por_tipo_firma?.VideoConferencia ?? 0;
-    const presencial = kpis.por_tipo_firma?.Presencial ?? 0;
-
-    // Hoy en formato dd/mm/aaaa (como tus fechas normalizadas)
-    const hoy = new Date();
-    const d = String(hoy.getDate()).padStart(2, "0");
-    const m = String(hoy.getMonth() + 1).padStart(2, "0");
-    const y = hoy.getFullYear();
-    const hoyES = `${d}/${m}/${y}`;
-
-    const firmasHoy = datos.filter(f => f.fecha_protocolo === hoyES).length;
-
-    elTotal.textContent = total.toLocaleString("es-ES");
-    elMedia.textContent = mediaDias.toFixed(2);
-    elVC.textContent = vc.toLocaleString("es-ES");
-    elPresencial.textContent = presencial.toLocaleString("es-ES");
-    elHoy.textContent = firmasHoy.toLocaleString("es-ES");
-
-    const dbg = document.getElementById("debugDashboard");
-    if (dbg) {
-        dbg.textContent = "Muestras de datos:\n" + JSON.stringify(datos.slice(0, 5), null, 2);
-    }
-
-    // Gráficos premium
-    crearChartFirmasMes(datos);
-    crearChartTipoFirma(kpis);
-}
-
-/* ============================================================
-   EVOLUTIVO POR AÑO — AUTOMÁTICO
-============================================================ */
-
-async function generarEvolutivo() {
-    const tabla = document.getElementById("tabla-evolutivo");
-    if (!tabla) {
-        console.warn("⏳ tabla-evolutivo no existe en el DOM, se omite generarEvolutivo()");
+    if (!document.getElementById("dash-anio-actual")) {
+        console.warn("⏳ Dashboard comparativo no está en el DOM");
         return;
     }
 
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
 
-    const estructura = {}; // { año: { mes: total } }
+    // Obtener años disponibles
+    const años = [...new Set(datos.map(f => Number(f.anio)))].sort((a,b)=>a-b);
 
-    datos.forEach(f => {
-        const año = Number(f.anio);
-        const mes = Number(f.mes);
-        if (!año || !mes) return;
+    const selActual = document.getElementById("dash-anio-actual");
+    const selAnterior = document.getElementById("dash-anio-anterior");
 
-        if (!estructura[año]) estructura[año] = {};
-        if (!estructura[año][mes]) estructura[año][mes] = 0;
+    selActual.innerHTML = "";
+    selAnterior.innerHTML = "";
 
-        estructura[año][mes] += 1; // 1 fila = 1 firma
+    años.forEach(a => {
+        selActual.innerHTML += `<option value="${a}">${a}</option>`;
+        selAnterior.innerHTML += `<option value="${a}">${a}</option>`;
     });
 
-    const años = Object.keys(estructura).map(Number).sort((a,b)=>a-b);
+    // Seleccionar último año y el anterior
+    selActual.value = años[años.length - 1];
+    selAnterior.value = años[años.length - 2] ?? años[años.length - 1];
 
-    const meses = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    selActual.addEventListener("change", dashboardComparativa);
+    selAnterior.addEventListener("change", dashboardComparativa);
 
-    let html = `<thead><tr><th>Mes</th>`;
-
-    años.forEach(a => html += `<th>${a}</th>`);
-    html += `<th>Total</th>`;
-
-    años.slice(1).forEach(a => html += `<th>% ${a}</th>`);
-    html += `</tr></thead><tbody>`;
-
-    const totalesAño = {};
-
-    meses.forEach((mesNombre, i) => {
-        const mesNum = i + 1;
-        html += `<tr><td><b>${mesNombre}</b></td>`;
-
-        let totalMes = 0;
-
-        años.forEach(a => {
-            const valor = estructura[a]?.[mesNum] || 0;
-            totalMes += valor;
-
-            if (!totalesAño[a]) totalesAño[a] = 0;
-            totalesAño[a] += valor;
-
-            html += `<td>${valor.toLocaleString("es-ES")}</td>`;
-        });
-
-        html += `<td><b>${totalMes.toLocaleString("es-ES")}</b></td>`;
-
-        años.slice(1).forEach((a, idx) => {
-            const prev = estructura[años[idx]]?.[mesNum] || 0;
-            const curr = estructura[a]?.[mesNum] || 0;
-
-            const diff = prev === 0 ? "-" :
-                (((curr - prev) / prev) * 100).toFixed(2) + "%";
-
-            html += `<td>${diff}</td>`;
-        });
-
-        html += `</tr>`;
-    });
-
-    html += `<tr><td><b>Total general</b></td>`;
-    años.forEach(a => html += `<td><b>${totalesAño[a].toLocaleString("es-ES")}</b></td>`);
-
-    const totalGlobal = Object.values(totalesAño).reduce((a,b)=>a+b,0);
-    html += `<td><b>${totalGlobal.toLocaleString("es-ES")}</b></td>`;
-
-    años.slice(1).forEach((a, idx) => {
-        const prev = totalesAño[años[idx]];
-        const curr = totalesAño[a];
-        const diff = prev === 0 ? "-" :
-            (((curr - prev) / prev) * 100).toFixed(2) + "%";
-        html += `<td>${diff}</td>`;
-    });
-
-    html += `</tr></tbody>`;
-
-    tabla.innerHTML = html;
-
-    generarGraficosEvolutivo(años, estructura);
+    dashboardComparativa();
 }
 
 /* ============================================================
-   GRÁFICOS EVOLUTIVO (Chart.js)
+   RESUMEN ANUAL
 ============================================================ */
 
-function generarGraficosEvolutivo(años, estructura) {
-    const canvasLineas = document.getElementById("graficoEvolutivoLineas");
-    const canvasBarras = document.getElementById("graficoEvolutivoBarras");
+function calcularResumenAnual(datos, año) {
+    const filtrado = datos.filter(f => Number(f.anio) === año);
 
-    if (!canvasLineas || !canvasBarras) {
-        console.warn("⏳ Canvas de gráficos evolutivos no encontrados, se omite generarGraficosEvolutivo()");
-        return;
-    }
+    let total = filtrado.length;
+    let vc = filtrado.filter(f => f.tipo_firma === "VideoConferencia").length;
+    let presencial = filtrado.filter(f => f.tipo_firma === "Presencial").length;
 
+    let sumaDias = 0;
+    let cuentaDias = 0;
+
+    filtrado.forEach(f => {
+        const d = Number(f.dias);
+        if (d > 0) {
+            sumaDias += d;
+            cuentaDias++;
+        }
+    });
+
+    const sla = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
+    const pctVC = total ? ((vc / total) * 100).toFixed(1) : "0";
+
+    return { total, vc, presencial, sla, pctVC };
+}
+
+/* ============================================================
+   DIFERENCIA PORCENTUAL
+============================================================ */
+
+function diffPct(actual, anterior) {
+    if (anterior === 0) return "-";
+    return (((actual - anterior) / anterior) * 100).toFixed(1) + "%";
+}
+
+/* ============================================================
+   DASHBOARD COMPARATIVO
+============================================================ */
+
+async function dashboardComparativa() {
+    const datos = await obtenerFirmas();
+
+    const añoActual = Number(document.getElementById("dash-anio-actual").value);
+    const añoAnterior = Number(document.getElementById("dash-anio-anterior").value);
+
+    const A = calcularResumenAnual(datos, añoActual);
+    const B = calcularResumenAnual(datos, añoAnterior);
+
+    // KPIs
+    document.getElementById("dash-total-actual").textContent = A.total;
+    document.getElementById("dash-total-anterior").textContent = B.total;
+    document.getElementById("dash-total-diff").textContent = diffPct(A.total, B.total);
+
+    document.getElementById("dash-sla-actual").textContent = A.sla;
+    document.getElementById("dash-sla-anterior").textContent = B.sla;
+    document.getElementById("dash-sla-diff").textContent = diffPct(A.sla, B.sla);
+
+    document.getElementById("dash-vc-actual").textContent = A.pctVC + "%";
+    document.getElementById("dash-vc-anterior").textContent = B.pctVC + "%";
+    document.getElementById("dash-vc-diff").textContent = diffPct(A.pctVC, B.pctVC);
+
+    // Gráfico comparativo
+    generarGraficoComparativo(datos, añoActual, añoAnterior);
+
+    // Tabla comparativa por panel
+    generarTablaPaneles(datos, añoActual, añoAnterior);
+}
+
+/* ============================================================
+   GRÁFICO COMPARATIVO
+============================================================ */
+
+function generarGraficoComparativo(datos, añoActual, añoAnterior) {
     const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 
-    const datasets = años.map(a => ({
-        label: a,
-        data: meses.map((_, i) => estructura[a]?.[i+1] || 0),
-        borderWidth: 2,
-        fill: false
-    }));
+    const porMes = (año) => {
+        const arr = Array(12).fill(0);
+        datos.forEach(f => {
+            if (Number(f.anio) === año) {
+                arr[Number(f.mes)-1]++;
+            }
+        });
+        return arr;
+    };
 
-    new Chart(canvasLineas, {
-        type: "line",
-        data: { labels: meses, datasets }
-    });
+    const A = porMes(añoActual);
+    const B = porMes(añoAnterior);
 
-    new Chart(canvasBarras, {
-        type: "bar",
-        data: { labels: meses, datasets }
-    });
-}
-
-/* ============================================================
-   EXPORTAR / IMPRIMIR
-============================================================ */
-
-function imprimirEvolutivo() {
-    window.print();
-}
-
-function exportarEvolutivoCSV() {
-    const tabla = document.getElementById("tabla-evolutivo");
-    if (!tabla) return;
-
-    const texto = tabla.innerText;
-    const blob = new Blob([texto], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "evolutivo.csv";
-    a.click();
-}
-
-/* ============================================================
-   GRÁFICO: FIRMAS POR MES
-============================================================ */
-
-function crearChartFirmasMes(datos) {
-    const ctx = document.getElementById("chartFirmasMes");
+    const ctx = document.getElementById("dash-chart-comparativa");
     if (!ctx) return;
 
-    const estructura = {}; // { mes: total }
-    datos.forEach(f => {
-        const mes = Number(f.mes);
-        if (!mes) return;
-        if (!estructura[mes]) estructura[mes] = 0;
-        estructura[mes] += 1;
-    });
+    if (window.dashChart) window.dashChart.destroy();
 
-    const labels = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-    const data = labels.map((_, i) => estructura[i+1] || 0);
-
-    const gctx = ctx.getContext("2d");
-    const gradient = gctx.createLinearGradient(0, 0, 0, ctx.height);
-    gradient.addColorStop(0, "rgba(80,180,255,0.9)");
-    gradient.addColorStop(1, "rgba(80,180,255,0.1)");
-
-    new Chart(ctx, {
-        type: "line",
+    window.dashChart = new Chart(ctx, {
+        type: "bar",
         data: {
-            labels,
-            datasets: [{
-                label: "Firmas por mes",
-                data,
-                borderColor: "rgba(80,180,255,1)",
-                backgroundColor: gradient,
-                borderWidth: 2,
-                tension: 0.3,
-                fill: true,
-                pointRadius: 3,
-                pointHoverRadius: 5
-            }]
+            labels: meses,
+            datasets: [
+                {
+                    label: añoActual,
+                    data: A,
+                    backgroundColor: "rgba(80,200,255,0.6)"
+                },
+                {
+                    label: añoAnterior,
+                    data: B,
+                    backgroundColor: "rgba(200,200,200,0.4)"
+                }
+            ]
         },
         options: {
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                x: { ticks: { color: "#FFFFFF" } },
-                y: { ticks: { color: "#FFFFFF" } }
-            }
+            responsive: true,
+            plugins: { legend: { display: true } }
         }
     });
 }
 
 /* ============================================================
-   GRÁFICO: TIPO DE FIRMA
+   TABLA COMPARATIVA POR PANEL
 ============================================================ */
 
-function crearChartTipoFirma(kpis) {
-    const ctx = document.getElementById("chartTipoFirma");
-    if (!ctx) return;
+function generarTablaPaneles(datos, añoActual, añoAnterior) {
+    const tbody = document.getElementById("dash-tabla-paneles");
+    if (!tbody) return;
 
-    const vc = kpis.por_tipo_firma?.VideoConferencia ?? 0;
-    const presencial = kpis.por_tipo_firma?.Presencial ?? 0;
+    tbody.innerHTML = "";
 
-    const gctx = ctx.getContext("2d");
-    const gradientVC = gctx.createLinearGradient(0, 0, 0, ctx.height);
-    gradientVC.addColorStop(0, "rgba(120,220,180,0.9)");
-    gradientVC.addColorStop(1, "rgba(120,220,180,0.1)");
+    const paneles = [
+        { nombre: "Anual", fn: calcularPanelAnual },
+        { nombre: "Mensual", fn: calcularPanelMensual },
+        { nombre: "Apoderados", fn: calcularPanelApoderados },
+        { nombre: "Tipo Firma (VC%)", fn: calcularPanelTipoFirma },
+        { nombre: "Tipo Gestión (Con provisión)", fn: calcularPanelTipoGestion },
+        { nombre: "Oficinas", fn: calcularPanelOficinas },
+        { nombre: "Circuito", fn: calcularPanelCircuito },
+        { nombre: "SLA", fn: calcularPanelSLA }
+    ];
 
-    const gradientPres = gctx.createLinearGradient(0, 0, 0, ctx.height);
-    gradientPres.addColorStop(0, "rgba(255,180,80,0.9)");
-    gradientPres.addColorStop(1, "rgba(255,180,80,0.1)");
+    paneles.forEach(p => {
+        const A = p.fn(datos, añoActual);
+        const B = p.fn(datos, añoAnterior);
+        const diff = diffPct(A, B);
 
-    new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: ["Videoconferencia", "Presencial"],
-            datasets: [{
-                data: [vc, presencial],
-                backgroundColor: [gradientVC, gradientPres],
-                borderColor: ["rgba(120,220,180,1)", "rgba(255,180,80,1)"],
-                borderWidth: 2,
-                borderRadius: 8
-            }]
-        },
-        options: {
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                x: { ticks: { color: "#FFFFFF" } },
-                y: { ticks: { color: "#FFFFFF" } }
-            }
-        }
+        tbody.innerHTML += `
+            <tr>
+                <td>${p.nombre}</td>
+                <td>${A}</td>
+                <td>${B}</td>
+                <td>${diff}</td>
+            </tr>
+        `;
     });
 }
-function informeReunion() {
-    alert("Función pendiente de implementar.");
+
+/* ============================================================
+   MÉTRICAS POR PANEL
+============================================================ */
+
+function calcularPanelAnual(datos, año) {
+    return datos.filter(f => Number(f.anio) === año).length;
+}
+
+function calcularPanelMensual(datos, año) {
+    const hoy = new Date();
+    const mesActual = hoy.getMonth() + 1;
+
+    return datos.filter(f =>
+        Number(f.anio) === año &&
+        Number(f.mes) <= mesActual
+    ).length;
+}
+
+function calcularPanelApoderados(datos, año) {
+    return datos.filter(f => Number(f.anio) === año).length;
+}
+
+function calcularPanelTipoFirma(datos, año) {
+    const filtrado = datos.filter(f => Number(f.anio) === año);
+    const total = filtrado.length;
+    const vc = filtrado.filter(f => f.tipo_firma === "VideoConferencia").length;
+
+    if (!total) return 0;
+
+    return Number(((vc / total) * 100).toFixed(1));
+}
+
+function calcularPanelTipoGestion(datos, año) {
+    return datos.filter(f =>
+        Number(f.anio) === año &&
+        (f.tipo_provision || "").toLowerCase().includes("con")
+    ).length;
+}
+
+function calcularPanelOficinas(datos, año) {
+    return datos.filter(f => Number(f.anio) === año).length;
+}
+
+function calcularPanelCircuito(datos, año) {
+    return datos.filter(f => Number(f.anio) === año).length;
+}
+
+function calcularPanelSLA(datos, año) {
+    const filtrado = datos.filter(f => Number(f.anio) === año);
+
+    let suma = 0;
+    let cuenta = 0;
+
+    filtrado.forEach(f => {
+        const d = Number(f.dias);
+        if (d > 0) {
+            suma += d;
+            cuenta++;
+        }
+    });
+
+    return cuenta ? Number((suma / cuenta).toFixed(1)) : 0;
 }
