@@ -1,74 +1,79 @@
+<!-- ============================================================
+     DASHBOARD — COMPARATIVA ANUAL 2027
+============================================================ -->
 <template id="tpl-dashboard">
-    <div id="dashboard-root" class="modulo-wrapper fade-in dashboard-wrapper">
+<div id="dashboard-root" class="modulo-wrapper fade-in dashboard-wrapper">
 
+    <h2 class="titulo-modulo">📊 Dashboard — Comparativa Anual</h2>
 
-    <div class="module-container">
+    <div class="card-glass p-20">
 
-        <h2 class="titulo-modulo">📊 Dashboard — Glass Luxe 2027</h2>
+        <!-- SELECT AÑO -->
+        <div class="flex gap-20 mb-20">
+            <div>
+                <label>Año actual</label>
+                <select id="dash-anio-actual"></select>
+            </div>
 
-        <!-- ===================== KPIs ===================== -->
-        <div class="kpi-grid">
-            <div class="kpi-box">
-                <div class="kpi-box-title">Firmas Totales</div>
-                <div class="kpi-box-value" id="kpiTotal">0</div>
-            </div>
-            <div class="kpi-box">
-                <div class="kpi-box-title">Videoconferencias</div>
-                <div class="kpi-box-value" id="kpiVC">0</div>
-            </div>
-            <div class="kpi-box">
-                <div class="kpi-box-title">Presenciales</div>
-                <div class="kpi-box-value" id="kpiPresencial">0</div>
-            </div>
-            <div class="kpi-box">
-                <div class="kpi-box-title">Media días gestión</div>
-                <div class="kpi-box-value" id="kpiMedia">0</div>
-            </div>
-            <div class="kpi-box">
-                <div class="kpi-box-title">Firmas hoy</div>
-                <div class="kpi-box-value" id="kpiHoy">0</div>
+            <div>
+                <label>Año anterior</label>
+                <select id="dash-anio-anterior"></select>
             </div>
         </div>
 
-        <!-- ===================== Gráfico: Firmas por mes ===================== -->
-        <div class="card-glass" style="margin-bottom:20px;">
-            <canvas id="chartFirmasMes"></canvas>
+        <!-- KPIs COMPARATIVOS -->
+        <div class="kpi-grid-compare">
+
+            <div class="kpi-box-compare">
+                <div class="kpi-title">Firmas totales</div>
+                <div class="kpi-values">
+                    <span id="dash-total-actual" class="kpi-big"></span>
+                    <span id="dash-total-anterior" class="kpi-small"></span>
+                </div>
+                <div id="dash-total-diff" class="kpi-diff"></div>
+            </div>
+
+            <div class="kpi-box-compare">
+                <div class="kpi-title">SLA medio</div>
+                <div class="kpi-values">
+                    <span id="dash-sla-actual" class="kpi-big"></span>
+                    <span id="dash-sla-anterior" class="kpi-small"></span>
+                </div>
+                <div id="dash-sla-diff" class="kpi-diff"></div>
+            </div>
+
+            <div class="kpi-box-compare">
+                <div class="kpi-title">% VC</div>
+                <div class="kpi-values">
+                    <span id="dash-vc-actual" class="kpi-big"></span>
+                    <span id="dash-vc-anterior" class="kpi-small"></span>
+                </div>
+                <div id="dash-vc-diff" class="kpi-diff"></div>
+            </div>
+
         </div>
 
-        <!-- ===================== Gráfico: Tipo de firma ===================== -->
-        <div class="card-glass">
-            <canvas id="chartTipoFirma"></canvas>
+        <!-- GRÁFICO COMPARATIVO -->
+        <div class="dashboard-chart mt-30">
+            <canvas id="dash-chart-comparativa" height="140"></canvas>
         </div>
 
-        <!-- ===================== Botón informe ===================== -->
-        <button class="btn-primary mt-20" onclick="informeReunion()" style="margin-top:20px;">
-            Informe para reunión
-        </button>
+        <!-- TABLA RESUMEN DE PANELES -->
+        <h3 class="mt-40">📈 Comparativa por panel</h3>
 
-        <!-- ===================== EVOLUTIVO POR AÑO ===================== -->
-        <div class="card-glass p-20 mt-20" id="evolutivo-anual">
-            <h2 class="titulo-modulo">📈 Evolutivo por Año</h2>
-
-            <div id="tabla-evolutivo-wrapper" class="tabla-scroll-x mt-20">
-                <table id="tabla-evolutivo" class="tabla-listado tabla-sticky"></table>
-            </div>
-
-            <div class="mt-20">
-                <canvas id="graficoEvolutivoLineas" height="120"></canvas>
-            </div>
-
-            <div class="mt-20">
-                <canvas id="graficoEvolutivoBarras" height="120"></canvas>
-            </div>
-
-            <div class="mt-20 flex gap-10">
-                <button class="btn-primary" onclick="imprimirEvolutivo()">Imprimir</button>
-                <button class="btn-secondary" onclick="exportarEvolutivoCSV()">Exportar CSV</button>
-            </div>
-        </div>
+        <table class="table-premium table-sticky">
+            <thead>
+                <tr>
+                    <th>Panel</th>
+                    <th>Año actual</th>
+                    <th>Año anterior</th>
+                    <th>Diferencia %</th>
+                </tr>
+            </thead>
+            <tbody id="dash-tabla-paneles"></tbody>
+        </table>
 
     </div>
 
 </div>
-
 </template>
