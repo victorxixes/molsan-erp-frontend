@@ -1,61 +1,64 @@
 /* ============================================================
-   DASHBOARD — COMPARATIVA ANUAL 2027
+   DASHBOARD — COMPARATIVA ANUAL 2027 (GLASS LUXE)
 ============================================================ */
+
+let DASH_CHART = null;
 
 /* ============================================================
-   DASHBOARD — COMPARATIVA ANUAL 2027
+   INIT DASHBOARD
 ============================================================ */
-
 async function initDashboard() {
     console.log("📊 initDashboard() — Comparativa Anual");
 
-    if (!document.getElementById("dash-anio-actual")) {
-        console.warn("⏳ Dashboard comparativo no está en el DOM");
+    const selActual   = document.getElementById("dash-anio-actual");
+    const selAnterior = document.getElementById("dash-anio-anterior");
+    const chartEl     = document.getElementById("dash-chart-comparativa");
+    const tablaEl     = document.getElementById("dash-tabla-paneles");
+
+    if (!selActual || !selAnterior || !chartEl || !tablaEl) {
+        console.warn("⏳ Dashboard comparativo no está completamente en el DOM");
         return;
     }
 
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
 
-    // Obtener años disponibles
     const años = [...new Set(datos.map(f => Number(f.anio)))].sort((a,b)=>a-b);
-
-    const selActual = document.getElementById("dash-anio-actual");
-    const selAnterior = document.getElementById("dash-anio-anterior");
+    if (!años.length) return;
 
     selActual.innerHTML = "";
     selAnterior.innerHTML = "";
 
     años.forEach(a => {
-        selActual.innerHTML += `<option value="${a}">${a}</option>`;
+        selActual.innerHTML   += `<option value="${a}">${a}</option>`;
         selAnterior.innerHTML += `<option value="${a}">${a}</option>`;
     });
 
-    // Seleccionar último año y el anterior
-    selActual.value = años[años.length - 1];
+    selActual.value   = años[años.length - 1];
     selAnterior.value = años[años.length - 2] ?? años[años.length - 1];
 
-    selActual.addEventListener("change", dashboardComparativa);
-    selAnterior.addEventListener("change", dashboardComparativa);
+    selActual.addEventListener("change", () => dashboardComparativa());
+    selAnterior.addEventListener("change", () => dashboardComparativa());
 
-    dashboardComparativa();
+    await dashboardComparativa();
 }
 
 /* ============================================================
    RESUMEN ANUAL
 ============================================================ */
-
 function calcularResumenAnual(datos, año) {
     const filtrado = datos.filter(f => Number(f.anio) === año);
 
     let total = filtrado.length;
-    let vc = filtrado.filter(f => f.tipo_firma === "VideoConferencia").length;
-    let presencial = filtrado.filter(f => f.tipo_firma === "Presencial").length;
-
+    let vc = 0;
+    let presencial = 0;
     let sumaDias = 0;
     let cuentaDias = 0;
 
     filtrado.forEach(f => {
+        if (f.tipo_firma === "VideoConferencia") vc++;
+        else presencial++;
+
         const d = Number(f.dias);
         if (d > 0) {
             sumaDias += d;
@@ -63,7 +66,7 @@ function calcularResumenAnual(datos, año) {
         }
     });
 
-    const sla = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
+    const sla   = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
     const pctVC = total ? ((vc / total) * 100).toFixed(1) : "0";
 
     return { total, vc, presencial, sla, pctVC };
@@ -72,90 +75,109 @@ function calcularResumenAnual(datos, año) {
 /* ============================================================
    DIFERENCIA PORCENTUAL
 ============================================================ */
-
 function diffPct(actual, anterior) {
     if (anterior === 0) return "-";
     return (((actual - anterior) / anterior) * 100).toFixed(1) + "%";
 }
 
 /* ============================================================
-   DASHBOARD COMPARATIVO
+   DASHBOARD COMPARATIVO (MAIN)
 ============================================================ */
-
 async function dashboardComparativa() {
     const datos = await obtenerFirmas();
+    if (!datos || !datos.length) return;
 
-    const añoActual = Number(document.getElementById("dash-anio-actual").value);
-    const añoAnterior = Number(document.getElementById("dash-anio-anterior").value);
+    const selActual   = document.getElementById("dash-anio-actual");
+    const selAnterior = document.getElementById("dash-anio-anterior");
+
+    if (!selActual || !selAnterior) return;
+
+    const añoActual   = Number(selActual.value);
+    const añoAnterior = Number(selAnterior.value);
 
     const A = calcularResumenAnual(datos, añoActual);
     const B = calcularResumenAnual(datos, añoAnterior);
 
-    // KPIs
-    document.getElementById("dash-total-actual").textContent = A.total;
-    document.getElementById("dash-total-anterior").textContent = B.total;
-    document.getElementById("dash-total-diff").textContent = diffPct(A.total, B.total);
+    // KPIs principales
+    setText("dash-total-actual",   A.total);
+    setText("dash-total-anterior", B.total);
+    setText("dash-total-diff",     diffPct(A.total, B.total));
 
-    document.getElementById("dash-sla-actual").textContent = A.sla;
-    document.getElementById("dash-sla-anterior").textContent = B.sla;
-    document.getElementById("dash-sla-diff").textContent = diffPct(A.sla, B.sla);
+    setText("dash-sla-actual",   A.sla);
+    setText("dash-sla-anterior", B.sla);
+    setText("dash-sla-diff",     diffPct(Number(A.sla), Number(B.sla)));
 
-    document.getElementById("dash-vc-actual").textContent = A.pctVC + "%";
-    document.getElementById("dash-vc-anterior").textContent = B.pctVC + "%";
-    document.getElementById("dash-vc-diff").textContent = diffPct(A.pctVC, B.pctVC);
+    setText("dash-vc-actual",   A.pctVC + "%");
+    setText("dash-vc-anterior", B.pctVC + "%");
+    setText("dash-vc-diff",     diffPct(Number(A.pctVC), Number(B.pctVC)));
 
-    // Gráfico comparativo
+    // Gráfico comparativo mensual
     generarGraficoComparativo(datos, añoActual, añoAnterior);
 
     // Tabla comparativa por panel
     generarTablaPaneles(datos, añoActual, añoAnterior);
 }
 
-/* ============================================================
-   GRÁFICO COMPARATIVO
-============================================================ */
+/* Helper seguro */
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = value;
+}
 
+/* ============================================================
+   GRÁFICO COMPARATIVO MENSUAL
+============================================================ */
 function generarGraficoComparativo(datos, añoActual, añoAnterior) {
-    const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+    const mesesLabels = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 
     const porMes = (año) => {
         const arr = Array(12).fill(0);
         datos.forEach(f => {
             if (Number(f.anio) === año) {
-                arr[Number(f.mes)-1]++;
+                const m = Number(f.mes);
+                if (m >= 1 && m <= 12) arr[m - 1]++;
             }
         });
         return arr;
     };
 
-    const A = porMes(añoActual);
-    const B = porMes(añoAnterior);
+    const dataActual   = porMes(añoActual);
+    const dataAnterior = porMes(añoAnterior);
 
     const ctx = document.getElementById("dash-chart-comparativa");
     if (!ctx) return;
 
-    if (window.dashChart) window.dashChart.destroy();
+    if (DASH_CHART) DASH_CHART.destroy();
 
-    window.dashChart = new Chart(ctx, {
+    DASH_CHART = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: meses,
+            labels: mesesLabels,
             datasets: [
                 {
                     label: añoActual,
-                    data: A,
-                    backgroundColor: "rgba(80,200,255,0.6)"
+                    data: dataActual,
+                    backgroundColor: "rgba(80,200,255,0.6)",
+                    borderColor: "rgba(80,200,255,1)",
+                    borderWidth: 1
                 },
                 {
                     label: añoAnterior,
-                    data: B,
-                    backgroundColor: "rgba(200,200,200,0.4)"
+                    data: dataAnterior,
+                    backgroundColor: "rgba(200,200,200,0.4)",
+                    borderColor: "rgba(150,150,150,1)",
+                    borderWidth: 1
                 }
             ]
         },
         options: {
             responsive: true,
-            plugins: { legend: { display: true } }
+            plugins: { legend: { display: true }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
         }
     });
 }
@@ -163,7 +185,6 @@ function generarGraficoComparativo(datos, añoActual, añoAnterior) {
 /* ============================================================
    TABLA COMPARATIVA POR PANEL
 ============================================================ */
-
 function generarTablaPaneles(datos, añoActual, añoAnterior) {
     const tbody = document.getElementById("dash-tabla-paneles");
     if (!tbody) return;
@@ -171,40 +192,48 @@ function generarTablaPaneles(datos, añoActual, añoAnterior) {
     tbody.innerHTML = "";
 
     const paneles = [
-        { nombre: "Anual (total firmas)", fn: calcularPanelAnual },
-        { nombre: "Mensual (hasta mes actual)", fn: calcularPanelMensual },
-        { nombre: "Apoderados activos", fn: calcularPanelApoderados },
-        { nombre: "Tipo Firma (VC%)", fn: calcularPanelTipoFirma },
-        { nombre: "Tipo Gestión (Con provisión)", fn: calcularPanelTipoGestion },
-        { nombre: "Oficinas", fn: calcularPanelOficinas },
-        { nombre: "Circuito", fn: calcularPanelCircuito },
-        { nombre: "SLA medio", fn: calcularPanelSLA }
+        { nombre: "Panel Anual (total firmas)",          fn: calcularPanelAnual },
+        { nombre: "Panel Mensual (hasta mes actual)",    fn: calcularPanelMensual },
+        { nombre: "Panel Apoderados (apoderados activos)", fn: calcularPanelApoderados },
+        { nombre: "Panel Tipo Firma (VC %)",             fn: calcularPanelTipoFirma },
+        { nombre: "Panel Tipo Gestión (Con provisión)",  fn: calcularPanelTipoGestion },
+        { nombre: "Panel Oficinas (oficina dominante)",  fn: calcularPanelOficinas },
+        { nombre: "Panel Circuito (circuito dominante)", fn: calcularPanelCircuito },
+        { nombre: "Panel SLA (SLA medio)",               fn: calcularPanelSLA }
     ];
 
     paneles.forEach(p => {
-        const A = p.fn(datos, añoActual);
-        const B = p.fn(datos, añoAnterior);
-        const diff = diffPct(A, B);
+        const valActual   = p.fn(datos, añoActual);
+        const valAnterior = p.fn(datos, añoAnterior);
 
-        tbody.innerHTML += `
-            <tr>
-                <td>${p.nombre}</td>
-                <td>${A}</td>
-                <td>${B}</td>
-                <td>${diff}</td>
-            </tr>
+        let diff;
+        if (typeof valActual === "number" && typeof valAnterior === "number") {
+            diff = diffPct(valActual, valAnterior);
+        } else {
+            diff = "-";
+        }
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${p.nombre}</td>
+            <td>${valActual}</td>
+            <td>${valAnterior}</td>
+            <td>${diff}</td>
         `;
+        tbody.appendChild(tr);
     });
 }
 
 /* ============================================================
-   MÉTRICAS POR PANEL
+   MÉTRICAS POR PANEL (ALINEADAS CON TUS JS)
 ============================================================ */
 
+/* Panel Anual: total firmas del año */
 function calcularPanelAnual(datos, año) {
     return datos.filter(f => Number(f.anio) === año).length;
 }
 
+/* Panel Mensual: total firmas del año hasta el mes actual */
 function calcularPanelMensual(datos, año) {
     const hoy = new Date();
     const mesActual = hoy.getMonth() + 1;
@@ -215,7 +244,7 @@ function calcularPanelMensual(datos, año) {
     ).length;
 }
 
-/* 🔥 Apoderados activos en el año (distintos) */
+/* Panel Apoderados: número de apoderados activos (distintos) en el año */
 function calcularPanelApoderados(datos, año) {
     const set = new Set(
         datos
@@ -225,6 +254,7 @@ function calcularPanelApoderados(datos, año) {
     return set.size;
 }
 
+/* Panel Tipo Firma: porcentaje de VC sobre el total del año */
 function calcularPanelTipoFirma(datos, año) {
     const filtrado = datos.filter(f => Number(f.anio) === año);
     const total = filtrado.length;
@@ -235,6 +265,7 @@ function calcularPanelTipoFirma(datos, año) {
     return Number(((vc / total) * 100).toFixed(1));
 }
 
+/* Panel Tipo Gestión: total de gestiones con provisión en el año */
 function calcularPanelTipoGestion(datos, año) {
     return datos.filter(f =>
         Number(f.anio) === año &&
@@ -242,14 +273,62 @@ function calcularPanelTipoGestion(datos, año) {
     ).length;
 }
 
+/* Panel Oficinas: oficina dominante del año (con tu normalización) */
 function calcularPanelOficinas(datos, año) {
-    return datos.filter(f => Number(f.anio) === año).length;
+    const filtrado = datos.filter(f => Number(f.anio) === año);
+
+    const mapa = {};
+
+    filtrado.forEach(f => {
+        let oficina = f.oficina || "Sin oficina";
+
+        if (oficina === "5316") {
+            oficina = "Cancela";
+        } else {
+            oficina = "Oficina";
+        }
+
+        mapa[oficina] = (mapa[oficina] || 0) + 1;
+    });
+
+    let top = "-";
+    let max = 0;
+
+    Object.entries(mapa).forEach(([ofi, total]) => {
+        if (total > max) {
+            max = total;
+            top = ofi;
+        }
+    });
+
+    return top;
 }
 
+/* Panel Circuito: circuito dominante del año */
 function calcularPanelCircuito(datos, año) {
-    return datos.filter(f => Number(f.anio) === año).length;
+    const filtrado = datos.filter(f => Number(f.anio) === año);
+
+    const mapa = {};
+
+    filtrado.forEach(f => {
+        const circuito = f.circuito || "Externo";
+        mapa[circuito] = (mapa[circuito] || 0) + 1;
+    });
+
+    let top = "-";
+    let max = 0;
+
+    Object.entries(mapa).forEach(([cir, total]) => {
+        if (total > max) {
+            max = total;
+            top = cir;
+        }
+    });
+
+    return top;
 }
 
+/* Panel SLA: SLA medio del año */
 function calcularPanelSLA(datos, año) {
     const filtrado = datos.filter(f => Number(f.anio) === año);
 
