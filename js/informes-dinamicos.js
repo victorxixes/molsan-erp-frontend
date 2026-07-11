@@ -78,12 +78,21 @@ async function initInformesDinamicos() {
 }
 
 /* ============================================================
-   GENERAR INFORME
+   GENERAR INFORME COMPLETO
 ============================================================ */
 
 async function generarInformeDinamico() {
+    const t0 = performance.now(); // medir tiempo
+
+    inf_setLoading(true);
+    inf_setSinResultados(false);
+
     const datos = await obtenerFirmas();
-    if (!datos || !datos.length) return;
+    if (!datos || !datos.length) {
+        inf_setLoading(false);
+        inf_setSinResultados(true);
+        return;
+    }
 
     const idInforme = document.getElementById("selectInforme").value;
     const config = INFORMES_CONFIG.find(c => c.id === idInforme);
@@ -96,11 +105,36 @@ async function generarInformeDinamico() {
     if (filtroAnio) filtrados = filtrados.filter(f => String(f.anio) === filtroAnio);
     if (filtroMes) filtrados = filtrados.filter(f => String(f.mes) === filtroMes);
 
+    // Si no hay datos → mensaje
+    if (!filtrados.length) {
+        renderTablaInforme(config, []);
+        inf_setLoading(false);
+        inf_setSinResultados(true);
+        return;
+    }
+
+    // Agrupación
     const agrupados = agruparDatos(filtrados, config.groupBy);
 
+    // Render tabla
     renderTablaInforme(config, agrupados);
 
+    // KPIs del informe dinámico
+    const info = calcularKPIsInforme(filtrados);
+    inf_actualizarKPIs(info);
+
+    // Metadatos
+    const t1 = performance.now();
+    inf_actualizarMetadatos(filtrados.length, (t1 - t0).toFixed(0));
+
+    // Descripción del informe
+    document.getElementById("inf-descripcion").textContent =
+        `Este informe muestra los datos agrupados por ${config.groupBy.join(", ")}.`;
+
+    // Título
     document.getElementById("tituloInformeActual").textContent = config.nombre;
+
+    inf_setLoading(false);
 }
 
 /* ============================================================
@@ -173,9 +207,80 @@ function formatearCampo(c) {
 }
 
 /* ============================================================
-   IMPRESIÓN
+   KPIs DEL INFORME DINÁMICO
+============================================================ */
+
+function calcularKPIsInforme(datos) {
+    let total = datos.length;
+    let presencial = 0;
+    let vc = 0;
+    let sumaDias = 0;
+    let cuentaDias = 0;
+
+    datos.forEach(f => {
+        if (f.tipo_firma === "VideoConferencia") vc++;
+        else presencial++;
+
+        const d = Number(f.dias);
+        if (d > 0) {
+            sumaDias += d;
+            cuentaDias++;
+        }
+    });
+
+    const sla = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
+
+    return { total, presencial, vc, sla };
+}
+
+/* ============================================================
+   ACCIONES Y ELEMENTOS PREMIUM
 ============================================================ */
 
 function imprimirInformeDinamico() {
     window.print();
+}
+
+function inf_setLoading(state) {
+    document.getElementById("inf-loading").classList.toggle("hidden", !state);
+}
+
+function inf_setSinResultados(state) {
+    document.getElementById("inf-sin-resultados").classList.toggle("hidden", !state);
+}
+
+function inf_actualizarKPIs(info) {
+    document.getElementById("inf-kpi-total").textContent = info.total;
+    document.getElementById("inf-kpi-presencial").textContent = info.presencial;
+    document.getElementById("inf-kpi-vc").textContent = info.vc;
+    document.getElementById("inf-kpi-sla").textContent = info.sla;
+}
+
+function inf_mostrarParametros() {
+    const box = document.getElementById("inf-parametros-box");
+    const list = document.getElementById("inf-parametros-list");
+
+    box.classList.remove("hidden");
+
+    list.innerHTML = `
+        <li>Tipo informe: ${document.getElementById("selectInforme").value}</li>
+        <li>Año: ${document.getElementById("filtroAnioInforme").value || "Todos"}</li>
+        <li>Mes: ${document.getElementById("filtroMesInforme").value || "Todos"}</li>
+    `;
+}
+
+function inf_limpiarInforme() {
+    document.getElementById("tablaInformeDinamico").innerHTML = "";
+    inf_setSinResultados(false);
+    inf_setLoading(false);
+}
+
+function inf_exportarExcel() {
+    alert("📤 Exportación a Excel disponible en la versión PRO.");
+}
+
+function inf_actualizarMetadatos(total, tiempo) {
+    document.getElementById("inf-meta-fecha").textContent = new Date().toLocaleString();
+    document.getElementById("inf-meta-registros").textContent = total;
+    document.getElementById("inf-meta-tiempo").textContent = tiempo + " ms";
 }
