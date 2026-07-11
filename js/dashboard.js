@@ -2,6 +2,10 @@
    DASHBOARD — COMPARATIVA ANUAL 2027
 ============================================================ */
 
+/* ============================================================
+   DASHBOARD — COMPARATIVA ANUAL 2027
+============================================================ */
+
 async function initDashboard() {
     console.log("📊 initDashboard() — Comparativa Anual");
 
@@ -167,14 +171,14 @@ function generarTablaPaneles(datos, añoActual, añoAnterior) {
     tbody.innerHTML = "";
 
     const paneles = [
-        { nombre: "Anual", fn: calcularPanelAnual },
-        { nombre: "Mensual", fn: calcularPanelMensual },
-        { nombre: "Apoderados", fn: calcularPanelApoderados },
+        { nombre: "Anual (total firmas)", fn: calcularPanelAnual },
+        { nombre: "Mensual (hasta mes actual)", fn: calcularPanelMensual },
+        { nombre: "Apoderados activos", fn: calcularPanelApoderados },
         { nombre: "Tipo Firma (VC%)", fn: calcularPanelTipoFirma },
         { nombre: "Tipo Gestión (Con provisión)", fn: calcularPanelTipoGestion },
         { nombre: "Oficinas", fn: calcularPanelOficinas },
         { nombre: "Circuito", fn: calcularPanelCircuito },
-        { nombre: "SLA", fn: calcularPanelSLA }
+        { nombre: "SLA medio", fn: calcularPanelSLA }
     ];
 
     paneles.forEach(p => {
@@ -211,8 +215,14 @@ function calcularPanelMensual(datos, año) {
     ).length;
 }
 
+/* 🔥 Apoderados activos en el año (distintos) */
 function calcularPanelApoderados(datos, año) {
-    return datos.filter(f => Number(f.anio) === año).length;
+    const set = new Set(
+        datos
+            .filter(f => Number(f.anio) === año)
+            .map(f => f.apoderado || "Sin apoderado")
+    );
+    return set.size;
 }
 
 function calcularPanelTipoFirma(datos, año) {
