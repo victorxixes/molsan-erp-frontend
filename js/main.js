@@ -19,8 +19,8 @@ async function cargarModulo(nombre) {
     /* ============================================================
        2. OBTENER PLANTILLA Y CONTENEDOR
     ============================================================ */
-    const tpl = document.getElementById(`tpl-${nombre}`);
-    const cont = document.getElementById("module-container");
+    const tpl   = document.getElementById(`tpl-${nombre}`);
+    const cont  = document.getElementById("module-container");
     const title = document.getElementById("module-title");
 
     if (!tpl || !cont) {
@@ -48,24 +48,25 @@ async function cargarModulo(nombre) {
     ============================================================ */
     if (title) {
         const nombresBonitos = {
-            "dashboard": "Dashboard",
-            "listado": "Listado de Firmas",
-            "uploader": "Importación de Excel",
-            "permisos": "Permisos del Sistema",
-            "backup": "Backup de Datos",
-            "restore": "Restauración de Backups",
-            "informes-premium": "Informes Premium",
+            // Core
+            "dashboard":          "Dashboard",
+            "listado":            "Listado de Firmas",
+            "uploader":           "Importación de Excel",
+            "permisos":           "Permisos del Sistema",
+            "backup":             "Backup de Datos",
+            "restore":            "Restauración de Backups",
+            "informes-premium":   "Informes Premium",
             "informes-dinamicos": "Informes Dinámicos",
 
             // Paneles Premium
-            "panel-anual": "Panel Anual",
-            "panel-mensual": "Panel Mensual",
-            "panel-apoderados": "Panel Apoderados",
-            "panel-tipo-firma": "Panel Tipo de Firma",
+            "panel-anual":        "Panel Anual",
+            "panel-mensual":      "Panel Mensual",
+            "panel-apoderados":   "Panel Apoderados",
+            "panel-tipo-firma":   "Panel Tipo de Firma",
             "panel-tipo-gestion": "Panel Tipo de Gestión",
-            "panel-tipo-oficinas": "Panel Oficinas",
-            "panel-tipo-circuito": "Panel Circuito Notarial",
-            "panel-sla": "Panel SLA / Tiempos"
+            "panel-oficinas":     "Panel Oficinas",
+            "panel-circuito":     "Panel Circuito Notarial",
+            "panel-sla":          "Panel SLA / Tiempos"
         };
 
         title.textContent = nombresBonitos[nombre] || nombre;
@@ -80,6 +81,7 @@ async function cargarModulo(nombre) {
 
             switch (nombre) {
 
+                /* Core */
                 case "dashboard":
                     initDashboard();
                     break;
@@ -136,12 +138,12 @@ async function cargarModulo(nombre) {
                     await initPanelTipoGestion();
                     break;
 
-                case "panel-tipo-oficinas":
-                    await initPanelTipoOficinas();
+                case "panel-oficinas":
+                    await initPanelOficinas();
                     break;
 
-                case "panel-tipo-circuito":
-                    await initPanelTipoCircuito();
+                case "panel-circuito":
+                    await initPanelCircuito();
                     break;
 
                 case "panel-sla":
