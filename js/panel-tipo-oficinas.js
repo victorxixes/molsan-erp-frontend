@@ -37,17 +37,26 @@ async function initPanelOficinas() {
         .addEventListener("change", pof_onChangeAnio);
 }
 
-/* Agrupar por año y oficina */
+/* ============================================================
+   AGRUPACIÓN + NORMALIZACIÓN DE OFICINA
+============================================================ */
 function pof_groupByAnioOficina(datos) {
     const map = {};
 
     for (const f of datos) {
         const anio = Number(f.anio);
-        const oficina = f.oficina || "Sin oficina";
+        let oficina = f.oficina || "Sin oficina";
         const dias = Number(f.dias);
         const esVC = (f.tipo_firma === "VideoConferencia");
 
         if (!anio) continue;
+
+        /* 🔥 NORMALIZACIÓN DE OFICINA */
+        if (oficina === "5316") {
+            oficina = "Cancela";
+        } else {
+            oficina = "Oficina";
+        }
 
         if (!map[anio]) map[anio] = {};
 
@@ -77,7 +86,9 @@ function pof_groupByAnioOficina(datos) {
     return map;
 }
 
-/* Select años */
+/* ============================================================
+   SELECT AÑOS
+============================================================ */
 function pof_fillSelectAnios() {
     const sel = document.getElementById("pof-select-anio");
     if (!sel) return;
@@ -102,7 +113,9 @@ function pof_selectUltimoAnio() {
     pof_onChangeAnio();
 }
 
-/* Cambio de año */
+/* ============================================================
+   CAMBIO DE AÑO
+============================================================ */
 function pof_onChangeAnio() {
     const sel = document.getElementById("pof-select-anio");
     if (!sel) return;
@@ -116,7 +129,9 @@ function pof_onChangeAnio() {
     pof_renderChart(info);
 }
 
-/* KPIs */
+/* ============================================================
+   KPIs
+============================================================ */
 function pof_renderKpis(info) {
     let total = 0;
     let vc = 0;
@@ -150,7 +165,9 @@ function pof_renderKpis(info) {
     pofSafeSet("pof-kpi-oficina", oficinaTop);
 }
 
-/* Tabla por oficina */
+/* ============================================================
+   TABLA
+============================================================ */
 function pof_renderTabla(info) {
     const tbody = document.querySelector("#pof-tabla-oficinas tbody");
     if (!tbody) return;
@@ -179,7 +196,9 @@ function pof_renderTabla(info) {
     }
 }
 
-/* Gráfico por oficina */
+/* ============================================================
+   GRÁFICO
+============================================================ */
 function pof_renderChart(info) {
     const ctx = document.getElementById("pof-chart-oficinas");
     if (!ctx) return;
