@@ -51,6 +51,14 @@ const INFORMES_CONFIG = [
         nombre: "Informe por Centro que Firma",
         tipo: "agrupado",
         groupBy: ["centro_que_firma"]
+    },
+
+    /* 🔥 NUEVO INFORME PREMIUM DE APODERADOS */
+    {
+        id: "apoderados_premium",
+        nombre: "Informe Premium de Apoderados",
+        tipo: "especial",
+        groupBy: ["apoderado"]
     }
 ];
 
@@ -113,25 +121,50 @@ async function generarInformeDinamico() {
         return;
     }
 
-    // Agrupación
+    /* ============================================================
+       🔥 INFORME ESPECIAL — APODERADOS PREMIUM
+    ============================================================= */
+    if (config.id === "apoderados_premium") {
+
+        const tablaHTML = generarInformeApoderadosPremium(filtrados);
+        document.getElementById("tablaInformeDinamico").innerHTML = tablaHTML;
+
+        // KPIs
+        const info = calcularKPIsInforme(filtrados);
+        inf_actualizarKPIs(info);
+
+        // Metadatos
+        const t1 = performance.now();
+        inf_actualizarMetadatos(filtrados.length, (t1 - t0).toFixed(0));
+
+        // Descripción
+        document.getElementById("inf-descripcion").textContent =
+            "Informe premium con desglose mensual y porcentual por apoderado.";
+
+        // Título
+        document.getElementById("tituloInformeActual").textContent = config.nombre;
+
+        inf_setLoading(false);
+        return;
+    }
+
+    /* ============================================================
+       INFORMES AGRUPADOS NORMALES
+    ============================================================= */
+
     const agrupados = agruparDatos(filtrados, config.groupBy);
 
-    // Render tabla
     renderTablaInforme(config, agrupados);
 
-    // KPIs del informe dinámico
     const info = calcularKPIsInforme(filtrados);
     inf_actualizarKPIs(info);
 
-    // Metadatos
     const t1 = performance.now();
     inf_actualizarMetadatos(filtrados.length, (t1 - t0).toFixed(0));
 
-    // Descripción del informe
     document.getElementById("inf-descripcion").textContent =
         `Este informe muestra los datos agrupados por ${config.groupBy.join(", ")}.`;
 
-    // Título
     document.getElementById("tituloInformeActual").textContent = config.nombre;
 
     inf_setLoading(false);
@@ -157,7 +190,7 @@ function agruparDatos(datos, campos) {
 }
 
 /* ============================================================
-   RENDER TABLA
+   RENDER TABLA (GENÉRICA)
 ============================================================ */
 
 function renderTablaInforme(config, filas) {
@@ -231,6 +264,113 @@ function calcularKPIsInforme(datos) {
     const sla = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
 
     return { total, presencial, vc, sla };
+}
+
+/* ============================================================
+   INFORME PREMIUM DE APODERADOS (MESES + %)
+============================================================ */
+
+function generarInformeApoderadosPremium(datos) {
+
+    const meses = ["enero","febrero","marzo","abril"];
+
+    const mapa = {};
+
+    datos.forEach(f => {
+        const ap = f.apoderado || "Sin apoderado";
+        const mes = f.mes;
+
+        if (!meses.includes(mes)) return;
+
+        if (!mapa[ap]) {
+            mapa[ap] = {
+                nombre: ap,
+                meses: { enero:0, febrero:0, marzo:0, abril:0 },
+                total: 0
+            };
+        }
+
+        mapa[ap].meses[mes]++;
+        mapa[ap].total++;
+    });
+
+    const lista = Object.values(mapa).sort((a,b)=>b.total - a.total);
+
+    const totalGlobal = {
+        enero:0, febrero:0, marzo:0, abril:0, total:0
+    };
+
+    lista.forEach(a => {
+        totalGlobal.enero   += a.meses.enero;
+        totalGlobal.febrero += a.meses.febrero;
+        totalGlobal.marzo   += a.meses.marzo;
+        totalGlobal.abril   += a.meses.abril;
+        totalGlobal.total   += a.total;
+    });
+
+    let html = `
+    <thead>
+        <tr>
+            <th>Apoderados</th>
+            <th>Enero</th>
+            <th>Febrero</th>
+            <th>Marzo</th>
+            <th>Abril</th>
+            <th>Total</th>
+            <th>% Enero</th>
+            <th>% Febrero</th>
+            <th>% Marzo</th>
+            <th>% Abril</th>
+            <th>% Total</th>
+        </tr>
+    </thead>
+    <tbody>
+    `;
+
+    lista.forEach(a => {
+
+        const pct = {
+            enero:   ((a.meses.enero   / totalGlobal.enero)   * 100).toFixed(2) + "%",
+            febrero: ((a.meses.febrero / totalGlobal.febrero) * 100).toFixed(2) + "%",
+            marzo:   ((a.meses.marzo   / totalGlobal.marzo)   * 100).toFixed(2) + "%",
+            abril:   ((a.meses.abril   / totalGlobal.abril)   * 100).toFixed(2) + "%",
+            total:   ((a.total         / totalGlobal.total)   * 100).toFixed(2) + "%"
+        };
+
+        html += `
+        <tr>
+            <td>${a.nombre}</td>
+            <td>${a.meses.enero}</td>
+            <td>${a.meses.febrero}</td>
+            <td>${a.meses.marzo}</td>
+            <td>${a.meses.abril}</td>
+            <td>${a.total}</td>
+            <td>${pct.enero}</td>
+            <td>${pct.febrero}</td>
+            <td>${pct.marzo}</td>
+            <td>${pct.abril}</td>
+            <td>${pct.total}</td>
+        </tr>`;
+    });
+
+    html += `
+        <tr class="fila-total">
+            <td><strong>Total</strong></td>
+            <td><strong>${totalGlobal.enero}</strong></td>
+            <td><strong>${totalGlobal.febrero}</strong></td>
+            <td><strong>${totalGlobal.marzo}</strong></td>
+            <td><strong>${totalGlobal.abril}</strong></td>
+            <td><strong>${totalGlobal.total}</strong></td>
+            <td><strong>100%</strong></td>
+            <td><strong>100%</strong></td>
+            <td><strong>100%</strong></td>
+            <td><strong>100%</strong></td>
+            <td><strong>100%</strong></td>
+        </tr>
+    </tbody>
+    `;
+
+    return html;
 }
 
 /* ============================================================
