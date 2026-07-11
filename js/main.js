@@ -136,11 +136,11 @@ async function cargarModulo(nombre) {
                     await initPanelTipoGestion();
                     break;
 
-                case "panel-tipo-oficinas":
+                case "panel-oficinas":
                     await initPanelOficinas();
                     break;
 
-                case "panel-tipo-circuito":
+                case "panel-circuito":
                     await initPanelCircuito();
                     break;
 
