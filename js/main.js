@@ -1,4 +1,4 @@
-============================================================
+/* ============================================================
    MOLSAN ERP — GLASS LUXE 2027
    MOTOR PRINCIPAL DE MÓDULOS + Motion 2027 + UX Premium
 ============================================================ */
@@ -58,9 +58,9 @@ async function cargarModulo(nombre) {
             "informes-dinamicos": "Informes Dinámicos",
 
             // Paneles Premium
-            "panel-tipo-anual": "Panel Anual",
-            "panel-tipo-mensual": "Panel Mensual",
-            "panel-tipo-apoderados": "Panel Apoderados",
+            "panel-anual": "Panel Anual",
+            "panel-mensual": "Panel Mensual",
+            "panel-apoderados": "Panel Apoderados",
             "panel-tipo-firma": "Panel Tipo de Firma",
             "panel-tipo-gestion": "Panel Tipo de Gestión",
             "panel-tipo-oficinas": "Panel Oficinas",
@@ -73,89 +73,93 @@ async function cargarModulo(nombre) {
 
 
     /* ============================================================
-   5. INICIALIZAR MÓDULO (DESPUÉS DE INSERTAR HTML)
-============================================================ */
-try {
-    setTimeout(async () => {
+       5. INICIALIZAR MÓDULO (DESPUÉS DE INSERTAR HTML)
+    ============================================================ */
+    try {
+        setTimeout(async () => {
 
-        switch (nombre) {
+            switch (nombre) {
 
-            case "dashboard":
-                initDashboard();
-                break;
+                case "dashboard":
+                    initDashboard();
+                    break;
 
-            case "listado":
-                await initListado();
-                break;
+                case "listado":
+                    await initListado();
+                    break;
 
-            case "uploader":
-                initUploader();
-                break;
+                case "uploader":
+                    initUploader();
+                    break;
 
-            case "permisos":
-                initPermisos();
-                break;
+                case "permisos":
+                    initPermisos();
+                    break;
 
-            case "backup":
-                await initBackup();
-                break;
+                case "backup":
+                    await initBackup();
+                    break;
 
-            case "restore":
-                await initRestore();
-                break;
+                case "restore":
+                    await initRestore();
+                    break;
 
-            case "informes-premium":
-                await initInformesPremium();
-                break;
+                case "informes-premium":
+                    await initInformesPremium();
+                    break;
 
-            case "informes-dinamicos":
-                await initInformesDinamicos();
-                break;
+                case "informes-dinamicos":
+                    await initInformesDinamicos();
+                    break;
 
-            case "panel-anual":
-                await initPanelAnual();
-                break;
+                /* ============================
+                   PANEL PREMIUM — CORREGIDOS
+                ============================ */
 
-            case "panel-mensual":
-                await initPanelMensual();
-                break;
+                case "panel-anual":
+                    await initPanelAnual();
+                    break;
 
-            case "panel-apoderados":
-                await initPanelApoderados();
-                break;
+                case "panel-mensual":
+                    await initPanelMensual();
+                    break;
 
-            case "panel-tipo-firma":
-                await initPanelTipoFirma();
-                break;
+                case "panel-apoderados":
+                    await initPanelApoderados();
+                    break;
 
-            case "panel-tipo-gestion":
-                await initPanelTipoGestion();
-                break;
+                case "panel-tipo-firma":
+                    await initPanelTipoFirma();
+                    break;
 
-            case "panel-oficinas":
-                await initPanelOficinas();
-                break;
+                case "panel-tipo-gestion":
+                    await initPanelTipoGestion();
+                    break;
 
-            case "panel-circuito":
-                await initPanelCircuito();
-                break;
+                case "panel-tipo-oficinas":
+                    await initPanelOficinas();
+                    break;
 
-            case "panel-sla":
-                await initPanelSLA();
-                break;
-        }
+                case "panel-tipo-circuito":
+                    await initPanelCircuito();
+                    break;
 
-    }, 100); // 👈 RETRASO PARA ASEGURAR QUE EL HTML YA ESTÁ INSERTADO
+                case "panel-sla":
+                    await initPanelSLA();
+                    break;
+            }
 
-} catch (err) {
-    console.error("❌ Error cargando módulo:", nombre, err);
-    cont.innerHTML = `
-        <div class="card-glass error-box fadeUp">
-            <h3>Error cargando el módulo</h3>
-            <p>${err.message}</p>
-        </div>
-    `;
-}
+        }, 100); // 👈 RETRASO PARA ASEGURAR QUE EL HTML YA ESTÁ INSERTADO
+
+    } catch (err) {
+        console.error("❌ Error cargando módulo:", nombre, err);
+        cont.innerHTML = `
+            <div class="card-glass error-box fadeUp">
+                <h3>Error cargando el módulo</h3>
+                <p>${err.message}</p>
+            </div>
+        `;
+    }
 
 
     /* ============================================================
