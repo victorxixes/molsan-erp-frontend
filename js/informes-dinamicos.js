@@ -372,6 +372,56 @@ function generarInformeApoderadosPremium(datos) {
 
     return html;
 }
+function agruparPorOficina(datos) {
+    const map = {};
+
+    for (const f of datos) {
+
+        // 🔥 NORMALIZACIÓN GLASS LUXE 2027
+        let oficina = f.oficina || "Sin oficina";
+
+        if (oficina === "5316") {
+            oficina = "Cancela";
+        } else {
+            oficina = "Oficina";
+        }
+
+        if (!map[oficina]) {
+            map[oficina] = {
+                total: 0,
+                presencial: 0,
+                vc: 0,
+                sla: 0,
+                sumaDias: 0,
+                cuentaDias: 0
+            };
+        }
+
+        const o = map[oficina];
+
+        o.total++;
+
+        if (f.tipo_firma === "VideoConferencia") {
+            o.vc++;
+        } else {
+            o.presencial++;
+        }
+
+        const d = Number(f.dias);
+        if (d > 0) {
+            o.sumaDias += d;
+            o.cuentaDias++;
+        }
+    }
+
+    // SLA medio
+    for (const k in map) {
+        const o = map[k];
+        o.sla = o.cuentaDias > 0 ? (o.sumaDias / o.cuentaDias).toFixed(1) : 0;
+    }
+
+    return map;
+}
 
 /* ============================================================
    ACCIONES Y ELEMENTOS PREMIUM
