@@ -191,3 +191,13 @@ textarea:focus {
     animation: fadeInUp 0.35s ease-out;
 }
 
+/* ============================================================
+   FIX — MÓDULOS DETRÁS DEL SIDEBAR (GLASS LUXE 2027)
+============================================================ */
+
+.modulo-wrapper,
+.module-container {
+    margin-left: var(--m-sidebar-width) !important;
+    position: relative;
+    z-index: 10;
+}
