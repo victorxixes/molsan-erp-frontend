@@ -1070,13 +1070,16 @@
 
 
 <!-- ============================================================
-     INFORMES DINÁMICOS
+     INFORMES DINÁMICOS — COMPLETO Y CORREGIDO
 ============================================================ -->
 <template id="tpl-informes-dinamicos">
 
     <div class="modulo-wrapper fade-in">
         <div class="module-container">
 
+            <!-- ============================
+                 CABECERA + FILTROS
+            ============================ -->
             <h2 class="titulo-modulo">📑 Informes Dinámicos — Glass Luxe 2027</h2>
 
             <div class="card-glass p-20 mt-20">
@@ -1112,6 +1115,9 @@
                 </div>
             </div>
 
+            <!-- ============================
+                 TABLA DEL INFORME
+            ============================ -->
             <div class="card-glass p-20 mt-20">
                 <h3 class="titulo-modulo" id="tituloInformeActual">Informe</h3>
 
@@ -1120,10 +1126,106 @@
                 </div>
             </div>
 
+            <!-- ============================
+                 KPIs
+            ============================ -->
+            <div class="card-glass p-20 mt-20">
+
+                <h3 class="titulo-modulo">📌 Resumen del informe</h3>
+
+                <div class="kpi-grid mt-20">
+
+                    <div class="kpi-box">
+                        <div class="kpi-title">Total registros</div>
+                        <div class="kpi-value" id="inf-kpi-total">0</div>
+                    </div>
+
+                    <div class="kpi-box">
+                        <div class="kpi-title">Presencial</div>
+                        <div class="kpi-value" id="inf-kpi-presencial">0</div>
+                    </div>
+
+                    <div class="kpi-box">
+                        <div class="kpi-title">VC</div>
+                        <div class="kpi-value" id="inf-kpi-vc">0</div>
+                    </div>
+
+                    <div class="kpi-box">
+                        <div class="kpi-title">SLA medio</div>
+                        <div class="kpi-value" id="inf-kpi-sla">0</div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ============================
+                 ACCIONES
+            ============================ -->
+            <div class="card-glass p-20 mt-20">
+
+                <h3 class="titulo-modulo">⚙️ Acciones</h3>
+
+                <div class="flex gap-10 mt-20">
+
+                    <button class="m-btn m-btn-primary m-btn-sm m-btn-round" onclick="inf_exportarExcel()">
+                        Exportar a Excel
+                    </button>
+
+                    <button class="m-btn m-btn-secondary m-btn-sm m-btn-round" onclick="inf_mostrarParametros()">
+                        Ver parámetros usados
+                    </button>
+
+                    <button class="m-btn m-btn-ghost m-btn-sm m-btn-round" onclick="inf_limpiarInforme()">
+                        Limpiar informe
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- ============================
+                 DESCRIPCIÓN
+            ============================ -->
+            <div class="card-glass p-20 mt-20">
+
+                <h3 class="titulo-modulo">📝 Descripción del informe</h3>
+
+                <p id="inf-descripcion" class="mt-10">
+                    Selecciona un tipo de informe y pulsa <strong>Generar</strong> para ver los resultados.
+                </p>
+
+            </div>
+
+            <!-- ============================
+                 PARÁMETROS
+            ============================ -->
+            <div class="card-glass p-20 mt-20 hidden" id="inf-parametros-box">
+
+                <h3 class="titulo-modulo">📎 Parámetros del informe</h3>
+
+                <ul class="mt-10" id="inf-parametros-list"></ul>
+
+            </div>
+
+            <!-- ============================
+                 METADATOS
+            ============================ -->
+            <div class="card-glass p-20 mt-20">
+
+                <h3 class="titulo-modulo">📅 Metadatos del informe</h3>
+
+                <p>Generado el: <span id="inf-meta-fecha"></span></p>
+                <p>Registros procesados: <span id="inf-meta-registros"></span></p>
+                <p>Tiempo de generación: <span id="inf-meta-tiempo"></span></p>
+
+            </div>
+
         </div>
     </div>
 
 </template>
+
 <!-- ============================================================
      INFORMACIÓN ADICIONAL DEL INFORME
 ============================================================ -->
