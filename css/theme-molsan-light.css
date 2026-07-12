@@ -178,38 +178,6 @@ textarea:focus {
     background: var(--m-primary-soft);
 }
 
-/* ============================================================
-   ANIMACIONES
-============================================================ */
 
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(14px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-.fadeUp {
-    animation: fadeInUp 0.35s ease-out;
-}
-/* ============================================================
-   FIX DEFINITIVO — MÓDULOS DETRÁS DEL SIDEBAR
-============================================================ */
-
-/* Todos los módulos deben respetar el margen del sidebar */
-.modulo-wrapper,
-.module-container {
-    margin-left: var(--m-sidebar-width) !important;
-    position: relative;
-    z-index: 5;
-    width: calc(100% - var(--m-sidebar-width));
-}
-
-/* Asegurar que el contenido interno se centra correctamente */
-.app-main-inner {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-}
 
 
