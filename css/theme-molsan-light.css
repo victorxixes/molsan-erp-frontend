@@ -209,5 +209,12 @@ textarea:focus {
     position: relative;
     z-index: 10;
 }
+/* FIX — Módulos detrás del sidebar */
+#module-container {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    min-height: auto;
+}
 
 
