@@ -216,5 +216,12 @@ textarea:focus {
     width: 100%;
     min-height: auto;
 }
+/* FIX — Asegurar que los módulos siguen el flujo */
+.app-main-inner {
+    position: relative;
+    z-index: 5;
+    min-height: auto;
+    height: auto;
+}
 
 
