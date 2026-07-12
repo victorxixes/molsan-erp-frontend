@@ -975,38 +975,28 @@
 
             </div>
 
+            <!-- ============================================================
+                 INDICADOR DE CARGA
+            ============================================================ -->
+            <div id="inf-loading" class="hidden mt-20">
+                <div class="loading-spinner"></div>
+                <p class="mt-10">Generando informe…</p>
+            </div>
+
+            <!-- ============================================================
+                 MENSAJE SIN RESULTADOS
+            ============================================================ -->
+            <div id="inf-sin-resultados" class="hidden mt-20">
+                <div class="card-glass p-20">
+                    <h3 class="titulo-modulo">Sin resultados</h3>
+                    <p>No se encontraron registros para los filtros seleccionados.</p>
+                </div>
+            </div>
+
         </div>
     </div>
 
 </template>
-
-<!-- ============================================================
-     MODAL DETALLE
-============================================================ -->
-<div id="modal-detalle" class="modal-overlay hidden">
-    <div class="modal-box">
-
-        <div class="modal-header">
-            <h3 id="detalleTitulo">Detalle del expediente</h3>
-            <button class="m-btn m-btn-ghost m-btn-xs m-btn-round" onclick="cerrarModalDetalle()">✕</button>
-        </div>
-
-        <div class="modal-body" id="detalleContenido"></div>
-
-        <div class="modal-footer">
-            <button class="m-btn m-btn-secondary m-btn-sm m-btn-round" onclick="cerrarModalDetalle()">
-                Cerrar
-            </button>
-        </div>
-
-    </div>
-</div>
-<!-- ============================================================
-     FIN DE TEMPLATES Y MÓDULOS
-============================================================ -->
-
-</body>
-</html>
 
 
 <!-- ============================ SCRIPTS ============================ -->
