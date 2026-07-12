@@ -11,12 +11,6 @@ const INFORMES_CONFIG = [
         groupBy: ["anio", "mes"]
     },
     {
-        id: "por_oficina",
-        nombre: "Informe por Oficina",
-        tipo: "agrupado",
-        groupBy: ["oficina"]
-    },
-    {
         id: "por_apoderado",
         nombre: "Informe por Apoderado",
         tipo: "agrupado",
@@ -383,7 +377,7 @@ function agruparPorOficina(datos) {
         if (oficina === "5316") {
             oficina = "Cancela";
         } else {
-            oficina = "Oficina";
+            Canal = "Canal";
         }
 
         if (!map[oficina]) {
