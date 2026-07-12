@@ -190,5 +190,24 @@ textarea:focus {
 .fadeUp {
     animation: fadeInUp 0.35s ease-out;
 }
+/* ============================================================
+   FIX — CONTENEDORES QUE SE QUEDAN DETRÁS DEL SIDEBAR
+============================================================ */
+
+.app-main {
+    min-height: auto !important;
+    height: auto !important;
+}
+
+.app-main-inner {
+    min-height: auto !important;
+    height: auto !important;
+    padding-bottom: 80px !important; /* evita solapamientos */
+}
+
+.modulo-wrapper {
+    position: relative;
+    z-index: 10;
+}
 
 
