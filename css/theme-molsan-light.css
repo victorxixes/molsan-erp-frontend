@@ -191,37 +191,25 @@ textarea:focus {
     animation: fadeInUp 0.35s ease-out;
 }
 /* ============================================================
-   FIX — CONTENEDORES QUE SE QUEDAN DETRÁS DEL SIDEBAR
+   FIX DEFINITIVO — MÓDULOS DETRÁS DEL SIDEBAR
 ============================================================ */
 
-.app-main {
-    min-height: auto !important;
-    height: auto !important;
-}
-
-.app-main-inner {
-    min-height: auto !important;
-    height: auto !important;
-    padding-bottom: 80px !important; /* evita solapamientos */
-}
-
-.modulo-wrapper {
-    position: relative;
-    z-index: 10;
-}
-/* FIX — Módulos detrás del sidebar */
-#module-container {
-    position: relative;
-    z-index: 10;
-    width: 100%;
-    min-height: auto;
-}
-/* FIX — Asegurar que los módulos siguen el flujo */
-.app-main-inner {
+/* Todos los módulos deben respetar el margen del sidebar */
+.modulo-wrapper,
+.module-container {
+    margin-left: var(--m-sidebar-width) !important;
     position: relative;
     z-index: 5;
-    min-height: auto;
-    height: auto;
+    width: calc(100% - var(--m-sidebar-width));
+}
+
+/* Asegurar que el contenido interno se centra correctamente */
+.app-main-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
 }
 
 
