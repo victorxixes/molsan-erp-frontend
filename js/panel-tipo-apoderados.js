@@ -36,12 +36,20 @@ async function initPanelApoderados() {
 function pap_groupByAnioApoderado(datos) {
     const map = {};
 
-    for (const f of datos) {
-        const anio = Number(f.anio);
-        const ap = f.apoderado || "Sin apoderado";
-        const mes = f.mes || "";
+    const mesesValidos = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
 
-        if (!anio || !mes) continue;
+    for (const f of datos) {
+
+        const anio = Number(f.anio);
+        if (!anio || isNaN(anio)) continue;
+
+        const ap = f.apoderado || "Sin apoderado";
+
+        const mes = (f.mes || "").toLowerCase().trim();
+        if (!mesesValidos.includes(mes)) continue;
 
         if (!map[anio]) {
             map[anio] = {
@@ -51,7 +59,7 @@ function pap_groupByAnioApoderado(datos) {
                 sumaDias: 0,
                 cuentaDias: 0,
                 apoderados: {},
-                meses: {} // ← Totales globales por mes
+                meses: {}
             };
         }
 
@@ -71,38 +79,27 @@ function pap_groupByAnioApoderado(datos) {
         const a = r.apoderados[ap];
 
         if (!a.meses[mes]) {
-            a.meses[mes] = {
-                total: 0,
-                vc: 0,
-                presencial: 0
-            };
+            a.meses[mes] = { total: 0, vc: 0, presencial: 0 };
         }
 
         if (!r.meses[mes]) {
-            r.meses[mes] = {
-                total: 0,
-                vc: 0,
-                presencial: 0
-            };
+            r.meses[mes] = { total: 0, vc: 0, presencial: 0 };
         }
 
         const mAp = a.meses[mes];
         const mTot = r.meses[mes];
 
-        // Totales globales
         r.total++;
         a.total++;
         mAp.total++;
         mTot.total++;
 
-        // Tipo firma
         if (f.tipo_firma === "VideoConferencia") {
             r.vc++; a.vc++; mAp.vc++; mTot.vc++;
         } else {
             r.presencial++; a.presencial++; mAp.presencial++; mTot.presencial++;
         }
 
-        // SLA
         const d = Number(f.dias);
         if (d > 0) {
             r.sumaDias += d;
@@ -114,6 +111,7 @@ function pap_groupByAnioApoderado(datos) {
 
     return map;
 }
+
 
 /* ============================================================
    SELECT AÑOS
