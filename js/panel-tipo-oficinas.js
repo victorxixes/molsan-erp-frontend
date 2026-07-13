@@ -58,7 +58,7 @@ function pof_groupByAnioOficina(datos) {
         if (anio === currentYear && idxMes > currentMonthIndex) continue;
 
         /* Normalización oficina */
-        let oficina = f.oficina || "Sin oficina";
+        let oficina = String(f.oficina).trim();
         oficina = (oficina === "5316") ? "Cancela" : "Oficina";
 
         const dias = Number(f.dias);
