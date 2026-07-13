@@ -1,6 +1,10 @@
 /* ============================================================
    INFORMES PREMIUM — GLASS LUXE 2027 (IndexedDB + KPIs + Charts)
 ============================================================ */
+const MESES_ORDEN = [
+    "enero","febrero","marzo","abril","mayo","junio",
+    "julio","agosto","septiembre","octubre","noviembre","diciembre"
+];
 
 let chartActual = null;
 
