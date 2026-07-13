@@ -219,12 +219,19 @@ async function generarInformeApoderados() {
 }
 
 /* ============================================================
-   INFORME POR OFICINAS (CENTRO)
+   INFORME POR OFICINAS (CENTRO) — FILTRADO POR AÑO
 ============================================================ */
 async function generarInformeOficinas() {
     let datos = await obtenerFirmas();
     datos = aplicarNormalizacionPremium(datos);
 
+    // Obtener año seleccionado en Informes Premium
+    const anioSel = inf_getAnioSeleccionado();
+
+    // Filtrar por año
+    datos = datos.filter(f => Number(f.anio) === anioSel);
+
+    // Agrupar por centro
     const mapa = {};
     datos.forEach(f => {
         mapa[f.centro] = (mapa[f.centro] || 0) + 1;
@@ -233,7 +240,7 @@ async function generarInformeOficinas() {
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
-        <h2 class="titulo-modulo">🏢 Informe por Centro</h2>
+        <h2 class="titulo-modulo">🏢 Informe por Centro — ${anioSel}</h2>
         <div class="card-glass mt-20"><canvas id="chartOfi"></canvas></div>
     `;
 
@@ -251,6 +258,7 @@ async function generarInformeOficinas() {
         }
     });
 }
+
 
 /* ============================================================
    INFORME POR CIRCUITO
