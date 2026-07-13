@@ -66,6 +66,7 @@ async function cargarModulo(nombre) {
             "panel-tipo-gestion": "Panel Tipo de Gestión",
             "panel-oficinas":     "Panel Oficinas",
             "panel-circuito":     "Panel Circuito Notarial",
+           "panel-tipo-centroquefirma": "Panel Centro que Firma"
             "panel-sla":          "Panel SLA / Tiempos"
         };
 
