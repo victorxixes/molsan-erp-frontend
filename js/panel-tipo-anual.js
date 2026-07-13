@@ -17,9 +17,8 @@ function paSafeSet(id, value) {
 async function initPanelAnual() {
     console.log("📆 initPanelAnual() ejecutado");
 
-    // Si el panel no está en el DOM → detener
     if (!document.getElementById("pa-select-anio")) {
-        console.warn("⏳ Panel Anual aún no está en el DOM. initPanelAnual() detenido.");
+        console.warn("⏳ Panel Anual aún no está en el DOM.");
         return;
     }
 
@@ -32,22 +31,31 @@ async function initPanelAnual() {
     pa_fillSelectAnios();
     pa_selectUltimoAnio();
 
-    // Listener del selector de año
     document.getElementById("pa-select-anio")
         .addEventListener("change", pa_onChangeAnio);
 }
 
-/* Agrupar por año y mes */
+/* ============================================================
+   AGRUPAR POR AÑO → MES
+============================================================ */
 function pa_groupByAnioMes(datos) {
     const map = {};
 
+    const mesesValidos = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
     for (const f of datos) {
+
         const anio = Number(f.anio);
-        const mes = f.mes;
+        if (!anio) continue;
+
+        const mes = (f.mes || "").toLowerCase().trim();
+        if (!mesesValidos.includes(mes)) continue;
+
         const dias = Number(f.dias);
         const esVC = (f.tipo_firma === "VideoConferencia");
-
-        if (!anio || !mes) continue;
 
         if (!map[anio]) map[anio] = {};
 
@@ -77,7 +85,9 @@ function pa_groupByAnioMes(datos) {
     return map;
 }
 
-/* Select años */
+/* ============================================================
+   SELECT AÑOS
+============================================================ */
 function pa_fillSelectAnios() {
     const sel = document.getElementById("pa-select-anio");
     if (!sel) return;
@@ -102,7 +112,9 @@ function pa_selectUltimoAnio() {
     pa_onChangeAnio();
 }
 
-/* Cambio de año */
+/* ============================================================
+   CAMBIO DE AÑO
+============================================================ */
 function pa_onChangeAnio() {
     const sel = document.getElementById("pa-select-anio");
     if (!sel) return;
@@ -112,11 +124,13 @@ function pa_onChangeAnio() {
     if (!info) return;
 
     pa_renderKpis(info);
-    pa_renderTabla(info);
-    pa_renderChart(info);
+    pa_renderTabla(info, anio);
+    pa_renderChart(info, anio);
 }
 
-/* KPIs */
+/* ============================================================
+   KPIs
+============================================================ */
 function pa_renderKpis(info) {
     let total = 0;
     let vc = 0;
@@ -150,8 +164,10 @@ function pa_renderKpis(info) {
     paSafeSet("pa-kpi-top-mes", topMes);
 }
 
-/* Tabla mensual */
-function pa_renderTabla(info) {
+/* ============================================================
+   TABLA MENSUAL (OCULTA MESES FUTUROS)
+============================================================ */
+function pa_renderTabla(info, anio) {
     const tbody = document.querySelector("#pa-tabla-meses tbody");
     if (!tbody) return;
 
@@ -162,8 +178,18 @@ function pa_renderTabla(info) {
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth();
+
     for (const mes of mesesOrden) {
+
+        const idxMes = mesesOrden.indexOf(mes);
+
+        // ❌ NO mostrar meses futuros del año en curso
+        if (anio === currentYear && idxMes > currentMonthIndex) continue;
+
         const r = info[mes];
+
         if (!r) continue;
 
         const sla = r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : "0";
@@ -182,12 +208,26 @@ function pa_renderTabla(info) {
     }
 }
 
-/* Gráfico evolución anual */
-function pa_renderChart(info) {
+/* ============================================================
+   GRÁFICO EVOLUCIÓN ANUAL (OCULTA MESES FUTUROS)
+============================================================ */
+function pa_renderChart(info, anio) {
     const ctx = document.getElementById("pa-chart-anual");
     if (!ctx) return;
 
-    const meses = Object.keys(info);
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth();
+
+    const meses = mesesOrden.filter((m, idx) => {
+        if (anio === currentYear && idx > currentMonthIndex) return false;
+        return info[m];
+    });
+
     const data = meses.map(m => info[m].total);
 
     if (PA_CHART) PA_CHART.destroy();
