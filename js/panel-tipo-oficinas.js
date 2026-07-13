@@ -57,9 +57,14 @@ function pof_groupByAnioOficina(datos) {
         // ❌ Mes futuro del año en curso → ignorar
         if (anio === currentYear && idxMes > currentMonthIndex) continue;
 
-        /* Normalización oficina */
-        let oficina = String(f.oficina).trim();
-        oficina = (oficina === "5316") ? "Cancela" : "Oficina";
+       // Normalizar oficina de forma robusta
+let oficinaRaw = String(f.oficina || "").trim();
+
+// Eliminar todo lo que no sea número (puntos, comas, espacios, decimales)
+let oficinaNum = oficinaRaw.replace(/[^0-9]/g, "");
+
+// Asignar centro real
+let oficina = (oficinaNum === "5316") ? "Cancela" : "Oficina";
 
         const dias = Number(f.dias);
         const esVC = (f.tipo_firma === "VideoConferencia");
