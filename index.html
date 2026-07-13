@@ -515,7 +515,7 @@
 
 
 <!-- ============================================================
-     PANEL TIPO GESTIÓN
+     PANEL TIPO GESTIÓN — PREMIUM 2027
 ============================================================ -->
 <template id="tpl-panel-tipo-gestion">
 <div class="panel-wrapper fade-in">
@@ -538,18 +538,38 @@
     </div>
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Detalle por tipo de gestión</h3>
+        <h3 class="subtitulo-modulo">Detalle por tipo de gestión (mes a mes)</h3>
 
-        <table id="ptg-tabla-gestion" class="table-premium table-sticky">
-            <thead>
-                <tr>
-                    <th>Tipo Gestión</th><th>Total</th><th>Con provisión</th><th>Sin provisión</th>
-                    <th>% Con</th><th>% Sin</th><th>SLA Con</th><th>SLA Sin</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <div class="tabla-scroll-x mt-10">
+            <table id="ptg-tabla-gestion" class="table-premium table-sticky tabla-excel">
+                <thead>
+                    <tr>
+                        <th>Tipo Gestión</th>
+                        <th>Total</th>
+                        <th>Con provisión</th>
+                        <th>Sin provisión</th>
+                        <th>% Con</th>
+                        <th>% Sin</th>
+                        <th>SLA Con</th>
+                        <th>SLA Sin</th>
 
+                        <th>Enero</th>
+                        <th>Febrero</th>
+                        <th>Marzo</th>
+                        <th>Abril</th>
+                        <th>Mayo</th>
+                        <th>Junio</th>
+                        <th>Julio</th>
+                        <th>Agosto</th>
+                        <th>Septiembre</th>
+                        <th>Octubre</th>
+                        <th>Noviembre</th>
+                        <th>Diciembre</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
 </div>
