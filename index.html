@@ -631,7 +631,7 @@
 
 
 <!-- ============================================================
-     PANEL CIRCUITO
+     PANEL CIRCUITO — PREMIUM 2027
 ============================================================ -->
 <template id="tpl-panel-circuito">
 <div class="panel-wrapper fade-in">
@@ -655,22 +655,41 @@
     </div>
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Distribución por Circuito</h3>
-        <canvas id="pci-chart-circuito"></canvas>
+        <h3 class="subtitulo-modulo">Detalle por Circuito (mes a mes)</h3>
+
+        <div class="tabla-scroll-x mt-10">
+            <table id="pci-tabla-circuito" class="table-premium table-sticky tabla-excel">
+                <thead>
+                    <tr>
+                        <th>Circuito</th>
+                        <th>Total</th>
+                        <th>Presencial</th>
+                        <th>VC</th>
+                        <th>% VC</th>
+                        <th>SLA</th>
+
+                        <th>Enero</th>
+                        <th>Febrero</th>
+                        <th>Marzo</th>
+                        <th>Abril</th>
+                        <th>Mayo</th>
+                        <th>Junio</th>
+                        <th>Julio</th>
+                        <th>Agosto</th>
+                        <th>Septiembre</th>
+                        <th>Octubre</th>
+                        <th>Noviembre</th>
+                        <th>Diciembre</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Detalle por Circuito</h3>
-
-        <table id="pci-tabla-circuito" class="table-premium table-sticky">
-            <thead>
-                <tr>
-                    <th>Circuito</th><th>Total</th><th>Presencial</th><th>VC</th><th>% VC</th><th>SLA</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
+        <h3 class="subtitulo-modulo">Distribución por Circuito</h3>
+        <canvas id="pci-chart-circuito"></canvas>
     </div>
 
 </div>
