@@ -168,7 +168,7 @@ async function generarInformeGeneral() {
 }
 
 /* ============================================================
-   INFORME ANUAL — EVOLUCIÓN MENSUAL DEL AÑO SELECCIONADO
+   INFORME ANUAL — SOLO MESES CON DATOS REALES
 ============================================================ */
 async function generarInformeAnual() {
     let datos = await obtenerFirmas();
@@ -179,18 +179,17 @@ async function generarInformeAnual() {
     // Filtrar por año
     datos = datos.filter(f => Number(f.anio) === anioSel);
 
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    // Detectar meses reales del Excel
+    const mesesReales = [...new Set(datos.map(f => f.mes))]
+        .filter(m => m) // quitar vacíos
+        .sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
 
+    // Contar firmas por mes real
     const mapa = {};
-    mesesOrden.forEach(m => mapa[m] = 0);
+    mesesReales.forEach(m => mapa[m] = 0);
 
     datos.forEach(f => {
-        if (mapa.hasOwnProperty(f.mes)) {
-            mapa[f.mes]++;
-        }
+        if (mapa.hasOwnProperty(f.mes)) mapa[f.mes]++;
     });
 
     const cont = document.getElementById("informeContainer");
@@ -206,10 +205,10 @@ async function generarInformeAnual() {
     chartActual = new Chart(ctx, {
         type: "line",
         data: {
-            labels: mesesOrden,
+            labels: mesesReales,
             datasets: [{
                 label: "Firmas",
-                data: mesesOrden.map(m => mapa[m]),
+                data: mesesReales.map(m => mapa[m]),
                 borderColor: "#10b981",
                 borderWidth: 3,
                 fill: false,
@@ -226,8 +225,9 @@ async function generarInformeAnual() {
         }
     });
 }
+
 /* ============================================================
-   INFORME MENSUAL — POR AÑO SELECCIONADO
+   INFORME MENSUAL — SOLO MESES CON DATOS REALES
 ============================================================ */
 async function generarInformeMensual() {
     let datos = await obtenerFirmas();
@@ -237,18 +237,15 @@ async function generarInformeMensual() {
 
     datos = datos.filter(f => Number(f.anio) === anioSel);
 
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    const mesesReales = [...new Set(datos.map(f => f.mes))]
+        .filter(m => m)
+        .sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
 
     const mapa = {};
-    mesesOrden.forEach(m => mapa[m] = 0);
+    mesesReales.forEach(m => mapa[m] = 0);
 
     datos.forEach(f => {
-        if (mapa.hasOwnProperty(f.mes)) {
-            mapa[f.mes]++;
-        }
+        if (mapa.hasOwnProperty(f.mes)) mapa[f.mes]++;
     });
 
     const cont = document.getElementById("informeContainer");
@@ -264,10 +261,10 @@ async function generarInformeMensual() {
     chartActual = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: mesesOrden,
+            labels: mesesReales,
             datasets: [{
                 label: "Firmas",
-                data: mesesOrden.map(m => mapa[m]),
+                data: mesesReales.map(m => mapa[m]),
                 backgroundColor: "#f59e0b"
             }]
         },
@@ -281,6 +278,7 @@ async function generarInformeMensual() {
         }
     });
 }
+
 
 /* ============================================================
    INFORME POR APODERADOS — FILTRADO POR AÑO
