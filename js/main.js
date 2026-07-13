@@ -46,29 +46,27 @@ async function cargarModulo(nombre) {
     /* ============================================================
        4. TÍTULOS BONITOS
     ============================================================ */
-    if (title) {
-        const nombresBonitos = {
-            // Core
-            "dashboard":          "Dashboard",
-            "listado":            "Listado de Firmas",
-            "uploader":           "Importación de Excel",
-            "permisos":           "Permisos del Sistema",
-            "backup":             "Backup de Datos",
-            "restore":            "Restauración de Backups",
-            "informes-premium":   "Informes Premium",
-          
+const nombresBonitos = {
+    // Core
+    "dashboard":          "Dashboard",
+    "listado":            "Listado de Firmas",
+    "uploader":           "Importación de Excel",
+    "permisos":           "Permisos del Sistema",
+    "backup":             "Backup de Datos",
+    "restore":            "Restauración de Backups",
+    "informes-premium":   "Informes Premium",
 
-            // Paneles Premium
-            "panel-anual":        "Panel Anual",
-            "panel-mensual":      "Panel Mensual",
-            "panel-apoderados":   "Panel Apoderados",
-            "panel-tipo-firma":   "Panel Tipo de Firma",
-            "panel-tipo-gestion": "Panel Tipo de Gestión",
-            "panel-oficinas":     "Panel Oficinas",
-            "panel-circuito":     "Panel Circuito Notarial",
-           "panel-tipo-centroquefirma": "Panel Centro que Firma"
-            "panel-sla":          "Panel SLA / Tiempos"
-        };
+    // Paneles Premium
+    "panel-anual":        "Panel Anual",
+    "panel-mensual":      "Panel Mensual",
+    "panel-apoderados":   "Panel Apoderados",
+    "panel-tipo-firma":   "Panel Tipo de Firma",
+    "panel-tipo-gestion": "Panel Tipo de Gestión",
+    "panel-oficinas":     "Panel Oficinas",
+    "panel-circuito":     "Panel Circuito Notarial",
+    "panel-tipo-centroquefirma": "Panel Centro que Firma",
+    "panel-sla":          "Panel SLA / Tiempos"
+};
 
         title.textContent = nombresBonitos[nombre] || nombre;
     }
