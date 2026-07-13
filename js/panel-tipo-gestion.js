@@ -1,39 +1,61 @@
 /* ============================================================
-   PANEL TIPO GESTIÓN — PREMIUM 2027 (COMPATIBLE CON TU HTML)
+   PANEL TIPO GESTIÓN — PREMIUM 2027 (VERSIÓN FINAL)
 ============================================================ */
 
 let PTG_DATOS = [];
 let PTG_POR_ANIO = {};
 
+/* ============================================================
+   INIT
+============================================================ */
 async function initPanelTipoGestion() {
     console.log("📄 initPanelTipoGestion() ejecutado");
+
+    if (!document.getElementById("ptg-select-anio")) {
+        console.warn("⏳ Panel Tipo Gestión aún no está en el DOM.");
+        return;
+    }
 
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
 
     PTG_DATOS = datos;
-
-    PTG_POR_ANIO = ptg_groupByAnioTipoGestion(PTG_DATOS);
+    PTG_POR_ANIO = ptg_groupByAnio(PTG_DATOS);
 
     ptg_fillSelectAnios();
     ptg_selectUltimoAnio();
 
-    // Listener del selector de año
     document.getElementById("ptg-select-anio")
         .addEventListener("change", ptg_onChangeAnio);
 }
 
-/* Agrupar por año y tipo gestión */
-function ptg_groupByAnioTipoGestion(datos) {
+/* ============================================================
+   AGRUPAR POR AÑO → TIPO GESTIÓN → MES
+============================================================ */
+function ptg_groupByAnio(datos) {
     const map = {};
 
-    for (const f of datos) {
-        const anio = Number(f.anio);
-        const tipo = f.tipo_gestion || "Sin tipo";
-        const dias = Number(f.dias);
-        const conPro = (f.tipo_provision || "").toLowerCase().includes("con");
+    const mesesValidos = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
 
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth();
+
+    for (const f of datos) {
+
+        const anio = Number(f.anio);
         if (!anio) continue;
+
+        const mes = (f.mes || "").toLowerCase().trim();
+        const idxMes = mesesValidos.indexOf(mes);
+        if (idxMes === -1) continue;
+
+        if (anio === currentYear && idxMes > currentMonthIndex) continue;
+
+        const tipo = f.tipo_gestion || "Con provisión";
+        const dias = Number(f.dias);
 
         if (!map[anio]) map[anio] = {};
 
@@ -42,28 +64,32 @@ function ptg_groupByAnioTipoGestion(datos) {
                 total: 0,
                 con: 0,
                 sin: 0,
-                sumaDiasCon: 0,
-                cuentaDiasCon: 0,
-                sumaDiasSin: 0,
-                cuentaDiasSin: 0
+                slaCon: { suma: 0, cuenta: 0 },
+                slaSin: { suma: 0, cuenta: 0 },
+                meses: {}
             };
         }
 
         const r = map[anio][tipo];
 
-        r.total++;
+        if (!r.meses[mes]) {
+            r.meses[mes] = { total: 0 };
+        }
 
-        if (conPro) {
+        r.total++;
+        r.meses[mes].total++;
+
+        if (tipo === "Con provisión") {
             r.con++;
             if (dias > 0) {
-                r.sumaDiasCon += dias;
-                r.cuentaDiasCon++;
+                r.slaCon.suma += dias;
+                r.slaCon.cuenta++;
             }
         } else {
             r.sin++;
             if (dias > 0) {
-                r.sumaDiasSin += dias;
-                r.cuentaDiasSin++;
+                r.slaSin.suma += dias;
+                r.slaSin.cuenta++;
             }
         }
     }
@@ -71,9 +97,13 @@ function ptg_groupByAnioTipoGestion(datos) {
     return map;
 }
 
-/* Select años */
+/* ============================================================
+   SELECT AÑOS
+============================================================ */
 function ptg_fillSelectAnios() {
     const sel = document.getElementById("ptg-select-anio");
+    if (!sel) return;
+
     sel.innerHTML = "";
 
     const anios = Object.keys(PTG_POR_ANIO).map(Number).sort((a,b)=>a-b);
@@ -88,15 +118,20 @@ function ptg_fillSelectAnios() {
 
 function ptg_selectUltimoAnio() {
     const sel = document.getElementById("ptg-select-anio");
+    if (!sel || sel.options.length === 0) return;
+
     sel.value = sel.options[sel.options.length - 1].value;
     ptg_onChangeAnio();
 }
 
-/* Cambio de año */
+/* ============================================================
+   CAMBIO DE AÑO
+============================================================ */
 function ptg_onChangeAnio() {
     const sel = document.getElementById("ptg-select-anio");
-    const anio = Number(sel.value);
+    if (!sel) return;
 
+    const anio = Number(sel.value);
     const info = PTG_POR_ANIO[anio];
     if (!info) return;
 
@@ -104,61 +139,99 @@ function ptg_onChangeAnio() {
     ptg_renderTabla(info);
 }
 
-/* KPIs */
+/* ============================================================
+   KPIs
+============================================================ */
 function ptg_renderKpis(info) {
-    let total = 0, con = 0, sin = 0;
-    let sumaDiasCon = 0, cuentaDiasCon = 0;
-    let sumaDiasSin = 0, cuentaDiasSin = 0;
+    let total = 0;
+    let con = 0;
+    let sin = 0;
+
+    let slaCon = 0;
+    let slaSin = 0;
 
     for (const tipo in info) {
         const r = info[tipo];
+
         total += r.total;
         con += r.con;
         sin += r.sin;
-        sumaDiasCon += r.sumaDiasCon;
-        cuentaDiasCon += r.cuentaDiasCon;
-        sumaDiasSin += r.sumaDiasSin;
-        cuentaDiasSin += r.cuentaDiasSin;
+
+        if (r.slaCon.cuenta > 0) {
+            slaCon += r.slaCon.suma / r.slaCon.cuenta;
+        }
+        if (r.slaSin.cuenta > 0) {
+            slaSin += r.slaSin.suma / r.slaSin.cuenta;
+        }
     }
 
     const pctCon = total ? ((con / total) * 100).toFixed(1) + "%" : "0%";
     const pctSin = total ? ((sin / total) * 100).toFixed(1) + "%" : "0%";
 
-    const slaCon = cuentaDiasCon ? (sumaDiasCon / cuentaDiasCon).toFixed(1) : "0";
-    const slaSin = cuentaDiasSin ? (sumaDiasSin / cuentaDiasSin).toFixed(1) : "0";
-
     document.getElementById("ptg-kpi-total").textContent = total;
     document.getElementById("ptg-kpi-con").textContent = pctCon;
     document.getElementById("ptg-kpi-sin").textContent = pctSin;
-    document.getElementById("ptg-kpi-sla-con").textContent = slaCon;
-    document.getElementById("ptg-kpi-sla-sin").textContent = slaSin;
+    document.getElementById("ptg-kpi-sla-con").textContent = slaCon.toFixed(1);
+    document.getElementById("ptg-kpi-sla-sin").textContent = slaSin.toFixed(1);
 }
 
-/* Tabla por tipo de gestión */
+/* ============================================================
+   TABLA DETALLE (CON MESES)
+============================================================ */
 function ptg_renderTabla(info) {
     const tbody = document.querySelector("#ptg-tabla-gestion tbody");
+    if (!tbody) return;
+
     tbody.innerHTML = "";
 
-    for (const tipo in info) {
-        const r = info[tipo];
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const lista = Object.entries(info).map(([tipo, r]) => {
 
         const pctCon = r.total ? ((r.con / r.total) * 100).toFixed(1) + "%" : "0%";
         const pctSin = r.total ? ((r.sin / r.total) * 100).toFixed(1) + "%" : "0%";
 
-        const slaCon = r.cuentaDiasCon ? (r.sumaDiasCon / r.cuentaDiasCon).toFixed(1) : "0";
-        const slaSin = r.cuentaDiasSin ? (r.sumaDiasSin / r.cuentaDiasSin).toFixed(1) : "0";
+        const slaCon = r.slaCon.cuenta ? (r.slaCon.suma / r.slaCon.cuenta).toFixed(1) : "0";
+        const slaSin = r.slaSin.cuenta ? (r.slaSin.suma / r.slaSin.cuenta).toFixed(1) : "0";
 
+        const meses = mesesOrden.map(m => {
+            const mm = r.meses[m];
+            return mm ? mm.total : 0;
+        });
+
+        return {
+            tipo,
+            total: r.total,
+            con: r.con,
+            sin: r.sin,
+            pctCon,
+            pctSin,
+            slaCon,
+            slaSin,
+            meses
+        };
+    });
+
+    lista.sort((a,b)=>b.total - a.total);
+
+    for (const row of lista) {
         const tr = document.createElement("tr");
+
         tr.innerHTML = `
-            <td>${tipo}</td>
-            <td>${r.total}</td>
-            <td>${r.con}</td>
-            <td>${r.sin}</td>
-            <td>${pctCon}</td>
-            <td>${pctSin}</td>
-            <td>${slaCon}</td>
-            <td>${slaSin}</td>
+            <td>${row.tipo}</td>
+            <td>${row.total}</td>
+            <td>${row.con}</td>
+            <td>${row.sin}</td>
+            <td>${row.pctCon}</td>
+            <td>${row.pctSin}</td>
+            <td>${row.slaCon}</td>
+            <td>${row.slaSin}</td>
+            ${row.meses.map(v => `<td>${v}</td>`).join("")}
         `;
+
         tbody.appendChild(tr);
     }
 }
