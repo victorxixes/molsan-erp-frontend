@@ -1,0 +1,155 @@
+/* ============================================================
+   PANEL — CENTRO QUE FIRMA (Premium 2027)
+   Clasificación:
+   - Molsan
+   - Colaboradores
+   - Oficina OE
+   - Oficina CBK
+============================================================ */
+
+let chartCentroFirma = null;
+
+/* ============================================================
+   Inicialización del panel
+============================================================ */
+async function initPanelTipoCentroQueFirma() {
+    const cont = document.getElementById("panel-centroquefirma-container");
+    if (!cont) return;
+
+    cont.innerHTML = `
+        <h2 class="titulo-modulo">🏛️ Centro que Firma — 2026</h2>
+
+        <div class="card-glass mt-20">
+            <canvas id="chartCentroFirmaMensual"></canvas>
+        </div>
+
+        <h3 class="subtitulo-modulo mt-20">Detalle mensual</h3>
+
+        <table class="table-premium mt-10" id="tablaCentroFirmaMensual">
+            <thead>
+                <tr>
+                    <th>Mes</th>
+                    <th>Molsan</th>
+                    <th>Colaboradores</th>
+                    <th>Oficina OE</th>
+                    <th>Oficina CBK</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    `;
+
+    await cargarCentroQueFirma();
+}
+
+/* ============================================================
+   Cargar datos y generar informe
+============================================================ */
+async function cargarCentroQueFirma() {
+    let datos = await obtenerFirmas();
+    datos = aplicarNormalizacionPremium(datos);
+
+    // Año fijo 2026
+    const anioSel = 2026;
+    datos = datos.filter(f => Number(f.anio) === anioSel);
+
+    // Listas de clasificación
+    const COLABORADORES = [
+        "gestcanarias",
+        "gestoria mas",
+        "yarza gestion",
+        "julio cuesta",
+        "castillo 11",
+        "gesgalicia"
+    ];
+
+    // Detectar meses reales
+    const mesesReales = [...new Set(datos.map(f => f.mes))]
+        .filter(m => m)
+        .sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
+
+    // Estructura mensual
+    const mapa = {};
+    mesesReales.forEach(m => {
+        mapa[m] = {
+            molsan: 0,
+            colaboradores: 0,
+            oe: 0,
+            cbk: 0
+        };
+    });
+
+    // Clasificación mensual
+    datos.forEach(f => {
+        const mes = f.mes;
+        if (!mapa[mes]) return;
+
+        const ap = (f.apoderado || "").trim().toLowerCase();
+
+        if (ap === "oficina caixabank") {
+            mapa[mes].cbk++;
+        }
+        else if (ap === "oficina otra entidad") {
+            mapa[mes].oe++;
+        }
+        else if (COLABORADORES.includes(ap)) {
+            mapa[mes].colaboradores++;
+        }
+        else {
+            mapa[mes].molsan++;
+        }
+    });
+
+    // Construcción tabla mensual
+    const tbody = document.querySelector("#tablaCentroFirmaMensual tbody");
+    tbody.innerHTML = mesesReales.map(m => `
+        <tr>
+            <td>${m}</td>
+            <td>${mapa[m].molsan}</td>
+            <td>${mapa[m].colaboradores}</td>
+            <td>${mapa[m].oe}</td>
+            <td>${mapa[m].cbk}</td>
+        </tr>
+    `).join("");
+
+    // Gráfico mensual
+    if (chartCentroFirma) chartCentroFirma.destroy();
+
+    const ctx = document.getElementById("chartCentroFirmaMensual");
+    chartCentroFirma = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: mesesReales,
+            datasets: [
+                {
+                    label: "Molsan",
+                    data: mesesReales.map(m => mapa[m].molsan),
+                    backgroundColor: "#3B82F6"
+                },
+                {
+                    label: "Colaboradores",
+                    data: mesesReales.map(m => mapa[m].colaboradores),
+                    backgroundColor: "#10B981"
+                },
+                {
+                    label: "Oficina OE",
+                    data: mesesReales.map(m => mapa[m].oe),
+                    backgroundColor: "#F59E0B"
+                },
+                {
+                    label: "Oficina CBK",
+                    data: mesesReales.map(m => mapa[m].cbk),
+                    backgroundColor: "#6366F1"
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: true }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
+}
