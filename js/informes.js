@@ -245,9 +245,8 @@ async function generarInformeMensual() {
         }
     });
 }
-
 /* ============================================================
-   INFORME APODERADOS
+   INFORME POR APODERADO — GRÁFICO
 ============================================================ */
 async function generarInformeApoderados() {
     let datos = await obtenerFirmas();
@@ -262,25 +261,38 @@ async function generarInformeApoderados() {
         mapa[apo] = (mapa[apo] || 0) + 1;
     });
 
-    const ranking = Object.entries(mapa)
-        .sort((a,b)=>b[1]-a[1])
-        .map(([apo,total]) => `<tr><td>${apo}</td><td>${total}</td></tr>`)
-        .join("");
+    const apoderados = Object.keys(mapa);
+    const totales = Object.values(mapa);
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
-
     cont.innerHTML = `
-        <h2 class="titulo-modulo">🧑‍💼 Informe Apoderados — ${anioSel}</h2>
-        <table class="table-premium mt-20">
-            <thead><tr><th>Apoderado</th><th>Total</th></tr></thead>
-            <tbody>${ranking}</tbody>
-        </table>
+        <h2 class="titulo-modulo">🧑‍💼 Informe por Apoderado — ${anioSel}</h2>
+        <div class="card-glass mt-20"><canvas id="chartApoderados"></canvas></div>
     `;
-}
 
+    resetChart();
+
+    const ctx = document.getElementById("chartApoderados");
+    chartActual = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: apoderados,
+            datasets: [{
+                label: "Firmas",
+                data: totales,
+                backgroundColor: "#0EA5E9"
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: { x: { ticks: { color: "#111" }}, y: { ticks: { color: "#111" }} }
+        }
+    });
+}
 /* ============================================================
-   INFORME OFICINAS
+   INFORME POR OFICINA — GRÁFICO
 ============================================================ */
 async function generarInformeOficinas() {
     let datos = await obtenerFirmas();
@@ -294,24 +306,38 @@ async function generarInformeOficinas() {
         mapa[f.centro] = (mapa[f.centro] || 0) + 1;
     });
 
-    const filas = Object.entries(mapa)
-        .map(([centro,total]) => `<tr><td>${centro}</td><td>${total}</td></tr>`)
-        .join("");
+    const oficinas = Object.keys(mapa);
+    const totales = Object.values(mapa);
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
-
     cont.innerHTML = `
-        <h2 class="titulo-modulo">🏢 Informe Oficinas — ${anioSel}</h2>
-        <table class="table-premium mt-20">
-            <thead><tr><th>Centro</th><th>Total</th></tr></thead>
-            <tbody>${filas}</tbody>
-        </table>
+        <h2 class="titulo-modulo">🏢 Informe por Oficina — ${anioSel}</h2>
+        <div class="card-glass mt-20"><canvas id="chartOficinas"></canvas></div>
     `;
-}
 
+    resetChart();
+
+    const ctx = document.getElementById("chartOficinas");
+    chartActual = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: oficinas,
+            datasets: [{
+                label: "Firmas",
+                data: totales,
+                backgroundColor: "#6366F1"
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: { x: { ticks: { color: "#111" }}, y: { ticks: { color: "#111" }} }
+        }
+    });
+}
 /* ============================================================
-   INFORME CIRCUITO
+   INFORME POR CIRCUITO — GRÁFICO
 ============================================================ */
 async function generarInformeCircuito() {
     let datos = await obtenerFirmas();
@@ -325,24 +351,36 @@ async function generarInformeCircuito() {
         mapa[f.circuito] = (mapa[f.circuito] || 0) + 1;
     });
 
-    const filas = Object.entries(mapa)
-        .map(([cir,total]) => `<tr><td>${cir}</td><td>${total}</td></tr>`)
-        .join("");
+    const circuitos = Object.keys(mapa);
+    const totales = Object.values(mapa);
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
-
     cont.innerHTML = `
-        <h2 class="titulo-modulo">🛣️ Informe Circuito — ${anioSel}</h2>
-        <table class="table-premium mt-20">
-            <thead><tr><th>Circuito</th><th>Total</th></tr></thead>
-            <tbody>${filas}</tbody>
-        </table>
+        <h2 class="titulo-modulo">🛣️ Informe por Circuito — ${anioSel}</h2>
+        <div class="card-glass mt-20"><canvas id="chartCircuito"></canvas></div>
     `;
-}
 
+    resetChart();
+
+    const ctx = document.getElementById("chartCircuito");
+    chartActual = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+            labels: circuitos,
+            datasets: [{
+                data: totales,
+                backgroundColor: ["#0EA5E9", "#10B981", "#F59E0B", "#6366F1"]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: "bottom" }}
+        }
+    });
+}
 /* ============================================================
-   INFORME TIPO FIRMA
+   INFORME TIPO DE FIRMA — GRÁFICO MENSUAL
 ============================================================ */
 async function generarInformeTipoFirma() {
     let datos = await obtenerFirmas();
@@ -351,24 +389,55 @@ async function generarInformeTipoFirma() {
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
 
-    const total = datos.length;
-    const vc = datos.filter(f => f.tipo_firma === "VideoConferencia").length;
-    const presencial = total - vc;
+    const mesesReales = [...new Set(datos.map(f => f.mes))]
+        .filter(m => m)
+        .sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
+
+    const mapa = {};
+    mesesReales.forEach(m => mapa[m] = { presencial: 0, vc: 0 });
+
+    datos.forEach(f => {
+        if (!mapa[f.mes]) return;
+        if (f.tipo_firma === "VideoConferencia") mapa[f.mes].vc++;
+        else mapa[f.mes].presencial++;
+    });
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
-
     cont.innerHTML = `
-        <h2 class="titulo-modulo">✍️ Informe Tipo Firma — ${anioSel}</h2>
-        <div class="card-glass mt-20">
-            <p><strong>Presencial:</strong> ${presencial}</p>
-            <p><strong>VC:</strong> ${vc}</p>
-        </div>
+        <h2 class="titulo-modulo">✍️ Tipo de Firma — ${anioSel}</h2>
+        <div class="card-glass mt-20"><canvas id="chartTipoFirma"></canvas></div>
     `;
-}
 
+    resetChart();
+
+    const ctx = document.getElementById("chartTipoFirma");
+    chartActual = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: mesesReales,
+            datasets: [
+                {
+                    label: "Presencial",
+                    data: mesesReales.map(m => mapa[m].presencial),
+                    backgroundColor: "#3B82F6"
+                },
+                {
+                    label: "VC",
+                    data: mesesReales.map(m => mapa[m].vc),
+                    backgroundColor: "#10B981"
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: true }},
+            scales: { x: { ticks: { color: "#111" }}, y: { ticks: { color: "#111" }} }
+        }
+    });
+}
 /* ============================================================
-   INFORME TIEMPOS
+   INFORME TIEMPOS — SLA CaixaBank vs Otra Entidad (Gráfico)
 ============================================================ */
 async function generarInformeTiempos() {
     let datos = await obtenerFirmas();
@@ -377,26 +446,64 @@ async function generarInformeTiempos() {
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
 
-    let suma = 0;
-    let cuenta = 0;
+    // Estructuras SLA
+    let sumaCaixa = 0, cuentaCaixa = 0;
+    let sumaOtra  = 0, cuentaOtra  = 0;
 
     datos.forEach(f => {
-        const d = Number(f.dias);
-        if (d > 0) {
-            suma += d;
-            cuenta++;
+        const dias = Number(f.dias);
+        if (dias <= 0) return;
+
+        const esCaixa = (f.tipo_gestion || "").toLowerCase().includes("caixa");
+
+        if (esCaixa) {
+            sumaCaixa += dias;
+            cuentaCaixa++;
+        } else {
+            sumaOtra += dias;
+            cuentaOtra++;
         }
     });
 
-    const sla = cuenta ? (suma / cuenta).toFixed(1) : "0";
+    const slaCaixa = cuentaCaixa ? (sumaCaixa / cuentaCaixa).toFixed(1) : "0";
+    const slaOtra  = cuentaOtra  ? (sumaOtra  / cuentaOtra ).toFixed(1) : "0";
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
 
     cont.innerHTML = `
         <h2 class="titulo-modulo">⏱️ Informe Tiempos — ${anioSel}</h2>
+
         <div class="card-glass mt-20">
-            <p><strong>SLA medio:</strong> ${sla} días</p>
+            <p><strong>SLA CaixaBank:</strong> ${slaCaixa} días</p>
+            <p><strong>SLA Otra Entidad:</strong> ${slaOtra} días</p>
+        </div>
+
+        <div class="card-glass mt-20">
+            <canvas id="chartTiempos"></canvas>
         </div>
     `;
+
+    resetChart();
+
+    const ctx = document.getElementById("chartTiempos");
+    chartActual = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: ["CaixaBank", "Otra Entidad"],
+            datasets: [{
+                label: "SLA (días)",
+                data: [slaCaixa, slaOtra],
+                backgroundColor: ["#0EA5E9", "#10B981"]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
 }
