@@ -17,9 +17,8 @@ function pciSafeSet(id, value) {
 async function initPanelCircuito() {
     console.log("🛣️ initPanelCircuito() ejecutado");
 
-    // Si el panel no está en el DOM → detener
     if (!document.getElementById("pci-select-anio")) {
-        console.warn("⏳ Panel Circuito aún no está en el DOM. initPanelCircuito() detenido.");
+        console.warn("⏳ Panel Circuito aún no está en el DOM.");
         return;
     }
 
@@ -32,22 +31,39 @@ async function initPanelCircuito() {
     pci_fillSelectAnios();
     pci_selectUltimoAnio();
 
-    // Listener del selector de año
     document.getElementById("pci-select-anio")
         .addEventListener("change", pci_onChangeAnio);
 }
 
-/* Agrupar por año y circuito */
+/* ============================================================
+   AGRUPAR POR AÑO → CIRCUITO → MES
+============================================================ */
 function pci_groupByAnioCircuito(datos) {
     const map = {};
 
+    const mesesValidos = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth();
+
     for (const f of datos) {
+
         const anio = Number(f.anio);
+        if (!anio) continue;
+
+        const mes = (f.mes || "").toLowerCase().trim();
+        const idxMes = mesesValidos.indexOf(mes);
+        if (idxMes === -1) continue;
+
+        // ❌ Mes futuro del año en curso → ignorar
+        if (anio === currentYear && idxMes > currentMonthIndex) continue;
+
         const circuito = f.circuito || "Externo";
         const dias = Number(f.dias);
-        const esVC = (f.vc || "").toLowerCase().includes("vc");
-
-        if (!anio) continue;
+        const esVC = (f.tipo_firma === "VideoConferencia");
 
         if (!map[anio]) map[anio] = {};
 
@@ -57,13 +73,19 @@ function pci_groupByAnioCircuito(datos) {
                 presencial: 0,
                 vc: 0,
                 sumaDias: 0,
-                cuentaDias: 0
+                cuentaDias: 0,
+                meses: {} // ← meses añadidos
             };
         }
 
         const r = map[anio][circuito];
 
+        if (!r.meses[mes]) {
+            r.meses[mes] = { total: 0 };
+        }
+
         r.total++;
+        r.meses[mes].total++;
 
         if (esVC) r.vc++;
         else r.presencial++;
@@ -77,7 +99,9 @@ function pci_groupByAnioCircuito(datos) {
     return map;
 }
 
-/* Select años */
+/* ============================================================
+   SELECT AÑOS
+============================================================ */
 function pci_fillSelectAnios() {
     const sel = document.getElementById("pci-select-anio");
     if (!sel) return;
@@ -102,7 +126,9 @@ function pci_selectUltimoAnio() {
     pci_onChangeAnio();
 }
 
-/* Cambio de año */
+/* ============================================================
+   CAMBIO DE AÑO
+============================================================ */
 function pci_onChangeAnio() {
     const sel = document.getElementById("pci-select-anio");
     if (!sel) return;
@@ -116,11 +142,12 @@ function pci_onChangeAnio() {
     pci_renderChart(info);
 }
 
-/* KPIs */
+/* ============================================================
+   KPIs
+============================================================ */
 function pci_renderKpis(info) {
     let total = 0;
     let vc = 0;
-    let presencial = 0;
     let sumaDias = 0;
     let cuentaDias = 0;
 
@@ -132,7 +159,6 @@ function pci_renderKpis(info) {
 
         total += r.total;
         vc += r.vc;
-        presencial += r.presencial;
 
         sumaDias += r.sumaDias;
         cuentaDias += r.cuentaDias;
@@ -152,40 +178,73 @@ function pci_renderKpis(info) {
     pciSafeSet("pci-kpi-vc", pctVC);
 }
 
-/* Tabla por circuito */
+/* ============================================================
+   TABLA DETALLE (CON MESES)
+============================================================ */
 function pci_renderTabla(info) {
     const tbody = document.querySelector("#pci-tabla-circuito tbody");
     if (!tbody) return;
 
     tbody.innerHTML = "";
 
-    for (const circuito in info) {
-        const r = info[circuito];
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const lista = Object.entries(info).map(([circuito, r]) => {
 
         const pctVC = r.total ? ((r.vc / r.total) * 100).toFixed(1) + "%" : "0%";
         const sla = r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : "0";
 
+        const meses = mesesOrden.map(m => {
+            const mm = r.meses[m];
+            return mm ? mm.total : 0;
+        });
+
+        return {
+            circuito,
+            total: r.total,
+            presencial: r.presencial,
+            vc: r.vc,
+            pctVC,
+            sla,
+            meses
+        };
+    });
+
+    lista.sort((a,b)=>b.total - a.total);
+
+    for (const row of lista) {
         const tr = document.createElement("tr");
+
         tr.innerHTML = `
-            <td>${circuito}</td>
-            <td>${r.total}</td>
-            <td>${r.presencial}</td>
-            <td>${r.vc}</td>
-            <td>${pctVC}</td>
-            <td>${sla}</td>
+            <td>${row.circuito}</td>
+            <td>${row.total}</td>
+            <td>${row.presencial}</td>
+            <td>${row.vc}</td>
+            <td>${row.pctVC}</td>
+            <td>${row.sla}</td>
+            ${row.meses.map(v => `<td>${v}</td>`).join("")}
         `;
+
         tbody.appendChild(tr);
     }
 }
 
-/* Gráfico por circuito */
+/* ============================================================
+   GRÁFICO
+============================================================ */
 function pci_renderChart(info) {
     const ctx = document.getElementById("pci-chart-circuito");
     if (!ctx) return;
 
-    const labels = Object.keys(info);
-    const dataVC = labels.map(c => info[c].vc);
-    const dataPres = labels.map(c => info[c].presencial);
+    const lista = Object.entries(info)
+        .map(([circuito, r]) => ({ circuito, total: r.total }))
+        .sort((a,b)=>b.total - a.total);
+
+    const labels = lista.map(o => o.circuito);
+    const data = lista.map(o => o.total);
 
     if (PCI_CHART) PCI_CHART.destroy();
 
@@ -193,22 +252,21 @@ function pci_renderChart(info) {
         type: "bar",
         data: {
             labels,
-            datasets: [
-                {
-                    label: "Presencial",
-                    data: dataPres,
-                    backgroundColor: "rgba(150,255,80,0.4)",
-                    borderColor: "rgba(150,255,80,1)",
-                    borderWidth: 1.5
-                },
-                {
-                    label: "VC",
-                    data: dataVC,
-                    backgroundColor: "rgba(80,200,255,0.4)",
-                    borderColor: "rgba(80,200,255,1)",
-                    borderWidth: 1.5
-                }
-            ]
+            datasets: [{
+                label: "Firmas por circuito",
+                data,
+                backgroundColor: "rgba(80, 200, 255, 0.4)",
+                borderColor: "rgba(80, 200, 255, 1)",
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
         }
     });
 }
