@@ -577,7 +577,11 @@ async function generarInformeTiempos() {
         const dias = Number(f.dias);
         if (dias <= 0) return;
 
-        const esCaixa = (f.tipo_gestion || "").toLowerCase().includes("caixa");
+        const ap = (f.apoderado || "").trim().toLowerCase();
+
+        // CLASIFICACIÓN REAL
+        const esOtraEntidad = ap === "oficina otra entidad";
+        const esCaixa = !esOtraEntidad; // TODO lo demás es CaixaBank
 
         if (esCaixa) {
             sumaCaixa += dias;
