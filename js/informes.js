@@ -15,11 +15,11 @@ let chartActual = null;
 
 /* ============================================================
    SELECTOR DE AÑO — INFORMES PREMIUM
+   (FORZAMOS 2026 COMO AÑO ÚNICO DE TRABAJO)
 ============================================================ */
 function inf_getAnioSeleccionado() {
-    const sel = document.getElementById("inf-select-anio");
-    if (!sel) return new Date().getFullYear();
-    return Number(sel.value);
+    // Siempre trabajamos con 2026
+    return 2026;
 }
 
 async function initInformesPremium() {
@@ -29,19 +29,30 @@ async function initInformesPremium() {
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
 
-    const anios = [...new Set(datos.map(f => Number(f.anio)).filter(a => a > 0))]
-        .sort((a,b)=>a-b);
+    // Solo mostramos 2026 si existe en los datos
+    const anios = [...new Set(
+        datos
+            .map(f => {
+                if (f.fecha_protocolo && f.fecha_protocolo.includes("-")) {
+                    const partes = f.fecha_protocolo.split("-");
+                    return Number(partes[2]);
+                }
+                return 0;
+            })
+            .filter(a => a > 0)
+    )].sort((a,b)=>a-b);
 
     sel.innerHTML = "";
-    for (const anio of anios) {
-        const opt = document.createElement("option");
-        opt.value = anio;
-        opt.textContent = anio;
-        sel.appendChild(opt);
-    }
 
-    const currentYear = new Date().getFullYear();
-    sel.value = anios.includes(currentYear) ? currentYear : anios[anios.length - 1];
+    // Si 2026 existe en los datos, lo añadimos; si no, añadimos el último año disponible
+    const targetYear = anios.includes(2026) ? 2026 : (anios[anios.length - 1] || new Date().getFullYear());
+
+    const opt = document.createElement("option");
+    opt.value = targetYear;
+    opt.textContent = targetYear;
+    sel.appendChild(opt);
+
+    sel.value = targetYear;
 
     const cont = document.getElementById("informeContainer");
     if (cont) {
@@ -62,22 +73,36 @@ function resetChart() {
 
 /* ============================================================
    NORMALIZACIÓN GLASS LUXE 2027 — FINAL
+   (USANDO fecha_protocolo PARA AÑO Y MES)
 ============================================================ */
 function aplicarNormalizacionPremium(datos) {
 
     for (const f of datos) {
 
-        // MES: convertir número → texto
-        if (Number(f.mes) >= 1 && Number(f.mes) <= 12) {
-            f.mes = mesNumeroATexto(Number(f.mes));
-        } else {
-            f.mes = (f.mes || "").toLowerCase().trim();
+        // EXTRAER AÑO Y MES DESDE fecha_protocolo (formato dd-mm-aaaa)
+        if (f.fecha_protocolo && f.fecha_protocolo.includes("-")) {
+            const partes = f.fecha_protocolo.split("-");
+            const mesNum = Number(partes[1]);
+            const anio = Number(partes[2]);
+
+            f.anio = anio;
+            if (mesNum >= 1 && mesNum <= 12) {
+                f.mes = mesNumeroATexto(mesNum);
+            }
+        }
+
+        // Si no se ha podido extraer, dejamos mes/anio como están o vacíos
+        if (!f.mes) {
+            f.mes = "";
+        }
+        if (!f.anio) {
+            f.anio = 0;
         }
 
         // Validar mes
         if (!MESES_ORDEN.includes(f.mes)) f.mes = "";
 
-        // Normalizaciones
+        // Normalizaciones adicionales (si ya las tienes definidas en otro JS)
         f.tipo_gestion = normalizarTipoGestion(f.tipo_gestion);
         f.circuito     = getCircuito(f.notario);
         f.tipo_firma   = getTipoFirma(f.vc);
@@ -115,7 +140,7 @@ async function generarInformeGeneral() {
 }
 
 /* ============================================================
-   INFORME ANUAL — SOLO MESES REALES
+   INFORME ANUAL — SOLO MESES REALES DE 2026
 ============================================================ */
 async function generarInformeAnual() {
     let datos = await obtenerFirmas();
@@ -170,7 +195,7 @@ async function generarInformeAnual() {
 }
 
 /* ============================================================
-   INFORME MENSUAL — SOLO MESES REALES
+   INFORME MENSUAL — SOLO MESES REALES DE 2026
 ============================================================ */
 async function generarInformeMensual() {
     let datos = await obtenerFirmas();
