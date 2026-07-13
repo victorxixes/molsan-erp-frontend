@@ -141,43 +141,32 @@ function normalizarFecha(v) {
 }
 
 /* ============================================================
-   TIPO GESTIÓN — Reglas exactas del Excel
+   TIPO GESTIÓN — Normalización completa Glass Luxe 2027
 ============================================================ */
 function normalizarTipoGestion(valor) {
-    if (!valor) return "";
+    if (!valor) return "Con provisión";
 
-    const v = valor.trim().toLowerCase();
+    const v = valor.toString().trim().toLowerCase();
 
-    if (v === "cancelacion sin provision" ||
-        v === "cancelación sin provisión") {
+    // Variantes de SIN PROVISIÓN
+    const sin = [
+        "sin",
+        "sin prov",
+        "sin prov.",
+        "sin provision",
+        "sin provisión",
+        "cancelacion sin provision",
+        "cancelación sin provisión"
+    ];
+
+    if (sin.some(s => v.includes(s))) {
         return "Sin provisión";
     }
 
-    const conProvision = [
-        "cancelacion con provision",
-        "cancelación con provisión",
-        "cancelación",
-        "constitución",
-        "subrogación",
-        "novación",
-        "cradon",
-        "crandon",
-        "credit agricole sud mediterranee",
-        "gesticaixa",
-        "gestinova 99 sl",
-        "molsan gestion y tramitacion sl",
-        "one pekig road sl",
-        "otro doc. vinc gtg",
-        "sanchez molina abogados",
-        "sareb"
-    ];
-
-    if (conProvision.includes(v)) {
-        return "Con provisión";
-    }
-
+    // Todo lo demás → Con provisión
     return "Con provisión";
 }
+
 
 /* ============================================================
    APODERADO — Capitalizar nombre
@@ -193,38 +182,39 @@ function capitalizarNombre(nombre) {
 }
 
 /* ============================================================
-   CIRCUITO NOTARIAL
+   CIRCUITO NOTARIAL — Normalización Glass Luxe 2027
 ============================================================ */
 function getCircuito(notario) {
-    if (!notario) return "Circuito Externo";
+    if (!notario) return "Externo";
 
-    const n = String(notario).trim();
+    const n = String(notario).trim().toLowerCase();
 
     const peninsula = [
-        "María Dolores Giménez Arbona",
-        "Gonzalo Sauca Núñez de Prado",
-        "Isabel Molinos Gil",
-        "Raúl González Fuentes",        
-        "Javier Micó Giner",
-        "Jesús Javier Benavides Lima",
-        "Rosa María Pérez Paniagua",
-        "María del Camino Quiroga Martínez",
-        "Ana María Fortuny Subirats",
+        "maría dolores giménez arbona",
+        "gonzalo sauca núñez de prado",
+        "isabel molinos gil",
+        "raúl gonzález fuentes",
+        "javier micó giner",
+        "jesús javier benavides lima",
+        "rosa maría perez paniagua",
+        "maría del camino quiroga martínez",
+        "ana maría fortuny subirats"
     ];
 
     const canarias = [
-        "David Gracia Fuentes",
-        "José Manuel Jiménez Santoveña",
-        "Guillermo José Croissier Naranjo",
-        "José Ignacio Olmedo Castañeda",
-        "Pedro Javier Viñuela Sandoval"
+        "david gracia fuentes",
+        "josé manuel jiménez santoveña",
+        "guillermo josé croissier naranjo",
+        "josé ignacio olmedo castañeda",
+        "pedro javier viñuela sandoval"
     ];
 
-    if (peninsula.includes(n)) return "Circuito Península";
-    if (canarias.includes(n)) return "Circuito Canarias";
+    if (peninsula.includes(n)) return "Península";
+    if (canarias.includes(n)) return "Canarias";
 
-    return "Circuito Externo";
+    return "Externo";
 }
+
 
 /* ============================================================
    TIPO DE FIRMA (N/S)
