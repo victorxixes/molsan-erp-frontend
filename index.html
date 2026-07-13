@@ -438,49 +438,21 @@
     </div>
 </template>
 
-<!-- ============================================================
-     PANEL TIPO FIRMA
-============================================================ -->
-<template id="tpl-panel-tipo-firma">
-<div class="panel-wrapper fade-in">
-
-    <h2 class="titulo-modulo">✍️ Panel Tipo Firma</h2>
-
-    <div class="panel-header">
-        <div class="panel-header-left">
-            <label>Año</label>
-            <select id="ptf-select-anio"></select>
-        </div>
-
-        <div class="panel-header-right kpi-panel">
-            <div class="kpi-card"><div class="kpi-label">Total firmas</div><div class="kpi-value" id="ptf-kpi-total">0</div></div>
-            <div class="kpi-card"><div class="kpi-label">% VC</div><div class="kpi-value" id="ptf-kpi-vc">0%</div></div>
-            <div class="kpi-card"><div class="kpi-label">% Presencial</div><div class="kpi-value" id="ptf-kpi-pres">0%</div></div>
-            <div class="kpi-card"><div class="kpi-label">Mes más fuerte</div><div class="kpi-value" id="ptf-kpi-top-mes">-</div></div>
-        </div>
-    </div>
-
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Distribución por tipo de firma</h3>
-        <canvas id="ptf-chart-tipo-firma"></canvas>
-    </div>
-
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Detalle mensual</h3>
-
-        <table id="ptf-tabla-meses" class="table-premium table-sticky">
-            <thead>
-                <tr>
-                    <th>Mes</th><th>Total</th><th>Presencial</th><th>VC</th><th>% VC</th><th>SLA</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-    </div>
-
-</div>
-</template>
+<table id="ptf-tabla-meses" class="table-premium table-sticky">
+    <thead>
+        <tr>
+            <th>Mes</th>
+            <th>Total</th>
+            <th>Presencial</th>
+            <th>VC</th>
+            <th>% Presencial</th>
+            <th>% VC</th>
+            <th>SLA Presencial</th>
+            <th>SLA VC</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
 
 <!-- ============================================================
      PANEL TIPO GESTIÓN
