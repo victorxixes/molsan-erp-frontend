@@ -556,7 +556,7 @@
 </template>
 
 <!-- ============================================================
-     PANEL OFICINAS
+     PANEL OFICINAS — PREMIUM 2027
 ============================================================ -->
 <template id="tpl-panel-oficinas">
 <div class="panel-wrapper fade-in">
@@ -578,22 +578,42 @@
     </div>
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Ranking de Oficinas</h3>
-        <canvas id="pof-chart-oficinas"></canvas>
+        <h3 class="subtitulo-modulo">Detalle por Oficina (mes a mes)</h3>
+
+        <div class="tabla-scroll-x mt-10">
+            <table id="pof-tabla-oficinas" class="table-premium table-sticky tabla-excel">
+                <thead>
+                    <tr>
+                        <th>Centro</th>
+                        <th>Total</th>
+                        <th>Presencial</th>
+                        <th>% Presencial</th>
+                        <th>VC</th>
+                        <th>% VC</th>
+                        <th>SLA</th>
+
+                        <th>Enero</th>
+                        <th>Febrero</th>
+                        <th>Marzo</th>
+                        <th>Abril</th>
+                        <th>Mayo</th>
+                        <th>Junio</th>
+                        <th>Julio</th>
+                        <th>Agosto</th>
+                        <th>Septiembre</th>
+                        <th>Octubre</th>
+                        <th>Noviembre</th>
+                        <th>Diciembre</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Detalle por Oficina</h3>
-
-        <table id="pof-tabla-oficinas" class="table-premium table-sticky">
-            <thead>
-                <tr>
-                    <th>Oficina</th><th>Total</th><th>Presencial</th><th>VC</th><th>% VC</th><th>SLA</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
+        <h3 class="subtitulo-modulo">Ranking de Oficinas</h3>
+        <canvas id="pof-chart-oficinas"></canvas>
     </div>
 
 </div>
