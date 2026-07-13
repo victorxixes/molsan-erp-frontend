@@ -17,7 +17,6 @@ function safeSet(id, value) {
 async function initPanelTipoFirma() {
     console.log("✍️ initPanelTipoFirma() ejecutado");
 
-    // Si el panel no está en el DOM → detener
     if (!document.getElementById("ptf-select-anio")) {
         console.warn("⏳ Panel Tipo Firma aún no está en el DOM. initPanelTipoFirma() detenido.");
         return;
@@ -32,12 +31,13 @@ async function initPanelTipoFirma() {
     ptf_fillSelectAnios();
     ptf_selectUltimoAnio();
 
-    // Listener del selector de año
     document.getElementById("ptf-select-anio")
         .addEventListener("change", ptf_onChangeAnio);
 }
 
-/* Agrupar por año, mes y tipo firma */
+/* ============================================================
+   AGRUPADOR — AÑO / MES / TIPO FIRMA + SLA
+============================================================ */
 function ptf_groupByAnioMesTipo(datos) {
     const map = {};
 
@@ -45,6 +45,7 @@ function ptf_groupByAnioMesTipo(datos) {
         const anio = Number(f.anio);
         const mes = f.mes;
         const tipo = f.tipo_firma || "Presencial";
+        const dias = Number(f.dias) || 0;
 
         if (!anio || !mes) continue;
 
@@ -63,7 +64,9 @@ function ptf_groupByAnioMesTipo(datos) {
             r.meses[mes] = {
                 total: 0,
                 presencial: 0,
-                vc: 0
+                vc: 0,
+                diasPresencial: 0,
+                diasVC: 0
             };
         }
 
@@ -75,16 +78,20 @@ function ptf_groupByAnioMesTipo(datos) {
         if (tipo === "VideoConferencia") {
             r.vc++;
             m.vc++;
+            m.diasVC += dias;
         } else {
             r.presencial++;
             m.presencial++;
+            m.diasPresencial += dias;
         }
     }
 
     return map;
 }
 
-/* Select años */
+/* ============================================================
+   SELECT AÑOS
+============================================================ */
 function ptf_fillSelectAnios() {
     const sel = document.getElementById("ptf-select-anio");
     if (!sel) return;
@@ -109,7 +116,9 @@ function ptf_selectUltimoAnio() {
     ptf_onChangeAnio();
 }
 
-/* Cambio de año */
+/* ============================================================
+   CAMBIO DE AÑO
+============================================================ */
 function ptf_onChangeAnio() {
     const sel = document.getElementById("ptf-select-anio");
     if (!sel) return;
@@ -123,7 +132,9 @@ function ptf_onChangeAnio() {
     ptf_renderChart(info);
 }
 
-/* KPIs */
+/* ============================================================
+   KPIs
+============================================================ */
 function ptf_renderKpis(info) {
     const total = info.total;
 
@@ -134,7 +145,6 @@ function ptf_renderKpis(info) {
     safeSet("ptf-kpi-pres", pctPres);
     safeSet("ptf-kpi-vc", pctVC);
 
-    // Mes más fuerte
     let topMes = "-";
     let max = 0;
 
@@ -148,7 +158,9 @@ function ptf_renderKpis(info) {
     safeSet("ptf-kpi-top-mes", topMes);
 }
 
-/* Tabla mensual */
+/* ============================================================
+   TABLA MENSUAL — EXTENDIDA PREMIUM 2027
+============================================================ */
 function ptf_renderTablaMeses(info) {
     const tbody = document.querySelector("#ptf-tabla-meses tbody");
     if (!tbody) return;
@@ -165,21 +177,33 @@ function ptf_renderTablaMeses(info) {
         if (!m) continue;
 
         const total = m.total;
-        const pctVC = total ? ((m.vc / total) * 100).toFixed(1) + "%" : "0%";
+        const pres = m.presencial;
+        const vc = m.vc;
+
+        const pctPres = total ? ((pres / total) * 100).toFixed(1) + "%" : "0%";
+        const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
+
+        const slaPres = pres ? (m.diasPresencial / pres).toFixed(1) : "-";
+        const slaVC = vc ? (m.diasVC / vc).toFixed(1) : "-";
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${mes}</td>
             <td>${total}</td>
-            <td>${m.presencial}</td>
-            <td>${m.vc}</td>
+            <td>${pres}</td>
+            <td>${vc}</td>
+            <td>${pctPres}</td>
             <td>${pctVC}</td>
+            <td>${slaPres}</td>
+            <td>${slaVC}</td>
         `;
         tbody.appendChild(tr);
     }
 }
 
-/* Gráfico tipo firma */
+/* ============================================================
+   GRÁFICO
+============================================================ */
 function ptf_renderChart(info) {
     const ctx = document.getElementById("ptf-chart-tipo-firma");
     if (!ctx) return;
