@@ -634,3 +634,90 @@ async function generarInformeTiempos() {
         }
     });
 }
+/* ============================================================
+   INFORME CENTRO QUE FIRMA — Molsan / Colaboradores / OE / CBK
+============================================================ */
+async function generarInformeCentroQueFirma() {
+    let datos = await obtenerFirmas();
+    datos = aplicarNormalizacionPremium(datos);
+
+    const anioSel = inf_getAnioSeleccionado();
+    datos = datos.filter(f => Number(f.anio) === anioSel);
+
+    // Listas de clasificación
+    const COLABORADORES = [
+        "gestcanarias",
+        "gestoria mas",
+        "yarza gestion",
+        "julio cuesta",
+        "castillo 11",
+        "gesgalicia"
+    ];
+
+    // Contadores
+    let molsan = 0;
+    let colaboradores = 0;
+    let oficinaOE = 0;
+    let oficinaCBK = 0;
+
+    datos.forEach(f => {
+        const ap = (f.apoderado || "").trim().toLowerCase();
+
+        if (ap === "oficina caixabank") {
+            oficinaCBK++;
+        }
+        else if (ap === "oficina otra entidad") {
+            oficinaOE++;
+        }
+        else if (COLABORADORES.includes(ap)) {
+            colaboradores++;
+        }
+        else {
+            molsan++;
+        }
+    });
+
+    const cont = document.getElementById("informeContainer");
+    cont.style.display = "block";
+
+    cont.innerHTML = `
+        <h2 class="titulo-modulo">🏛️ Centro que Firma — ${anioSel}</h2>
+
+        <div class="card-glass mt-20">
+            <canvas id="chartCentroFirma"></canvas>
+        </div>
+
+        <table class="table-premium mt-20">
+            <thead>
+                <tr>
+                    <th>Centro</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Molsan</td><td>${molsan}</td></tr>
+                <tr><td>Colaboradores</td><td>${colaboradores}</td></tr>
+                <tr><td>Oficina OE</td><td>${oficinaOE}</td></tr>
+                <tr><td>Oficina CBK</td><td>${oficinaCBK}</td></tr>
+            </tbody>
+        </table>
+    `;
+
+    resetChart();
+
+    const ctx = document.getElementById("chartCentroFirma");
+    chartActual = new Chart(ctx, {
+        type: "pie",
+        data: {
+            labels: ["Molsan", "Colaboradores", "Oficina OE", "Oficina CBK"],
+            datasets: [{
+                data: [molsan, colaboradores, oficinaOE, oficinaCBK],
+                backgroundColor: ["#3B82F6", "#10B981", "#F59E0B", "#6366F1"]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: "bottom" }}
+        }
+    });
+}
