@@ -40,6 +40,9 @@ function pap_groupByAnioApoderado(datos) {
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth(); // 0 = enero
+
     for (const f of datos) {
 
         const anio = Number(f.anio);
@@ -48,7 +51,13 @@ function pap_groupByAnioApoderado(datos) {
         const ap = f.apoderado || "Sin apoderado";
 
         const mes = (f.mes || "").toLowerCase().trim();
-        if (!mesesValidos.includes(mes)) continue;
+        const idxMes = mesesValidos.indexOf(mes);
+        if (idxMes === -1) continue;
+
+        // ⛔ Si es el año en curso y el mes es posterior al actual → ignorar
+        if (anio === currentYear && idxMes > currentMonthIndex) {
+            continue;
+        }
 
         if (!map[anio]) {
             map[anio] = {
@@ -149,6 +158,8 @@ function pap_onChangeAnio() {
     const info = PAP_POR_ANIO[anio];
     if (!info) return;
 
+    info.anio = anio; // necesario para el gráfico mensual
+
     pap_renderKpis(info);
     pap_renderTablaApoderados(info);
     pap_renderChartApoderados(info);
@@ -191,12 +202,16 @@ function pap_renderTablaApoderados(info) {
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth();
+
     const lista = Object.entries(info.apoderados).map(([nombre, a]) => {
         const pctPres = a.total ? ((a.presencial / a.total) * 100).toFixed(1) + "%" : "0%";
         const pctVC = a.total ? ((a.vc / a.total) * 100).toFixed(1) + "%" : "0%";
         const sla = a.cuentaDias ? (a.sumaDias / a.cuentaDias).toFixed(1) : "0";
 
-        const meses = mesesOrden.map(m => {
+        const meses = mesesOrden.map((m, idx) => {
+            if (info.anio === currentYear && idx > currentMonthIndex) return ""; // no mostrar
             const mm = a.meses[m];
             return mm ? mm.total : 0;
         });
@@ -273,7 +288,7 @@ function pap_renderChartApoderados(info) {
 }
 
 /* ============================================================
-   GRÁFICO MENSUAL GLOBAL (CORREGIDO)
+   GRÁFICO MENSUAL GLOBAL (MESES FUTUROS NO SE MUESTRAN)
 ============================================================ */
 function pap_renderChartMensual(info) {
     const ctx = document.getElementById("pap-chart-mensual");
@@ -284,9 +299,21 @@ function pap_renderChartMensual(info) {
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
-    const meses = mesesOrden.filter(m => info.meses[m]);
-    const pres = meses.map(m => info.meses[m].presencial);
-    const vc = meses.map(m => info.meses[m].vc);
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth();
+
+    const meses = [];
+    const pres = [];
+    const vc = [];
+
+    mesesOrden.forEach((m, idx) => {
+        if (info.anio === currentYear && idx > currentMonthIndex) return;
+
+        const mm = info.meses[m] || { presencial: 0, vc: 0 };
+        meses.push(m);
+        pres.push(mm.presencial);
+        vc.push(mm.vc);
+    });
 
     if (PAP_CHART_MENSUAL) PAP_CHART_MENSUAL.destroy();
 
