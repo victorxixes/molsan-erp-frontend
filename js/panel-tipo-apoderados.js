@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL APODERADOS — PREMIUM 2027 (AVANZADO)
+   PANEL APODERADOS — PREMIUM 2027 (VERSIÓN FINAL)
 ============================================================ */
 
 let PAP_DATOS = [];
@@ -13,7 +13,6 @@ let PAP_CHART_MENSUAL = null;
 async function initPanelApoderados() {
     console.log("👤 initPanelApoderados() ejecutado");
 
-    // 🛑 Si el panel NO está cargado en el DOM → detener
     if (!document.getElementById("pap-select-anio")) {
         console.warn("⏳ Panel Apoderados aún no está en el DOM. initPanelApoderados() detenido.");
         return;
@@ -31,7 +30,7 @@ async function initPanelApoderados() {
 }
 
 /* ============================================================
-   AGRUPAR POR AÑO → APODERADO → MES
+   AGRUPAR POR AÑO → APODERADO → MES (CORREGIDO)
 ============================================================ */
 function pap_groupByAnioApoderado(datos) {
     const map = {};
@@ -112,7 +111,6 @@ function pap_groupByAnioApoderado(datos) {
     return map;
 }
 
-
 /* ============================================================
    SELECT AÑOS
 ============================================================ */
@@ -182,7 +180,7 @@ function pap_renderKpis(info) {
 }
 
 /* ============================================================
-   TABLA DETALLE APODERADOS (CON MESES + %PRESENCIAL)
+   TABLA DETALLE APODERADOS
 ============================================================ */
 function pap_renderTablaApoderados(info) {
     const tbody = document.querySelector("#pap-tabla-apoderados tbody");
@@ -275,13 +273,18 @@ function pap_renderChartApoderados(info) {
 }
 
 /* ============================================================
-   GRÁFICO MENSUAL GLOBAL (PRESENCIAL vs VC)
+   GRÁFICO MENSUAL GLOBAL (CORREGIDO)
 ============================================================ */
 function pap_renderChartMensual(info) {
     const ctx = document.getElementById("pap-chart-mensual");
     if (!ctx) return;
 
-    const meses = Object.keys(info.meses);
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const meses = mesesOrden.filter(m => info.meses[m]);
     const pres = meses.map(m => info.meses[m].presencial);
     const vc = meses.map(m => info.meses[m].vc);
 
