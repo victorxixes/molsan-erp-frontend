@@ -28,14 +28,25 @@ function resetChart() {
 }
 
 /* ============================================================
+   NORMALIZACIÓN GLASS LUXE 2027
+============================================================ */
+function aplicarNormalizacionPremium(datos) {
+    for (const f of datos) {
+        f.tipo_gestion = normalizarTipoGestion(f.tipo_gestion);
+        f.circuito = getCircuito(f.notario);
+        f.tipo_firma = getTipoFirma(f.vc);
+        f.centro = String(f.oficina) === "5316" ? "Cancela" : "Oficina";
+    }
+    return datos;
+}
+
+/* ============================================================
    INFORME GENERAL — GLASS LUXE 2027
 ============================================================ */
 async function generarInformeGeneral() {
-    const firmas = await obtenerFirmas();
+    let firmas = await obtenerFirmas();
+    firmas = aplicarNormalizacionPremium(firmas);
 
-    // ============================
-    // CÁLCULO DE KPIs
-    // ============================
     const totalFirmas = firmas.length;
 
     const mediaDias = (
@@ -48,23 +59,18 @@ async function generarInformeGeneral() {
     const totalConProvision = firmas.filter(f => f.tipo_gestion === "Con provisión").length;
     const pctProvision = ((totalConProvision / totalFirmas) * 100).toFixed(1);
 
-    // Oficina más activa
     const oficinas = {};
     firmas.forEach(f => {
-        oficinas[f.oficina] = (oficinas[f.oficina] || 0) + 1;
+        oficinas[f.centro] = (oficinas[f.centro] || 0) + 1;
     });
     const oficinaTop = Object.entries(oficinas).sort((a,b)=>b[1]-a[1])[0][0];
 
-    // Circuito dominante
     const circuitos = {};
     firmas.forEach(f => {
         circuitos[f.circuito] = (circuitos[f.circuito] || 0) + 1;
     });
     const circuitoTop = Object.entries(circuitos).sort((a,b)=>b[1]-a[1])[0][0];
 
-    // ============================
-    // GRÁFICO: FIRMAS POR MES
-    // ============================
     const mesesOrden = [
         "enero","febrero","marzo","abril","mayo","junio",
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
@@ -74,58 +80,27 @@ async function generarInformeGeneral() {
         firmas.filter(f => f.mes === mes).length
     );
 
-    // ============================
-    // RENDER HTML
-    // ============================
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
 
     cont.innerHTML = `
         <h2 class="titulo-modulo">📘 Informe General</h2>
 
-        <!-- KPIs PREMIUM -->
         <div class="kpi-box">
-            <div class="kpi-item">
-                <div class="kpi-label">Total firmas</div>
-                <div class="kpi-value">${totalFirmas.toLocaleString()}</div>
-            </div>
-
-            <div class="kpi-item">
-                <div class="kpi-label">Media días (SLA)</div>
-                <div class="kpi-value">${mediaDias}</div>
-            </div>
-
-            <div class="kpi-item">
-                <div class="kpi-label">% VC</div>
-                <div class="kpi-value">${pctVC}%</div>
-            </div>
-
-            <div class="kpi-item">
-                <div class="kpi-label">% Con provisión</div>
-                <div class="kpi-value">${pctProvision}%</div>
-            </div>
-
-            <div class="kpi-item">
-                <div class="kpi-label">Oficina más activa</div>
-                <div class="kpi-value">${oficinaTop}</div>
-            </div>
-
-            <div class="kpi-item">
-                <div class="kpi-label">Circuito dominante</div>
-                <div class="kpi-value">${circuitoTop}</div>
-            </div>
+            <div class="kpi-item"><div class="kpi-label">Total firmas</div><div class="kpi-value">${totalFirmas}</div></div>
+            <div class="kpi-item"><div class="kpi-label">Media días (SLA)</div><div class="kpi-value">${mediaDias}</div></div>
+            <div class="kpi-item"><div class="kpi-label">% VC</div><div class="kpi-value">${pctVC}%</div></div>
+            <div class="kpi-item"><div class="kpi-label">% Con provisión</div><div class="kpi-value">${pctProvision}%</div></div>
+            <div class="kpi-item"><div class="kpi-label">Centro más activo</div><div class="kpi-value">${oficinaTop}</div></div>
+            <div class="kpi-item"><div class="kpi-label">Circuito dominante</div><div class="kpi-value">${circuitoTop}</div></div>
         </div>
 
-        <!-- GRÁFICO -->
         <div class="card-glass" style="margin-top:20px;">
             <h3>📊 Firmas por mes</h3>
             <canvas id="graficoGeneralMeses" height="120"></canvas>
         </div>
     `;
 
-    // ============================
-    // DIBUJAR GRÁFICO
-    // ============================
     resetChart();
 
     const ctx = document.getElementById("graficoGeneralMeses").getContext("2d");
@@ -143,12 +118,7 @@ async function generarInformeGeneral() {
                 borderRadius: 6
             }]
         },
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
     });
 }
 
@@ -156,15 +126,13 @@ async function generarInformeGeneral() {
    INFORME ANUAL
 ============================================================ */
 async function generarInformeAnual() {
-    const kpis = obtenerKPIs();
+    const kpis = await obtenerKPIs();
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
         <h2 class="titulo-modulo">📅 Informe Anual</h2>
-        <div class="card-glass mt-20">
-            <canvas id="chartAnual"></canvas>
-        </div>
+        <div class="card-glass mt-20"><canvas id="chartAnual"></canvas></div>
     `;
 
     resetChart();
@@ -189,15 +157,13 @@ async function generarInformeAnual() {
    INFORME MENSUAL
 ============================================================ */
 async function generarInformeMensual() {
-    const kpis = obtenerKPIs();
+    const kpis = await obtenerKPIs();
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
         <h2 class="titulo-modulo">🗓️ Informe Mensual</h2>
-        <div class="card-glass mt-20">
-            <canvas id="chartMensual"></canvas>
-        </div>
+        <div class="card-glass mt-20"><canvas id="chartMensual"></canvas></div>
     `;
 
     resetChart();
@@ -220,22 +186,20 @@ async function generarInformeMensual() {
    INFORME POR APODERADOS
 ============================================================ */
 async function generarInformeApoderados() {
-    const datos = await obtenerFirmas();
+    let datos = await obtenerFirmas();
+    datos = aplicarNormalizacionPremium(datos);
 
     const mapa = {};
     datos.forEach(f => {
         const apo = f.apoderado || "Sin apoderado";
-        if (!mapa[apo]) mapa[apo] = 0;
-        mapa[apo]++;
+        mapa[apo] = (mapa[apo] || 0) + 1;
     });
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
         <h2 class="titulo-modulo">🧑‍💼 Informe por Apoderado</h2>
-        <div class="card-glass mt-20">
-            <canvas id="chartApo"></canvas>
-        </div>
+        <div class="card-glass mt-20"><canvas id="chartApo"></canvas></div>
     `;
 
     resetChart();
@@ -258,22 +222,19 @@ async function generarInformeApoderados() {
    INFORME POR OFICINAS (CENTRO)
 ============================================================ */
 async function generarInformeOficinas() {
-    const datos = await obtenerFirmas();
+    let datos = await obtenerFirmas();
+    datos = aplicarNormalizacionPremium(datos);
 
     const mapa = {};
     datos.forEach(f => {
-        const centro = f.centro || "Sin centro";
-        if (!mapa[centro]) mapa[centro] = 0;
-        mapa[centro]++;
+        mapa[f.centro] = (mapa[f.centro] || 0) + 1;
     });
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
         <h2 class="titulo-modulo">🏢 Informe por Centro</h2>
-        <div class="card-glass mt-20">
-            <canvas id="chartOfi"></canvas>
-        </div>
+        <div class="card-glass mt-20"><canvas id="chartOfi"></canvas></div>
     `;
 
     resetChart();
@@ -295,15 +256,13 @@ async function generarInformeOficinas() {
    INFORME POR CIRCUITO
 ============================================================ */
 async function generarInformeCircuito() {
-    const kpis = obtenerKPIs();
+    const kpis = await obtenerKPIs();
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
         <h2 class="titulo-modulo">🛣️ Informe por Circuito</h2>
-        <div class="card-glass mt-20">
-            <canvas id="chartCircuito"></canvas>
-        </div>
+        <div class="card-glass mt-20"><canvas id="chartCircuito"></canvas></div>
     `;
 
     resetChart();
@@ -315,7 +274,7 @@ async function generarInformeCircuito() {
             labels: Object.keys(kpis.por_circuito),
             datasets: [{
                 data: Object.values(kpis.por_circuito),
-                backgroundColor: ["#6366f1", "#ec4899", "#22c55e", "#eab308"]
+                backgroundColor: ["#6366f1", "#ec4899", "#22c55e"]
             }]
         }
     });
@@ -325,15 +284,13 @@ async function generarInformeCircuito() {
    INFORME POR TIPO DE FIRMA
 ============================================================ */
 async function generarInformeTipoFirma() {
-    const kpis = obtenerKPIs();
+    const kpis = await obtenerKPIs();
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
         <h2 class="titulo-modulo">✍️ Informe por Tipo de Firma</h2>
-        <div class="card-glass mt-20">
-            <canvas id="chartTipoFirma"></canvas>
-        </div>
+        <div class="card-glass mt-20"><canvas id="chartTipoFirma"></canvas></div>
     `;
 
     resetChart();
@@ -356,12 +313,13 @@ async function generarInformeTipoFirma() {
    INFORME DE TIEMPOS MEDIOS
 ============================================================ */
 async function generarInformeTiempos() {
-    const datos = await obtenerFirmas();
+    let datos = await obtenerFirmas();
+    datos = aplicarNormalizacionPremium(datos);
 
     const mapa = {};
 
     datos.forEach(f => {
-        const clave = `${f.apoderado || "Sin apoderado"} — ${f.tipo_gestion || "Sin gestión"}`;
+        const clave = `${f.apoderado || "Sin apoderado"} — ${f.tipo_gestion}`;
         if (!mapa[clave]) mapa[clave] = { total: 0, suma: 0 };
         mapa[clave].total++;
         mapa[clave].suma += Number(f.dias) || 0;
