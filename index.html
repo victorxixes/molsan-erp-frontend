@@ -719,27 +719,38 @@
 
     </div>
 
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Evolución mensual</h3>
-        <canvas id="pm-chart-mensual"></canvas>
-    </div>
-
+    <!-- ============================
+         DETALLE POR MES (PRIMERO)
+    ============================ -->
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Detalle por mes</h3>
 
         <table id="pm-tabla-meses" class="table-premium table-sticky">
             <thead>
                 <tr>
-                    <th>Mes</th><th>Total</th><th>Presencial</th><th>VC</th><th>% VC</th><th>SLA</th>
+                    <th>Mes</th>
+                    <th>Total</th>
+                    <th>Presencial</th>
+                    <th>VC</th>
+                    <th>% VC</th>
+                    <th>SLA</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
+    </div>
 
+    <!-- ============================
+         GRÁFICO (DESPUÉS)
+    ============================ -->
+    <div class="panel-contenido mt-20">
+        <h3 class="subtitulo-modulo">Evolución mensual</h3>
+        <canvas id="pm-chart-mensual"></canvas>
     </div>
 
 </div>
 </template>
+
 
 <!-- ============================================================
      PANEL ANUAL
@@ -765,23 +776,33 @@
 
     </div>
 
-    <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Evolución anual</h3>
-        <canvas id="pa-chart-anual"></canvas>
-    </div>
-
+    <!-- ============================
+         DETALLE POR MES (PRIMERO)
+    ============================ -->
     <div class="panel-contenido mt-20">
         <h3 class="subtitulo-modulo">Detalle por mes</h3>
 
         <table id="pa-tabla-meses" class="table-premium table-sticky">
             <thead>
                 <tr>
-                    <th>Mes</th><th>Total</th><th>Presencial</th><th>VC</th><th>% VC</th><th>SLA</th>
+                    <th>Mes</th>
+                    <th>Total</th>
+                    <th>Presencial</th>
+                    <th>VC</th>
+                    <th>% VC</th>
+                    <th>SLA</th>
                 </tr>
             </thead>
             <tbody></tbody>
         </table>
+    </div>
 
+    <!-- ============================
+         EVOLUCIÓN ANUAL (DESPUÉS)
+    ============================ -->
+    <div class="panel-contenido mt-20">
+        <h3 class="subtitulo-modulo">Evolución anual</h3>
+        <canvas id="pa-chart-anual"></canvas>
     </div>
 
 </div>
