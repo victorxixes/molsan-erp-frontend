@@ -1,24 +1,19 @@
 /* ============================================================
-   PANEL TIPO FIRMA — PREMIUM 2027 (COMPATIBLE CON TU HTML)
+   PANEL TIPO FIRMA — PREMIUM 2027 (VERSIÓN FINAL)
 ============================================================ */
 
 let PTF_DATOS = [];
 let PTF_POR_ANIO = {};
 let PTF_CHART = null;
 
-/* Helper seguro */
-function safeSet(id, value) {
-    const el = document.getElementById(id);
-    if (!el) return false;
-    el.textContent = value;
-    return true;
-}
-
+/* ============================================================
+   INIT
+============================================================ */
 async function initPanelTipoFirma() {
     console.log("✍️ initPanelTipoFirma() ejecutado");
 
     if (!document.getElementById("ptf-select-anio")) {
-        console.warn("⏳ Panel Tipo Firma aún no está en el DOM. initPanelTipoFirma() detenido.");
+        console.warn("⏳ Panel Tipo Firma aún no está en el DOM.");
         return;
     }
 
@@ -26,7 +21,7 @@ async function initPanelTipoFirma() {
     if (!datos || !datos.length) return;
 
     PTF_DATOS = datos;
-    PTF_POR_ANIO = ptf_groupByAnioMesTipo(PTF_DATOS);
+    PTF_POR_ANIO = ptf_groupByAnio(PTF_DATOS);
 
     ptf_fillSelectAnios();
     ptf_selectUltimoAnio();
@@ -36,53 +31,67 @@ async function initPanelTipoFirma() {
 }
 
 /* ============================================================
-   AGRUPADOR — AÑO / MES / TIPO FIRMA + SLA
+   AGRUPAR POR AÑO → TIPO FIRMA → MES
 ============================================================ */
-function ptf_groupByAnioMesTipo(datos) {
+function ptf_groupByAnio(datos) {
     const map = {};
 
+    const mesesValidos = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth();
+
     for (const f of datos) {
+
         const anio = Number(f.anio);
-        const mes = f.mes;
-        const tipo = f.tipo_firma || "Presencial";
-        const dias = Number(f.dias) || 0;
+        if (!anio) continue;
 
-        if (!anio || !mes) continue;
+        const mes = (f.mes || "").toLowerCase().trim();
+        const idxMes = mesesValidos.indexOf(mes);
+        if (idxMes === -1) continue;
 
-        if (!map[anio]) {
-            map[anio] = {
+        if (anio === currentYear && idxMes > currentMonthIndex) continue;
+
+        const tipo = f.tipo_firma || "Desconocido";
+        const dias = Number(f.dias);
+
+        if (!map[anio]) map[anio] = {};
+
+        if (!map[anio][tipo]) {
+            map[anio][tipo] = {
                 total: 0,
                 presencial: 0,
                 vc: 0,
+                slaPres: { suma: 0, cuenta: 0 },
+                slaVC: { suma: 0, cuenta: 0 },
                 meses: {}
             };
         }
 
-        const r = map[anio];
+        const r = map[anio][tipo];
 
         if (!r.meses[mes]) {
-            r.meses[mes] = {
-                total: 0,
-                presencial: 0,
-                vc: 0,
-                diasPresencial: 0,
-                diasVC: 0
-            };
+            r.meses[mes] = { total: 0 };
         }
 
-        const m = r.meses[mes];
-
         r.total++;
-        m.total++;
+        r.meses[mes].total++;
 
-        if (tipo === "VideoConferencia") {
-            r.vc++;
-            m.vc++;
-            m.diasVC += dias;
-        } else {
+        if (tipo === "Presencial") {
             r.presencial++;
-            m.presencial++;
-            m.diasPresencial += dias;
+            if (dias > 0) {
+                r.slaPres.suma += dias;
+                r.slaPres.cuenta++;
+            }
+        } else if (tipo === "VideoConferencia") {
+            r.vc++;
+            if (dias > 0) {
+                r.slaVC.suma += dias;
+                r.slaVC.cuenta++;
+            }
         }
     }
 
@@ -128,7 +137,7 @@ function ptf_onChangeAnio() {
     if (!info) return;
 
     ptf_renderKpis(info);
-    ptf_renderTablaMeses(info);
+    ptf_renderTabla(info);
     ptf_renderChart(info);
 }
 
@@ -136,32 +145,46 @@ function ptf_onChangeAnio() {
    KPIs
 ============================================================ */
 function ptf_renderKpis(info) {
-    const total = info.total;
-
-    const pctPres = total ? ((info.presencial / total) * 100).toFixed(1) + "%" : "0%";
-    const pctVC = total ? ((info.vc / total) * 100).toFixed(1) + "%" : "0%";
-
-    safeSet("ptf-kpi-total", total);
-    safeSet("ptf-kpi-pres", pctPres);
-    safeSet("ptf-kpi-vc", pctVC);
+    let total = 0;
+    let presencial = 0;
+    let vc = 0;
 
     let topMes = "-";
-    let max = 0;
+    let maxMes = 0;
 
-    for (const mes in info.meses) {
-        if (info.meses[mes].total > max) {
-            max = info.meses[mes].total;
-            topMes = mes;
+    const mesesValidos = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    for (const tipo in info) {
+        const r = info[tipo];
+
+        total += r.total;
+        presencial += r.presencial;
+        vc += r.vc;
+
+        for (const mes in r.meses) {
+            if (r.meses[mes].total > maxMes) {
+                maxMes = r.meses[mes].total;
+                topMes = mes;
+            }
         }
     }
 
-    safeSet("ptf-kpi-top-mes", topMes);
+    const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
+    const pctPres = total ? ((presencial / total) * 100).toFixed(1) + "%" : "0%";
+
+    document.getElementById("ptf-kpi-total").textContent = total;
+    document.getElementById("ptf-kpi-vc").textContent = pctVC;
+    document.getElementById("ptf-kpi-pres").textContent = pctPres;
+    document.getElementById("ptf-kpi-top-mes").textContent = topMes;
 }
 
 /* ============================================================
-   TABLA MENSUAL — EXTENDIDA PREMIUM 2027
+   TABLA DETALLE (CON MESES)
 ============================================================ */
-function ptf_renderTablaMeses(info) {
+function ptf_renderTabla(info) {
     const tbody = document.querySelector("#ptf-tabla-meses tbody");
     if (!tbody) return;
 
@@ -172,31 +195,49 @@ function ptf_renderTablaMeses(info) {
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
-    for (const mes of mesesOrden) {
-        const m = info.meses[mes];
-        if (!m) continue;
+    const lista = Object.entries(info).map(([tipo, r]) => {
 
-        const total = m.total;
-        const pres = m.presencial;
-        const vc = m.vc;
+        const pctPres = r.total ? ((r.presencial / r.total) * 100).toFixed(1) + "%" : "0%";
+        const pctVC = r.total ? ((r.vc / r.total) * 100).toFixed(1) + "%" : "0%";
 
-        const pctPres = total ? ((pres / total) * 100).toFixed(1) + "%" : "0%";
-        const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
+        const slaPres = r.slaPres.cuenta ? (r.slaPres.suma / r.slaPres.cuenta).toFixed(1) : "0";
+        const slaVC = r.slaVC.cuenta ? (r.slaVC.suma / r.slaVC.cuenta).toFixed(1) : "0";
 
-        const slaPres = pres ? (m.diasPresencial / pres).toFixed(1) : "-";
-        const slaVC = vc ? (m.diasVC / vc).toFixed(1) : "-";
+        const meses = mesesOrden.map(m => {
+            const mm = r.meses[m];
+            return mm ? mm.total : 0;
+        });
 
+        return {
+            tipo,
+            total: r.total,
+            presencial: r.presencial,
+            vc: r.vc,
+            pctPres,
+            pctVC,
+            slaPres,
+            slaVC,
+            meses
+        };
+    });
+
+    lista.sort((a,b)=>b.total - a.total);
+
+    for (const row of lista) {
         const tr = document.createElement("tr");
+
         tr.innerHTML = `
-            <td>${mes}</td>
-            <td>${total}</td>
-            <td>${pres}</td>
-            <td>${vc}</td>
-            <td>${pctPres}</td>
-            <td>${pctVC}</td>
-            <td>${slaPres}</td>
-            <td>${slaVC}</td>
+            <td>${row.tipo}</td>
+            <td>${row.total}</td>
+            <td>${row.presencial}</td>
+            <td>${row.vc}</td>
+            <td>${row.pctPres}</td>
+            <td>${row.pctVC}</td>
+            <td>${row.slaPres}</td>
+            <td>${row.slaVC}</td>
+            ${row.meses.map(v => `<td>${v}</td>`).join("")}
         `;
+
         tbody.appendChild(tr);
     }
 }
@@ -208,9 +249,12 @@ function ptf_renderChart(info) {
     const ctx = document.getElementById("ptf-chart-tipo-firma");
     if (!ctx) return;
 
-    const labels = Object.keys(info.meses);
-    const dataPres = labels.map(m => info.meses[m].presencial);
-    const dataVC = labels.map(m => info.meses[m].vc);
+    const lista = Object.entries(info)
+        .map(([tipo, r]) => ({ tipo, total: r.total }))
+        .sort((a,b)=>b.total - a.total);
+
+    const labels = lista.map(o => o.tipo);
+    const data = lista.map(o => o.total);
 
     if (PTF_CHART) PTF_CHART.destroy();
 
@@ -218,22 +262,21 @@ function ptf_renderChart(info) {
         type: "bar",
         data: {
             labels,
-            datasets: [
-                {
-                    label: "Presencial",
-                    data: dataPres,
-                    backgroundColor: "rgba(150,255,80,0.4)",
-                    borderColor: "rgba(150,255,80,1)",
-                    borderWidth: 1.5
-                },
-                {
-                    label: "VC",
-                    data: dataVC,
-                    backgroundColor: "rgba(80,200,255,0.4)",
-                    borderColor: "rgba(80,200,255,1)",
-                    borderWidth: 1.5
-                }
-            ]
+            datasets: [{
+                label: "Firmas por tipo",
+                data,
+                backgroundColor: "rgba(80, 200, 255, 0.4)",
+                borderColor: "rgba(80, 200, 255, 1)",
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
         }
     });
 }
