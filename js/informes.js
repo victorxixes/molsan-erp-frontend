@@ -5,10 +5,36 @@
 let chartActual = null;
 
 /* ============================================================
-   INICIALIZAR MÓDULO
+   SELECTOR DE AÑO — INFORMES PREMIUM
 ============================================================ */
+function inf_getAnioSeleccionado() {
+    const sel = document.getElementById("inf-select-anio");
+    return sel ? Number(sel.value) : new Date().getFullYear();
+}
+
 async function initInformesPremium() {
     console.log("📘 initInformesPremium() ejecutado");
+
+    const sel = document.getElementById("inf-select-anio");
+    if (!sel) return;
+
+    const datos = await obtenerFirmas();
+    if (!datos || !datos.length) return;
+
+    const anios = [...new Set(datos.map(f => Number(f.anio)).filter(a => a > 0))]
+        .sort((a,b)=>a-b);
+
+    sel.innerHTML = "";
+
+    for (const anio of anios) {
+        const opt = document.createElement("option");
+        opt.value = anio;
+        opt.textContent = anio;
+        sel.appendChild(opt);
+    }
+
+    const currentYear = new Date().getFullYear();
+    sel.value = anios.includes(currentYear) ? currentYear : anios[anios.length - 1];
 
     const cont = document.getElementById("informeContainer");
     if (cont) {
@@ -31,7 +57,15 @@ function resetChart() {
    NORMALIZACIÓN GLASS LUXE 2027
 ============================================================ */
 function aplicarNormalizacionPremium(datos) {
+    const mesesValidos = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
     for (const f of datos) {
+        f.mes = (f.mes || "").toLowerCase().trim();
+        if (!mesesValidos.includes(f.mes)) f.mes = "";
+
         f.tipo_gestion = normalizarTipoGestion(f.tipo_gestion);
         f.circuito = getCircuito(f.notario);
         f.tipo_firma = getTipoFirma(f.vc);
@@ -41,11 +75,14 @@ function aplicarNormalizacionPremium(datos) {
 }
 
 /* ============================================================
-   INFORME GENERAL — GLASS LUXE 2027
+   INFORME GENERAL — FILTRADO POR AÑO
 ============================================================ */
 async function generarInformeGeneral() {
     let firmas = await obtenerFirmas();
     firmas = aplicarNormalizacionPremium(firmas);
+
+    const anioSel = inf_getAnioSeleccionado();
+    firmas = firmas.filter(f => Number(f.anio) === anioSel);
 
     const totalFirmas = firmas.length;
 
@@ -63,13 +100,13 @@ async function generarInformeGeneral() {
     firmas.forEach(f => {
         oficinas[f.centro] = (oficinas[f.centro] || 0) + 1;
     });
-    const oficinaTop = Object.entries(oficinas).sort((a,b)=>b[1]-a[1])[0][0];
+    const oficinaTop = Object.entries(oficinas).sort((a,b)=>b[1]-a[1])[0]?.[0] || "-";
 
     const circuitos = {};
     firmas.forEach(f => {
         circuitos[f.circuito] = (circuitos[f.circuito] || 0) + 1;
     });
-    const circuitoTop = Object.entries(circuitos).sort((a,b)=>b[1]-a[1])[0][0];
+    const circuitoTop = Object.entries(circuitos).sort((a,b)=>b[1]-a[1])[0]?.[0] || "-";
 
     const mesesOrden = [
         "enero","febrero","marzo","abril","mayo","junio",
@@ -84,7 +121,7 @@ async function generarInformeGeneral() {
     cont.style.display = "block";
 
     cont.innerHTML = `
-        <h2 class="titulo-modulo">📘 Informe General</h2>
+        <h2 class="titulo-modulo">📘 Informe General — ${anioSel}</h2>
 
         <div class="kpi-box">
             <div class="kpi-item"><div class="kpi-label">Total firmas</div><div class="kpi-value">${totalFirmas}</div></div>
@@ -123,28 +160,30 @@ async function generarInformeGeneral() {
 }
 
 /* ============================================================
-   INFORME ANUAL
+   INFORME ANUAL — FILTRADO POR AÑO
 ============================================================ */
 async function generarInformeAnual() {
+    const anioSel = inf_getAnioSeleccionado();
     const kpis = await obtenerKPIs();
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
-        <h2 class="titulo-modulo">📅 Informe Anual</h2>
+        <h2 class="titulo-modulo">📅 Informe Anual — ${anioSel}</h2>
         <div class="card-glass mt-20"><canvas id="chartAnual"></canvas></div>
     `;
 
     resetChart();
 
     const ctx = document.getElementById("chartAnual");
+
     chartActual = new Chart(ctx, {
         type: "line",
         data: {
-            labels: Object.keys(kpis.por_anio),
+            labels: Object.keys(kpis.por_mes[anioSel] || {}),
             datasets: [{
-                label: "Firmas por año",
-                data: Object.values(kpis.por_anio),
+                label: "Firmas por mes",
+                data: Object.values(kpis.por_mes[anioSel] || {}),
                 borderColor: "#10b981",
                 borderWidth: 3,
                 fill: false
@@ -154,28 +193,30 @@ async function generarInformeAnual() {
 }
 
 /* ============================================================
-   INFORME MENSUAL
+   INFORME MENSUAL — FILTRADO POR AÑO
 ============================================================ */
 async function generarInformeMensual() {
+    const anioSel = inf_getAnioSeleccionado();
     const kpis = await obtenerKPIs();
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
-        <h2 class="titulo-modulo">🗓️ Informe Mensual</h2>
+        <h2 class="titulo-modulo">🗓️ Informe Mensual — ${anioSel}</h2>
         <div class="card-glass mt-20"><canvas id="chartMensual"></canvas></div>
     `;
 
     resetChart();
 
     const ctx = document.getElementById("chartMensual");
+
     chartActual = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: Object.keys(kpis.por_mes),
+            labels: Object.keys(kpis.por_mes[anioSel] || {}),
             datasets: [{
                 label: "Firmas por mes",
-                data: Object.values(kpis.por_mes),
+                data: Object.values(kpis.por_mes[anioSel] || {}),
                 backgroundColor: "#f59e0b"
             }]
         }
@@ -183,11 +224,14 @@ async function generarInformeMensual() {
 }
 
 /* ============================================================
-   INFORME POR APODERADOS
+   INFORME POR APODERADOS — FILTRADO POR AÑO
 ============================================================ */
 async function generarInformeApoderados() {
     let datos = await obtenerFirmas();
     datos = aplicarNormalizacionPremium(datos);
+
+    const anioSel = inf_getAnioSeleccionado();
+    datos = datos.filter(f => Number(f.anio) === anioSel);
 
     const mapa = {};
     datos.forEach(f => {
@@ -198,7 +242,7 @@ async function generarInformeApoderados() {
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
-        <h2 class="titulo-modulo">🧑‍💼 Informe por Apoderado</h2>
+        <h2 class="titulo-modulo">🧑‍💼 Informe por Apoderado — ${anioSel}</h2>
         <div class="card-glass mt-20"><canvas id="chartApo"></canvas></div>
     `;
 
@@ -219,19 +263,15 @@ async function generarInformeApoderados() {
 }
 
 /* ============================================================
-   INFORME POR OFICINAS (CENTRO) — FILTRADO POR AÑO
+   INFORME POR OFICINAS — FILTRADO POR AÑO
 ============================================================ */
 async function generarInformeOficinas() {
     let datos = await obtenerFirmas();
     datos = aplicarNormalizacionPremium(datos);
 
-    // Obtener año seleccionado en Informes Premium
     const anioSel = inf_getAnioSeleccionado();
-
-    // Filtrar por año
     datos = datos.filter(f => Number(f.anio) === anioSel);
 
-    // Agrupar por centro
     const mapa = {};
     datos.forEach(f => {
         mapa[f.centro] = (mapa[f.centro] || 0) + 1;
@@ -259,17 +299,25 @@ async function generarInformeOficinas() {
     });
 }
 
-
 /* ============================================================
-   INFORME POR CIRCUITO
+   INFORME POR CIRCUITO — FILTRADO POR AÑO
 ============================================================ */
 async function generarInformeCircuito() {
-    const kpis = await obtenerKPIs();
+    let datos = await obtenerFirmas();
+    datos = aplicarNormalizacionPremium(datos);
+
+    const anioSel = inf_getAnioSeleccionado();
+    datos = datos.filter(f => Number(f.anio) === anioSel);
+
+    const mapa = {};
+    datos.forEach(f => {
+        mapa[f.circuito] = (mapa[f.circuito] || 0) + 1;
+    });
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
-        <h2 class="titulo-modulo">🛣️ Informe por Circuito</h2>
+        <h2 class="titulo-modulo">🛣️ Informe por Circuito — ${anioSel}</h2>
         <div class="card-glass mt-20"><canvas id="chartCircuito"></canvas></div>
     `;
 
@@ -279,9 +327,9 @@ async function generarInformeCircuito() {
     chartActual = new Chart(ctx, {
         type: "doughnut",
         data: {
-            labels: Object.keys(kpis.por_circuito),
+            labels: Object.keys(mapa),
             datasets: [{
-                data: Object.values(kpis.por_circuito),
+                data: Object.values(mapa),
                 backgroundColor: ["#6366f1", "#ec4899", "#22c55e"]
             }]
         }
@@ -289,15 +337,24 @@ async function generarInformeCircuito() {
 }
 
 /* ============================================================
-   INFORME POR TIPO DE FIRMA
+   INFORME POR TIPO DE FIRMA — FILTRADO POR AÑO
 ============================================================ */
 async function generarInformeTipoFirma() {
-    const kpis = await obtenerKPIs();
+    let datos = await obtenerFirmas();
+    datos = aplicarNormalizacionPremium(datos);
+
+    const anioSel = inf_getAnioSeleccionado();
+    datos = datos.filter(f => Number(f.anio) === anioSel);
+
+    const mapa = {};
+    datos.forEach(f => {
+        mapa[f.tipo_firma] = (mapa[f.tipo_firma] || 0) + 1;
+    });
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
-        <h2 class="titulo-modulo">✍️ Informe por Tipo de Firma</h2>
+        <h2 class="titulo-modulo">✍️ Informe por Tipo de Firma — ${anioSel}</h2>
         <div class="card-glass mt-20"><canvas id="chartTipoFirma"></canvas></div>
     `;
 
@@ -307,10 +364,10 @@ async function generarInformeTipoFirma() {
     chartActual = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: Object.keys(kpis.por_tipo_firma),
+            labels: Object.keys(mapa),
             datasets: [{
                 label: "Firmas",
-                data: Object.values(kpis.por_tipo_firma),
+                data: Object.values(mapa),
                 backgroundColor: "#8b5cf6"
             }]
         }
@@ -318,11 +375,14 @@ async function generarInformeTipoFirma() {
 }
 
 /* ============================================================
-   INFORME DE TIEMPOS MEDIOS
+   INFORME DE TIEMPOS MEDIOS — FILTRADO POR AÑO
 ============================================================ */
 async function generarInformeTiempos() {
     let datos = await obtenerFirmas();
     datos = aplicarNormalizacionPremium(datos);
+
+    const anioSel = inf_getAnioSeleccionado();
+    datos = datos.filter(f => Number(f.anio) === anioSel);
 
     const mapa = {};
 
@@ -337,7 +397,7 @@ async function generarInformeTiempos() {
     cont.style.display = "block";
 
     let html = `
-        <h2 class="titulo-modulo">⏱️ Tiempos Medios por Apoderado y Gestión</h2>
+        <h2 class="titulo-modulo">⏱️ Tiempos Medios — ${anioSel}</h2>
         <div class="card-glass mt-20">
         <table class="tabla-excel mt-20">
             <thead>
@@ -366,3 +426,4 @@ async function generarInformeTiempos() {
 
     cont.innerHTML = html;
 }
+
