@@ -168,11 +168,30 @@ async function generarInformeGeneral() {
 }
 
 /* ============================================================
-   INFORME ANUAL — FILTRADO POR AÑO
+   INFORME ANUAL — EVOLUCIÓN MENSUAL DEL AÑO SELECCIONADO
 ============================================================ */
 async function generarInformeAnual() {
+    let datos = await obtenerFirmas();
+    datos = aplicarNormalizacionPremium(datos);
+
     const anioSel = inf_getAnioSeleccionado();
-    const kpis = await obtenerKPIs();
+
+    // Filtrar por año
+    datos = datos.filter(f => Number(f.anio) === anioSel);
+
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const mapa = {};
+    mesesOrden.forEach(m => mapa[m] = 0);
+
+    datos.forEach(f => {
+        if (mapa.hasOwnProperty(f.mes)) {
+            mapa[f.mes]++;
+        }
+    });
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
@@ -184,28 +203,53 @@ async function generarInformeAnual() {
     resetChart();
 
     const ctx = document.getElementById("chartAnual");
-
     chartActual = new Chart(ctx, {
         type: "line",
         data: {
-            labels: Object.keys(kpis.por_mes[anioSel] || {}),
+            labels: mesesOrden,
             datasets: [{
-                label: "Firmas por mes",
-                data: Object.values(kpis.por_mes[anioSel] || {}),
+                label: "Firmas",
+                data: mesesOrden.map(m => mapa[m]),
                 borderColor: "#10b981",
                 borderWidth: 3,
-                fill: false
+                fill: false,
+                tension: 0.2
             }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
         }
     });
 }
-
 /* ============================================================
-   INFORME MENSUAL — FILTRADO POR AÑO
+   INFORME MENSUAL — POR AÑO SELECCIONADO
 ============================================================ */
 async function generarInformeMensual() {
+    let datos = await obtenerFirmas();
+    datos = aplicarNormalizacionPremium(datos);
+
     const anioSel = inf_getAnioSeleccionado();
-    const kpis = await obtenerKPIs();
+
+    datos = datos.filter(f => Number(f.anio) === anioSel);
+
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const mapa = {};
+    mesesOrden.forEach(m => mapa[m] = 0);
+
+    datos.forEach(f => {
+        if (mapa.hasOwnProperty(f.mes)) {
+            mapa[f.mes]++;
+        }
+    });
 
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
@@ -217,16 +261,23 @@ async function generarInformeMensual() {
     resetChart();
 
     const ctx = document.getElementById("chartMensual");
-
     chartActual = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: Object.keys(kpis.por_mes[anioSel] || {}),
+            labels: mesesOrden,
             datasets: [{
-                label: "Firmas por mes",
-                data: Object.values(kpis.por_mes[anioSel] || {}),
+                label: "Firmas",
+                data: mesesOrden.map(m => mapa[m]),
                 backgroundColor: "#f59e0b"
             }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
         }
     });
 }
