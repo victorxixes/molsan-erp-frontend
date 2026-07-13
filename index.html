@@ -444,55 +444,28 @@
 </template>
 
 <!-- ============================================================
-     PANEL TIPO FIRMA — PREMIUM 2027
+     PANEL CENTRO QUE FIRMA — PREMIUM 2027
 ============================================================ -->
-<template id="tpl-panel-tipo-firma">
+<template id="tpl-panel-tipo-centroquefirma">
 <div class="panel-wrapper fade-in">
 
-    <h2 class="titulo-modulo">✍️ Panel Tipo Firma</h2>
+    <h2 class="titulo-modulo">🏛️ Centro que Firma</h2>
 
-    <div class="panel-header">
-        <div class="panel-header-left">
-            <label>Año</label>
-            <select id="ptf-select-anio"></select>
-        </div>
-
-        <div class="panel-header-right kpi-panel">
-            <div class="kpi-card"><div class="kpi-label">Total firmas</div><div class="kpi-value" id="ptf-kpi-total">0</div></div>
-            <div class="kpi-card"><div class="kpi-label">% VC</div><div class="kpi-value" id="ptf-kpi-vc">0%</div></div>
-            <div class="kpi-card"><div class="kpi-label">% Presencial</div><div class="kpi-value" id="ptf-kpi-pres">0%</div></div>
-            <div class="kpi-card"><div class="kpi-label">Mes más fuerte</div><div class="kpi-value" id="ptf-kpi-top-mes">-</div></div>
-        </div>
-    </div>
-
+    <!-- ============================
+         DETALLE MENSUAL
+    ============================ -->
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Detalle por tipo de firma (mes a mes)</h3>
+        <h3 class="subtitulo-modulo">Detalle mensual</h3>
 
         <div class="tabla-scroll-x mt-10">
-            <table id="ptf-tabla-meses" class="table-premium table-sticky tabla-excel">
+            <table id="pcf-tabla-mensual" class="table-premium table-sticky tabla-excel">
                 <thead>
                     <tr>
-                        <th>Tipo Firma</th>
-                        <th>Total</th>
-                        <th>Presencial</th>
-                        <th>VC</th>
-                        <th>% Presencial</th>
-                        <th>% VC</th>
-                        <th>SLA Presencial</th>
-                        <th>SLA VC</th>
-
-                        <th>Enero</th>
-                        <th>Febrero</th>
-                        <th>Marzo</th>
-                        <th>Abril</th>
-                        <th>Mayo</th>
-                        <th>Junio</th>
-                        <th>Julio</th>
-                        <th>Agosto</th>
-                        <th>Septiembre</th>
-                        <th>Octubre</th>
-                        <th>Noviembre</th>
-                        <th>Diciembre</th>
+                        <th>Mes</th>
+                        <th>Molsan</th>
+                        <th>Colaboradores</th>
+                        <th>Oficina OE</th>
+                        <th>Oficina CBK</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -500,9 +473,12 @@
         </div>
     </div>
 
+    <!-- ============================
+         GRÁFICO MENSUAL
+    ============================ -->
     <div class="panel-contenido mt-20">
-        <h3 class="subtitulo-modulo">Distribución por tipo de firma</h3>
-        <canvas id="ptf-chart-tipo-firma"></canvas>
+        <h3 class="subtitulo-modulo">Distribución mensual</h3>
+        <canvas id="pcf-chart-mensual"></canvas>
     </div>
 
 </div>
