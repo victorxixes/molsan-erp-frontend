@@ -5,18 +5,26 @@
 let chartActual = null;
 
 /* ============================================================
-   SELECTOR DE AÑO — INFORMES PREMIUM
+   SELECTOR DE AÑO — INFORMES PREMIUM (DEBE IR ARRIBA DEL TODO)
 ============================================================ */
+
 function inf_getAnioSeleccionado() {
     const sel = document.getElementById("inf-select-anio");
-    return sel ? Number(sel.value) : new Date().getFullYear();
+    if (!sel) {
+        console.warn("inf_getAnioSeleccionado(): selector no encontrado, uso año actual.");
+        return new Date().getFullYear();
+    }
+    return Number(sel.value);
 }
 
 async function initInformesPremium() {
     console.log("📘 initInformesPremium() ejecutado");
 
     const sel = document.getElementById("inf-select-anio");
-    if (!sel) return;
+    if (!sel) {
+        console.warn("Selector inf-select-anio no está en el DOM todavía.");
+        return;
+    }
 
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
