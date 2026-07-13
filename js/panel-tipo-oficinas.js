@@ -1,25 +1,19 @@
 /* ============================================================
-   PANEL OFICINAS — PREMIUM 2027 (COMPATIBLE CON TU HTML)
+   PANEL OFICINAS — PREMIUM 2027 (VERSIÓN FINAL)
 ============================================================ */
 
 let POF_DATOS = [];
 let POF_POR_ANIO = {};
 let POF_CHART = null;
 
-/* Helper seguro */
-function pofSafeSet(id, value) {
-    const el = document.getElementById(id);
-    if (!el) return false;
-    el.textContent = value;
-    return true;
-}
-
+/* ============================================================
+   INIT
+============================================================ */
 async function initPanelOficinas() {
     console.log("🏢 initPanelOficinas() ejecutado");
 
-    // Si el panel no está en el DOM → detener
     if (!document.getElementById("pof-select-anio")) {
-        console.warn("⏳ Panel Oficinas aún no está en el DOM. initPanelOficinas() detenido.");
+        console.warn("⏳ Panel Oficinas aún no está en el DOM.");
         return;
     }
 
@@ -32,31 +26,43 @@ async function initPanelOficinas() {
     pof_fillSelectAnios();
     pof_selectUltimoAnio();
 
-    // Listener del selector de año
     document.getElementById("pof-select-anio")
         .addEventListener("change", pof_onChangeAnio);
 }
 
 /* ============================================================
-   AGRUPACIÓN + NORMALIZACIÓN DE OFICINA
+   AGRUPAR POR AÑO → OFICINA → MES
 ============================================================ */
 function pof_groupByAnioOficina(datos) {
     const map = {};
 
-    for (const f of datos) {
-        const anio = Number(f.anio);
-        let oficina = f.oficina || "Sin oficina";
-        const dias = Number(f.dias);
-        const esVC = (f.tipo_firma === "VideoConferencia");
+    const mesesValidos = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
 
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth(); // 0 = enero
+
+    for (const f of datos) {
+
+        const anio = Number(f.anio);
         if (!anio) continue;
 
-        /* 🔥 NORMALIZACIÓN DE OFICINA */
-        if (oficina === "5316") {
-            oficina = "Cancela";
-        } else {
-            oficina = "Oficina";
-        }
+        const mes = (f.mes || "").toLowerCase().trim();
+        const idxMes = mesesValidos.indexOf(mes);
+
+        if (idxMes === -1) continue;
+
+        // ❌ Mes futuro del año en curso → ignorar
+        if (anio === currentYear && idxMes > currentMonthIndex) continue;
+
+        /* Normalización oficina */
+        let oficina = f.oficina || "Sin oficina";
+        oficina = (oficina === "5316") ? "Cancela" : "Oficina";
+
+        const dias = Number(f.dias);
+        const esVC = (f.tipo_firma === "VideoConferencia");
 
         if (!map[anio]) map[anio] = {};
 
@@ -66,16 +72,29 @@ function pof_groupByAnioOficina(datos) {
                 presencial: 0,
                 vc: 0,
                 sumaDias: 0,
-                cuentaDias: 0
+                cuentaDias: 0,
+                meses: {} // ← aquí guardamos los meses
             };
         }
 
         const r = map[anio][oficina];
 
-        r.total++;
+        // Inicializar mes si no existe
+        if (!r.meses[mes]) {
+            r.meses[mes] = { total: 0, presencial: 0, vc: 0 };
+        }
 
-        if (esVC) r.vc++;
-        else r.presencial++;
+        const m = r.meses[mes];
+
+        // Totales
+        r.total++;
+        m.total++;
+
+        if (esVC) {
+            r.vc++; m.vc++;
+        } else {
+            r.presencial++; m.presencial++;
+        }
 
         if (dias > 0) {
             r.sumaDias += dias;
@@ -159,14 +178,14 @@ function pof_renderKpis(info) {
     const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
     const sla = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
 
-    pofSafeSet("pof-kpi-total", total);
-    pofSafeSet("pof-kpi-sla", sla);
-    pofSafeSet("pof-kpi-vc", pctVC);
-    pofSafeSet("pof-kpi-oficina", oficinaTop);
+    document.getElementById("pof-kpi-total").textContent = total;
+    document.getElementById("pof-kpi-sla").textContent = sla;
+    document.getElementById("pof-kpi-vc").textContent = pctVC;
+    document.getElementById("pof-kpi-oficina").textContent = oficinaTop;
 }
 
 /* ============================================================
-   TABLA
+   TABLA DETALLE (CON MESES)
 ============================================================ */
 function pof_renderTabla(info) {
     const tbody = document.querySelector("#pof-tabla-oficinas tbody");
@@ -174,24 +193,50 @@ function pof_renderTabla(info) {
 
     tbody.innerHTML = "";
 
-    const lista = Object.entries(info)
-        .map(([nombre, o]) => {
-            const pctVC = o.total ? ((o.vc / o.total) * 100).toFixed(1) + "%" : "0%";
-            const sla = o.cuentaDias ? (o.sumaDias / o.cuentaDias).toFixed(1) : "0";
-            return { nombre, total: o.total, presencial: o.presencial, vc: o.vc, pctVC, sla };
-        })
-        .sort((a,b)=>b.total - a.total);
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const lista = Object.entries(info).map(([nombre, o]) => {
+
+        const pctPres = o.total ? ((o.presencial / o.total) * 100).toFixed(1) + "%" : "0%";
+        const pctVC = o.total ? ((o.vc / o.total) * 100).toFixed(1) + "%" : "0%";
+        const sla = o.cuentaDias ? (o.sumaDias / o.cuentaDias).toFixed(1) : "0";
+
+        const meses = mesesOrden.map(m => {
+            const mm = o.meses[m];
+            return mm ? mm.total : 0;
+        });
+
+        return {
+            nombre,
+            total: o.total,
+            presencial: o.presencial,
+            pctPres,
+            vc: o.vc,
+            pctVC,
+            sla,
+            meses
+        };
+    });
+
+    lista.sort((a,b)=>b.total - a.total);
 
     for (const ofi of lista) {
         const tr = document.createElement("tr");
+
         tr.innerHTML = `
             <td>${ofi.nombre}</td>
             <td>${ofi.total}</td>
             <td>${ofi.presencial}</td>
+            <td>${ofi.pctPres}</td>
             <td>${ofi.vc}</td>
             <td>${ofi.pctVC}</td>
             <td>${ofi.sla}</td>
+            ${ofi.meses.map(v => `<td>${v}</td>`).join("")}
         `;
+
         tbody.appendChild(tr);
     }
 }
@@ -234,3 +279,4 @@ function pof_renderChart(info) {
         }
     });
 }
+
