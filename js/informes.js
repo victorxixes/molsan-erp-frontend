@@ -6,12 +6,15 @@ const MESES_ORDEN = [
     "julio","agosto","septiembre","octubre","noviembre","diciembre"
 ];
 
+function mesNumeroATexto(num) {
+    return MESES_ORDEN[num - 1] || "";
+}
+
 let chartActual = null;
 
 /* ============================================================
-   SELECTOR DE AÑO — INFORMES PREMIUM (DEBE IR ARRIBA DEL TODO)
+   SELECTOR DE AÑO — INFORMES PREMIUM
 ============================================================ */
-
 function inf_getAnioSeleccionado() {
     const sel = document.getElementById("inf-select-anio");
     if (!sel) {
@@ -25,10 +28,7 @@ async function initInformesPremium() {
     console.log("📘 initInformesPremium() ejecutado");
 
     const sel = document.getElementById("inf-select-anio");
-    if (!sel) {
-        console.warn("Selector inf-select-anio no está en el DOM todavía.");
-        return;
-    }
+    if (!sel) return;
 
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
@@ -66,23 +66,31 @@ function resetChart() {
 }
 
 /* ============================================================
-   NORMALIZACIÓN GLASS LUXE 2027
+   NORMALIZACIÓN GLASS LUXE 2027 — CORREGIDA
 ============================================================ */
 function aplicarNormalizacionPremium(datos) {
-    const mesesValidos = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
 
     for (const f of datos) {
-        f.mes = (f.mes || "").toLowerCase().trim();
-        if (!mesesValidos.includes(f.mes)) f.mes = "";
 
+        /* 🔥 1. MES: convertir número → texto */
+        if (Number(f.mes) >= 1 && Number(f.mes) <= 12) {
+            f.mes = mesNumeroATexto(Number(f.mes));
+        } else {
+            f.mes = (f.mes || "").toLowerCase().trim();
+        }
+
+        /* 🔥 2. Validar mes */
+        if (!MESES_ORDEN.includes(f.mes)) {
+            f.mes = ""; // evita meses raros o vacíos
+        }
+
+        /* 🔥 3. Normalizaciones Glass Luxe */
         f.tipo_gestion = normalizarTipoGestion(f.tipo_gestion);
-        f.circuito = getCircuito(f.notario);
-        f.tipo_firma = getTipoFirma(f.vc);
-        f.centro = String(f.oficina) === "5316" ? "Cancela" : "Oficina";
+        f.circuito     = getCircuito(f.notario);
+        f.tipo_firma   = getTipoFirma(f.vc);
+        f.centro       = String(f.oficina) === "5316" ? "Cancela" : "Oficina";
     }
+
     return datos;
 }
 
