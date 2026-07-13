@@ -56,7 +56,7 @@ async function cargarModulo(nombre) {
             "backup":             "Backup de Datos",
             "restore":            "Restauración de Backups",
             "informes-premium":   "Informes Premium",
-            "informes-dinamicos": "Informes Dinámicos",
+          
 
             // Paneles Premium
             "panel-anual":        "Panel Anual",
@@ -110,9 +110,6 @@ async function cargarModulo(nombre) {
                     await initInformesPremium();
                     break;
 
-                case "informes-dinamicos":
-                    await initInformesDinamicos();
-                    break;
 
                 /* ============================
                    PANEL PREMIUM — CORREGIDOS
