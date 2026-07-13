@@ -17,9 +17,8 @@ function slaSafeSet(id, value) {
 async function initPanelSLA() {
     console.log("⏱️ initPanelSLA() ejecutado");
 
-    // Si el panel no está en el DOM → detener
     if (!document.getElementById("sla-select-anio")) {
-        console.warn("⏳ Panel SLA aún no está en el DOM. initPanelSLA() detenido.");
+        console.warn("⏳ Panel SLA aún no está en el DOM.");
         return;
     }
 
@@ -27,28 +26,44 @@ async function initPanelSLA() {
     if (!datos || !datos.length) return;
 
     SLA_DATOS = datos;
-    SLA_POR_ANIO = sla_groupByAnioMes(SLA_DATOS);
+    SLA_POR_ANIO = sla_groupByAnio(SLA_DATOS);
 
     sla_fillSelectAnios();
     sla_selectUltimoAnio();
 
-    // Listener del selector de año
     document.getElementById("sla-select-anio")
         .addEventListener("change", sla_onChangeAnio);
 }
 
-/* Agrupar por año y mes */
-function sla_groupByAnioMes(datos) {
+/* ============================================================
+   AGRUPAR POR AÑO → MES → TIPO GESTIÓN
+============================================================ */
+function sla_groupByAnio(datos) {
     const map = {};
 
-    for (const f of datos) {
-        const anio = Number(f.anio);
-        const mes = f.mes;
-        const dias = Number(f.dias);
-        const tipoProv = (f.tipo_provision || "").toLowerCase();
-        const esVC = (f.tipo_firma === "VideoConferencia");
+    const mesesValidos = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
 
-        if (!anio || !mes) continue;
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth();
+
+    for (const f of datos) {
+
+        const anio = Number(f.anio);
+        if (!anio) continue;
+
+        const mes = (f.mes || "").toLowerCase().trim();
+        const idxMes = mesesValidos.indexOf(mes);
+        if (idxMes === -1) continue;
+
+        // ❌ Mes futuro del año en curso → ignorar
+        if (anio === currentYear && idxMes > currentMonthIndex) continue;
+
+        const dias = Number(f.dias);
+        const tipo = f.tipo_gestion || "Con provisión";
+        const esVC = (f.tipo_firma === "VideoConferencia");
 
         if (!map[anio]) map[anio] = {};
 
@@ -59,10 +74,8 @@ function sla_groupByAnioMes(datos) {
                 vc: 0,
                 sumaDias: 0,
                 cuentaDias: 0,
-                sumaCon: 0,
-                cuentaCon: 0,
-                sumaSin: 0,
-                cuentaSin: 0
+                con: { suma: 0, cuenta: 0 },
+                sin: { suma: 0, cuenta: 0 }
             };
         }
 
@@ -77,12 +90,12 @@ function sla_groupByAnioMes(datos) {
             r.sumaDias += dias;
             r.cuentaDias++;
 
-            if (tipoProv.includes("con")) {
-                r.sumaCon += dias;
-                r.cuentaCon++;
+            if (tipo === "Con provisión") {
+                r.con.suma += dias;
+                r.con.cuenta++;
             } else {
-                r.sumaSin += dias;
-                r.cuentaSin++;
+                r.sin.suma += dias;
+                r.sin.cuenta++;
             }
         }
     }
@@ -90,7 +103,9 @@ function sla_groupByAnioMes(datos) {
     return map;
 }
 
-/* Select años */
+/* ============================================================
+   SELECT AÑOS
+============================================================ */
 function sla_fillSelectAnios() {
     const sel = document.getElementById("sla-select-anio");
     if (!sel) return;
@@ -115,7 +130,9 @@ function sla_selectUltimoAnio() {
     sla_onChangeAnio();
 }
 
-/* Cambio de año */
+/* ============================================================
+   CAMBIO DE AÑO
+============================================================ */
 function sla_onChangeAnio() {
     const sel = document.getElementById("sla-select-anio");
     if (!sel) return;
@@ -129,39 +146,53 @@ function sla_onChangeAnio() {
     sla_renderChart(info);
 }
 
-/* KPIs */
+/* ============================================================
+   KPIs
+============================================================ */
 function sla_renderKpis(info) {
     let total = 0;
     let sumaDias = 0;
     let cuentaDias = 0;
+
     let sumaCon = 0;
     let cuentaCon = 0;
+
     let sumaSin = 0;
     let cuentaSin = 0;
+
+    let vc = 0;
 
     for (const mes in info) {
         const r = info[mes];
 
         total += r.total;
+        vc += r.vc;
+
         sumaDias += r.sumaDias;
         cuentaDias += r.cuentaDias;
-        sumaCon += r.sumaCon;
-        cuentaCon += r.cuentaCon;
-        sumaSin += r.sumaSin;
-        cuentaSin += r.cuentaSin;
+
+        sumaCon += r.con.suma;
+        cuentaCon += r.con.cuenta;
+
+        sumaSin += r.sin.suma;
+        cuentaSin += r.sin.cuenta;
     }
 
     const sla = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
     const slaCon = cuentaCon ? (sumaCon / cuentaCon).toFixed(1) : "0";
     const slaSin = cuentaSin ? (sumaSin / cuentaSin).toFixed(1) : "0";
+    const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
 
     slaSafeSet("sla-kpi-total", total);
     slaSafeSet("sla-kpi-sla", sla);
     slaSafeSet("sla-kpi-con", slaCon);
     slaSafeSet("sla-kpi-sin", slaSin);
+    slaSafeSet("sla-kpi-vc", pctVC);
 }
 
-/* Tabla mensual */
+/* ============================================================
+   TABLA DETALLE (CON MESES)
+============================================================ */
 function sla_renderTabla(info) {
     const tbody = document.querySelector("#sla-tabla-meses tbody");
     if (!tbody) return;
@@ -174,12 +205,29 @@ function sla_renderTabla(info) {
     ];
 
     for (const mes of mesesOrden) {
+
         const r = info[mes];
-        if (!r) continue;
+
+        if (!r) {
+            // Mes sin datos
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${mes}</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0%</td>
+            `;
+            tbody.appendChild(tr);
+            continue;
+        }
 
         const sla = r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : "0";
-        const slaCon = r.cuentaCon ? (r.sumaCon / r.cuentaCon).toFixed(1) : "0";
-        const slaSin = r.cuentaSin ? (r.sumaSin / r.cuentaSin).toFixed(1) : "0";
+        const slaCon = r.con.cuenta ? (r.con.suma / r.con.cuenta).toFixed(1) : "0";
+        const slaSin = r.sin.cuenta ? (r.sin.suma / r.sin.cuenta).toFixed(1) : "0";
         const pctVC = r.total ? ((r.vc / r.total) * 100).toFixed(1) + "%" : "0%";
 
         const tr = document.createElement("tr");
@@ -197,15 +245,22 @@ function sla_renderTabla(info) {
     }
 }
 
-/* Gráfico evolución SLA */
+/* ============================================================
+   GRÁFICO EVOLUCIÓN SLA
+============================================================ */
 function sla_renderChart(info) {
     const ctx = document.getElementById("sla-chart-evolucion");
     if (!ctx) return;
 
-    const meses = Object.keys(info);
-    const data = meses.map(m => {
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const labels = mesesOrden;
+    const data = mesesOrden.map(m => {
         const r = info[m];
-        return r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : 0;
+        return r && r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : 0;
     });
 
     if (SLA_CHART) SLA_CHART.destroy();
@@ -213,14 +268,14 @@ function sla_renderChart(info) {
     SLA_CHART = new Chart(ctx, {
         type: "line",
         data: {
-            labels: meses,
+            labels,
             datasets: [{
-                label: "SLA medio",
+                label: "SLA mensual",
                 data,
                 borderColor: "rgba(80,200,255,1)",
-                backgroundColor: "rgba(80,200,255,0.2)",
-                borderWidth: 1.5,
-                tension: 0.2
+                backgroundColor: "rgba(80,200,255,0.3)",
+                borderWidth: 2,
+                tension: 0.3
             }]
         },
         options: {
