@@ -41,34 +41,37 @@ async function cargarModulo(nombre) {
         cont.classList.add("fadeUp");
         cont.style.opacity = 1;
     }, 80);
-/* ============================================================
-   4. TÍTULOS BONITOS
-============================================================ */
-if (title) {
-    const nombresBonitos = {
-        // Core
-        "dashboard":          "Dashboard",
-        "listado":            "Listado de Firmas",
-        "uploader":           "Importación de Excel",
-        "permisos":           "Permisos del Sistema",
-        "backup":             "Backup de Datos",
-        "restore":            "Restauración de Backups",
-        "informes-premium":   "Informes Premium",
 
-        // Paneles Premium
-        "panel-anual":        "Panel Anual",
-        "panel-mensual":      "Panel Mensual",
-        "panel-apoderados":   "Panel Apoderados",
-        "panel-tipo-firma":   "Panel Tipo de Firma",
-        "panel-tipo-gestion": "Panel Tipo de Gestión",
-        "panel-oficinas":     "Panel Oficinas",
-        "panel-circuito":     "Panel Circuito Notarial",
-        "panel-tipo-centroquefirma": "Panel Centro que Firma",
-        "panel-sla":          "Panel SLA / Tiempos"
-    };
 
-    title.textContent = nombresBonitos[nombre] || nombre;
-}
+    /* ============================================================
+       4. TÍTULOS BONITOS — CORREGIDO ✔
+    ============================================================ */
+    if (title) {
+        const nombresBonitos = {
+            // Core
+            "dashboard":          "Dashboard",
+            "listado":            "Listado de Firmas",
+            "uploader":           "Importación de Excel",
+            "permisos":           "Permisos del Sistema",
+            "backup":             "Backup de Datos",
+            "restore":            "Restauración de Backups",
+            "informes-premium":   "Informes Premium",
+
+            // Paneles Premium
+            "panel-anual":        "Panel Anual",
+            "panel-mensual":      "Panel Mensual",
+            "panel-apoderados":   "Panel Apoderados",
+            "panel-tipo-firma":   "Panel Tipo de Firma",
+            "panel-tipo-gestion": "Panel Tipo de Gestión",
+            "panel-oficinas":     "Panel Oficinas",
+            "panel-circuito":     "Panel Circuito Notarial",
+            "panel-tipo-centroquefirma": "Panel Centro que Firma",
+            "panel-sla":          "Panel SLA / Tiempos"
+        };
+
+        title.textContent = nombresBonitos[nombre] || nombre;
+    }
+
 
     /* ============================================================
        5. INICIALIZAR MÓDULO (DESPUÉS DE INSERTAR HTML)
@@ -139,16 +142,17 @@ if (title) {
                 case "panel-circuito":
                     await initPanelCircuito();
                     break;
-                  
-case "panel-tipo-centroquefirma":
-    await initPanelTipoCentroQueFirma();
-    break;
+
+                case "panel-tipo-centroquefirma":
+                    await initPanelTipoCentroQueFirma();
+                    break;
+
                 case "panel-sla":
                     await initPanelSLA();
                     break;
             }
 
-        }, 100); // 👈 RETRASO PARA ASEGURAR QUE EL HTML YA ESTÁ INSERTADO
+        }, 100);
 
     } catch (err) {
         console.error("❌ Error cargando módulo:", nombre, err);
@@ -173,13 +177,10 @@ case "panel-tipo-centroquefirma":
 ============================================================ */
 window.addEventListener("DOMContentLoaded", async () => {
 
-    // 1) IndexedDB
     await initDB();
 
-    // 2) Estado del sidebar
     const estado = localStorage.getItem("molsan_sidebar") === "collapsed";
     aplicarEstadoSidebar(estado);
 
-    // 3) Cargar Dashboard al inicio
     cargarModulo("dashboard");
 });
