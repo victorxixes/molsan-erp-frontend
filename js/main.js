@@ -82,9 +82,12 @@ async function cargarModulo(nombre) {
             switch (nombre) {
 
                 /* Core */
-                case "dashboard-premium":
-                    await initDashboardPremium();
-                    break;
+case "dashboard-premium":
+    const datos = await obtenerFirmas();
+    datos.forEach(aplicarReglas);
+    generarMapasPremium(datos);
+    await initDashboardPremium();
+    break;
 
                 case "listado":
                     await initListado();
