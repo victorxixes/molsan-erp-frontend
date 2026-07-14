@@ -17,7 +17,7 @@ function mapearCamposExcel(f) {
         municipio: f["Municipio"] ?? "",
         comunidad: f["Comunidad"] ?? "",
         protocolo: f["Protocolo"] ?? "",
-        fecha_protocolo: f["Fecha Protocolo"] ?? "",
+        fecha_protocolo: f["Fecha Protocolo"] ?? "",   // ✔ CORRECTO
         vc: f["V.C."] ?? "",
         apoderado: f["Apoderado"] ?? "",
         envio_notario: f["Envio Notario"] ?? "",
@@ -49,11 +49,16 @@ function aplicarReglas(f) {
 
     /* ------------------------------
        1) FECHA → MES + AÑO
+       ✔ SIEMPRE usar Fecha Protocolo si existe
+       ✔ Fecha Alta solo como fallback
     ------------------------------ */
     let fecha = null;
 
-    if (f.fecha_alta) fecha = new Date(f.fecha_alta);
-    else if (f.fecha_protocolo) fecha = new Date(f.fecha_protocolo);
+    if (f.fecha_protocolo) {
+        fecha = new Date(f.fecha_protocolo);
+    } else if (f.fecha_alta) {
+        fecha = new Date(f.fecha_alta);
+    }
 
     if (fecha && !isNaN(fecha)) {
         f.anio = fecha.getFullYear();
