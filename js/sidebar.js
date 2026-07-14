@@ -2,7 +2,26 @@
    SIDEBAR — Glass Luxe 2027 (Premium + Persistente + Motion)
 ============================================================ */
 
+window.addEventListener("DOMContentLoaded", () => {
+
+    const sidebar = document.querySelector(".sidebar");
+    const toggleBtn = document.getElementById("sidebarToggle");
+
+    if (!sidebar || !toggleBtn) {
+        console.warn("⚠️ Sidebar no encontrado en el DOM.");
+        return;
+    }
+
+    // Evento del botón
+    toggleBtn.addEventListener("click", () => {
+        const estadoActual = sidebar.classList.contains("collapsed");
+        aplicarEstadoSidebar(!estadoActual);
+    });
+});
+
+
 function aplicarEstadoSidebar(colapsado) {
+
     const sidebar = document.querySelector(".sidebar");
     const toggleBtn = document.getElementById("sidebarToggle");
     const body = document.body;
@@ -20,7 +39,6 @@ function aplicarEstadoSidebar(colapsado) {
         sidebar.classList.add("collapsed");
         body.classList.add("sidebar-collapsed");
 
-        // Icono menú (abrir)
         toggleBtn.innerHTML = `
             <svg class="icon"><use href="#icon-menu"></use></svg>
         `;
@@ -35,7 +53,6 @@ function aplicarEstadoSidebar(colapsado) {
         sidebar.classList.remove("collapsed");
         body.classList.remove("sidebar-collapsed");
 
-        // Icono cerrar (colapsar)
         toggleBtn.innerHTML = `
             <svg class="icon"><use href="#icon-close"></use></svg>
         `;
@@ -48,3 +65,4 @@ function aplicarEstadoSidebar(colapsado) {
     ============================================================ */
     document.dispatchEvent(new Event("sidebarChanged"));
 }
+
