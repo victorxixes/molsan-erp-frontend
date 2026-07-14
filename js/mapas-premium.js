@@ -34,15 +34,13 @@ async function generarMapasPremium(datos) {
 
     for (const f of datos) {
 
-        const anio = Number(f.anio);
-        const mes  = (f.mes || "").toLowerCase();
-        const apo  = (f.apoderado || "Sin apoderado").trim();
-        const ofi  = (f.centro || "Sin oficina").trim();
-        const cir  = (f.circuito || "Sin circuito").trim();
-        const tipo = (f.tipo_firma || "Sin tipo").trim();
-        const gest = (f.tipo_gestion || "Sin gestión").trim();
-        const cen  = (f.centro || "Sin centro").trim();
-        const dias = Number(f.dias) || 0;
+const apo  = String(f.apoderado || "Sin apoderado").trim();
+const ofi  = String(f.centro || "Sin oficina").trim();
+const cir  = String(f.circuito || "Sin circuito").trim();
+const tipo = String(f.tipo_firma || "Sin tipo").trim();
+const gest = String(f.tipo_gestion || "Sin gestión").trim();
+const cen  = String(f.centro || "Sin centro").trim();
+
 
         if (!anio) continue;
 
