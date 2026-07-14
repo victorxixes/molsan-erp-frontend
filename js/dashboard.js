@@ -542,7 +542,3 @@ async function initDashboardPremium() {
 
     console.log("📊 Dashboard Premium 2027 recalculado");
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-    setTimeout(initDashboardPremium, 1000);
-});
