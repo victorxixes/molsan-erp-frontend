@@ -721,3 +721,12 @@ async function generarInformeCentroQueFirma() {
         }
     });
 }
+/* ============================================================
+   COMPATIBILIDAD — generarMapasPremium
+   (main.js lo llama, así que definimos un stub seguro)
+============================================================ */
+async function generarMapasPremium(datos) {
+    // Los paneles premium ya calculan sus propios mapas internamente.
+    // Esta función existe solo para evitar errores en main.js.
+    return true;
+}
