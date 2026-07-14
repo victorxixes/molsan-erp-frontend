@@ -126,3 +126,12 @@ function obtenerMesNumero(mesTexto) {
     const idx = nombres.indexOf(String(mesTexto).toLowerCase());
     return idx >= 0 ? idx + 1 : 0;
 }
+/* ============================================================
+   COMPATIBILIDAD — generarMapasPremium
+   (main.js lo llama, así que definimos un stub seguro)
+============================================================ */
+async function generarMapasPremium(datos) {
+    // Los paneles premium ya calculan sus propios mapas internamente.
+    // Esta función existe solo para evitar errores en main.js.
+    return true;
+}
