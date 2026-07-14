@@ -49,7 +49,7 @@ async function cargarModulo(nombre) {
     if (title) {
         const nombresBonitos = {
             // Core
-            "dashboard":          "Dashboard",
+            "dashboard-premium": "Dashboard Premium",
             "listado":            "Listado de Firmas",
             "uploader":           "Importación de Excel",
             "permisos":           "Permisos del Sistema",
@@ -58,7 +58,6 @@ async function cargarModulo(nombre) {
             "informes-premium":   "Informes Premium",
 
             // Paneles Premium
-           "dashboard-premium": "Dashboard Premium",
             "panel-anual":        "Panel Anual",
             "panel-mensual":      "Panel Mensual",
             "panel-apoderados":   "Panel Apoderados",
@@ -83,9 +82,9 @@ async function cargarModulo(nombre) {
             switch (nombre) {
 
                 /* Core */
-case "dashboard-premium":
-    await initDashboardPremium();
-    break;
+                case "dashboard-premium":
+                    await initDashboardPremium();
+                    break;
 
                 case "listado":
                     await initListado();
@@ -183,5 +182,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     const estado = localStorage.getItem("molsan_sidebar") === "collapsed";
     aplicarEstadoSidebar(estado);
 
-    cargarModulo("dashboard");
+    // ✔ CORREGIDO: cargar Dashboard Premium por defecto
+    cargarModulo("dashboard-premium");
 });
