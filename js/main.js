@@ -58,6 +58,7 @@ async function cargarModulo(nombre) {
             "informes-premium":   "Informes Premium",
 
             // Paneles Premium
+           "dashboard-premium": "Dashboard Premium",
             "panel-anual":        "Panel Anual",
             "panel-mensual":      "Panel Mensual",
             "panel-apoderados":   "Panel Apoderados",
@@ -82,9 +83,9 @@ async function cargarModulo(nombre) {
             switch (nombre) {
 
                 /* Core */
-                case "dashboard":
-                    initDashboard();
-                    break;
+case "dashboard-premium":
+    await initDashboardPremium();
+    break;
 
                 case "listado":
                     await initListado();
