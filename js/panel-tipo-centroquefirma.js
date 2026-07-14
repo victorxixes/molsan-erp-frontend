@@ -3,6 +3,8 @@
 ============================================================ */
 
 let chartCentroFirma = null;
+let PCF_DATOS = [];
+let PCF_POR_ANIO = {};
 
 /* ============================================================
    Inicialización del panel
@@ -37,6 +39,77 @@ async function initPanelTipoCentroQueFirma() {
 
     // 5) Primera carga
     await cargarCentroQueFirma();
+}
+/* ============================================================
+   AGRUPAR POR AÑO → CENTRO QUE FIRMA → MES
+============================================================ */
+function pcf_groupByAnio(datos) {
+
+    const mesesValidos = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const COLABORADORES = [
+        "gestcanarias",
+        "gestoria mas",
+        "yarza gestion",
+        "julio cuesta",
+        "castillo 11",
+        "gesgalicia"
+    ];
+
+    const centros = ["Molsan", "Colaboradores", "Oficina OE", "Oficina CBK"];
+
+    const map = {};
+
+    for (const f of datos) {
+
+        const anio = Number(f.anio);
+        if (!anio) continue;
+
+        const mes = (f.mes || "").toLowerCase().trim();
+        const idxMes = mesesValidos.indexOf(mes);
+        if (idxMes === -1) continue;
+
+        const ap = (f.apoderado || "").trim().toLowerCase();
+        const dias = Number(f.dias);
+
+        let centro = "Molsan";
+
+        if (ap === "oficina caixabank") centro = "Oficina CBK";
+        else if (ap === "oficina otra entidad") centro = "Oficina OE";
+        else if (COLABORADORES.includes(ap)) centro = "Colaboradores";
+
+        if (!map[anio]) map[anio] = {};
+
+        if (!map[anio][centro]) {
+            map[anio][centro] = {
+                total: 0,
+                presencial: 0,
+                vc: 0,
+                slaSum: 0,
+                slaCount: 0,
+                meses: Array(12).fill(0)
+            };
+        }
+
+        const r = map[anio][centro];
+
+        r.total++;
+
+        if (f.vc === "SI") r.vc++;
+        else r.presencial++;
+
+        if (dias > 0) {
+            r.slaSum += dias;
+            r.slaCount++;
+        }
+
+        if (idxMes >= 0) r.meses[idxMes]++;
+    }
+
+    return map;
 }
 
 
