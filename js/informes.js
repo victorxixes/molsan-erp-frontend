@@ -730,3 +730,4 @@ async function generarMapasPremium(datos) {
     // Esta función existe solo para evitar errores en main.js.
     return true;
 }
+
