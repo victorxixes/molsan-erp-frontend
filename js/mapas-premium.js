@@ -1,5 +1,5 @@
 /* ============================================================
-   MAPAS PREMIUM — GLASS LUXE 2027 (VERSIÓN COMPLETA)
+   MAPAS PREMIUM — GLASS LUXE 2027 (VERSIÓN FINAL)
 ============================================================ */
 
 window.MP = {
@@ -34,15 +34,21 @@ async function generarMapasPremium(datos) {
 
     for (const f of datos) {
 
-const apo  = String(f.apoderado || "Sin apoderado").trim();
-const ofi  = String(f.centro || "Sin oficina").trim();
-const cir  = String(f.circuito || "Sin circuito").trim();
-const tipo = String(f.tipo_firma || "Sin tipo").trim();
-const gest = String(f.tipo_gestion || "Sin gestión").trim();
-const cen  = String(f.centro || "Sin centro").trim();
+        /* ============================
+           NORMALIZACIÓN SEGURA
+        ============================ */
 
-
+        const anio = Number(f.anio) || 0;
         if (!anio) continue;
+
+        const mes  = String(f.mes || "").toLowerCase().trim();
+        const apo  = String(f.apoderado || "Sin apoderado").trim();
+        const ofi  = String(f.centro || "Sin oficina").trim();
+        const cir  = String(f.circuito || "Sin circuito").trim();
+        const tipo = String(f.tipo_firma || "Sin tipo").trim();
+        const gest = String(f.tipo_gestion || "Sin gestión").trim();
+        const cen  = String(f.centro || "Sin centro").trim();
+        const dias = Number(f.dias) || 0;
 
         /* ============================
            POR AÑO
