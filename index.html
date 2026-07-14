@@ -20,159 +20,177 @@
 
 <div class="app-shell">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-         <button id="sidebarToggle" class="sidebar-toggle-btn">☰</button>
-        <ul>
+  <!-- SIDEBAR -->
+<aside class="sidebar">
+    <button id="sidebarToggle" class="sidebar-toggle-btn">☰</button>
+    <ul>
 
-            <li class="menu-item" onclick="cargarModulo('dashboard')">
-                <span class="icon">📊</span>
-                <span class="text">Dashboard</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('dashboard')">
+            <span class="icon">📊</span>
+            <span class="text">Dashboard</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('listado')">
-                <span class="icon">📄</span>
-                <span class="text">Listado</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('dashboard-premium')">
+            <span class="icon">💎</span>
+            <span class="text">Dashboard Premium</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('uploader')">
-                <span class="icon">📂</span>
-                <span class="text">Importar Excel</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('listado')">
+            <span class="icon">📄</span>
+            <span class="text">Listado</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('configuracion')">
-                <span class="icon">⚙️</span>
-                <span class="text">Configuración</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('uploader')">
+            <span class="icon">📂</span>
+            <span class="text">Importar Excel</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('permisos')">
-                <span class="icon">🔐</span>
-                <span class="text">Permisos</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('configuracion')">
+            <span class="icon">⚙️</span>
+            <span class="text">Configuración</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('backup')">
-                <span class="icon">💾</span>
-                <span class="text">Backup</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('permisos')">
+            <span class="icon">🔐</span>
+            <span class="text">Permisos</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('restore')">
-                <span class="icon">♻️</span>
-                <span class="text">Restaurar</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('backup')">
+            <span class="icon">💾</span>
+            <span class="text">Backup</span>
+        </li>
 
-            <hr>
+        <li class="menu-item" onclick="cargarModulo('restore')">
+            <span class="icon">♻️</span>
+            <span class="text">Restaurar</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('informes-premium')">
-                <span class="icon">📘</span>
-                <span class="text">Informes Premium</span>
-            </li>
-         <hr>
-            <li class="menu-item" onclick="cargarModulo('panel-anual')">
-                <span class="icon">📆</span>
-                <span class="text">Panel Anual</span>
-            </li>
+        <hr>
 
-            <li class="menu-item" onclick="cargarModulo('panel-mensual')">
-                <span class="icon">📅</span>
-                <span class="text">Panel Mensual</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('informes-premium')">
+            <span class="icon">📘</span>
+            <span class="text">Informes Premium</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('panel-apoderados')">
-                <span class="icon">🧑‍</span>
-                <span class="text">Panel Apoderados</span>
-            </li>
+        <hr>
 
-            <li class="menu-item" onclick="cargarModulo('panel-tipo-firma')">
-                <span class="icon">✍️</span>
-                <span class="text">Tipo Firma</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('panel-anual')">
+            <span class="icon">📆</span>
+            <span class="text">Panel Anual</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('panel-tipo-gestion')">
-                <span class="icon">📄</span>
-                <span class="text">Tipo Gestión</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('panel-mensual')">
+            <span class="icon">📅</span>
+            <span class="text">Panel Mensual</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('panel-oficinas')">
-                <span class="icon">🏢</span>
-                <span class="text">Origen de encargo</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('panel-apoderados')">
+            <span class="icon">🧑‍</span>
+            <span class="text">Panel Apoderados</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('panel-circuito')">
-                <span class="icon">🛣️</span>
-                <span class="text">Circuito notarial</span>
-            </li>
-            
-<li class="menu-item" onclick="cargarModulo('panel-tipo-centroquefirma')">
-    <span class="icon">🏛️</span>
-    <span class="text">Centro que firma</span>
-</li>
+        <li class="menu-item" onclick="cargarModulo('panel-tipo-firma')">
+            <span class="icon">✍️</span>
+            <span class="text">Tipo Firma</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('panel-sla')">
-                <span class="icon">⏱️</span>
-                <span class="text">SLA / Tiempos</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('panel-tipo-gestion')">
+            <span class="icon">📄</span>
+            <span class="text">Tipo Gestión</span>
+        </li>
 
-        </ul>
-    </aside>
+        <li class="menu-item" onclick="cargarModulo('panel-oficinas')">
+            <span class="icon">🏢</span>
+            <span class="text">Origen de encargo</span>
+        </li>
 
-   <!-- DASHBOARD PREMIUM — GLASS LUXE 2027 -->
-<div id="dashboard-premium" class="dash-grid">
+        <li class="menu-item" onclick="cargarModulo('panel-circuito')">
+            <span class="icon">🛣️</span>
+            <span class="text">Circuito notarial</span>
+        </li>
 
-  <!-- 🧑‍ Apoderados -->
-  <div class="dash-card">
-    <h3>🧑‍ Apoderados</h3>
-    <p class="dash-main"><span id="dash-apod-total-2026">–</span> firmas 2026</p>
-    <p class="dash-sub">vs 2025: <span id="dash-apod-total-2025">–</span> (<span id="dash-apod-diff">–</span>)</p>
-    <p class="dash-detail">Top: <span id="dash-apod-top">–</span></p>
-  </div>
+        <li class="menu-item" onclick="cargarModulo('panel-tipo-centroquefirma')">
+            <span class="icon">🏛️</span>
+            <span class="text">Centro que firma</span>
+        </li>
 
-  <!-- ✍️ Tipo Firma -->
-  <div class="dash-card">
-    <h3>✍️ Tipo Firma</h3>
-    <p class="dash-main">VC: <span id="dash-tf-vc-2026">–</span> · Presencial: <span id="dash-tf-pres-2026">–</span></p>
-    <p class="dash-sub">VC % 2026: <span id="dash-tf-vc-pct-2026">–</span> · vs 2025: <span id="dash-tf-vc-pct-diff">–</span></p>
-  </div>
+        <li class="menu-item" onclick="cargarModulo('panel-sla')">
+            <span class="icon">⏱️</span>
+            <span class="text">SLA / Tiempos</span>
+        </li>
 
-  <!-- 📄 Tipo Gestión -->
-  <div class="dash-card">
-    <h3>📄 Tipo Gestión</h3>
-    <p class="dash-main">Con provisión: <span id="dash-tg-con-2026">–</span> · Sin provisión: <span id="dash-tg-sin-2026">–</span></p>
-    <p class="dash-sub">Cancelación con provisión → <span id="dash-tg-ej-con">–</span> (<span id="dash-tg-ej-con-diff">–</span>)</p>
-  </div>
+    </ul>
+</aside>
 
-  <!-- 🏢 Oficinas -->
-  <div class="dash-card">
-    <h3>🏢 Origen de encargo</h3>
-    <p class="dash-main">Total 2026: <span id="dash-ofi-total-2026">–</span></p>
-    <p class="dash-sub">vs 2025: <span id="dash-ofi-total-2025">–</span> (<span id="dash-ofi-diff">–</span>)</p>
-    <p class="dash-detail">Top oficina: <span id="dash-ofi-top">–</span></p>
-  </div>
+ <!-- ============================================================
+     TEMPLATE: DASHBOARD PREMIUM
+============================================================ -->
+<template id="tpl-dashboard-premium">
+<div id="dashboard-premium" class="modulo-wrapper fade-in dashboard-wrapper">
 
-  <!-- 🛣️ Circuito -->
-  <div class="dash-card">
-    <h3>🛣️ Circuito Notarial</h3>
-    <p class="dash-main">Total 2026: <span id="dash-circ-total-2026">–</span></p>
-    <p class="dash-sub">vs 2025: <span id="dash-circ-total-2025">–</span> (<span id="dash-circ-diff">–</span>)</p>
-    <p class="dash-detail">Top circuito: <span id="dash-circ-top">–</span></p>
-  </div>
+    <h2 class="titulo-modulo">📊 Dashboard Premium — KPIs Globales</h2>
 
-  <!-- 🏛️ Centro que firma -->
-  <div class="dash-card">
-    <h3>🏛️ Centro que firma</h3>
-    <p class="dash-main">Total 2026: <span id="dash-centro-total-2026">–</span></p>
-    <p class="dash-sub">vs 2025: <span id="dash-centro-total-2025">–</span> (<span id="dash-centro-diff">–</span>)</p>
-    <p class="dash-detail">Top centro: <span id="dash-centro-top">–</span></p>
-  </div>
+    <div class="dash-grid">
 
-  <!-- ⏱️ SLA -->
-  <div class="dash-card dash-wide">
-    <h3>⏱️ SLA / Tiempos</h3>
-    <p class="dash-main">SLA global 2026: <span id="dash-sla-2026">–</span> días</p>
-    <p class="dash-sub">vs 2025: <span id="dash-sla-2025">–</span> días (<span id="dash-sla-diff">–</span>)</p>
-    <p class="dash-detail">Con provisión: <span id="dash-sla-con-2026">–</span> · Sin provisión: <span id="dash-sla-sin-2026">–</span></p>
-  </div>
+      <!-- 🧑‍ Apoderados -->
+      <div class="dash-card">
+        <h3>🧑‍ Apoderados</h3>
+        <p class="dash-main"><span id="dash-apod-total-2026">–</span> firmas 2026</p>
+        <p class="dash-sub">vs 2025: <span id="dash-apod-total-2025">–</span> (<span id="dash-apod-diff">–</span>)</p>
+        <p class="dash-detail">Top: <span id="dash-apod-top">–</span></p>
+      </div>
+
+      <!-- ✍️ Tipo Firma -->
+      <div class="dash-card">
+        <h3>✍️ Tipo Firma</h3>
+        <p class="dash-main">VC: <span id="dash-tf-vc-2026">–</span> · Presencial: <span id="dash-tf-pres-2026">–</span></p>
+        <p class="dash-sub">VC % 2026: <span id="dash-tf-vc-pct-2026">–</span> · vs 2025: <span id="dash-tf-vc-pct-diff">–</span></p>
+      </div>
+
+      <!-- 📄 Tipo Gestión -->
+      <div class="dash-card">
+        <h3>📄 Tipo Gestión</h3>
+        <p class="dash-main">Con provisión: <span id="dash-tg-con-2026">–</span> · Sin provisión: <span id="dash-tg-sin-2026">–</span></p>
+        <p class="dash-sub">Cancelación con provisión → <span id="dash-tg-ej-con">–</span> (<span id="dash-tg-ej-con-diff">–</span>)</p>
+      </div>
+
+      <!-- 🏢 Oficinas -->
+      <div class="dash-card">
+        <h3>🏢 Origen de encargo</h3>
+        <p class="dash-main">Total 2026: <span id="dash-ofi-total-2026">–</span></p>
+        <p class="dash-sub">vs 2025: <span id="dash-ofi-total-2025">–</span> (<span id="dash-ofi-diff">–</span>)</p>
+        <p class="dash-detail">Top oficina: <span id="dash-ofi-top">–</span></p>
+      </div>
+
+      <!-- 🛣️ Circuito -->
+      <div class="dash-card">
+        <h3>🛣️ Circuito Notarial</h3>
+        <p class="dash-main">Total 2026: <span id="dash-circ-total-2026">–</span></p>
+        <p class="dash-sub">vs 2025: <span id="dash-circ-total-2025">–</span> (<span id="dash-circ-diff">–</span>)</p>
+        <p class="dash-detail">Top circuito: <span id="dash-circ-top">–</span></p>
+      </div>
+
+      <!-- 🏛️ Centro que firma -->
+      <div class="dash-card">
+        <h3>🏛️ Centro que firma</h3>
+        <p class="dash-main">Total 2026: <span id="dash-centro-total-2026">–</span></p>
+        <p class="dash-sub">vs 2025: <span id="dash-centro-total-2025">–</span> (<span id="dash-centro-diff">–</span>)</p>
+        <p class="dash-detail">Top centro: <span id="dash-centro-top">–</span></p>
+      </div>
+
+      <!-- ⏱️ SLA -->
+      <div class="dash-card dash-wide">
+        <h3>⏱️ SLA / Tiempos</h3>
+        <p class="dash-main">SLA global 2026: <span id="dash-sla-2026">–</span> días</p>
+        <p class="dash-sub">vs 2025: <span id="dash-sla-2025">–</span> días (<span id="dash-sla-diff">–</span>)</p>
+        <p class="dash-detail">Con provisión: <span id="dash-sla-con-2026">–</span> · Sin provisión: <span id="dash-sla-sin-2026">–</span></p>
+      </div>
+
+    </div>
 
 </div>
+</template>
+
 
 <!-- ============================================================
      TEMPLATE: LISTADO
