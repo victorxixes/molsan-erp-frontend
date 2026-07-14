@@ -90,3 +90,42 @@
     box-shadow: var(--m-shadow-soft);
     margin-top: 1.5rem;
 }
+.dash-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.dash-card {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+}
+
+.dash-card h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+}
+
+.dash-main {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.dash-sub {
+    font-size: 0.9rem;
+    color: #e5e7eb;
+}
+
+.dash-detail {
+    font-size: 0.85rem;
+    color: #9ca3af;
+}
+
+.dash-wide {
+    grid-column: span 3;
+}
