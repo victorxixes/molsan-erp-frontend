@@ -111,7 +111,40 @@ function pcf_groupByAnio(datos) {
 
     return map;
 }
+/* ============================================================
+   SELECT AÑOS
+============================================================ */
+function pcf_fillSelectAnios() {
+    const sel = document.getElementById("pcf-select-anio");
+    if (!sel) return;
 
+    sel.innerHTML = "";
+
+    const anios = Object.keys(PCF_POR_ANIO)
+        .map(Number)
+        .sort((a,b)=>a-b);
+
+    for (const anio of anios) {
+        const opt = document.createElement("option");
+        opt.value = anio;
+        opt.textContent = anio;
+        sel.appendChild(opt);
+    }
+}
+
+function pcf_selectUltimoAnio() {
+    const sel = document.getElementById("pcf-select-anio");
+    if (!sel || sel.options.length === 0) return;
+
+    sel.value = sel.options[sel.options.length - 1].value;
+}
+
+/* ============================================================
+   Cambio de año
+============================================================ */
+function pcf_onChangeAnio() {
+    cargarCentroQueFirma();
+}
 
 /* ============================================================
    Cargar datos y generar informe
