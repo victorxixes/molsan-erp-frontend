@@ -442,7 +442,9 @@
 
     </div>
 </template>
-
+<!-- ============================================================
+     PANEL TIPO CENTRO QUE FIRMA — PREMIUM 2027
+============================================================ -->
 <template id="tpl-panel-tipo-centroquefirma">
 <div class="panel-wrapper fade-in">
 
@@ -502,6 +504,69 @@
 </div>
 </template>
 
+<!-- ============================================================
+     PANEL TIPO FIRMA — PREMIUM 2027
+============================================================ -->
+<template id="tpl-panel-tipo-firma">
+<div class="panel-wrapper fade-in">
+
+    <h2 class="titulo-modulo">✍️ Panel Tipo de Firma</h2>
+
+    <div class="panel-header">
+        <div class="panel-header-left">
+            <label>Año</label>
+            <select id="ptf-select-anio"></select>
+        </div>
+
+        <div class="panel-header-right kpi-panel">
+            <div class="kpi-card"><div class="kpi-label">Total firmas</div><div class="kpi-value" id="ptf-kpi-total">0</div></div>
+            <div class="kpi-card"><div class="kpi-label">% VC</div><div class="kpi-value" id="ptf-kpi-vc">0%</div></div>
+            <div class="kpi-card"><div class="kpi-label">% Presencial</div><div class="kpi-value" id="ptf-kpi-pres">0%</div></div>
+            <div class="kpi-card"><div class="kpi-label">Mes top</div><div class="kpi-value" id="ptf-kpi-top-mes">-</div></div>
+        </div>
+    </div>
+
+    <div class="panel-contenido mt-20">
+        <h3 class="subtitulo-modulo">Detalle por Tipo (mes a mes)</h3>
+
+        <div class="tabla-scroll-x mt-10">
+            <table id="ptf-tabla-meses" class="table-premium table-sticky tabla-excel">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Total</th>
+                        <th>Presencial</th>
+                        <th>VC</th>
+                        <th>% Presencial</th>
+                        <th>% VC</th>
+                        <th>SLA Pres.</th>
+                        <th>SLA VC</th>
+                        <th>Enero</th>
+                        <th>Febrero</th>
+                        <th>Marzo</th>
+                        <th>Abril</th>
+                        <th>Mayo</th>
+                        <th>Junio</th>
+                        <th>Julio</th>
+                        <th>Agosto</th>
+                        <th>Septiembre</th>
+                        <th>Octubre</th>
+                        <th>Noviembre</th>
+                        <th>Diciembre</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel-contenido mt-20">
+        <h3 class="subtitulo-modulo">Distribución por Tipo</h3>
+        <canvas id="ptf-chart-tipo-firma"></canvas>
+    </div>
+
+</div>
+</template>
 
 <!-- ============================================================
      PANEL TIPO GESTIÓN — PREMIUM 2027
