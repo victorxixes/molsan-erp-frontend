@@ -345,3 +345,204 @@ function calcularPanelSLA(datos, año) {
 
     return cuenta ? Number((suma / cuenta).toFixed(1)) : 0;
 }
+/* ============================================================
+   DASHBOARD PREMIUM — GLASS LUXE 2027
+============================================================ */
+
+function dash_getYearPair(map, yearActual) {
+    const yAct = yearActual;
+    const yPrev = yearActual - 1;
+
+    const infoAct = map[yAct] || null;
+    const infoPrev = map[yPrev] || null;
+
+    const totalAct = infoAct ? Object.values(infoAct)
+        .reduce((acc, r) => acc + (r.total || 0), 0) : 0;
+
+    const totalPrev = infoPrev ? Object.values(infoPrev)
+        .reduce((acc, r) => acc + (r.total || 0), 0) : 0;
+
+    const diffAbs = totalAct - totalPrev;
+    const diffPct = totalPrev ? ((diffAbs / totalPrev) * 100).toFixed(1) + "%" : "0%";
+
+    return { yAct, yPrev, totalAct, totalPrev, diffAbs, diffPct, infoAct, infoPrev };
+}
+
+function dash_safeSet(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+async function initDashboardPremium() {
+    const currentYear = 2026;
+
+    /* 🧑‍ Apoderados */
+    const ap = dash_getYearPair(PAP_POR_ANIO, currentYear);
+    dash_safeSet("dash-apod-total-2026", ap.totalAct);
+    dash_safeSet("dash-apod-total-2025", ap.totalPrev);
+    dash_safeSet("dash-apod-diff", ap.diffPct);
+
+    let topAp = "-";
+    if (ap.infoAct && ap.infoAct.apoderados) {
+        let max = -Infinity;
+        for (const nombre in ap.infoAct.apoderados) {
+            const a = ap.infoAct.apoderados[nombre];
+            if (a.total > max) {
+                max = a.total;
+                topAp = nombre;
+            }
+        }
+    }
+    dash_safeSet("dash-apod-top", topAp);
+
+    /* ✍️ Tipo Firma */
+    const tf = dash_getYearPair(PTF_POR_ANIO, currentYear);
+    let presAct = 0, vcAct = 0;
+    if (tf.infoAct) {
+        for (const tipo in tf.infoAct) {
+            presAct += tf.infoAct[tipo].presencial || 0;
+            vcAct += tf.infoAct[tipo].vc || 0;
+        }
+    }
+    const totalActTF = presAct + vcAct;
+    const pctVCAct = totalActTF ? ((vcAct / totalActTF) * 100).toFixed(1) + "%" : "0%";
+
+    dash_safeSet("dash-tf-pres-2026", presAct);
+    dash_safeSet("dash-tf-vc-2026", vcAct);
+    dash_safeSet("dash-tf-vc-pct-2026", pctVCAct);
+
+    let presPrev = 0, vcPrev = 0;
+    if (tf.infoPrev) {
+        for (const tipo in tf.infoPrev) {
+            presPrev += tf.infoPrev[tipo].presencial || 0;
+            vcPrev += tf.infoPrev[tipo].vc || 0;
+        }
+    }
+    const totalPrevTF = presPrev + vcPrev;
+    const pctVCPrev = totalPrevTF ? ((vcPrev / totalPrevTF) * 100).toFixed(1) + "%" : "0%";
+    const diffVCpct = (parseFloat(pctVCAct) - parseFloat(pctVCPrev)).toFixed(1) + "%";
+    dash_safeSet("dash-tf-vc-pct-diff", diffVCpct);
+
+    /* 📄 Tipo Gestión */
+    const tg = dash_getYearPair(PTG_POR_ANIO, currentYear);
+    let conAct = 0, sinAct = 0;
+    if (tg.infoAct) {
+        for (const tipo in tg.infoAct) {
+            conAct += tg.infoAct[tipo].con || 0;
+            sinAct += tg.infoAct[tipo].sin || 0;
+        }
+    }
+    dash_safeSet("dash-tg-con-2026", conAct);
+    dash_safeSet("dash-tg-sin-2026", sinAct);
+
+    let conPrev = 0;
+    if (tg.infoPrev) {
+        for (const tipo in tg.infoPrev) {
+            conPrev += tg.infoPrev[tipo].con || 0;
+        }
+    }
+    const diffConPct = conPrev ? (((conAct - conPrev) / conPrev) * 100).toFixed(1) + "%" : "0%";
+    dash_safeSet("dash-tg-ej-con", conAct);
+    dash_safeSet("dash-tg-ej-con-diff", diffConPct);
+
+    /* 🏢 Oficinas */
+    const ofi = dash_getYearPair(POF_POR_ANIO, currentYear);
+    dash_safeSet("dash-ofi-total-2026", ofi.totalAct);
+    dash_safeSet("dash-ofi-total-2025", ofi.totalPrev);
+    dash_safeSet("dash-ofi-diff", ofi.diffPct);
+
+    let topOfi = "-";
+    if (ofi.infoAct) {
+        let max = 0;
+        for (const nombre in ofi.infoAct) {
+            if (ofi.infoAct[nombre].total > max) {
+                max = ofi.infoAct[nombre].total;
+                topOfi = nombre;
+            }
+        }
+    }
+    dash_safeSet("dash-ofi-top", topOfi);
+
+    /* 🛣️ Circuito */
+    const ci = dash_getYearPair(PCI_POR_ANIO, currentYear);
+    dash_safeSet("dash-circ-total-2026", ci.totalAct);
+    dash_safeSet("dash-circ-total-2025", ci.totalPrev);
+    dash_safeSet("dash-circ-diff", ci.diffPct);
+
+    let topCirc = "-";
+    if (ci.infoAct) {
+        let max = 0;
+        for (const circuito in ci.infoAct) {
+            if (ci.infoAct[circuito].total > max) {
+                max = ci.infoAct[circuito].total;
+                topCirc = circuito;
+            }
+        }
+    }
+    dash_safeSet("dash-circ-top", topCirc);
+
+    /* 🏛️ Centro que firma */
+    const cf = dash_getYearPair(PCF_POR_ANIO, currentYear);
+    dash_safeSet("dash-centro-total-2026", cf.totalAct);
+    dash_safeSet("dash-centro-total-2025", cf.totalPrev);
+    dash_safeSet("dash-centro-diff", cf.diffPct);
+
+    let topCentro = "-";
+    if (cf.infoAct) {
+        let max = 0;
+        for (const centro in cf.infoAct) {
+            if (cf.infoAct[centro].total > max) {
+                max = cf.infoAct[centro].total;
+                topCentro = centro;
+            }
+        }
+    }
+    dash_safeSet("dash-centro-top", topCentro);
+
+    /* ⏱️ SLA */
+    const slaPair = dash_getYearPair(SLA_POR_ANIO, currentYear);
+
+    function calcSLA(info) {
+        if (!info) return { sla: "0", con: "0", sin: "0" };
+        let sumaDias = 0, cuentaDias = 0;
+        let sumaCon = 0, cuentaCon = 0;
+        let sumaSin = 0, cuentaSin = 0;
+
+        for (const mes in info) {
+            const r = info[mes];
+            sumaDias += r.sumaDias || 0;
+            cuentaDias += r.cuentaDias || 0;
+            sumaCon += r.con.suma || 0;
+            cuentaCon += r.con.cuenta || 0;
+            sumaSin += r.sin.suma || 0;
+            cuentaSin += r.sin.cuenta || 0;
+        }
+
+        return {
+            sla: cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0",
+            con: cuentaCon ? (sumaCon / cuentaCon).toFixed(1) : "0",
+            sin: cuentaSin ? (sumaSin / cuentaSin).toFixed(1) : "0"
+        };
+    }
+
+    const slaAct = calcSLA(slaPair.infoAct);
+    const slaPrev = calcSLA(slaPair.infoPrev);
+
+    dash_safeSet("dash-sla-2026", slaAct.sla);
+    dash_safeSet("dash-sla-2025", slaPrev.sla);
+
+    const diffSLA = (parseFloat(slaAct.sla) - parseFloat(slaPrev.sla)).toFixed(1);
+    const diffSLApct = slaPrev.sla !== "0"
+        ? ((diffSLA / parseFloat(slaPrev.sla)) * 100).toFixed(1) + "%"
+        : "0%";
+
+    dash_safeSet("dash-sla-diff", diffSLApct);
+    dash_safeSet("dash-sla-con-2026", slaAct.con);
+    dash_safeSet("dash-sla-sin-2026", slaAct.sin);
+
+    console.log("📊 Dashboard Premium 2027 recalculado");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(initDashboardPremium, 1000);
+});
