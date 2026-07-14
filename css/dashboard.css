@@ -1,60 +1,50 @@
 /* ============================================================
    DASHBOARD — MOLSAN ERP SAAS PREMIUM 2027
-   Adaptado a Glass Luxe Light + UI-Kit + Motion + Charts
+   Encapsulado para evitar afectar al sidebar
 ============================================================ */
 
-/* ============================================================
-   ANIMACIÓN DE ENTRADA DEL MÓDULO
-============================================================ */
-
-.modulo-wrapper.fade-in {
+/* Animación */
+#dashboard-premium .modulo-wrapper.fade-in {
     animation: fadeUp var(--motion-normal) var(--ease-emphasized);
 }
 
-/* ============================================================
-   KPIs — SISTEMA CORPORATIVO 2027
-============================================================ */
-
-.dashboard-kpis {
+/* KPIs */
+#dashboard-premium .dashboard-kpis {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 18px;
     margin-bottom: 25px;
 }
 
-.dashboard-kpi {
+#dashboard-premium .dashboard-kpi {
     background: var(--m-bg-card);
     border: 1px solid var(--m-border-soft);
     border-radius: var(--m-radius-md);
     padding: 16px 20px;
-
     box-shadow: var(--m-shadow-soft);
     transition: transform var(--motion-normal) var(--ease-emphasized),
                 box-shadow var(--motion-normal) var(--ease-soft);
 }
 
-.dashboard-kpi:hover {
+#dashboard-premium .dashboard-kpi:hover {
     transform: translateY(-3px);
     box-shadow: var(--m-shadow-medium);
 }
 
-.dashboard-kpi-title {
+#dashboard-premium .dashboard-kpi-title {
     font-size: 0.85rem;
     color: var(--m-text-secondary);
     margin-bottom: 4px;
 }
 
-.dashboard-kpi-value {
+#dashboard-premium .dashboard-kpi-value {
     font-size: 1.4rem;
     font-weight: 600;
     color: var(--m-primary-dark);
 }
 
-/* ============================================================
-   TARJETAS DE GRÁFICOS — GLASS LUXE LIGHT
-============================================================ */
-
-.dashboard-card {
+/* Tarjetas */
+#dashboard-premium .dashboard-card {
     background: var(--m-bg-card);
     border-radius: var(--m-radius-lg);
     padding: 1.2rem;
@@ -62,27 +52,22 @@
     box-shadow: var(--m-shadow-medium);
     backdrop-filter: blur(10px);
     margin-top: 1.5rem;
-
     transition: box-shadow var(--motion-normal) var(--ease-soft),
                 transform var(--motion-normal) var(--ease-emphasized);
 }
 
-.dashboard-card:hover {
+#dashboard-premium .dashboard-card:hover {
     box-shadow: var(--m-shadow-strong);
     transform: translateY(-3px);
 }
 
-/* Canvas */
-.dashboard-card canvas {
+#dashboard-premium .dashboard-card canvas {
     width: 100%;
     transition: opacity var(--motion-normal) var(--ease-soft);
 }
 
-/* ============================================================
-   GRÁFICOS (Charts 2027)
-============================================================ */
-
-.dashboard-chart {
+/* Charts */
+#dashboard-premium .dashboard-chart {
     background: var(--m-bg-card);
     border-radius: var(--m-radius-lg);
     padding: 1.2rem;
@@ -90,14 +75,16 @@
     box-shadow: var(--m-shadow-soft);
     margin-top: 1.5rem;
 }
-.dash-grid {
+
+/* Grips Premium */
+#dashboard-premium .dash-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.5rem;
     margin-top: 1.5rem;
 }
 
-.dash-card {
+#dashboard-premium .dash-card {
     background: rgba(255, 255, 255, 0.12);
     border-radius: 16px;
     padding: 1.25rem 1.5rem;
@@ -106,26 +93,26 @@
     box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
 }
 
-.dash-card h3 {
+#dashboard-premium .dash-card h3 {
     margin: 0 0 0.75rem;
     font-size: 1rem;
 }
 
-.dash-main {
+#dashboard-premium .dash-main {
     font-size: 1.1rem;
     font-weight: 600;
 }
 
-.dash-sub {
+#dashboard-premium .dash-sub {
     font-size: 0.9rem;
     color: #e5e7eb;
 }
 
-.dash-detail {
+#dashboard-premium .dash-detail {
     font-size: 0.85rem;
     color: #9ca3af;
 }
 
-.dash-wide {
+#dashboard-premium .dash-wide {
     grid-column: span 3;
 }
