@@ -9,15 +9,36 @@ let chartCentroFirma = null;
 ============================================================ */
 async function initPanelTipoCentroQueFirma() {
 
-    // Cargar selector de año
-    cargarAniosSelect("pcf-select-anio");
+    console.log("🏛️ initPanelTipoCentroQueFirma() ejecutado");
 
-    // Evento al cambiar año
-    document.getElementById("pcf-select-anio").addEventListener("change", cargarCentroQueFirma);
+    // Esperar a que el HTML esté cargado
+    if (!document.getElementById("pcf-select-anio")) {
+        console.warn("⏳ Panel Centro que Firma aún no está en el DOM.");
+        return;
+    }
 
-    // Primera carga
+    // 1) Cargar datos
+    let datos = await obtenerFirmas();
+    datos = aplicarNormalizacionPremium(datos);
+
+    if (!datos || !datos.length) return;
+
+    // 2) Guardar datos globales
+    PCF_DATOS = datos;
+    PCF_POR_ANIO = pcf_groupByAnio(PCF_DATOS);
+
+    // 3) Rellenar selector de años
+    pcf_fillSelectAnios();
+    pcf_selectUltimoAnio();
+
+    // 4) Evento al cambiar año
+    document.getElementById("pcf-select-anio")
+        .addEventListener("change", cargarCentroQueFirma);
+
+    // 5) Primera carga
     await cargarCentroQueFirma();
 }
+
 
 /* ============================================================
    Cargar datos y generar informe
