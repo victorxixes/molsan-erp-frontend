@@ -44,11 +44,12 @@ async function cargarModulo(nombre) {
 
 
     /* ============================================================
-       4. TÍTULOS BONITOS — CORREGIDO ✔
+       4. TÍTULOS BONITOS — GLASS LUXE 2027
     ============================================================ */
     if (title) {
         const nombresBonitos = {
-            // Core
+
+            /* CORE */
             "dashboard-premium": "Dashboard Premium",
             "listado":            "Listado de Firmas",
             "uploader":           "Importación de Excel",
@@ -56,8 +57,9 @@ async function cargarModulo(nombre) {
             "backup":             "Backup de Datos",
             "restore":            "Restauración de Backups",
             "informes-premium":   "Informes Premium",
+            "informe-evolutivo":  "Informe Evolutivo",
 
-            // Paneles Premium
+            /* PANELES PREMIUM */
             "panel-anual":        "Panel Anual",
             "panel-mensual":      "Panel Mensual",
             "panel-apoderados":   "Panel Apoderados",
@@ -81,13 +83,16 @@ async function cargarModulo(nombre) {
 
             switch (nombre) {
 
-                /* Core */
-case "dashboard-premium":
-    const datos = await obtenerFirmas();
-    datos.forEach(aplicarReglas);
-    generarMapasPremium(datos);
-    await initDashboardPremium();
-    break;
+                /* ============================
+                   CORE
+                ============================ */
+
+                case "dashboard-premium":
+                    const datos = await obtenerFirmas();
+                    datos.forEach(aplicarReglas);
+                    generarMapasPremium(datos);
+                    await initDashboardPremium();
+                    break;
 
                 case "listado":
                     await initListado();
@@ -112,13 +117,14 @@ case "dashboard-premium":
                 case "informes-premium":
                     await initInformesPremium();
                     break;
-                  
-case "informe-evolutivo":
-    await initInformeEvolutivo();
-    break;
+
+                case "informe-evolutivo":
+                    await initInformeEvolutivo();
+                    break;
+
 
                 /* ============================
-                   PANEL PREMIUM — CORREGIDOS
+                   PANELES PREMIUM
                 ============================ */
 
                 case "panel-anual":
@@ -188,6 +194,6 @@ window.addEventListener("DOMContentLoaded", async () => {
     const estado = localStorage.getItem("molsan_sidebar") === "collapsed";
     aplicarEstadoSidebar(estado);
 
-    // ✔ CORREGIDO: cargar Dashboard Premium por defecto
+    // ✔ Cargar Dashboard Premium por defecto
     cargarModulo("dashboard-premium");
 });
