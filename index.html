@@ -1008,6 +1008,48 @@
     </div>
 </template>
            
+<!-- ============================================================
+     PANEL: INFORME EVOLUTIVO — VOLUMEN DE FIRMAS
+============================================================ -->
+<template id="tpl-informe-evolutivo">
+  <div id="informe-evolutivo" class="dashboard-card dash-wide">
+
+    <h3 class="titulo-modulo">📈 Informe Evolutivo — Volumen de Firmas 2020–2026</h3>
+
+    <!-- Gráfico principal -->
+    <div class="dashboard-chart">
+      <canvas id="chart-evolutivo"></canvas>
+    </div>
+
+    <!-- KPIs evolutivos -->
+    <div class="dash-grid" style="margin-top: 1.5rem;">
+      <div class="dash-card">
+        <h3>📊 Evolución anual</h3>
+        <p class="dash-main">Último año: <span id="evo-kpi-anual-ultimo">–</span></p>
+        <p class="dash-sub">vs año anterior: <span id="evo-kpi-anual-diff">–</span></p>
+      </div>
+
+      <div class="dash-card">
+        <h3>📅 Mejor mes</h3>
+        <p class="dash-main"><span id="evo-kpi-mejor-mes">–</span></p>
+        <p class="dash-sub">Firmas: <span id="evo-kpi-mejor-mes-val">–</span></p>
+      </div>
+
+      <div class="dash-card">
+        <h3>📉 Peor mes</h3>
+        <p class="dash-main"><span id="evo-kpi-peor-mes">–</span></p>
+        <p class="dash-sub">Firmas: <span id="evo-kpi-peor-mes-val">–</span></p>
+      </div>
+
+      <div class="dash-card">
+        <h3>📈 Tendencia</h3>
+        <p class="dash-main"><span id="evo-kpi-tendencia">–</span></p>
+        <p class="dash-sub">Comentario: <span id="evo-kpi-insight">–</span></p>
+      </div>
+    </div>
+
+  </div>
+</template>
 
 <!-- ============================ SCRIPTS ============================ -->
 
