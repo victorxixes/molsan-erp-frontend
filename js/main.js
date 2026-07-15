@@ -112,7 +112,10 @@ case "dashboard-premium":
                 case "informes-premium":
                     await initInformesPremium();
                     break;
-
+                  
+case "informe-evolutivo":
+    await initInformeEvolutivo();
+    break;
 
                 /* ============================
                    PANEL PREMIUM — CORREGIDOS
