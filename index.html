@@ -502,17 +502,20 @@
 
         </div>
 
+        <!-- ACTA GENERADA -->
         <div id="ar-acta-final" class="card-glass p-20 mt-30" style="display:none;">
             <h3>📄 Acta generada</h3>
             <div id="ar-acta-contenido" class="mt-20 acta-preview"></div>
+
+            <button class="m-btn m-btn-secondary m-btn-round mt-20"
+                    onclick="ar_imprimirActa()">
+                Imprimir / PDF
+            </button>
         </div>
-<button class="m-btn m-btn-secondary m-btn-round mt-10"
-        onclick="ar_imprimirActa()">
-    Imprimir / PDF
-</button>
 
     </div>
 </template>
+
 
 <!-- ============================================================
      TEMPLATE: UPLOADER
