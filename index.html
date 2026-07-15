@@ -441,75 +441,35 @@
 <!-- ============================================================
      PANEL ACTA DE REUNIÓN — PREMIUM 2027
 ============================================================ -->
-<template id="tpl-acta-reunion">
-    <div class="modulo-wrapper fade-in">
+ 
+Molsan Gestion y Tramitacion, SL.
+Cl. Felip II, 293 - Bxos
+08016 Barcelona
+Tel. 93.349.74.65
+cancelaciones@molsan.es
 
-        <h2 class="titulo-modulo">📝 Acta de reunión</h2>
 
-        <div class="card-glass p-20">
+ORDEN DEL DÍA – REUNIÓN dd/mm/aaaa
 
-            <p class="texto-secundario">
-                Panel para registrar y consultar actas de reuniones internas.
-            </p>
+Se procede a realizar la reunión en las instalaciones del Grupo Sánchez Molina sita en Edificio Trade, Torre Sur, gran Vía Carles III 5 pl. de Barcelona.
 
-            <!-- FORMULARIO -->
-            <div class="form-grid mt-20">
+Se inicia la reunión a las [campo para poner hora.]siendo una duración máxima de 1h con la correspondiente finalización de la reunión a las [campo para poner hora.]
 
-                <div>
-                    <label>Fecha</label>
-                    <input type="date" id="ar-fecha" class="m-input">
-                </div>
+Comparecen en la reunión los siguientes intervinientes:
 
-                <div>
-                    <label>Responsable</label>
-                    <input type="text" id="ar-responsable" class="m-input" placeholder="Nombre del responsable">
-                </div>
+Asistentes	Cargo
+Sr.Yosef David Sánchez Molina	Presidencia
+Sra. Yolanda Vives	Gerencia
+Sra. Melisa Guillen	Coordinadora-Dpto SP-Cancela-Apoderada
+Sr. Carles Barberà	Apoderado
+Sr. Pedro Pérez	Apoderado
+Sr. Alberto López	Apoderado
+Sr. Gastón Beguiristain	Apoderado
+Sr. Víctor Tomás	Coordinador-Dpto CP-Apoderado
 
-                <div>
-                    <label>Participantes</label>
-                    <input type="text" id="ar-participantes" class="m-input" placeholder="Separar por comas">
-                </div>
+Puntos de la reunión:
 
-                <div class="col-span-2">
-                    <label>Resumen</label>
-                    <textarea id="ar-resumen" class="m-textarea" rows="4" placeholder="Resumen de la reunión"></textarea>
-                </div>
-
-                <div class="col-span-2">
-                    <label>Acciones acordadas</label>
-                    <textarea id="ar-acciones" class="m-textarea" rows="4" placeholder="Acciones y responsables"></textarea>
-                </div>
-
-            </div>
-
-            <button class="m-btn m-btn-primary m-btn-round mt-20" onclick="ar_guardarActa()">
-                Guardar acta
-            </button>
-
-        </div>
-
-        <!-- LISTADO DE ACTAS -->
-        <div class="card-glass p-20 mt-30">
-            <h3>📄 Actas registradas</h3>
-
-            <div class="tabla-scroll-x mt-10">
-                <table class="table-premium table-sticky">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Responsable</th>
-                            <th>Participantes</th>
-                            <th>Resumen</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ar-tabla"></tbody>
-                </table>
-            </div>
-        </div>
-
-    </div>
-</template>
+[Aquí campos para añadir los temas de la reunión
 
 <!-- ============================================================
      TEMPLATE: UPLOADER
@@ -1333,6 +1293,7 @@
 <script src="js/panel-sla.js?v=2"></script>
 <script src="js/panel-tipo-centroquefirma.js?v=2"></script>
 <script src="js/mapas-premium.js?v=2"></script>
+    <script src="js/panel-acta-reunion.js?v=2"></script>
 
 <!-- 4) Dashboard SIEMPRE después de todo lo anterior -->
 <script src="js/dashboard.js?v=2"></script>
