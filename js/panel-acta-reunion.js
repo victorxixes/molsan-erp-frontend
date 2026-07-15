@@ -56,3 +56,56 @@ function ar_generarActa() {
     document.getElementById("ar-acta-contenido").innerHTML = actaHTML;
     document.getElementById("ar-acta-final").style.display = "block";
 }
+
+function ar_imprimirActa() {
+
+    const contenido = document.getElementById("ar-acta-contenido").innerHTML;
+
+    const ventana = window.open("", "_blank");
+
+    ventana.document.write(`
+        <html>
+        <head>
+            <title>Acta de reunión</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    padding: 40px;
+                    line-height: 1.6;
+                    color: #111;
+                }
+                h1, h2, h3 {
+                    margin-top: 0;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+                table, th, td {
+                    border: 1px solid #ccc;
+                    padding: 8px;
+                }
+                strong {
+                    font-weight: 600;
+                }
+                .logo {
+                    width: 160px;
+                    margin-bottom: 20px;
+                }
+            </style>
+        </head>
+        <body>
+
+            <img src="img/logo-molsan.png" class="logo">
+
+            ${contenido}
+
+        </body>
+        </html>
+    `);
+
+    ventana.document.close();
+
+    ventana.onload = () => ventana.print();
+}
