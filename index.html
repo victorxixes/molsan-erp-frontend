@@ -127,24 +127,13 @@
         <div id="module-container"></div>
     </main>
 
-<!-- ============================================================
-     TEMPLATE: DASHBOARD PREMIUM
-============================================================ -->
-<!-- ============================================================
+============================================================
      DASHBOARD — COMPARATIVA ANUAL 2027
 ============================================================ -->
 <template id="tpl-dashboard">
 <div id="dashboard-root" class="modulo-wrapper fade-in dashboard-wrapper">
 
     <h2 class="titulo-modulo">📊 Dashboard — Comparativa Anual</h2>
-
-    <!-- BOTÓN INFORME EVOLUTIVO -->
-    <div class="mt-20">
-        <button class="m-btn m-btn-primary m-btn-round"
-                onclick="cargarModulo('informe-evolutivo')">
-            📈 Ver Informe Evolutivo
-        </button>
-    </div>
 
     <div class="card-glass p-20">
 
@@ -163,7 +152,34 @@
 
         <!-- KPIs COMPARATIVOS -->
         <div class="kpi-grid-compare">
-            ...
+
+            <div class="kpi-box-compare">
+                <div class="kpi-title">Firmas totales</div>
+                <div class="kpi-values">
+                    <span id="dash-total-actual" class="kpi-big"></span>
+                    <span id="dash-total-anterior" class="kpi-small"></span>
+                </div>
+                <div id="dash-total-diff" class="kpi-diff"></div>
+            </div>
+
+            <div class="kpi-box-compare">
+                <div class="kpi-title">SLA medio</div>
+                <div class="kpi-values">
+                    <span id="dash-sla-actual" class="kpi-big"></span>
+                    <span id="dash-sla-anterior" class="kpi-small"></span>
+                </div>
+                <div id="dash-sla-diff" class="kpi-diff"></div>
+            </div>
+
+            <div class="kpi-box-compare">
+                <div class="kpi-title">% VC</div>
+                <div class="kpi-values">
+                    <span id="dash-vc-actual" class="kpi-big"></span>
+                    <span id="dash-vc-anterior" class="kpi-small"></span>
+                </div>
+                <div id="dash-vc-diff" class="kpi-diff"></div>
+            </div>
+
         </div>
 
         <!-- GRÁFICO COMPARATIVO -->
@@ -173,8 +189,17 @@
 
         <!-- TABLA RESUMEN DE PANELES -->
         <h3 class="mt-40">📈 Comparativa por panel</h3>
+
         <table class="table-premium table-sticky">
-            ...
+            <thead>
+                <tr>
+                    <th>Panel</th>
+                    <th>Año actual</th>
+                    <th>Año anterior</th>
+                    <th>Diferencia %</th>
+                </tr>
+            </thead>
+            <tbody id="dash-tabla-paneles"></tbody>
         </table>
 
     </div>
