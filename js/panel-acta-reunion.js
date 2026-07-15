@@ -88,13 +88,10 @@ function ar_imprimirActa() {
                 }
                 strong {
                     font-weight: 600;
-            
                 }
             </style>
         </head>
         <body>
-
-           
 
             ${contenido}
 
@@ -103,6 +100,5 @@ function ar_imprimirActa() {
     `);
 
     ventana.document.close();
-
     ventana.onload = () => ventana.print();
 }
