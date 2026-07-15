@@ -438,65 +438,77 @@
 
     </div>
 </template>
-/* ============================================================
-   PANEL ACTA DE REUNIÓN — LÓGICA
-============================================================ */
+    <!-- ============================================================
+     TEMPLATE: ACTA REUNION
+============================================================ -->
+<template id="tpl-acta-reunion">
+    <div class="modulo-wrapper fade-in">
 
-async function initActaReunion() {
-    // No hay nada que cargar, solo mostrar el panel
-}
+        <h2 class="titulo-modulo">📝 Acta de reunión</h2>
 
-function ar_generarActa() {
+        <div class="card-glass p-20">
 
-    const fecha       = document.getElementById("ar-fecha").value;
-    const horaInicio  = document.getElementById("ar-hora-inicio").value;
-    const horaFin     = document.getElementById("ar-hora-fin").value;
-    const puntos      = document.getElementById("ar-puntos").value;
+            <h3 class="subtitulo-modulo">Datos de la reunión</h3>
 
-    if (!fecha || !horaInicio || !horaFin) {
-        alert("⚠️ Fecha y horas son obligatorias.");
-        return;
-    }
+            <div class="form-grid mt-20">
 
-    const asistentes = [...document.querySelectorAll("#ar-asistentes tr")]
-        .map(tr => {
-            const tds = tr.querySelectorAll("td");
-            return { nombre: tds[0].textContent, cargo: tds[1].textContent };
-        });
+                <div>
+                    <label>Fecha</label>
+                    <input type="date" id="ar-fecha" class="m-input">
+                </div>
 
-    const actaHTML = `
-        <p><strong>Molsan Gestión y Tramitación, SL.</strong><br>
-        Cl. Felip II, 293 - Bxos<br>
-        08016 Barcelona<br>
-        Tel. 93.349.74.65<br>
-        cancelaciones@molsan.es</p>
+                <div>
+                    <label>Hora inicio</label>
+                    <input type="time" id="ar-hora-inicio" class="m-input">
+                </div>
 
-        <h3>ORDEN DEL DÍA – REUNIÓN ${fecha}</h3>
+                <div>
+                    <label>Hora fin</label>
+                    <input type="time" id="ar-hora-fin" class="m-input">
+                </div>
 
-        <p>Se procede a realizar la reunión en las instalaciones del Grupo Sánchez Molina
-        sita en Edificio Trade, Torre Sur, Gran Vía Carles III 5 pl. de Barcelona.</p>
+            </div>
 
-        <p>Se inicia la reunión a las <strong>${horaInicio}</strong> siendo una duración máxima de 1h,
-        con la correspondiente finalización de la reunión a las <strong>${horaFin}</strong>.</p>
+            <h3 class="subtitulo-modulo mt-30">Asistentes</h3>
 
-        <h3>Asistentes</h3>
-        <table class="table-premium">
-            <thead><tr><th>Asistentes</th><th>Cargo</th></tr></thead>
-            <tbody>
-                ${asistentes.map(a => `
-                    <tr><td>${a.nombre}</td><td>${a.cargo}</td></tr>
-                `).join("")}
-            </tbody>
-        </table>
+            <table class="table-premium mt-10">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Cargo</th>
+                    </tr>
+                </thead>
+                <tbody id="ar-asistentes">
+                    <tr><td>Sr. Yosef David Sánchez Molina</td><td>Presidencia</td></tr>
+                    <tr><td>Sra. Yolanda Vives</td><td>Gerencia</td></tr>
+                    <tr><td>Sra. Melisa Guillen</td><td>Coordinadora - Dpto SP - Cancela - Apoderada</td></tr>
+                    <tr><td>Sr. Carles Barberà</td><td>Apoderado</td></tr>
+                    <tr><td>Sr. Pedro Pérez</td><td>Apoderado</td></tr>
+                    <tr><td>Sr. Alberto López</td><td>Apoderado</td></tr>
+                    <tr><td>Sr. Gastón Beguiristain</td><td>Apoderado</td></tr>
+                    <tr><td>Sr. Víctor Tomás</td><td>Coordinador - Dpto CP - Apoderado</td></tr>
+                </tbody>
+            </table>
 
-        <h3>Puntos de la reunión</h3>
-        <p>${puntos.replace(/\n/g, "<br>")}</p>
-    `;
+            <h3 class="subtitulo-modulo mt-30">Puntos de la reunión</h3>
 
-    document.getElementById("ar-acta-contenido").innerHTML = actaHTML;
-    document.getElementById("ar-acta-final").style.display = "block";
-}
+            <textarea id="ar-puntos" class="m-textarea" rows="6"
+                placeholder="Añade aquí los puntos tratados en la reunión..."></textarea>
 
+            <button class="m-btn m-btn-primary m-btn-round mt-20"
+                    onclick="ar_generarActa()">
+                Generar acta
+            </button>
+
+        </div>
+
+        <div id="ar-acta-final" class="card-glass p-20 mt-30" style="display:none;">
+            <h3>📄 Acta generada</h3>
+            <div id="ar-acta-contenido" class="mt-20 acta-preview"></div>
+        </div>
+
+    </div>
+</template>
 
 <!-- ============================================================
      TEMPLATE: UPLOADER
