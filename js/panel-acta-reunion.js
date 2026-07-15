@@ -88,16 +88,13 @@ function ar_imprimirActa() {
                 }
                 strong {
                     font-weight: 600;
-                }
-                .logo {
-                    width: 160px;
-                    margin-bottom: 20px;
+            
                 }
             </style>
         </head>
         <body>
 
-            <img src="img/logo-molsan.png" class="logo">
+           
 
             ${contenido}
 
