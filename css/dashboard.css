@@ -158,3 +158,38 @@
     font-weight: 700;
 }
 
+/* ============================================================
+   INFORME EVOLUTIVO — GLASS LUXE
+============================================================ */
+
+#informe-evolutivo {
+    margin-top: 2rem;
+}
+
+#informe-evolutivo .dashboard-chart {
+    background: rgba(255, 255, 255, 0.78);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+    backdrop-filter: blur(18px);
+}
+
+#informe-evolutivo .titulo-modulo {
+    margin-bottom: 1rem;
+    color: #0A3A67;
+}
+
+#informe-evolutivo .dash-card h3 {
+    color: #0A3A67;
+    font-weight: 700;
+}
+
+#informe-evolutivo .dash-main {
+    color: #0A3A67;
+    font-weight: 700;
+}
+
+#informe-evolutivo .dash-sub {
+    color: #374151;
+}
