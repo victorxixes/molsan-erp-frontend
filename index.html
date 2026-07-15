@@ -438,6 +438,78 @@
 
     </div>
 </template>
+<!-- ============================================================
+     PANEL ACTA DE REUNIÓN — PREMIUM 2027
+============================================================ -->
+<template id="tpl-acta-reunion">
+    <div class="modulo-wrapper fade-in">
+
+        <h2 class="titulo-modulo">📝 Acta de reunión</h2>
+
+        <div class="card-glass p-20">
+
+            <p class="texto-secundario">
+                Panel para registrar y consultar actas de reuniones internas.
+            </p>
+
+            <!-- FORMULARIO -->
+            <div class="form-grid mt-20">
+
+                <div>
+                    <label>Fecha</label>
+                    <input type="date" id="ar-fecha" class="m-input">
+                </div>
+
+                <div>
+                    <label>Responsable</label>
+                    <input type="text" id="ar-responsable" class="m-input" placeholder="Nombre del responsable">
+                </div>
+
+                <div>
+                    <label>Participantes</label>
+                    <input type="text" id="ar-participantes" class="m-input" placeholder="Separar por comas">
+                </div>
+
+                <div class="col-span-2">
+                    <label>Resumen</label>
+                    <textarea id="ar-resumen" class="m-textarea" rows="4" placeholder="Resumen de la reunión"></textarea>
+                </div>
+
+                <div class="col-span-2">
+                    <label>Acciones acordadas</label>
+                    <textarea id="ar-acciones" class="m-textarea" rows="4" placeholder="Acciones y responsables"></textarea>
+                </div>
+
+            </div>
+
+            <button class="m-btn m-btn-primary m-btn-round mt-20" onclick="ar_guardarActa()">
+                Guardar acta
+            </button>
+
+        </div>
+
+        <!-- LISTADO DE ACTAS -->
+        <div class="card-glass p-20 mt-30">
+            <h3>📄 Actas registradas</h3>
+
+            <div class="tabla-scroll-x mt-10">
+                <table class="table-premium table-sticky">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Responsable</th>
+                            <th>Participantes</th>
+                            <th>Resumen</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ar-tabla"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</template>
 
 <!-- ============================================================
      TEMPLATE: UPLOADER
@@ -1187,9 +1259,6 @@
     </div>
 </template>
 
-<!-- ============================================================
-     PANEL: INFORME EVOLUTIVO — VOLUMEN DE FIRMAS
-============================================================ -->
 <!-- ============================================================
      PANEL: INFORME EVOLUTIVO — TABLA COMPLETA 2020–2026
 ============================================================ -->
