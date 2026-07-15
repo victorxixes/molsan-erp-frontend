@@ -432,7 +432,7 @@ const resumen = document.getElementById("evo-resumen");
 resumen.textContent = `
     Evolución total: ${pctGeneral[pctGeneral.length-1].toFixed(2)}%
 `;
-
+}
 /* ============================================================
    INFORME ANUAL — SOLO MESES REALES DE 2026
 ============================================================ */
