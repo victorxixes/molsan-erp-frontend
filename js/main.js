@@ -58,7 +58,7 @@ async function cargarModulo(nombre) {
     "restore":            "Restauración de Backups",
     "informes-premium":   "Informes Premium",
     "informe-evolutivo":  "Informe Evolutivo",
-
+"acta-reunion": "Acta de reunión",
     /* PANELES PREMIUM */
     "panel-anual":        "Panel Anual",
     "panel-mensual":      "Panel Mensual",
@@ -97,6 +97,9 @@ async function cargarModulo(nombre) {
                 case "listado":
                     await initListado();
                     break;
+case "acta-reunion":
+    await initActaReunion();
+    break;
 
                 case "uploader":
                     initUploader();
