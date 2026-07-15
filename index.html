@@ -130,10 +130,13 @@
 <!-- ============================================================
      TEMPLATE: DASHBOARD PREMIUM
 ============================================================ -->
-<template id="tpl-dashboard-premium">
-<div id="dashboard-premium" class="modulo-wrapper fade-in dashboard-wrapper">
+<!-- ============================================================
+     DASHBOARD — COMPARATIVA ANUAL 2027
+============================================================ -->
+<template id="tpl-dashboard">
+<div id="dashboard-root" class="modulo-wrapper fade-in dashboard-wrapper">
 
-    <h2 class="titulo-modulo">📊 Dashboard Premium — KPIs Globales</h2>
+    <h2 class="titulo-modulo">📊 Dashboard — Comparativa Anual</h2>
 
     <!-- BOTÓN INFORME EVOLUTIVO -->
     <div class="mt-20">
@@ -142,6 +145,42 @@
             📈 Ver Informe Evolutivo
         </button>
     </div>
+
+    <div class="card-glass p-20">
+
+        <!-- SELECT AÑO -->
+        <div class="flex gap-20 mb-20">
+            <div>
+                <label>Año actual</label>
+                <select id="dash-anio-actual"></select>
+            </div>
+
+            <div>
+                <label>Año anterior</label>
+                <select id="dash-anio-anterior"></select>
+            </div>
+        </div>
+
+        <!-- KPIs COMPARATIVOS -->
+        <div class="kpi-grid-compare">
+            ...
+        </div>
+
+        <!-- GRÁFICO COMPARATIVO -->
+        <div class="dashboard-chart mt-30">
+            <canvas id="dash-chart-comparativa" height="140"></canvas>
+        </div>
+
+        <!-- TABLA RESUMEN DE PANELES -->
+        <h3 class="mt-40">📈 Comparativa por panel</h3>
+        <table class="table-premium table-sticky">
+            ...
+        </table>
+
+    </div>
+
+</div>
+</template>
 
     <div class="dash-grid">
 
