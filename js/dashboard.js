@@ -16,8 +16,15 @@ function dash_safeSet(id, value) {
 async function initDashboardPremium() {
     console.log("📊 Dashboard Premium 2027 recalculado");
 
-    const yAct = 2026;
-    const yPrev = 2025;
+   // Mes actual del año en curso
+const mesActual = new Date().getMonth() + 1; // 1–12
+
+// Solo meses reales y hasta el mes actual
+const labels = mesesOrden.slice(0, mesActual).filter(m => datosMes[m] !== undefined);
+
+// Valores reales
+const valores = labels.map(m => datosMes[m] || 0);
+
 
     /* ============================
        APODERADOS
