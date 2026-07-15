@@ -116,4 +116,45 @@
 #dashboard-premium .dash-wide {
     grid-column: span 3;
 }
+/* ============================================================
+   DASHBOARD PREMIUM — FIX LEGIBILIDAD GLASS LUXE
+============================================================ */
+
+/* Tarjeta premium más clara */
+#dashboard-premium .dash-card {
+    background: rgba(255, 255, 255, 0.78) !important;
+    backdrop-filter: blur(22px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+}
+
+/* Títulos */
+#dashboard-premium .dash-card h3 {
+    color: #0A3A67 !important; /* Azul corporativo */
+    font-weight: 700;
+}
+
+/* Texto principal */
+#dashboard-premium .dash-main {
+    color: #0A3A67 !important;
+    font-weight: 700;
+}
+
+/* Subtítulos */
+#dashboard-premium .dash-sub {
+    color: #374151 !important; /* Gris premium legible */
+    font-weight: 600;
+}
+
+/* Detalles */
+#dashboard-premium .dash-detail {
+    color: #4B5563 !important;
+}
+
+/* Números dentro de spans */
+#dashboard-premium .dash-main span,
+#dashboard-premium .dash-sub span,
+#dashboard-premium .dash-detail span {
+    color: #0A3A67 !important;
+    font-weight: 700;
+}
 
