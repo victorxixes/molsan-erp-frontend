@@ -7,40 +7,67 @@ let DASH_CHART = null;
 /* ============================================================
    INIT DASHBOARD
 ============================================================ */
-async function initDashboard() {
-    console.log("📊 initDashboard() — Comparativa Anual");
+async function initDashboardPremium() {
+    console.log("📊 Dashboard Premium 2027 recalculado");
 
-    const selActual   = document.getElementById("dash-anio-actual");
-    const selAnterior = document.getElementById("dash-anio-anterior");
-    const chartEl     = document.getElementById("dash-chart-comparativa");
-    const tablaEl     = document.getElementById("dash-tabla-paneles");
+    const anio = new Date().getFullYear();
+    const datosAnio = window.MP.porMes[anio] || {};
 
-    if (!selActual || !selAnterior || !chartEl || !tablaEl) {
-        console.warn("⏳ Dashboard comparativo no está completamente en el DOM");
-        return;
-    }
+    // KPI 1 — Total firmas del año
+    const total = window.MP.porAnio[anio] || 0;
+    document.getElementById("dp-kpi-total").textContent = total;
 
-    const datos = await obtenerFirmas();
-    if (!datos || !datos.length) return;
+    // KPI 2 — % VC del año
+    const tipoFirma = window.MP.porTipoFirma[anio] || {};
+    const vc = tipoFirma["VideoConferencia"] || 0;
+    const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
+    document.getElementById("dp-kpi-vc").textContent = pctVC;
 
-    const años = [...new Set(datos.map(f => Number(f.anio)))].sort((a,b)=>a-b);
-    if (!años.length) return;
+    // KPI 3 — SLA medio del año
+    const slaList = window.MP.slaPorAnio[anio] || [];
+    const sla = slaList.length
+        ? (slaList.reduce((a,b)=>a+b,0) / slaList.length).toFixed(1)
+        : "0";
+    document.getElementById("dp-kpi-sla").textContent = sla;
 
-    selActual.innerHTML = "";
-    selAnterior.innerHTML = "";
+    // KPI 4 — Top Apoderado
+    const apoMap = window.MP.porApoderado[anio] || {};
+    const topApo = Object.entries(apoMap).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById("dp-kpi-top-apoderado").textContent = topApo ? topApo[0] : "-";
 
-    años.forEach(a => {
-        selActual.innerHTML   += `<option value="${a}">${a}</option>`;
-        selAnterior.innerHTML += `<option value="${a}">${a}</option>`;
+    // Gráfico — Evolución mensual
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const labels = mesesOrden.filter(m => datosAnio[m]);
+    const valores = labels.map(m => datosAnio[m]);
+
+    const ctx = document.getElementById("dp-chart-evolucion");
+    if (window.dpChart) window.dpChart.destroy();
+
+    window.dpChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels,
+            datasets: [{
+                label: "Firmas",
+                data: valores,
+                borderColor: "#3B82F6",
+                backgroundColor: "rgba(59,130,246,0.2)",
+                borderWidth: 2,
+                tension: 0.2
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
     });
-
-    selActual.value   = años[años.length - 1];
-    selAnterior.value = años[años.length - 2] ?? años[años.length - 1];
-
-    selActual.addEventListener("change", () => dashboardComparativa());
-    selAnterior.addEventListener("change", () => dashboardComparativa());
-
-    await dashboardComparativa();
 }
 
 /* ============================================================
