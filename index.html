@@ -438,38 +438,65 @@
 
     </div>
 </template>
-<!-- ============================================================
-     PANEL ACTA DE REUNIÓN — PREMIUM 2027
-============================================================ -->
- 
-Molsan Gestion y Tramitacion, SL.
-Cl. Felip II, 293 - Bxos
-08016 Barcelona
-Tel. 93.349.74.65
-cancelaciones@molsan.es
+/* ============================================================
+   PANEL ACTA DE REUNIÓN — LÓGICA
+============================================================ */
 
+async function initActaReunion() {
+    // No hay nada que cargar, solo mostrar el panel
+}
 
-ORDEN DEL DÍA – REUNIÓN dd/mm/aaaa
+function ar_generarActa() {
 
-Se procede a realizar la reunión en las instalaciones del Grupo Sánchez Molina sita en Edificio Trade, Torre Sur, gran Vía Carles III 5 pl. de Barcelona.
+    const fecha       = document.getElementById("ar-fecha").value;
+    const horaInicio  = document.getElementById("ar-hora-inicio").value;
+    const horaFin     = document.getElementById("ar-hora-fin").value;
+    const puntos      = document.getElementById("ar-puntos").value;
 
-Se inicia la reunión a las [campo para poner hora.]siendo una duración máxima de 1h con la correspondiente finalización de la reunión a las [campo para poner hora.]
+    if (!fecha || !horaInicio || !horaFin) {
+        alert("⚠️ Fecha y horas son obligatorias.");
+        return;
+    }
 
-Comparecen en la reunión los siguientes intervinientes:
+    const asistentes = [...document.querySelectorAll("#ar-asistentes tr")]
+        .map(tr => {
+            const tds = tr.querySelectorAll("td");
+            return { nombre: tds[0].textContent, cargo: tds[1].textContent };
+        });
 
-Asistentes	Cargo
-Sr.Yosef David Sánchez Molina	Presidencia
-Sra. Yolanda Vives	Gerencia
-Sra. Melisa Guillen	Coordinadora-Dpto SP-Cancela-Apoderada
-Sr. Carles Barberà	Apoderado
-Sr. Pedro Pérez	Apoderado
-Sr. Alberto López	Apoderado
-Sr. Gastón Beguiristain	Apoderado
-Sr. Víctor Tomás	Coordinador-Dpto CP-Apoderado
+    const actaHTML = `
+        <p><strong>Molsan Gestión y Tramitación, SL.</strong><br>
+        Cl. Felip II, 293 - Bxos<br>
+        08016 Barcelona<br>
+        Tel. 93.349.74.65<br>
+        cancelaciones@molsan.es</p>
 
-Puntos de la reunión:
+        <h3>ORDEN DEL DÍA – REUNIÓN ${fecha}</h3>
 
-[Aquí campos para añadir los temas de la reunión
+        <p>Se procede a realizar la reunión en las instalaciones del Grupo Sánchez Molina
+        sita en Edificio Trade, Torre Sur, Gran Vía Carles III 5 pl. de Barcelona.</p>
+
+        <p>Se inicia la reunión a las <strong>${horaInicio}</strong> siendo una duración máxima de 1h,
+        con la correspondiente finalización de la reunión a las <strong>${horaFin}</strong>.</p>
+
+        <h3>Asistentes</h3>
+        <table class="table-premium">
+            <thead><tr><th>Asistentes</th><th>Cargo</th></tr></thead>
+            <tbody>
+                ${asistentes.map(a => `
+                    <tr><td>${a.nombre}</td><td>${a.cargo}</td></tr>
+                `).join("")}
+            </tbody>
+        </table>
+
+        <h3>Puntos de la reunión</h3>
+        <p>${puntos.replace(/\n/g, "<br>")}</p>
+    `;
+
+    document.getElementById("ar-acta-contenido").innerHTML = actaHTML;
+    document.getElementById("ar-acta-final").style.display = "block";
+}
+
 
 <!-- ============================================================
      TEMPLATE: UPLOADER
