@@ -10,21 +10,11 @@ function dash_safeSet(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
 }
-/* ============================================================
-   DASHBOARD PREMIUM — KPIs + GRÁFICO
-============================================================ */
 async function initDashboardPremium() {
     console.log("📊 Dashboard Premium 2027 recalculado");
 
-   // Mes actual del año en curso
-const mesActual = new Date().getMonth() + 1; // 1–12
-
-// Solo meses reales y hasta el mes actual
-const labels = mesesOrden.slice(0, mesActual).filter(m => datosMes[m] !== undefined);
-
-// Valores reales
-const valores = labels.map(m => datosMes[m] || 0);
-
+    const yAct = 2026;
+    const yPrev = 2025;
 
     /* ============================
        APODERADOS
@@ -151,8 +141,14 @@ const valores = labels.map(m => datosMes[m] || 0);
     ];
 
     const datosMes = window.MP.porMes[yAct] || {};
-    const labels = mesesOrden.filter(m => datosMes[m]);
-    const valores = labels.map(m => datosMes[m]);
+
+    const mesActual = new Date().getMonth() + 1;
+
+    const mesesVisibles = mesesOrden.slice(0, mesActual);
+
+    const labelsGrafico = mesesVisibles.filter(m => datosMes[m] !== undefined);
+
+    const valoresGrafico = labelsGrafico.map(m => datosMes[m] || 0);
 
     const ctx = document.getElementById("dp-chart-evolucion");
     if (window.dpChart) window.dpChart.destroy();
@@ -160,10 +156,10 @@ const valores = labels.map(m => datosMes[m] || 0);
     window.dpChart = new Chart(ctx, {
         type: "line",
         data: {
-            labels,
+            labels: labelsGrafico,
             datasets: [{
                 label: "Firmas",
-                data: valores,
+                data: valoresGrafico,
                 borderColor: "#3B82F6",
                 backgroundColor: "rgba(59,130,246,0.2)",
                 borderWidth: 2,
@@ -179,6 +175,7 @@ const valores = labels.map(m => datosMes[m] || 0);
         }
     });
 }
+
 
 
 /* ============================================================
