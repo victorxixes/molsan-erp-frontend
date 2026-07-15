@@ -5,7 +5,7 @@
 let DASH_CHART = null;
 
 /* ============================================================
-   INIT DASHBOARD
+   DASHBOARD PREMIUM — KPIs + GRÁFICO
 ============================================================ */
 async function initDashboardPremium() {
     console.log("📊 Dashboard Premium 2027 recalculado");
@@ -15,27 +15,27 @@ async function initDashboardPremium() {
 
     // KPI 1 — Total firmas del año
     const total = window.MP.porAnio[anio] || 0;
-    document.getElementById("dp-kpi-total").textContent = total;
+    dash_safeSet("dp-kpi-total", total);
 
-    // KPI 2 — % VC del año
+    // KPI 2 — % VC
     const tipoFirma = window.MP.porTipoFirma[anio] || {};
     const vc = tipoFirma["VideoConferencia"] || 0;
     const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
-    document.getElementById("dp-kpi-vc").textContent = pctVC;
+    dash_safeSet("dp-kpi-vc", pctVC);
 
-    // KPI 3 — SLA medio del año
+    // KPI 3 — SLA
     const slaList = window.MP.slaPorAnio[anio] || [];
     const sla = slaList.length
         ? (slaList.reduce((a,b)=>a+b,0) / slaList.length).toFixed(1)
         : "0";
-    document.getElementById("dp-kpi-sla").textContent = sla;
+    dash_safeSet("dp-kpi-sla", sla);
 
     // KPI 4 — Top Apoderado
     const apoMap = window.MP.porApoderado[anio] || {};
     const topApo = Object.entries(apoMap).sort((a,b)=>b[1]-a[1])[0];
-    document.getElementById("dp-kpi-top-apoderado").textContent = topApo ? topApo[0] : "-";
+    dash_safeSet("dp-kpi-top-apoderado", topApo ? topApo[0] : "-");
 
-    // Gráfico — Evolución mensual
+    // GRÁFICO — Evolución mensual
     const mesesOrden = [
         "enero","febrero","marzo","abril","mayo","junio",
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
@@ -68,6 +68,12 @@ async function initDashboardPremium() {
             }
         }
     });
+}
+
+/* Helper seguro */
+function dash_safeSet(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
 }
 
 /* ============================================================
@@ -108,7 +114,7 @@ function diffPct(actual, anterior) {
 }
 
 /* ============================================================
-   DASHBOARD COMPARATIVO (MAIN)
+   DASHBOARD COMPARATIVO
 ============================================================ */
 async function dashboardComparativa() {
     const datos = await obtenerFirmas();
@@ -125,7 +131,6 @@ async function dashboardComparativa() {
     const A = calcularResumenAnual(datos, añoActual);
     const B = calcularResumenAnual(datos, añoAnterior);
 
-    // KPIs principales
     setText("dash-total-actual",   A.total);
     setText("dash-total-anterior", B.total);
     setText("dash-total-diff",     diffPct(A.total, B.total));
@@ -138,14 +143,10 @@ async function dashboardComparativa() {
     setText("dash-vc-anterior", B.pctVC + "%");
     setText("dash-vc-diff",     diffPct(Number(A.pctVC), Number(B.pctVC)));
 
-    // Gráfico comparativo mensual
     generarGraficoComparativo(datos, añoActual, añoAnterior);
-
-    // Tabla comparativa por panel
     generarTablaPaneles(datos, añoActual, añoAnterior);
 }
 
-/* Helper seguro */
 function setText(id, value) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -252,15 +253,12 @@ function generarTablaPaneles(datos, añoActual, añoAnterior) {
 }
 
 /* ============================================================
-   MÉTRICAS POR PANEL (ALINEADAS CON TUS JS)
+   MÉTRICAS POR PANEL
 ============================================================ */
-
-/* Panel Anual: total firmas del año */
 function calcularPanelAnual(datos, año) {
     return datos.filter(f => Number(f.anio) === año).length;
 }
 
-/* Panel Mensual: total firmas del año hasta el mes actual */
 function calcularPanelMensual(datos, año) {
     const hoy = new Date();
     const mesActual = hoy.getMonth() + 1;
@@ -271,7 +269,6 @@ function calcularPanelMensual(datos, año) {
     ).length;
 }
 
-/* Panel Apoderados: número de apoderados activos (distintos) en el año */
 function calcularPanelApoderados(datos, año) {
     const set = new Set(
         datos
@@ -281,7 +278,6 @@ function calcularPanelApoderados(datos, año) {
     return set.size;
 }
 
-/* Panel Tipo Firma: porcentaje de VC sobre el total del año */
 function calcularPanelTipoFirma(datos, año) {
     const filtrado = datos.filter(f => Number(f.anio) === año);
     const total = filtrado.length;
@@ -292,7 +288,6 @@ function calcularPanelTipoFirma(datos, año) {
     return Number(((vc / total) * 100).toFixed(1));
 }
 
-/* Panel Tipo Gestión: total de gestiones con provisión en el año */
 function calcularPanelTipoGestion(datos, año) {
     return datos.filter(f =>
         Number(f.anio) === año &&
@@ -300,7 +295,6 @@ function calcularPanelTipoGestion(datos, año) {
     ).length;
 }
 
-/* Panel Oficinas: oficina dominante del año (con tu normalización) */
 function calcularPanelOficinas(datos, año) {
     const filtrado = datos.filter(f => Number(f.anio) === año);
 
@@ -331,7 +325,6 @@ function calcularPanelOficinas(datos, año) {
     return top;
 }
 
-/* Panel Circuito: circuito dominante del año */
 function calcularPanelCircuito(datos, año) {
     const filtrado = datos.filter(f => Number(f.anio) === año);
 
@@ -355,7 +348,6 @@ function calcularPanelCircuito(datos, año) {
     return top;
 }
 
-/* Panel SLA: SLA medio del año */
 function calcularPanelSLA(datos, año) {
     const filtrado = datos.filter(f => Number(f.anio) === año);
 
@@ -371,102 +363,4 @@ function calcularPanelSLA(datos, año) {
     });
 
     return cuenta ? Number((suma / cuenta).toFixed(1)) : 0;
-}
-/* ============================================================
-   DASHBOARD PREMIUM — GLASS LUXE 2027
-============================================================ */
-
-function dash_getYearPair(map, yearActual) {
-    const yAct = yearActual;
-    const yPrev = yearActual - 1;
-
-    const infoAct = map[yAct] || null;
-    const infoPrev = map[yPrev] || null;
-
-    const totalAct = infoAct ? Object.values(infoAct)
-        .reduce((acc, r) => acc + (r.total || 0), 0) : 0;
-
-    const totalPrev = infoPrev ? Object.values(infoPrev)
-        .reduce((acc, r) => acc + (r.total || 0), 0) : 0;
-
-    const diffAbs = totalAct - totalPrev;
-    const diffPct = totalPrev ? ((diffAbs / totalPrev) * 100).toFixed(1) + "%" : "0%";
-
-    return { yAct, yPrev, totalAct, totalPrev, diffAbs, diffPct, infoAct, infoPrev };
-}
-
-function dash_safeSet(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
-}
-
-async function initDashboardPremium() {
-    console.log("📊 Dashboard Premium 2027 recalculado");
-
-    const anio = new Date().getFullYear(); // o fija 2026 si quieres
-    const datosAnio = window.MP.porMes[anio] || {};
-
-    /* ============================
-       KPI 1 — Total firmas del año
-    ============================ */
-    const total = window.MP.porAnio[anio] || 0;
-    document.getElementById("dp-kpi-total").textContent = total;
-
-    /* ============================
-       KPI 2 — % VC del año
-    ============================ */
-    const tipoFirma = window.MP.porTipoFirma[anio] || {};
-    const vc = tipoFirma["VideoConferencia"] || 0;
-    const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
-    document.getElementById("dp-kpi-vc").textContent = pctVC;
-
-    /* ============================
-       KPI 3 — SLA medio del año
-    ============================ */
-    const slaList = window.MP.slaPorAnio[anio] || [];
-    const sla = slaList.length ? (slaList.reduce((a,b)=>a+b,0) / slaList.length).toFixed(1) : "0";
-    document.getElementById("dp-kpi-sla").textContent = sla;
-
-    /* ============================
-       KPI 4 — Top Apoderado
-    ============================ */
-    const apoMap = window.MP.porApoderado[anio] || {};
-    const topApo = Object.entries(apoMap).sort((a,b)=>b[1]-a[1])[0];
-    document.getElementById("dp-kpi-top-apoderado").textContent = topApo ? topApo[0] : "-";
-
-    /* ============================
-       GRÁFICO — Evolución mensual
-    ============================ */
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
-
-    const labels = mesesOrden.filter(m => datosAnio[m]);
-    const valores = labels.map(m => datosAnio[m]);
-
-    const ctx = document.getElementById("dp-chart-evolucion");
-    if (window.dpChart) window.dpChart.destroy();
-
-    window.dpChart = new Chart(ctx, {
-        type: "line",
-        data: {
-            labels,
-            datasets: [{
-                label: "Firmas",
-                data: valores,
-                borderColor: "#3B82F6",
-                backgroundColor: "rgba(59,130,246,0.2)",
-                borderWidth: 2,
-                tension: 0.2
-            }]
-        },
-        options: {
-            plugins: { legend: { display: false }},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
-        }
-    });
 }
