@@ -1186,42 +1186,45 @@
 <!-- ============================================================
      PANEL: INFORME EVOLUTIVO — VOLUMEN DE FIRMAS
 ============================================================ -->
+<!-- ============================================================
+     PANEL: INFORME EVOLUTIVO — TABLA COMPLETA 2020–2026
+============================================================ -->
 <template id="tpl-informe-evolutivo">
-  <div id="informe-evolutivo" class="dashboard-card dash-wide">
+<div class="modulo-wrapper fade-in">
 
-    <h3 class="titulo-modulo">📈 Informe Evolutivo — Volumen de Firmas 2020–2026</h3>
+    <h2 class="titulo-modulo">📈 Informe Evolutivo — Volumen de Firmas 2020–2026</h2>
 
-    <div class="dashboard-chart">
-      <canvas id="chart-evolutivo"></canvas>
+    <div class="card-glass p-20 tabla-scroll-x">
+
+        <table class="table-premium tabla-excel table-sticky">
+            <thead>
+                <tr>
+                    <th>Mes</th>
+                    <th>2020</th>
+                    <th>2021</th>
+                    <th>2022</th>
+                    <th>2023</th>
+                    <th>2024</th>
+                    <th>2025</th>
+                    <th>2026</th>
+                    <th>Total</th>
+                    <th>% 2021</th>
+                    <th>% 2022</th>
+                    <th>% 2023</th>
+                    <th>% 2024</th>
+                    <th>% 2025</th>
+                    <th>% 2026</th>
+                </tr>
+            </thead>
+            <tbody id="evo-tabla"></tbody>
+        </table>
+
+        <h3 class="mt-40">📊 Evolución % volumen firmas</h3>
+        <p id="evo-resumen" class="texto-secundario"></p>
+
     </div>
 
-    <div class="dash-grid" style="margin-top: 1.5rem;">
-      <div class="dash-card">
-        <h3>📊 Evolución anual</h3>
-        <p class="dash-main">Último año: <span id="evo-kpi-anual-ultimo">–</span></p>
-        <p class="dash-sub">vs año anterior: <span id="evo-kpi-anual-diff">–</span></p>
-      </div>
-
-      <div class="dash-card">
-        <h3>📅 Mejor mes</h3>
-        <p class="dash-main"><span id="evo-kpi-mejor-mes">–</span></p>
-        <p class="dash-sub">Firmas: <span id="evo-kpi-mejor-mes-val">–</span></p>
-      </div>
-
-      <div class="dash-card">
-        <h3>📉 Peor mes</h3>
-        <p class="dash-main"><span id="evo-kpi-peor-mes">–</span></p>
-        <p class="dash-sub">Firmas: <span id="evo-kpi-peor-mes-val">–</span></p>
-      </div>
-
-      <div class="dash-card">
-        <h3>📈 Tendencia</h3>
-        <p class="dash-main"><span id="evo-kpi-tendencia">–</span></p>
-        <p class="dash-sub">Comentario: <span id="evo-kpi-insight">–</span></p>
-      </div>
-    </div>
-
-  </div>
+</div>
 </template>
 
 <!-- ============================ SCRIPTS ============================ -->
