@@ -261,6 +261,124 @@ async function generarInformeGeneral() {
         }
     });
 }
+/* ============================================================
+   INFORME EVOLUTIVO — Volumen de Firmas 2020–2026
+   Fuente: window.MP.porMes[anio][mes]
+============================================================ */
+
+function diffPct(a, b) {
+    if (!b) return "–";
+    const d = ((a - b) / b) * 100;
+    return d.toFixed(2) + "%";
+}
+
+const MESES_ORDEN = [
+    "enero","febrero","marzo","abril","mayo","junio",
+    "julio","agosto","septiembre","octubre","noviembre","diciembre"
+];
+
+function totalPorAnio(porMes, anio) {
+    const datos = porMes[anio] || {};
+    return MESES_ORDEN.reduce((acc, m) => acc + (datos[m] || 0), 0);
+}
+
+function totalPorTrimestre(porMes, anio) {
+    const datos = porMes[anio] || {};
+    return {
+        Q1: (datos["enero"] || 0) + (datos["febrero"] || 0) + (datos["marzo"] || 0),
+        Q2: (datos["abril"] || 0) + (datos["mayo"] || 0) + (datos["junio"] || 0),
+        Q3: (datos["julio"] || 0) + (datos["agosto"] || 0) + (datos["septiembre"] || 0),
+        Q4: (datos["octubre"] || 0) + (datos["noviembre"] || 0) + (datos["diciembre"] || 0)
+    };
+}
+
+function totalPorSemestre(porMes, anio) {
+    const t = totalPorTrimestre(porMes, anio);
+    return {
+        S1: t.Q1 + t.Q2,
+        S2: t.Q3 + t.Q4
+    };
+}
+
+async function initInformeEvolutivo() {
+    const porMes = window.MP?.porMes || {};
+    const anios = Object.keys(porMes).map(a => Number(a)).sort((a,b)=>a-b);
+    if (!anios.length) return;
+
+    const ultimoAnio = anios[anios.length - 1];
+    const prevAnio   = anios[anios.length - 2] || null;
+
+    // Totales anuales
+    const totalUltimo = totalPorAnio(porMes, ultimoAnio);
+    const totalPrev   = prevAnio ? totalPorAnio(porMes, prevAnio) : 0;
+
+    dash_safeSet("evo-kpi-anual-ultimo", `${totalUltimo} firmas ${ultimoAnio}`);
+    dash_safeSet("evo-kpi-anual-diff", prevAnio ? diffPct(totalUltimo, totalPrev) : "–");
+
+    // Mejor y peor mes del último año
+    const datosUltimo = porMes[ultimoAnio] || {};
+    let mejorMes = null, peorMes = null;
+    MESES_ORDEN.forEach(m => {
+        const v = datosUltimo[m] || 0;
+        if (mejorMes === null || v > mejorMes.val) mejorMes = { mes: m, val: v };
+        if (peorMes === null || v < peorMes.val) peorMes = { mes: m, val: v };
+    });
+
+    dash_safeSet("evo-kpi-mejor-mes", mejorMes ? mejorMes.mes : "–");
+    dash_safeSet("evo-kpi-mejor-mes-val", mejorMes ? mejorMes.val : "–");
+    dash_safeSet("evo-kpi-peor-mes", peorMes ? peorMes.mes : "–");
+    dash_safeSet("evo-kpi-peor-mes-val", peorMes ? peorMes.val : "–");
+
+    // Tendencia y pequeño insight
+    let tendencia = "estable";
+    let insight   = "";
+    if (prevAnio) {
+        const d = ((totalUltimo - totalPrev) / totalPrev) * 100;
+        if (d > 5) tendencia = "creciente";
+        else if (d < -5) tendencia = "decreciente";
+
+        insight = `El volumen de firmas en ${ultimoAnio} es ${d.toFixed(2)}% respecto a ${prevAnio}.`;
+    }
+    dash_safeSet("evo-kpi-tendencia", tendencia);
+    dash_safeSet("evo-kpi-insight", insight || "Sin histórico suficiente.");
+
+    // Gráfico evolutivo multianual (líneas por año)
+    const ctx = document.getElementById("chart-evolutivo");
+    if (!ctx) return;
+
+    const datasets = anios.map((anio, idx) => {
+        const datos = porMes[anio] || {};
+        const valores = MESES_ORDEN.map(m => datos[m] || 0);
+        const colors = ["#0A3A67","#3B82F6","#10B981","#F97316","#EF4444","#6366F1","#14B8A6"];
+        return {
+            label: String(anio),
+            data: valores,
+            borderColor: colors[idx % colors.length],
+            backgroundColor: "transparent",
+            borderWidth: anio === ultimoAnio ? 3 : 1.5,
+            tension: 0.25
+        };
+    });
+
+    if (window.evoChart) window.evoChart.destroy();
+
+    window.evoChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: MESES_ORDEN,
+            datasets
+        },
+        options: {
+            plugins: {
+                legend: { display: true, position: "bottom" }
+            },
+            scales: {
+                x: { ticks: { color: "#111827" } },
+                y: { ticks: { color: "#111827" } }
+            }
+        }
+    });
+}
 
 /* ============================================================
    INFORME ANUAL — SOLO MESES REALES DE 2026
