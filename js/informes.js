@@ -317,45 +317,121 @@ async function initInformeEvolutivo() {
         tabla.appendChild(fila);
     });
 
-    /* ============================
-       TOTAL GENERAL
-    ============================ */
-    const filaTotal = document.createElement("tr");
-    filaTotal.classList.add("fila-total");
+   /* ============================
+   TOTAL GENERAL
+============================ */
+const filaTotal = document.createElement("tr");
+filaTotal.classList.add("fila-total");
 
-    const totalesPorAnio = [];
+const totalesPorAnio = [];
 
-    for (let anio = 2020; anio <= 2026; anio++) {
-        const totalAnio = datos.filter(d => d.anio == anio).length;
-        totalesPorAnio.push(totalAnio);
-    }
-
-    const totalGeneral = totalesPorAnio.reduce((a,b) => a+b, 0);
-
-    const pctGeneral = [];
-    for (let i = 1; i < totalesPorAnio.length; i++) {
-        const prev = totalesPorAnio[i-1];
-        const act  = totalesPorAnio[i];
-        pctGeneral.push(prev ? ((act - prev) / prev * 100) : 0);
-    }
-
-    filaTotal.innerHTML = `
-        <td><strong>Total general</strong></td>
-        ${totalesPorAnio.map(t => `<td><strong>${t.toLocaleString()}</strong></td>`).join("")}
-        <td><strong>${totalGeneral.toLocaleString()}</strong></td>
-        ${pctGeneral.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
-    `;
-
-    tabla.appendChild(filaTotal);
-
-    /* ============================
-       RESUMEN FINAL
-    ============================ */
-    const resumen = document.getElementById("evo-resumen");
-    resumen.textContent = `
-        Evolución total: ${pctGeneral[pctGeneral.length-1].toFixed(2)}%
-    `;
+for (let anio = 2020; anio <= 2026; anio++) {
+    const totalAnio = datos.filter(d => d.anio == anio).length;
+    totalesPorAnio.push(totalAnio);
 }
+
+const totalGeneral = totalesPorAnio.reduce((a,b) => a+b, 0);
+
+const pctGeneral = [];
+for (let i = 1; i < totalesPorAnio.length; i++) {
+    const prev = totalesPorAnio[i-1];
+    const act  = totalesPorAnio[i];
+    pctGeneral.push(prev ? ((act - prev) / prev * 100) : 0);
+}
+
+filaTotal.innerHTML = `
+    <td><strong>Total general</strong></td>
+    ${totalesPorAnio.map(t => `<td><strong>${t.toLocaleString()}</strong></td>`).join("")}
+    <td><strong>${totalGeneral.toLocaleString()}</strong></td>
+    ${pctGeneral.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
+`;
+
+tabla.appendChild(filaTotal);
+
+
+/* ============================================================
+   FILA: HASTA ÚLTIMO MES DISPONIBLE POR AÑO
+============================================================ */
+const filaHasta = document.createElement("tr");
+filaHasta.classList.add("fila-total");
+
+const mesesOrden = [
+    "enero","febrero","marzo","abril","mayo","junio",
+    "julio","agosto","septiembre","octubre","noviembre","diciembre"
+];
+
+// Detectar último mes disponible por año
+const ultimoMesPorAnio = {};
+
+for (let anio = 2020; anio <= 2026; anio++) {
+    const mesesConDatos = datos
+        .filter(f => f.anio === anio)
+        .map(f => f.mes);
+
+    if (mesesConDatos.length === 0) {
+        ultimoMesPorAnio[anio] = null;
+        continue;
+    }
+
+    const ordenados = mesesConDatos.sort(
+        (a,b) => mesesOrden.indexOf(a) - mesesOrden.indexOf(b)
+    );
+
+    ultimoMesPorAnio[anio] = ordenados[ordenados.length - 1];
+}
+
+// Calcular totales hasta ese mes
+const totalesHasta = [];
+
+for (let anio = 2020; anio <= 2026; anio++) {
+
+    const ultimoMes = ultimoMesPorAnio[anio];
+
+    if (!ultimoMes) {
+        totalesHasta.push(0);
+        continue;
+    }
+
+    const idx = mesesOrden.indexOf(ultimoMes);
+
+    const totalHasta = datos.filter(f =>
+        f.anio === anio &&
+        mesesOrden.indexOf(f.mes) <= idx
+    ).length;
+
+    totalesHasta.push(totalHasta);
+}
+
+// % respecto año anterior
+const pctHasta = [];
+
+for (let i = 1; i < totalesHasta.length; i++) {
+    const prev = totalesHasta[i-1];
+    const act  = totalesHasta[i];
+    const pct  = prev ? ((act - prev) / prev * 100) : 0;
+    pctHasta.push(pct);
+}
+
+// Último mes global (para mostrar en la tabla)
+const ultimoMesGlobal = ultimoMesPorAnio[2026] || "junio";
+
+filaHasta.innerHTML = `
+    <td><strong>Hasta ${ultimoMesGlobal}</strong></td>
+    ${totalesHasta.map(t => `<td><strong>${t.toLocaleString()}</strong></td>`).join("")}
+    <td></td>
+    ${pctHasta.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
+`;
+
+tabla.appendChild(filaHasta);
+
+
+/* ============================
+   RESUMEN FINAL
+============================ */
+const resumen = document.getElementById("evo-resumen");
+resumen.textContent = `
+    Evolución total: ${pctGeneral[pctGeneral.length-1].toFixed(2)}%
+`;
 
 /* ============================================================
    INFORME ANUAL — SOLO MESES REALES DE 2026
