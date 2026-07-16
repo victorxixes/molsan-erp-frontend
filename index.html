@@ -521,6 +521,10 @@
 </div>
 </template>
 
+<button class="m-btn m-btn-danger m-btn-round mt-20"
+        onclick="molsan_resetDB()">
+    🧹 Reset datos del sistema
+</button>
 
 <!-- ============================================================
      TEMPLATE: UPLOADER
@@ -555,13 +559,14 @@
 </template>
 
 <!-- ============================================================
-     TEMPLATE: CONFIGURACIÓN
+     TEMPLATE: CONFIGURACIÓN (GLASS LUXE 2027)
 ============================================================ -->
 <template id="tpl-configuracion">
     <div class="modulo-wrapper fade-in">
 
         <h2 class="titulo-modulo">⚙️ Configuración del Sistema</h2>
 
+        <!-- BLOQUE INFORMACIÓN -->
         <div class="card-glass p-20">
 
             <p class="texto-secundario">
@@ -573,6 +578,38 @@
                 Para gestionar permisos del sistema, utiliza el módulo <strong>Permisos</strong>.
             </p>
 
+        </div>
+
+        <!-- BLOQUE MANTENIMIENTO -->
+        <div class="card-glass p-20 mt-30">
+
+            <h3 class="subtitulo-modulo">🧹 Mantenimiento del Sistema</h3>
+            <p class="mt-10 texto-secundario">
+                Herramientas para mantener el ERP limpio y funcionando correctamente.
+            </p>
+
+            <button class="m-btn m-btn-danger m-btn-round mt-20"
+                    onclick="molsan_resetDB()">
+                🧹 Reset datos del sistema
+            </button>
+
+        </div>
+
+        <!-- BLOQUE IMPORTACIÓN -->
+        <div class="card-glass p-20 mt-30">
+
+            <h3 class="subtitulo-modulo">📥 Importación de Datos</h3>
+            <p class="mt-10 texto-secundario">
+                Importa un nuevo Excel con firmas para actualizar los informes del ERP.
+            </p>
+
+            <button class="m-btn m-btn-primary m-btn-round mt-20"
+                    onclick="document.getElementById('input-excel').click()">
+                📥 Importar Excel
+            </button>
+
+            <input type="file" id="input-excel" style="display:none;"
+                   onchange="importarExcel(event)">
         </div>
 
     </div>
