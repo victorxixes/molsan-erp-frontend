@@ -189,7 +189,14 @@ async function ar_imprimirActaCompleta() {
     const informeTipoFirma  = tabla("✍️ Informe por Tipo Firma", ["Tipo Firma", "Total"], Object.entries(agrupar("tipo_firma")));
     const informeCanal      = tabla("🏢 Informe por Canal", ["Canal", "Total"], Object.entries(agrupar("centro_que_firma")));
 
+    /* ============================================================
+       INFORME EVOLUTIVO — CORREGIDO
+       Hasta el último mes con datos
+       Comparativa correcta por años
+    ============================================================ */
+
     const evolutivo = (() => {
+
         const mapa = {};
         datos.forEach(f => {
             const a = f.anio || "Sin año";
@@ -198,17 +205,75 @@ async function ar_imprimirActaCompleta() {
             if (m >= 1 && m <= 12) mapa[a][m - 1]++;
         });
 
-        const headers = ["Mes", ...Object.keys(mapa)];
         const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+        const anios = Object.keys(mapa);
+
+        /* Detectar último mes con datos */
+        let ultimoMesIndex = -1;
+        anios.forEach(a => {
+            mapa[a].forEach((v, idx) => {
+                if (v > 0 && idx > ultimoMesIndex) ultimoMesIndex = idx;
+            });
+        });
+
+        if (ultimoMesIndex === -1) {
+            return "<p>Sin datos evolutivos.</p>";
+        }
+
+        const nombreUltimoMes = meses[ultimoMesIndex];
+
+        /* Construir tabla mensual */
+        const headers = ["Mes", ...anios];
 
         const filas = meses.map((mes, i) => {
             const row = [mes];
-            Object.keys(mapa).forEach(a => row.push(mapa[a][i]));
+            anios.forEach(a => row.push(mapa[a][i]));
             return row;
         });
 
-        return tabla("📈 Informe Evolutivo", headers, filas);
+        /* Totales hasta el último mes */
+        const totalesHastaMes = {};
+        anios.forEach(a => {
+            totalesHastaMes[a] = mapa[a]
+                .slice(0, ultimoMesIndex + 1)
+                .reduce((s, v) => s + v, 0);
+        });
+
+        /* Fila resumen */
+        const filaHastaMes = [
+            `Hasta ${nombreUltimoMes}`,
+            ...anios.map(a => totalesHastaMes[a])
+        ];
+
+        filas.push(filaHastaMes);
+
+        const tablaEvolutivo = tabla("📈 Informe Evolutivo", headers, filas);
+
+        /* Evolución % volumen de firmas */
+        const anioActual = Math.max(...anios.map(a => Number(a)));
+        const totalActual = totalesHastaMes[anioActual] || 0;
+
+        const resumenEvolucion = anios
+            .filter(a => Number(a) < anioActual)
+            .map(a => {
+                const totalPrev = totalesHastaMes[a] || 0;
+                if (!totalPrev) return `${anioActual} vs ${a}: sin datos`;
+                const pct = ((totalActual - totalPrev) / totalPrev) * 100;
+                return `${anioActual} vs ${a}: ${pct.toFixed(2)}%`;
+            })
+            .join("<br>");
+
+        const bloqueResumen = `
+            <h3>📊 Evolución % volumen de firmas</h3>
+            <p>${resumenEvolucion}</p>
+        `;
+
+        return tablaEvolutivo + bloqueResumen;
     })();
+
+    /* ============================================================
+       CONSTRUCCIÓN FINAL DEL PDF COMPLETO
+    ============================================================ */
 
     const ventana = window.open("", "_blank");
 
