@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL CIRCUITO — PREMIUM 2027 (COMPATIBLE CON TU HTML)
+   PANEL CIRCUITO — PREMIUM 2027 (VERSIÓN CORREGIDA)
 ============================================================ */
 
 let PCI_DATOS = [];
@@ -22,8 +22,10 @@ async function initPanelCircuito() {
         return;
     }
 
-    const datos = await obtenerFirmas();
-    if (!datos || !datos.length) return;
+    let datos = await obtenerFirmas();
+
+    // ✔ Aplicar reglas.js para asegurar circuito correcto
+    datos = datos.map(f => aplicarReglas(f));
 
     PCI_DATOS = datos;
     PCI_POR_ANIO = pci_groupByAnioCircuito(PCI_DATOS);
@@ -39,15 +41,13 @@ async function initPanelCircuito() {
    AGRUPAR POR AÑO → CIRCUITO → MES
 ============================================================ */
 function pci_groupByAnioCircuito(datos) {
-    const map = {};
 
     const mesesValidos = [
         "enero","febrero","marzo","abril","mayo","junio",
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
-    const currentYear = new Date().getFullYear();
-    const currentMonthIndex = new Date().getMonth();
+    const map = {};
 
     for (const f of datos) {
 
@@ -58,10 +58,9 @@ function pci_groupByAnioCircuito(datos) {
         const idxMes = mesesValidos.indexOf(mes);
         if (idxMes === -1) continue;
 
-        // ❌ Mes futuro del año en curso → ignorar
-        if (anio === currentYear && idxMes > currentMonthIndex) continue;
+        // ✔ Circuito REAL según reglas.js
+        const circuito = f.circuito || "Fuera del circuito";
 
-        const circuito = f.circuito || "Externo";
         const dias = Number(f.dias);
         const esVC = (f.tipo_firma === "VideoConferencia");
 
@@ -74,7 +73,7 @@ function pci_groupByAnioCircuito(datos) {
                 vc: 0,
                 sumaDias: 0,
                 cuentaDias: 0,
-                meses: {} // ← meses añadidos
+                meses: {}
             };
         }
 
