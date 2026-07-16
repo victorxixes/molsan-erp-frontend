@@ -478,50 +478,131 @@ async function generarInformeMensual() {
 }
 
 /* ============================================================
-   INFORME POR APODERADO
+   INFORME POR APODERADO — PREMIUM CON PORCENTAJES
 ============================================================ */
 async function generarInformeApoderados() {
+
     let datos = await obtenerFirmas();
     datos.forEach(aplicarReglas);
 
-    const anioSel = inf_getAnioSeleccionado();
-    datos = datos.filter(f => Number(f.anio) === anioSel);
+    const anioSel = 2026; // Fijamos 2026 para el panel
+    const meses = MESES_ORDEN;
 
+    // Detectar últimos meses con datos reales
+    const mesesConDatos = [...new Set(
+        datos.filter(f => Number(f.anio) === anioSel).map(f => f.mes)
+    )].sort((a,b) => meses.indexOf(a) - meses.indexOf(b));
+
+    const mesesValidos = meses.slice(0, meses.indexOf(mesesConDatos[mesesConDatos.length - 1]) + 1);
+
+    // Estructura por apoderado
     const mapa = {};
-    datos.forEach(f => {
+
+    datos.filter(f => Number(f.anio) === anioSel).forEach(f => {
         const apo = f.apoderado || "Sin apoderado";
-        mapa[apo] = (mapa[apo] || 0) + 1;
+
+        if (!mapa[apo]) {
+            mapa[apo] = {
+                total: 0,
+                meses: Array(12).fill(0)
+            };
+        }
+
+        mapa[apo].total++;
+        const idx = meses.indexOf(f.mes);
+        if (idx >= 0) mapa[apo].meses[idx]++;
     });
 
-    const apoderados = Object.keys(mapa);
-    const totales = Object.values(mapa);
+    // Ordenar por total
+    const lista = Object.entries(mapa)
+        .sort((a,b) => b[1].total - a[1].total);
 
+    // Totales globales por mes
+    const totalesMes = mesesValidos.map(m => {
+        return datos.filter(f => f.anio === anioSel && f.mes === m).length;
+    });
+    const totalGlobal = totalesMes.reduce((a,b)=>a+b,0);
+
+    // Render
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
-    cont.innerHTML = `
+
+    // Tabla de firmas
+    const tablaFirmas = `
         <h2 class="titulo-modulo">🧑‍💼 Informe por Apoderado — ${anioSel}</h2>
-        <div class="card-glass mt-20"><canvas id="chartApoderados"></canvas></div>
+        <div class="card-glass mt-20 tabla-scroll-x">
+            <table class="table-premium tabla-excel">
+                <thead>
+                    <tr>
+                        <th>Apoderado</th>
+                        ${mesesValidos.map(m => `<th>${m}</th>`).join("")}
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${lista.map(([apo, d]) => {
+                        const valores = mesesValidos.map(m => {
+                            const idx = meses.indexOf(m);
+                            return d.meses[idx];
+                        });
+                        const total = valores.reduce((a,b)=>a+b,0);
+                        return `
+                            <tr>
+                                <td><strong>${apo}</strong></td>
+                                ${valores.map(v => `<td>${v}</td>`).join("")}
+                                <td><strong>${total}</strong></td>
+                            </tr>
+                        `;
+                    }).join("")}
+                    <tr style="background:rgba(14,165,233,0.15);font-weight:700;">
+                        <td>Total</td>
+                        ${totalesMes.map(t => `<td>${t}</td>`).join("")}
+                        <td>${totalGlobal}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     `;
 
-    resetChart();
+    // Tabla de porcentajes
+    const tablaPorcentajes = `
+        <div class="card-glass mt-30 tabla-scroll-x">
+            <table class="table-premium tabla-excel">
+                <thead>
+                    <tr>
+                        <th>%</th>
+                        ${mesesValidos.map(m => `<th>${m}</th>`).join("")}
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${lista.map(([apo, d]) => {
+                        const valores = mesesValidos.map(m => {
+                            const idx = meses.indexOf(m);
+                            const totalMes = totalesMes[mesesValidos.indexOf(m)];
+                            const pct = totalMes ? (d.meses[idx] / totalMes * 100) : 0;
+                            return `<td>${pct.toFixed(2)}%</td>`;
+                        });
+                        const pctTotal = totalGlobal ? (d.total / totalGlobal * 100) : 0;
+                        return `
+                            <tr>
+                                <td><strong>${apo}</strong></td>
+                                ${valores.join("")}
+                                <td><strong>${pctTotal.toFixed(2)}%</strong></td>
+                            </tr>
+                        `;
+                    }).join("")}
+                    <tr style="background:rgba(14,165,233,0.15);font-weight:700;">
+                        <td>Total</td>
+                        ${mesesValidos.map(() => `<td>100.00%</td>`).join("")}
+                        <td>100.00%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    `;
 
-    const ctx = document.getElementById("chartApoderados");
-    chartActual = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: apoderados,
-            datasets: [{
-                label: "Firmas",
-                data: totales,
-                backgroundColor: "#0EA5E9"
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false }},
-            scales: { x: { ticks: { color: "#111" }}, y: { ticks: { color: "#111" }} }
-        }
-    });
+    cont.innerHTML = tablaFirmas + tablaPorcentajes;
 }
 
 /* ============================================================
