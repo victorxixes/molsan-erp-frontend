@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL CENTRO QUE FIRMA — PREMIUM 2027
+   PANEL CENTRO QUE FIRMA — PREMIUM 2027 (VERSIÓN REGLAS.JS)
 ============================================================ */
 
 let chartCentroFirma = null;
@@ -19,27 +19,30 @@ async function initPanelTipoCentroQueFirma() {
         return;
     }
 
-    // 1) Cargar datos
+    // 1) Cargar datos desde IndexedDB
     let datos = await obtenerFirmas();
-    datos = aplicarNormalizacionPremium(datos);
+
+    // 2) Aplicar reglas de normalización (reglas.js)
+    datos = datos.map(f => aplicarReglas(f));
 
     if (!datos || !datos.length) return;
 
-    // 2) Guardar datos globales
+    // 3) Guardar datos globales
     PCF_DATOS = datos;
     PCF_POR_ANIO = pcf_groupByAnio(PCF_DATOS);
 
-    // 3) Rellenar selector de años
+    // 4) Rellenar selector de años
     pcf_fillSelectAnios();
     pcf_selectUltimoAnio();
 
-    // 4) Evento al cambiar año
+    // 5) Evento al cambiar año
     document.getElementById("pcf-select-anio")
         .addEventListener("change", cargarCentroQueFirma);
 
-    // 5) Primera carga
+    // 6) Primera carga
     await cargarCentroQueFirma();
 }
+
 /* ============================================================
    AGRUPAR POR AÑO → CENTRO QUE FIRMA → MES
 ============================================================ */
@@ -68,7 +71,7 @@ function pcf_groupByAnio(datos) {
         const anio = Number(f.anio);
         if (!anio) continue;
 
-        const mes = (f.mes || "").toLowerCase().trim();
+        const mes = String(f.mes || "").toLowerCase().trim();
         const idxMes = mesesValidos.indexOf(mes);
         if (idxMes === -1) continue;
 
@@ -98,7 +101,8 @@ function pcf_groupByAnio(datos) {
 
         r.total++;
 
-        if (f.vc === "SI") r.vc++;
+        // ✔ Usar tipo_firma normalizado (reglas.js)
+        if (String(f.tipo_firma).toLowerCase() === "videoconferencia") r.vc++;
         else r.presencial++;
 
         if (dias > 0) {
@@ -111,6 +115,7 @@ function pcf_groupByAnio(datos) {
 
     return map;
 }
+
 /* ============================================================
    SELECT AÑOS
 ============================================================ */
@@ -151,11 +156,13 @@ function pcf_onChangeAnio() {
 ============================================================ */
 async function cargarCentroQueFirma() {
 
-    let datos = await obtenerFirmas();
-    datos = aplicarNormalizacionPremium(datos);
+    const sel = document.getElementById("pcf-select-anio");
+    if (!sel) return;
 
-    const anioSel = Number(document.getElementById("pcf-select-anio").value);
-    datos = datos.filter(f => Number(f.anio) === anioSel);
+    const anioSel = Number(sel.value);
+
+    // ✔ Usar datos ya normalizados en memoria
+    const datos = PCF_DATOS.filter(f => Number(f.anio) === anioSel);
 
     // Listas de clasificación
     const COLABORADORES = [
@@ -185,7 +192,8 @@ async function cargarCentroQueFirma() {
     datos.forEach(f => {
 
         const ap = (f.apoderado || "").trim().toLowerCase();
-        const mesIdx = MESES_ORDEN.indexOf(f.mes);
+        const mesNombre = String(f.mes || "").toLowerCase().trim();
+        const mesIdx = MESES_ORDEN.indexOf(mesNombre);
         const dias = Number(f.dias);
 
         let centro = "Molsan";
@@ -195,8 +203,13 @@ async function cargarCentroQueFirma() {
         else if (COLABORADORES.includes(ap)) centro = "Colaboradores";
 
         mapa[centro].total++;
-        if (f.vc === "SI") mapa[centro].vc++;
-        else mapa[centro].presencial++;
+
+        // ✔ Usar tipo_firma normalizado
+        if (String(f.tipo_firma).toLowerCase() === "videoconferencia") {
+            mapa[centro].vc++;
+        } else {
+            mapa[centro].presencial++;
+        }
 
         if (dias > 0) {
             mapa[centro].slaSum += dias;
@@ -210,6 +223,7 @@ async function cargarCentroQueFirma() {
        Rellenar tabla mensual
     ============================================================= */
     const tbody = document.querySelector("#pcf-tabla-meses tbody");
+    if (!tbody) return;
 
     tbody.innerHTML = centros.map(c => {
         const m = mapa[c];
@@ -257,6 +271,8 @@ async function cargarCentroQueFirma() {
     if (chartCentroFirma) chartCentroFirma.destroy();
 
     const ctx = document.getElementById("pcf-chart-centro");
+    if (!ctx) return;
+
     chartCentroFirma = new Chart(ctx, {
         type: "bar",
         data: {
