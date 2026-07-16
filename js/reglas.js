@@ -102,7 +102,7 @@ function aplicarReglas(f) {
 }
 
 /* ============================================================
-   FECHAS — FORMATO ESPAÑOL DD/MM/AAAA
+   FECHAS — FORMATO ESPAÑOL DD/MM/AAAA (incluye DD-MM-AAAA)
 ============================================================ */
 function normalizarFecha(v) {
     if (!v) return "";
@@ -125,6 +125,11 @@ function normalizarFecha(v) {
     // dd/mm/yyyy ya correcto
     else if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
         return v;
+    }
+    // dd-mm-yyyy → convertir a dd/mm/yyyy
+    else if (/^\d{2}-\d{2}-\d{4}$/.test(v)) {
+        const [d2, m, y] = v.split("-");
+        return `${d2}/${m}/${y}`;
     }
     // fallback
     else {
