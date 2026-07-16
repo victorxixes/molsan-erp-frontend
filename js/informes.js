@@ -695,7 +695,57 @@ async function generarInformeTipoFirma() {
         }
     });
 }
+/* ============================================================
+   INFORME TIPO DE GESTIÓN — GRÁFICO PREMIUM
+============================================================ */
+async function generarInformeTipoGestion() {
+    let datos = await obtenerFirmas();
+    datos.forEach(aplicarReglas);
 
+    const anioSel = inf_getAnioSeleccionado();
+    datos = datos.filter(f => Number(f.anio) === anioSel);
+
+    // Agrupar por tipo de gestión
+    const mapa = {};
+    datos.forEach(f => {
+        const tg = f.tipo_gestion || "Sin clasificar";
+        mapa[tg] = (mapa[tg] || 0) + 1;
+    });
+
+    const tipos = Object.keys(mapa);
+    const totales = Object.values(mapa);
+
+    const cont = document.getElementById("informeContainer");
+    cont.style.display = "block";
+
+    cont.innerHTML = `
+        <h2 class="titulo-modulo">📄 Tipo de Gestión — ${anioSel}</h2>
+        <div class="card-glass mt-20"><canvas id="chartTipoGestion"></canvas></div>
+    `;
+
+    resetChart();
+
+    const ctx = document.getElementById("chartTipoGestion");
+    chartActual = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: tipos,
+            datasets: [{
+                label: "Firmas",
+                data: totales,
+                backgroundColor: "#3B82F6"
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
+}
 /* ============================================================
    INFORME TIEMPOS — SLA CaixaBank vs Otra Entidad (Gráfico)
 ============================================================ */
