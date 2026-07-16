@@ -588,12 +588,55 @@
             </p>
 
             <button class="m-btn m-btn-primary m-btn-round mt-20"
-                    onclick="document.getElementById('input-excel').click()">
-                📥 Importar Excel
+                    onclick="cargarModulo('uploader')">
+                📂 Abrir módulo Importar Excel
             </button>
 
-            <input type="file" id="input-excel" style="display:none;"
-                   onchange="importarExcel(event)">
+        </div>
+
+        <!-- BLOQUE PERMISOS -->
+        <div class="card-glass p-20 mt-30">
+
+            <h3 class="subtitulo-modulo">🔐 Permisos del Sistema</h3>
+            <p class="mt-10 texto-secundario">
+                Gestiona los permisos de acceso y acciones disponibles para los usuarios.
+            </p>
+
+            <button class="m-btn m-btn-primary m-btn-round mt-20"
+                    onclick="cargarModulo('permisos')">
+                🔐 Abrir módulo Permisos
+            </button>
+
+        </div>
+
+        <!-- BLOQUE BACKUP -->
+        <div class="card-glass p-20 mt-30">
+
+            <h3 class="subtitulo-modulo">💾 Copias de Seguridad</h3>
+            <p class="mt-10 texto-secundario">
+                Genera una copia de seguridad completa del ERP.
+            </p>
+
+            <button class="m-btn m-btn-primary m-btn-round mt-20"
+                    onclick="cargarModulo('backup')">
+                💾 Abrir módulo Backup
+            </button>
+
+        </div>
+
+        <!-- BLOQUE RESTAURACIÓN -->
+        <div class="card-glass p-20 mt-30">
+
+            <h3 class="subtitulo-modulo">♻️ Restauración de Backups</h3>
+            <p class="mt-10 texto-secundario">
+                Restaura una copia de seguridad previamente generada.
+            </p>
+
+            <button class="m-btn m-btn-primary m-btn-round mt-20"
+                    onclick="cargarModulo('restore')">
+                ♻️ Abrir módulo Restaurar
+            </button>
+
         </div>
 
     </div>
