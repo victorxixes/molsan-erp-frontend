@@ -1,5 +1,5 @@
 /* ============================================================
-   IMPORTADOR — GLASS LUXE 2027 (IndexedDB + Chunks + Progreso)
+   IMPORTADOR — GLASS LUXE 2027 (VERSIÓN CORREGIDA)
 ============================================================ */
 
 /* ============================================================
@@ -17,17 +17,13 @@ function mapearCamposExcel(f) {
         municipio: f["Municipio"] ?? "",
         comunidad: f["Comunidad"] ?? "",
         protocolo: f["Protocolo"] ?? "",
-        fecha_protocolo: f["Fecha Protocolo"] ?? "",   // ✔ CORRECTO
+        fecha_protocolo: f["Fecha Protocolo"] ?? "",
         vc: f["V.C."] ?? "",
         apoderado: f["Apoderado"] ?? "",
         envio_notario: f["Envio Notario"] ?? "",
         dias: Number(f["Días"] ?? 0),
 
-        // Campos generados por Excel
-        nombre_completo: f["Nombre"] ?? "",
-        centro_que_firma_raw: f["Centro que firma"] ?? "",
-
-        // Campos generados por reglas
+        // Campos generados por reglas.js
         mes: "",
         anio: "",
         centro: "",
@@ -40,73 +36,6 @@ function mapearCamposExcel(f) {
         circuito: "",
         tipo_firma: ""
     };
-}
-
-/* ============================================================
-   APLICAR REGLAS — GENERA MES, AÑO, TIPO FIRMA, CIRCUITO, ETC.
-============================================================ */
-function aplicarReglas(f) {
-
-    /* ------------------------------
-       1) FECHA → MES + AÑO
-       ✔ SIEMPRE usar Fecha Protocolo si existe
-       ✔ Fecha Alta solo como fallback
-    ------------------------------ */
-    let fecha = null;
-
-    if (f.fecha_protocolo) {
-        fecha = new Date(f.fecha_protocolo);
-    } else if (f.fecha_alta) {
-        fecha = new Date(f.fecha_alta);
-    }
-
-    if (fecha && !isNaN(fecha)) {
-        f.anio = fecha.getFullYear();
-        f.mes = fecha.toLocaleString("es-ES", { month: "long" }).toLowerCase();
-    } else {
-        f.anio = "";
-        f.mes = "";
-    }
-
-    /* ------------------------------
-       2) TIPO FIRMA
-    ------------------------------ */
-    f.tipo_firma = (String(f.vc).toUpperCase() === "S")
-        ? "VideoConferencia"
-        : "Presencial";
-
-    /* ------------------------------
-       3) CIRCUITO NOTARIAL
-    ------------------------------ */
-    const prov = (f.provincia || "").toLowerCase();
-
-    if (prov.includes("las palmas") || prov.includes("santa cruz")) {
-        f.circuito = "Canarias";
-    } else if (
-        prov.includes("barcelona") ||
-        prov.includes("madrid") ||
-        prov.includes("valencia") ||
-        prov.includes("sevilla") ||
-        prov.includes("zaragoza")
-    ) {
-        f.circuito = "Península";
-    } else {
-        f.circuito = "Externo";
-    }
-
-    /* ------------------------------
-       4) TIPO GESTIÓN
-    ------------------------------ */
-    f.tipo_gestion = (f.tipo_provision || "").toLowerCase().includes("sin")
-        ? "Sin provisión"
-        : "Con provisión";
-
-    /* ------------------------------
-       5) CENTRO
-    ------------------------------ */
-    f.centro = f.oficina || "";
-
-    return f;
 }
 
 /* ============================================================
@@ -141,9 +70,9 @@ async function procesarExcel(file, onProgress) {
                 const mapeadas = filasRaw.map(mapearCamposExcel);
 
                 /* ============================================================
-                   2) APLICAR REGLAS
+                   2) APLICAR REGLAS (reglas.js)
                 ============================================================= */
-                const normalizadas = mapeadas.map(aplicarReglas);
+                const normalizadas = mapeadas.map(f => aplicarReglas(f));
 
                 console.log("📦 Filas normalizadas:", normalizadas.length);
 
@@ -171,7 +100,7 @@ async function procesarExcel(file, onProgress) {
                 }
 
                 /* ============================================================
-                   5) RECALCULAR KPIs (sin cargar Dashboard)
+                   5) RECALCULAR KPIs
                 ============================================================= */
                 await recalcularKPIs();
 
