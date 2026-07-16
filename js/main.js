@@ -200,3 +200,28 @@ window.addEventListener("DOMContentLoaded", async () => {
     // ✔ Cargar Dashboard Premium por defecto
     cargarModulo("dashboard-premium");
 });
+/* ============================================================
+   RESET COMPLETO DEL SISTEMA — BORRAR INDEXEDDB
+============================================================ */
+
+function molsan_resetDB() {
+
+    const confirmar = confirm(
+        "⚠️ ATENCIÓN\n\n" +
+        "Esto borrará TODOS los datos del ERP:\n" +
+        "• Firmas\n" +
+        "• Informes\n" +
+        "• Evolutivo\n" +
+        "• Paneles premium\n\n" +
+        "¿Seguro que quieres continuar?"
+    );
+
+    if (!confirmar) return;
+
+    indexedDB.deleteDatabase("molsan_db");
+
+    alert("🧹 Sistema reiniciado correctamente.\n\nEl ERP está limpio y listo para importar nuevos datos.");
+
+    location.reload();
+}
+
