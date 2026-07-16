@@ -20,115 +20,99 @@
 
 <div class="app-shell">
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <button id="sidebarToggle" class="sidebar-toggle-btn">☰</button>
+   <!-- SIDEBAR -->
+<aside class="sidebar">
+    <button id="sidebarToggle" class="sidebar-toggle-btn">☰</button>
 
-        <ul>
+    <ul>
 
-            <!-- DASHBOARD PREMIUM -->
-            <li class="menu-item" onclick="cargarModulo('dashboard-premium')">
-                <span class="icon">💎</span>
-                <span class="text">Dashboard Premium</span>
-            </li>
-<li class="menu-item" onclick="cargarModulo('informe-evolutivo')">
-    <span class="icon">📈</span>
-    <span class="text">Informe Evolutivo</span>
-</li>
-<li class="menu-item" onclick="cargarModulo('acta-reunion')">
-    <span class="icon">📝</span>
-    <span class="text">Acta de reunión</span>
-</li>
+        <!-- DASHBOARD PREMIUM -->
+        <li class="menu-item" onclick="cargarModulo('dashboard-premium')">
+            <span class="icon">💎</span>
+            <span class="text">Dashboard Premium</span>
+        </li>
 
-            <!-- MÓDULOS BASE -->
-            <li class="menu-item" onclick="cargarModulo('listado')">
-                <span class="icon">📄</span>
-                <span class="text">Listado</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('informe-evolutivo')">
+            <span class="icon">📈</span>
+            <span class="text">Informe Evolutivo</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('uploader')">
-                <span class="icon">📂</span>
-                <span class="text">Importar Excel</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('acta-reunion')">
+            <span class="icon">📝</span>
+            <span class="text">Acta de reunión</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('configuracion')">
-                <span class="icon">⚙️</span>
-                <span class="text">Configururación</span>
-            </li>
+        <!-- MÓDULOS BASE -->
+        <li class="menu-item" onclick="cargarModulo('listado')">
+            <span class="icon">📄</span>
+            <span class="text">Listado</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('permisos')">
-                <span class="icon">🔐</span>
-                <span class="text">Permisos</span>
-            </li>
+        <!-- CONFIGURACIÓN (CONTENEDOR) -->
+        <li class="menu-item" onclick="cargarModulo('configuracion')">
+            <span class="icon">⚙️</span>
+            <span class="text">Configuración</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('backup')">
-                <span class="icon">💾</span>
-                <span class="text">Backup</span>
-            </li>
+        <hr>
 
-            <li class="menu-item" onclick="cargarModulo('restore')">
-                <span class="icon">♻️</span>
-                <span class="text">Restaurar</span>
-            </li>
+        <!-- INFORMES PREMIUM -->
+        <li class="menu-item" onclick="cargarModulo('informes-premium')">
+            <span class="icon">📘</span>
+            <span class="text">Informes Premium</span>
+        </li>
 
-            <hr>
+        <hr>
 
-            <!-- INFORMES PREMIUM -->
-            <li class="menu-item" onclick="cargarModulo('informes-premium')">
-                <span class="icon">📘</span>
-                <span class="text">Informes Premium</span>
-            </li>
+        <!-- PANELES -->
+        <li class="menu-item" onclick="cargarModulo('panel-anual')">
+            <span class="icon">📆</span>
+            <span class="text">Panel Anual</span>
+        </li>
 
-            <hr>
+        <li class="menu-item" onclick="cargarModulo('panel-mensual')">
+            <span class="icon">📅</span>
+            <span class="text">Panel Mensual</span>
+        </li>
 
-            <!-- PANELES -->
-            <li class="menu-item" onclick="cargarModulo('panel-anual')">
-                <span class="icon">📆</span>
-                <span class="text">Panel Anual</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('panel-apoderados')">
+            <span class="icon">🧑‍</span>
+            <span class="text">Panel Apoderados</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('panel-mensual')">
-                <span class="icon">📅</span>
-                <span class="text">Panel Mensual</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('panel-tipo-firma')">
+            <span class="icon">✍️</span>
+            <span class="text">Tipo Firma</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('panel-apoderados')">
-                <span class="icon">🧑‍</span>
-                <span class="text">Panel Apoderados</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('panel-tipo-gestion')">
+            <span class="icon">📄</span>
+            <span class="text">Tipo Gestión</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('panel-tipo-firma')">
-                <span class="icon">✍️</span>
-                <span class="text">Tipo Firma</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('panel-oficinas')">
+            <span class="icon">🏢</span>
+            <span class="text">Origen de encargo</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('panel-tipo-gestion')">
-                <span class="icon">📄</span>
-                <span class="text">Tipo Gestión</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('panel-circuito')">
+            <span class="icon">🛣️</span>
+            <span class="text">Circuito notarial</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('panel-oficinas')">
-                <span class="icon">🏢</span>
-                <span class="text">Origen de encargo</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('panel-tipo-centroquefirma')">
+            <span class="icon">🏛️</span>
+            <span class="text">Centro que firma</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('panel-circuito')">
-                <span class="icon">🛣️</span>
-                <span class="text">Circuito notarial</span>
-            </li>
+        <li class="menu-item" onclick="cargarModulo('panel-sla')">
+            <span class="icon">⏱️</span>
+            <span class="text">SLA / Tiempos</span>
+        </li>
 
-            <li class="menu-item" onclick="cargarModulo('panel-tipo-centroquefirma')">
-                <span class="icon">🏛️</span>
-                <span class="text">Centro que firma</span>
-            </li>
+    </ul>
+</aside>
 
-            <li class="menu-item" onclick="cargarModulo('panel-sla')">
-                <span class="icon">⏱️</span>
-                <span class="text">SLA / Tiempos</span>
-            </li>
-
-        </ul>
-    </aside>
 
     <!-- CONTENEDOR DE MÓDULOS -->
     <main class="app-main">
