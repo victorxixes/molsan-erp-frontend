@@ -564,46 +564,58 @@ async function generarInformeApoderados() {
         </div>
     `;
 
-    // Tabla de porcentajes
-    const tablaPorcentajes = `
-        <div class="card-glass mt-30 tabla-scroll-x">
-            <table class="table-premium tabla-excel">
-                <thead>
-                    <tr>
-                        <th>%</th>
-                        ${mesesValidos.map(m => `<th>${m}</th>`).join("")}
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${lista.map(([apo, d]) => {
-                        const valores = mesesValidos.map(m => {
-                            const idx = meses.indexOf(m);
-                            const totalMes = totalesMes[mesesValidos.indexOf(m)];
-                            const pct = totalMes ? (d.meses[idx] / totalMes * 100) : 0;
-                            return `<td>${pct.toFixed(2)}%</td>`;
-                        });
-                        const pctTotal = totalGlobal ? (d.total / totalGlobal * 100) : 0;
-                        return `
-                            <tr>
-                                <td><strong>${apo}</strong></td>
-                                ${valores.join("")}
-                                <td><strong>${pctTotal.toFixed(2)}%</strong></td>
-                            </tr>
-                        `;
-                    }).join("")}
-                    <tr style="background:rgba(14,165,233,0.15);font-weight:700;">
-                        <td>Total</td>
-                        ${mesesValidos.map(() => `<td>100.00%</td>`).join("")}
-                        <td>100.00%</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    `;
+   // Tabla de porcentajes
+const tablaPorcentajes = `
+    <div class="card-glass mt-30 tabla-scroll-x">
+        <table class="table-premium tabla-excel">
+            <thead>
+                <tr>
+                    <th>%</th>
+                    ${mesesValidos.map(m => `<th>${m}</th>`).join("")}
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${lista.map(([apo, d]) => {
 
-    cont.innerHTML = tablaFirmas + tablaPorcentajes;
-}
+                    // Porcentajes por mes
+                    const valores = mesesValidos.map(m => {
+                        const idx = meses.indexOf(m);
+                        const totalMes = totalesMes[mesesValidos.indexOf(m)];
+                        const pct = totalMes ? (d.meses[idx] / totalMes * 100) : 0;
+
+                        // SOLO negativos en rojo
+                        const color = pct < 0 ? "color:#EF4444;font-weight:600;" : "";
+
+                        return `<td style="${color}">${pct.toFixed(2)}%</td>`;
+                    });
+
+                    // Porcentaje total del apoderado
+                    const pctTotal = totalGlobal ? (d.total / totalGlobal * 100) : 0;
+                    const colorTotal = pctTotal < 0 ? "color:#EF4444;font-weight:600;" : "";
+
+                    return `
+                        <tr>
+                            <td><strong>${apo}</strong></td>
+                            ${valores.join("")}
+                            <td style="${colorTotal}"><strong>${pctTotal.toFixed(2)}%</strong></td>
+                        </tr>
+                    `;
+                }).join("")}
+
+                <tr style="background:rgba(14,165,233,0.15);font-weight:700;">
+                    <td>Total</td>
+                    ${mesesValidos.map(() => `<td>100.00%</td>`).join("")}
+                    <td>100.00%</td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+`;
+
+cont.innerHTML = tablaFirmas + tablaPorcentajes;
+
 
 /* ============================================================
    INFORME POR OFICINA
