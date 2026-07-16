@@ -72,52 +72,11 @@ function resetChart() {
 }
 
 /* ============================================================
-   NORMALIZACIÓN GLASS LUXE 2027 — FINAL
-   (USANDO fecha_protocolo PARA AÑO Y MES)
-============================================================ */
-function aplicarNormalizacionPremium(datos) {
-
-    for (const f of datos) {
-
-        // EXTRAER AÑO Y MES DESDE fecha_protocolo (formato dd-mm-aaaa)
-        if (f.fecha_protocolo && f.fecha_protocolo.includes("-")) {
-            const partes = f.fecha_protocolo.split("-");
-            const mesNum = Number(partes[1]);
-            const anio = Number(partes[2]);
-
-            f.anio = anio;
-            if (mesNum >= 1 && mesNum <= 12) {
-                f.mes = mesNumeroATexto(mesNum);
-            }
-        }
-
-        // Si no se ha podido extraer, dejamos mes/anio como están o vacíos
-        if (!f.mes) {
-            f.mes = "";
-        }
-        if (!f.anio) {
-            f.anio = 0;
-        }
-
-        // Validar mes
-        if (!MESES_ORDEN.includes(f.mes)) f.mes = "";
-
-        // Normalizaciones adicionales (si ya las tienes definidas en otro JS)
-        f.tipo_gestion = normalizarTipoGestion(f.tipo_gestion);
-        f.circuito     = getCircuito(f.notario);
-        f.tipo_firma   = getTipoFirma(f.vc);
-        f.centro       = String(f.oficina) === "5316" ? "Cancela" : "Oficina";
-    }
-
-    return datos;
-}
-
-/* ============================================================
    INFORME GENERAL PREMIUM — KPIs + GRÁFICOS
 ============================================================ */
 async function generarInformeGeneral() {
     let datos = await obtenerFirmas();
-    datos = aplicarNormalizacionPremium(datos);
+    datos.forEach(aplicarReglas);
 
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
@@ -261,6 +220,7 @@ async function generarInformeGeneral() {
         }
     });
 }
+
 /* ============================================================
    INFORME EVOLUTIVO — TABLA COMPLETA 2020–2026
 ============================================================ */
@@ -433,12 +393,13 @@ resumen.textContent = `
     Evolución total: ${pctGeneral[pctGeneral.length-1].toFixed(2)}%
 `;
 }
+
 /* ============================================================
    INFORME ANUAL — SOLO MESES REALES DE 2026
 ============================================================ */
 async function generarInformeAnual() {
     let datos = await obtenerFirmas();
-    datos = aplicarNormalizacionPremium(datos);
+    datos.forEach(aplicarReglas);
 
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
@@ -493,7 +454,7 @@ async function generarInformeAnual() {
 ============================================================ */
 async function generarInformeMensual() {
     let datos = await obtenerFirmas();
-    datos = aplicarNormalizacionPremium(datos);
+    datos.forEach(aplicarReglas);
 
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
@@ -539,12 +500,13 @@ async function generarInformeMensual() {
         }
     });
 }
+
 /* ============================================================
    INFORME POR APODERADO — GRÁFICO
 ============================================================ */
 async function generarInformeApoderados() {
     let datos = await obtenerFirmas();
-    datos = aplicarNormalizacionPremium(datos);
+    datos.forEach(aplicarReglas);
 
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
@@ -585,12 +547,13 @@ async function generarInformeApoderados() {
         }
     });
 }
+
 /* ============================================================
    INFORME POR OFICINA — GRÁFICO
 ============================================================ */
 async function generarInformeOficinas() {
     let datos = await obtenerFirmas();
-    datos = aplicarNormalizacionPremium(datos);
+    datos.forEach(aplicarReglas);
 
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
@@ -630,12 +593,13 @@ async function generarInformeOficinas() {
         }
     });
 }
+
 /* ============================================================
    INFORME POR CIRCUITO — GRÁFICO
 ============================================================ */
 async function generarInformeCircuito() {
     let datos = await obtenerFirmas();
-    datos = aplicarNormalizacionPremium(datos);
+    datos.forEach(aplicarReglas);
 
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
@@ -673,12 +637,13 @@ async function generarInformeCircuito() {
         }
     });
 }
+
 /* ============================================================
    INFORME TIPO DE FIRMA — GRÁFICO MENSUAL
 ============================================================ */
 async function generarInformeTipoFirma() {
     let datos = await obtenerFirmas();
-    datos = aplicarNormalizacionPremium(datos);
+    datos.forEach(aplicarReglas);
 
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
@@ -730,12 +695,13 @@ async function generarInformeTipoFirma() {
         }
     });
 }
+
 /* ============================================================
    INFORME TIEMPOS — SLA CaixaBank vs Otra Entidad (Gráfico)
 ============================================================ */
 async function generarInformeTiempos() {
     let datos = await obtenerFirmas();
-    datos = aplicarNormalizacionPremium(datos);
+    datos.forEach(aplicarReglas);
 
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
@@ -805,12 +771,13 @@ async function generarInformeTiempos() {
         }
     });
 }
+
 /* ============================================================
    INFORME CENTRO QUE FIRMA — Molsan / Colaboradores / OE / CBK
 ============================================================ */
 async function generarInformeCentroQueFirma() {
     let datos = await obtenerFirmas();
-    datos = aplicarNormalizacionPremium(datos);
+    datos.forEach(aplicarReglas);
 
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
@@ -892,6 +859,7 @@ async function generarInformeCentroQueFirma() {
         }
     });
 }
+
 /* ============================================================
    COMPATIBILIDAD — generarMapasPremium
    (main.js lo llama, así que definimos un stub seguro)
@@ -901,4 +869,3 @@ async function generarMapasPremium(datos) {
     // Esta función existe solo para evitar errores en main.js.
     return true;
 }
-
