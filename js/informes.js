@@ -15,10 +15,8 @@ let chartActual = null;
 
 /* ============================================================
    SELECTOR DE AÑO — INFORMES PREMIUM
-   (FORZAMOS 2026 COMO AÑO ÚNICO DE TRABAJO)
 ============================================================ */
 function inf_getAnioSeleccionado() {
-    // Siempre trabajamos con 2026
     return 2026;
 }
 
@@ -29,7 +27,6 @@ async function initInformesPremium() {
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
 
-    // Solo mostramos 2026 si existe en los datos
     const anios = [...new Set(
         datos
             .map(f => {
@@ -44,7 +41,6 @@ async function initInformesPremium() {
 
     sel.innerHTML = "";
 
-    // Si 2026 existe en los datos, lo añadimos; si no, añadimos el último año disponible
     const targetYear = anios.includes(2026) ? 2026 : (anios[anios.length - 1] || new Date().getFullYear());
 
     const opt = document.createElement("option");
@@ -72,7 +68,7 @@ function resetChart() {
 }
 
 /* ============================================================
-   INFORME GENERAL PREMIUM — KPIs + GRÁFICOS
+   INFORME GENERAL PREMIUM
 ============================================================ */
 async function generarInformeGeneral() {
     let datos = await obtenerFirmas();
@@ -81,12 +77,10 @@ async function generarInformeGeneral() {
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
 
-    // KPI 1: Totales
     const total = datos.length;
     const vc = datos.filter(f => f.tipo_firma === "VideoConferencia").length;
     const presencial = total - vc;
 
-    // KPI 2: Top Apoderados
     const mapaApo = {};
     datos.forEach(f => {
         const apo = f.apoderado || "Sin apoderado";
@@ -96,19 +90,16 @@ async function generarInformeGeneral() {
         .sort((a,b)=>b[1]-a[1])
         .slice(0,5);
 
-    // KPI 3: Oficinas
     const mapaOfi = {};
     datos.forEach(f => {
         mapaOfi[f.centro] = (mapaOfi[f.centro] || 0) + 1;
     });
 
-    // KPI 4: Circuito
     const mapaCir = {};
     datos.forEach(f => {
         mapaCir[f.circuito] = (mapaCir[f.circuito] || 0) + 1;
     });
 
-    // KPI 5: SLA CaixaBank vs Otra Entidad
     let sumaCaixa = 0, cuentaCaixa = 0;
     let sumaOtra  = 0, cuentaOtra  = 0;
 
@@ -130,7 +121,6 @@ async function generarInformeGeneral() {
     const slaCaixa = cuentaCaixa ? (sumaCaixa / cuentaCaixa).toFixed(1) : "0";
     const slaOtra  = cuentaOtra  ? (sumaOtra  / cuentaOtra ).toFixed(1) : "0";
 
-    // Render
     const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
 
@@ -152,9 +142,7 @@ async function generarInformeGeneral() {
 
     resetChart();
 
-    // Gráfico 1: VC vs Presencial
-    const ctx1 = document.getElementById("chartGeneralVC");
-    new Chart(ctx1, {
+    new Chart(document.getElementById("chartGeneralVC"), {
         type: "pie",
         data: {
             labels: ["Presencial", "VC"],
@@ -165,9 +153,7 @@ async function generarInformeGeneral() {
         }
     });
 
-    // Gráfico 2: Top Apoderados
-    const ctx2 = document.getElementById("chartGeneralApo");
-    new Chart(ctx2, {
+    new Chart(document.getElementById("chartGeneralApo"), {
         type: "bar",
         data: {
             labels: topApo.map(x => x[0]),
@@ -179,9 +165,7 @@ async function generarInformeGeneral() {
         }
     });
 
-    // Gráfico 3: Oficinas
-    const ctx3 = document.getElementById("chartGeneralOfi");
-    new Chart(ctx3, {
+    new Chart(document.getElementById("chartGeneralOfi"), {
         type: "bar",
         data: {
             labels: Object.keys(mapaOfi),
@@ -193,9 +177,7 @@ async function generarInformeGeneral() {
         }
     });
 
-    // Gráfico 4: Circuito
-    const ctx4 = document.getElementById("chartGeneralCir");
-    new Chart(ctx4, {
+    new Chart(document.getElementById("chartGeneralCir"), {
         type: "doughnut",
         data: {
             labels: Object.keys(mapaCir),
@@ -206,9 +188,7 @@ async function generarInformeGeneral() {
         }
     });
 
-    // Gráfico 5: SLA CaixaBank vs Otra Entidad
-    const ctx5 = document.getElementById("chartGeneralSLA");
-    new Chart(ctx5, {
+    new Chart(document.getElementById("chartGeneralSLA"), {
         type: "bar",
         data: {
             labels: ["CaixaBank", "Otra Entidad"],
@@ -230,15 +210,13 @@ async function initInformeEvolutivo() {
     const datos = await obtenerFirmas();
     datos.forEach(aplicarReglas);
 
-    const meses = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
-
+    const meses = MESES_ORDEN;
     const tabla = document.getElementById("evo-tabla");
-
     tabla.innerHTML = "";
 
+    /* ============================
+       TABLA MENSUAL 2020–2026
+    ============================= */
     meses.forEach(mes => {
 
         const fila = document.createElement("tr");
@@ -253,7 +231,6 @@ async function initInformeEvolutivo() {
 
         const total = valores.reduce((a,b) => a+b, 0);
 
-        // % respecto año anterior
         for (let i = 1; i < valores.length; i++) {
             const prev = valores[i-1];
             const act  = valores[i];
@@ -263,13 +240,7 @@ async function initInformeEvolutivo() {
 
         fila.innerHTML = `
             <td>${mes}</td>
-            <td>${valores[0].toLocaleString()}</td>
-            <td>${valores[1].toLocaleString()}</td>
-            <td>${valores[2].toLocaleString()}</td>
-            <td>${valores[3].toLocaleString()}</td>
-            <td>${valores[4].toLocaleString()}</td>
-            <td>${valores[5].toLocaleString()}</td>
-            <td>${valores[6].toLocaleString()}</td>
+            ${valores.map(v => `<td>${v.toLocaleString()}</td>`).join("")}
             <td>${total.toLocaleString()}</td>
             ${porcentajes.map(p => `<td>${p.toFixed(2)}%</td>`).join("")}
         `;
@@ -277,125 +248,88 @@ async function initInformeEvolutivo() {
         tabla.appendChild(fila);
     });
 
-   /* ============================
-   TOTAL GENERAL
-============================ */
-const filaTotal = document.createElement("tr");
-filaTotal.classList.add("fila-total");
+    /* ============================
+       TOTAL GENERAL
+    ============================= */
+    const filaTotal = document.createElement("tr");
+    filaTotal.classList.add("fila-total");
 
-const totalesPorAnio = [];
+    const totalesPorAnio = [];
 
-for (let anio = 2020; anio <= 2026; anio++) {
-    const totalAnio = datos.filter(d => d.anio == anio).length;
-    totalesPorAnio.push(totalAnio);
-}
-
-const totalGeneral = totalesPorAnio.reduce((a,b) => a+b, 0);
-
-const pctGeneral = [];
-for (let i = 1; i < totalesPorAnio.length; i++) {
-    const prev = totalesPorAnio[i-1];
-    const act  = totalesPorAnio[i];
-    pctGeneral.push(prev ? ((act - prev) / prev * 100) : 0);
-}
-
-filaTotal.innerHTML = `
-    <td><strong>Total general</strong></td>
-    ${totalesPorAnio.map(t => `<td><strong>${t.toLocaleString()}</strong></td>`).join("")}
-    <td><strong>${totalGeneral.toLocaleString()}</strong></td>
-    ${pctGeneral.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
-`;
-
-tabla.appendChild(filaTotal);
-
-
-/* ============================================================
-   FILA: HASTA ÚLTIMO MES DISPONIBLE POR AÑO
-============================================================ */
-const filaHasta = document.createElement("tr");
-filaHasta.classList.add("fila-total");
-
-const mesesOrden = [
-    "enero","febrero","marzo","abril","mayo","junio",
-    "julio","agosto","septiembre","octubre","noviembre","diciembre"
-];
-
-// Detectar último mes disponible por año
-const ultimoMesPorAnio = {};
-
-for (let anio = 2020; anio <= 2026; anio++) {
-    const mesesConDatos = datos
-        .filter(f => f.anio === anio)
-        .map(f => f.mes);
-
-    if (mesesConDatos.length === 0) {
-        ultimoMesPorAnio[anio] = null;
-        continue;
+    for (let anio = 2020; anio <= 2026; anio++) {
+        const totalAnio = datos.filter(d => d.anio == anio).length;
+        totalesPorAnio.push(totalAnio);
     }
 
-    const ordenados = mesesConDatos.sort(
-        (a,b) => mesesOrden.indexOf(a) - mesesOrden.indexOf(b)
-    );
+    const totalGeneral = totalesPorAnio.reduce((a,b) => a+b, 0);
 
-    ultimoMesPorAnio[anio] = ordenados[ordenados.length - 1];
-}
-
-// Calcular totales hasta ese mes
-const totalesHasta = [];
-
-for (let anio = 2020; anio <= 2026; anio++) {
-
-    const ultimoMes = ultimoMesPorAnio[anio];
-
-    if (!ultimoMes) {
-        totalesHasta.push(0);
-        continue;
+    const pctGeneral = [];
+    for (let i = 1; i < totalesPorAnio.length; i++) {
+        const prev = totalesPorAnio[i-1];
+        const act  = totalesPorAnio[i];
+        pctGeneral.push(prev ? ((act - prev) / prev * 100) : 0);
     }
 
-    const idx = mesesOrden.indexOf(ultimoMes);
+    filaTotal.innerHTML = `
+        <td><strong>Total general</strong></td>
+        ${totalesPorAnio.map(t => `<td><strong>${t.toLocaleString()}</strong></td>`).join("")}
+        <td><strong>${totalGeneral.toLocaleString()}</strong></td>
+        ${pctGeneral.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
+    `;
 
-    const totalHasta = datos.filter(f =>
-        f.anio === anio &&
-        mesesOrden.indexOf(f.mes) <= idx
-    ).length;
+    tabla.appendChild(filaTotal);
 
-    totalesHasta.push(totalHasta);
-}
+    /* ============================================================
+       FILA: HASTA MES ACTUAL (MISMO MES PARA TODOS LOS AÑOS)
+    ============================================================ */
 
-// % respecto año anterior
-const pctHasta = [];
+    const hoy = new Date();
+    const mesActualIdx = hoy.getMonth(); 
+    const mesActualTexto = meses[mesActualIdx];
 
-for (let i = 1; i < totalesHasta.length; i++) {
-    const prev = totalesHasta[i-1];
-    const act  = totalesHasta[i];
-    const pct  = prev ? ((act - prev) / prev * 100) : 0;
-    pctHasta.push(pct);
-}
+    const totalesHasta = [];
 
-// Último mes global (para mostrar en la tabla)
-const ultimoMesGlobal = ultimoMesPorAnio[2026] || "junio";
+    for (let anio = 2020; anio <= 2026; anio++) {
+        const totalHasta = datos.filter(f =>
+            f.anio === anio &&
+            meses.indexOf(f.mes) <= mesActualIdx
+        ).length;
 
-filaHasta.innerHTML = `
-    <td><strong>Hasta ${ultimoMesGlobal}</strong></td>
-    ${totalesHasta.map(t => `<td><strong>${t.toLocaleString()}</strong></td>`).join("")}
-    <td></td>
-    ${pctHasta.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
-`;
+        totalesHasta.push(totalHasta);
+    }
 
-tabla.appendChild(filaHasta);
+    const pctHasta = [];
 
+    for (let i = 1; i < totalesHasta.length; i++) {
+        const prev = totalesHasta[i-1];
+        const act  = totalesHasta[i];
+        const pct  = prev ? ((act - prev) / prev * 100) : 0;
+        pctHasta.push(pct);
+    }
 
-/* ============================
-   RESUMEN FINAL
-============================ */
-const resumen = document.getElementById("evo-resumen");
-resumen.textContent = `
-    Evolución total: ${pctGeneral[pctGeneral.length-1].toFixed(2)}%
-`;
+    const filaHasta = document.createElement("tr");
+    filaHasta.classList.add("fila-total");
+
+    filaHasta.innerHTML = `
+        <td><strong>Hasta ${mesActualTexto}</strong></td>
+        ${totalesHasta.map(t => `<td><strong>${t.toLocaleString()}</strong></td>`).join("")}
+        <td></td>
+        ${pctHasta.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
+    `;
+
+    tabla.appendChild(filaHasta);
+
+    /* ============================
+       RESUMEN FINAL
+    ============================= */
+    const resumen = document.getElementById("evo-resumen");
+    resumen.textContent = `
+        Evolución total: ${pctHasta[pctHasta.length-1].toFixed(2)}%
+    `;
 }
 
 /* ============================================================
-   INFORME ANUAL — SOLO MESES REALES DE 2026
+   INFORME ANUAL
 ============================================================ */
 async function generarInformeAnual() {
     let datos = await obtenerFirmas();
@@ -450,7 +384,7 @@ async function generarInformeAnual() {
 }
 
 /* ============================================================
-   INFORME MENSUAL — SOLO MESES REALES DE 2026
+   INFORME MENSUAL
 ============================================================ */
 async function generarInformeMensual() {
     let datos = await obtenerFirmas();
@@ -502,7 +436,7 @@ async function generarInformeMensual() {
 }
 
 /* ============================================================
-   INFORME POR APODERADO — GRÁFICO
+   INFORME POR APODERADO
 ============================================================ */
 async function generarInformeApoderados() {
     let datos = await obtenerFirmas();
@@ -549,7 +483,7 @@ async function generarInformeApoderados() {
 }
 
 /* ============================================================
-   INFORME POR OFICINA — GRÁFICO
+   INFORME POR OFICINA
 ============================================================ */
 async function generarInformeOficinas() {
     let datos = await obtenerFirmas();
@@ -582,20 +516,23 @@ async function generarInformeOficinas() {
             labels: oficinas,
             datasets: [{
                 label: "Firmas",
-                data: totales,
+                                data: totales,
                 backgroundColor: "#6366F1"
             }]
         },
         options: {
             responsive: true,
             plugins: { legend: { display: false }},
-            scales: { x: { ticks: { color: "#111" }}, y: { ticks: { color: "#111" }} }
+            scales: { 
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
         }
     });
 }
 
 /* ============================================================
-   INFORME POR CIRCUITO — GRÁFICO
+   INFORME POR CIRCUITO
 ============================================================ */
 async function generarInformeCircuito() {
     let datos = await obtenerFirmas();
@@ -639,7 +576,7 @@ async function generarInformeCircuito() {
 }
 
 /* ============================================================
-   INFORME TIPO DE FIRMA — GRÁFICO MENSUAL
+   INFORME TIPO DE FIRMA
 ============================================================ */
 async function generarInformeTipoFirma() {
     let datos = await obtenerFirmas();
@@ -691,63 +628,16 @@ async function generarInformeTipoFirma() {
         options: {
             responsive: true,
             plugins: { legend: { display: true }},
-            scales: { x: { ticks: { color: "#111" }}, y: { ticks: { color: "#111" }} }
-        }
-    });
-}
-/* ============================================================
-   INFORME TIPO DE GESTIÓN — GRÁFICO PREMIUM
-============================================================ */
-async function generarInformeTipoGestion() {
-    let datos = await obtenerFirmas();
-    datos.forEach(aplicarReglas);
-
-    const anioSel = inf_getAnioSeleccionado();
-    datos = datos.filter(f => Number(f.anio) === anioSel);
-
-    // Agrupar por tipo de gestión
-    const mapa = {};
-    datos.forEach(f => {
-        const tg = f.tipo_gestion || "Sin clasificar";
-        mapa[tg] = (mapa[tg] || 0) + 1;
-    });
-
-    const tipos = Object.keys(mapa);
-    const totales = Object.values(mapa);
-
-    const cont = document.getElementById("informeContainer");
-    cont.style.display = "block";
-
-    cont.innerHTML = `
-        <h2 class="titulo-modulo">📄 Tipo de Gestión — ${anioSel}</h2>
-        <div class="card-glass mt-20"><canvas id="chartTipoGestion"></canvas></div>
-    `;
-
-    resetChart();
-
-    const ctx = document.getElementById("chartTipoGestion");
-    chartActual = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: tipos,
-            datasets: [{
-                label: "Firmas",
-                data: totales,
-                backgroundColor: "#3B82F6"
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false }},
-            scales: {
+            scales: { 
                 x: { ticks: { color: "#111" }},
                 y: { ticks: { color: "#111" }}
             }
         }
     });
 }
+
 /* ============================================================
-   INFORME TIEMPOS — SLA CaixaBank vs Otra Entidad (Gráfico)
+   INFORME TIEMPOS
 ============================================================ */
 async function generarInformeTiempos() {
     let datos = await obtenerFirmas();
@@ -756,7 +646,6 @@ async function generarInformeTiempos() {
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
 
-    // Estructuras SLA
     let sumaCaixa = 0, cuentaCaixa = 0;
     let sumaOtra  = 0, cuentaOtra  = 0;
 
@@ -766,9 +655,8 @@ async function generarInformeTiempos() {
 
         const ap = (f.apoderado || "").trim().toLowerCase();
 
-        // CLASIFICACIÓN REAL
         const esOtraEntidad = ap === "oficina otra entidad";
-        const esCaixa = !esOtraEntidad; // TODO lo demás es CaixaBank
+        const esCaixa = !esOtraEntidad;
 
         if (esCaixa) {
             sumaCaixa += dias;
@@ -823,7 +711,7 @@ async function generarInformeTiempos() {
 }
 
 /* ============================================================
-   INFORME CENTRO QUE FIRMA — Molsan / Colaboradores / OE / CBK
+   INFORME CENTRO QUE FIRMA
 ============================================================ */
 async function generarInformeCentroQueFirma() {
     let datos = await obtenerFirmas();
@@ -832,7 +720,6 @@ async function generarInformeCentroQueFirma() {
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
 
-    // Listas de clasificación
     const COLABORADORES = [
         "gestcanarias",
         "gestoria mas",
@@ -842,7 +729,6 @@ async function generarInformeCentroQueFirma() {
         "gesgalicia"
     ];
 
-    // Contadores
     let molsan = 0;
     let colaboradores = 0;
     let oficinaOE = 0;
@@ -851,18 +737,10 @@ async function generarInformeCentroQueFirma() {
     datos.forEach(f => {
         const ap = (f.apoderado || "").trim().toLowerCase();
 
-        if (ap === "oficina caixabank") {
-            oficinaCBK++;
-        }
-        else if (ap === "oficina otra entidad") {
-            oficinaOE++;
-        }
-        else if (COLABORADORES.includes(ap)) {
-            colaboradores++;
-        }
-        else {
-            molsan++;
-        }
+        if (ap === "oficina caixabank") oficinaCBK++;
+        else if (ap === "oficina otra entidad") oficinaOE++;
+        else if (COLABORADORES.includes(ap)) colaboradores++;
+        else molsan++;
     });
 
     const cont = document.getElementById("informeContainer");
@@ -912,10 +790,8 @@ async function generarInformeCentroQueFirma() {
 
 /* ============================================================
    COMPATIBILIDAD — generarMapasPremium
-   (main.js lo llama, así que definimos un stub seguro)
 ============================================================ */
 async function generarMapasPremium(datos) {
-    // Los paneles premium ya calculan sus propios mapas internamente.
-    // Esta función existe solo para evitar errores en main.js.
     return true;
 }
+:
