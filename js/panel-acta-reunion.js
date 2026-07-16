@@ -195,81 +195,83 @@ async function ar_imprimirActaCompleta() {
        Comparativa correcta por años
     ============================================================ */
 
-    const evolutivo = (() => {
+   const evolutivo = (() => {
 
-        const mapa = {};
-        datos.forEach(f => {
-            const a = f.anio || "Sin año";
-            const m = Number(f.mes) || 0;
-            if (!mapa[a]) mapa[a] = Array(12).fill(0);
-            if (m >= 1 && m <= 12) mapa[a][m - 1]++;
+    const mapa = {};
+    datos.forEach(f => {
+        const a = f.anio || "Sin año";
+        const m = Number(f.mes) || 0;
+        if (!mapa[a]) mapa[a] = Array(12).fill(0);
+        if (m >= 1 && m <= 12) mapa[a][m - 1]++;
+    });
+
+    const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+    const anios = Object.keys(mapa);
+
+    /* Detectar último mes con datos */
+    let ultimoMesIndex = -1;
+    anios.forEach(a => {
+        mapa[a].forEach((v, idx) => {
+            if (v > 0 && idx > ultimoMesIndex) ultimoMesIndex = idx;
         });
+    });
 
-        const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-        const anios = Object.keys(mapa);
+    if (ultimoMesIndex === -1) {
+        return "<p>Sin datos evolutivos.</p>";
+    }
 
-        /* Detectar último mes con datos */
-        let ultimoMesIndex = -1;
-        anios.forEach(a => {
-            mapa[a].forEach((v, idx) => {
-                if (v > 0 && idx > ultimoMesIndex) ultimoMesIndex = idx;
-            });
-        });
+    const nombreUltimoMes = meses[ultimoMesIndex];
 
-        if (ultimoMesIndex === -1) {
-            return "<p>Sin datos evolutivos.</p>";
-        }
+    /* Construir tabla mensual SOLO hasta el último mes */
+    const headers = ["Mes", ...anios];
 
-        const nombreUltimoMes = meses[ultimoMesIndex];
-
-        /* Construir tabla mensual */
-        const headers = ["Mes", ...anios];
-
-        const filas = meses.map((mes, i) => {
+    const filas = meses
+        .slice(0, ultimoMesIndex + 1)
+        .map((mes, i) => {
             const row = [mes];
             anios.forEach(a => row.push(mapa[a][i]));
             return row;
         });
 
-        /* Totales hasta el último mes */
-        const totalesHastaMes = {};
-        anios.forEach(a => {
-            totalesHastaMes[a] = mapa[a]
-                .slice(0, ultimoMesIndex + 1)
-                .reduce((s, v) => s + v, 0);
-        });
+    /* Totales hasta el último mes */
+    const totalesHastaMes = {};
+    anios.forEach(a => {
+        totalesHastaMes[a] = mapa[a]
+            .slice(0, ultimoMesIndex + 1)
+            .reduce((s, v) => s + v, 0);
+    });
 
-        /* Fila resumen */
-        const filaHastaMes = [
-            `Hasta ${nombreUltimoMes}`,
-            ...anios.map(a => totalesHastaMes[a])
-        ];
+    /* Fila resumen */
+    const filaHastaMes = [
+        `Hasta ${nombreUltimoMes}`,
+        ...anios.map(a => totalesHastaMes[a])
+    ];
 
-        filas.push(filaHastaMes);
+    filas.push(filaHastaMes);
 
-        const tablaEvolutivo = tabla("📈 Informe Evolutivo", headers, filas);
+    const tablaEvolutivo = tabla("📈 Informe Evolutivo", headers, filas);
 
-        /* Evolución % volumen de firmas */
-        const anioActual = Math.max(...anios.map(a => Number(a)));
-        const totalActual = totalesHastaMes[anioActual] || 0;
+    /* Evolución % volumen de firmas */
+    const anioActual = Math.max(...anios.map(a => Number(a)));
+    const totalActual = totalesHastaMes[anioActual] || 0;
 
-        const resumenEvolucion = anios
-            .filter(a => Number(a) < anioActual)
-            .map(a => {
-                const totalPrev = totalesHastaMes[a] || 0;
-                if (!totalPrev) return `${anioActual} vs ${a}: sin datos`;
-                const pct = ((totalActual - totalPrev) / totalPrev) * 100;
-                return `${anioActual} vs ${a}: ${pct.toFixed(2)}%`;
-            })
-            .join("<br>");
+    const resumenEvolucion = anios
+        .filter(a => Number(a) < anioActual)
+        .map(a => {
+            const totalPrev = totalesHastaMes[a] || 0;
+            if (!totalPrev) return `${anioActual} vs ${a}: sin datos`;
+            const pct = ((totalActual - totalPrev) / totalPrev) * 100;
+            return `${anioActual} vs ${a}: ${pct.toFixed(2)}%`;
+        })
+        .join("<br>");
 
-        const bloqueResumen = `
-            <h3>📊 Evolución % volumen de firmas</h3>
-            <p>${resumenEvolucion}</p>
-        `;
+    const bloqueResumen = `
+        <h3>📊 Evolución % volumen de firmas</h3>
+        <p>${resumenEvolucion}</p>
+    `;
 
-        return tablaEvolutivo + bloqueResumen;
-    })();
+    return tablaEvolutivo + bloqueResumen;
+})();
 
     /* ============================================================
        CONSTRUCCIÓN FINAL DEL PDF COMPLETO
