@@ -267,10 +267,10 @@ function clasificarNotario(n) {
     return mapa[n] || "FALSO";
 }
 function clasificarCircuito(valor) {
-    if (valor === "FALSO") return "Notario Externo";
-    if (valor === "Circuito Península") return "Notarios Península";
-    if (valor === "Circuito Canarias") return "Notarios Canarias";
-    return "Fuera del circuito";
+    if (valor === "FALSO") return "Circuito Externo";
+    if (valor === "Circuito Península") return "Circuito Península";
+    if (valor === "Circuito Canarias") return "Circuito Canarias";
+    return "Circuito Externo";
 }
 function obtenerTipoFirma(vc) {
     if (vc === "N") return "Presencial";
