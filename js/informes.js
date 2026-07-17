@@ -2,7 +2,8 @@
    INFORMES PREMIUM — GLASS LUXE 2027
 ============================================================ */
 
-const MESES_ORDEN = [
+
+window.MESES_ORDEN = [
     "enero","febrero","marzo","abril","mayo","junio",
     "julio","agosto","septiembre","octubre","noviembre","diciembre"
 ];
