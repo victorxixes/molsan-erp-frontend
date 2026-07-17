@@ -208,12 +208,26 @@ async function generarInformeGeneral() {
 ============================================================ */
 async function initInformeEvolutivo() {
 
+    // Esperar a que el panel exista en el DOM
+    const tabla = document.getElementById("evo-tabla");
+    const resumen = document.getElementById("evo-resumen");
+    const contenedorFinal = document.getElementById("evo-final");
+
+    if (!tabla || !resumen || !contenedorFinal) {
+        console.warn("⏳ initInformeEvolutivo() detenido: panel aún no está en el DOM.");
+        return;
+    }
+
+    tabla.innerHTML = "";
+
     const datos = await obtenerFirmas();
     datos.forEach(aplicarReglas);
 
     const meses = MESES_ORDEN;
-    const tabla = document.getElementById("evo-tabla");
-    tabla.innerHTML = "";
+
+
+}
+
 
     /* ============================
        TABLA MENSUAL 2020–2026
