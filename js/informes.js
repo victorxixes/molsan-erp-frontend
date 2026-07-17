@@ -300,11 +300,16 @@ mesesConDatos.forEach(mes => {
 
     tabla.appendChild(filaTotal);
 
-  /* ============================
+/* ============================
    HASTA MES ACTUAL (REAL)
 ============================ */
+
+// Último año disponible
+const ultimoAnio = Math.max(...datos.map(f => f.anio));
+
+// Meses reales del último año
 const mesesConDatos = [...new Set(
-    datos.filter(f => f.anio === anioSel).map(f => f.mes)
+    datos.filter(f => f.anio === ultimoAnio).map(f => f.mes)
 )].sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
 
 const ultimoMesReal = mesesConDatos[mesesConDatos.length - 1];
@@ -313,7 +318,7 @@ const mesActualTexto = ultimoMesReal;
 
 const totalesHasta = [];
 
-for (let anio = 2020; anio <= 2026; anio++) {
+for (let anio = 2020; anio <= ultimoAnio; anio++) {
     const totalHasta = datos.filter(f =>
         f.anio === anio &&
         MESES_ORDEN.indexOf(f.mes) <= mesActualIdx
@@ -342,6 +347,7 @@ filaHasta.innerHTML = `
 `;
 
 tabla.appendChild(filaHasta);
+
 
 
     /* ============================
