@@ -225,10 +225,6 @@ async function initInformeEvolutivo() {
 
     const meses = MESES_ORDEN;
 
-
-}
-
-
     /* ============================
        TABLA MENSUAL 2020–2026
     ============================= */
