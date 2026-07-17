@@ -304,7 +304,7 @@ mesesConDatos.forEach(mes => {
    HASTA MES ACTUAL (REAL)
 ============================ */
 
-// Último año disponible
+// Último año disponible en los datos
 const ultimoAnio = Math.max(...datos.map(f => f.anio));
 
 // Meses reales del último año
