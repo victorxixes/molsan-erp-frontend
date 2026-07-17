@@ -20,7 +20,12 @@ function inf_getAnioSeleccionado() {
     return 2026;
 }
 
+/* ============================================================
+   INIT INFORMES PREMIUM
+============================================================ */
 async function initInformesPremium() {
+    console.log("📑 initInformesPremium() ejecutado");
+
     const sel = document.getElementById("inf-select-anio");
     if (!sel) return;
 
@@ -68,11 +73,17 @@ function resetChart() {
         chartActual = null;
     }
 }
-
 /* ============================================================
    INFORME GENERAL PREMIUM
 ============================================================ */
 async function generarInformeGeneral() {
+
+    const cont = document.getElementById("informeContainer");
+    if (!cont) {
+        console.warn("⏳ generarInformeGeneral() detenido: #informeContainer no existe.");
+        return;
+    }
+
     let datos = await obtenerFirmas();
     datos.forEach(aplicarReglas);
 
@@ -88,6 +99,7 @@ async function generarInformeGeneral() {
         const apo = f.apoderado || "Sin apoderado";
         mapaApo[apo] = (mapaApo[apo] || 0) + 1;
     });
+
     const topApo = Object.entries(mapaApo)
         .sort((a,b)=>b[1]-a[1])
         .slice(0,5);
@@ -123,7 +135,6 @@ async function generarInformeGeneral() {
     const slaCaixa = cuentaCaixa ? (sumaCaixa / cuentaCaixa).toFixed(1) : "0";
     const slaOtra  = cuentaOtra  ? (sumaOtra  / cuentaOtra ).toFixed(1) : "0";
 
-    const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
 
     cont.innerHTML = `
@@ -202,13 +213,11 @@ async function generarInformeGeneral() {
         }
     });
 }
-
 /* ============================================================
    INFORME EVOLUTIVO — TABLA COMPLETA 2020–2026
 ============================================================ */
 async function initInformeEvolutivo() {
 
-    // Esperar a que el panel exista en el DOM
     const tabla = document.getElementById("evo-tabla");
     const resumen = document.getElementById("evo-resumen");
     const contenedorFinal = document.getElementById("evo-final");
@@ -290,12 +299,11 @@ async function initInformeEvolutivo() {
 
     tabla.appendChild(filaTotal);
 
-    /* ============================================================
-       FILA: HASTA MES ACTUAL
-    ============================================================ */
-
+    /* ============================
+       HASTA MES ACTUAL
+    ============================= */
     const hoy = new Date();
-    const mesActualIdx = hoy.getMonth(); 
+    const mesActualIdx = hoy.getMonth();
     const mesActualTexto = meses[mesActualIdx];
 
     const totalesHasta = [];
@@ -333,169 +341,57 @@ async function initInformeEvolutivo() {
     /* ============================
        RESUMEN FINAL
     ============================= */
-    const resumen = document.getElementById("evo-resumen");
-    resumen.textContent = `
-        Evolución total: ${pctHasta[pctHasta.length-1].toFixed(2)}%
-    `;
+    resumen.textContent = `Evolución total: ${pctHasta[pctHasta.length-1].toFixed(2)}%`;
 
-    /* ============================================================
-       BLOQUE FINAL PREMIUM — COMO EN TU IMAGEN
-    ============================================================ */
+    const filaAcum = totalesHasta.map(t => t.toLocaleString()).join(" | ");
+    const filaPct = pctHasta.map(p => {
+        const color = p >= 0 ? "#10B981" : "#EF4444";
+        return `<span style="color:${color}; font-weight:600;">${p.toFixed(2)}%</span>`;
+    }).join(" | ");
 
-    const contenedorFinal = document.getElementById("evo-final");
-
-    if (contenedorFinal) {
-
-        const filaAcum = totalesHasta.map(t => t.toLocaleString()).join(" | ");
-        const filaPct = pctHasta.map(p => {
-            const color = p >= 0 ? "#10B981" : "#EF4444";
-            return `<span style="color:${color}; font-weight:600;">${p.toFixed(2)}%</span>`;
-        }).join(" | ");
-
-        contenedorFinal.innerHTML = `
-            <div style="
-                margin-top: 25px;
-                padding: 18px;
-                background: rgba(14,165,233,0.10);
-                border-radius: 10px;
-                border-left: 4px solid #0EA5E9;
-                font-size: 15px;
-                line-height: 1.6;
-            ">
-                <div style="font-weight:700; margin-bottom:6px;">
-                    📌 Hasta ${mesActualTexto}
-                </div>
-
-                <div style="margin-bottom:12px;">
-                    <strong>${filaAcum}</strong>
-                </div>
-
-                <div style="font-weight:700; margin-bottom:6px;">
-                    📊 Evolución % volumen firmas
-                </div>
-
-                <div>
-                    ${filaPct}
-                </div>
+    contenedorFinal.innerHTML = `
+        <div style="
+            margin-top: 25px;
+            padding: 18px;
+            background: rgba(14,165,233,0.10);
+            border-radius: 10px;
+            border-left: 4px solid #0EA5E9;
+            font-size: 15px;
+            line-height: 1.6;
+        ">
+            <div style="font-weight:700; margin-bottom:6px;">
+                📌 Hasta ${mesActualTexto}
             </div>
-        `;
-    }
-/* ============================================================
-   INFORME ANUAL
-============================================================ */
-async function generarInformeAnual() {
-    let datos = await obtenerFirmas();
-    datos.forEach(aplicarReglas);
 
-    const anioSel = inf_getAnioSeleccionado();
-    datos = datos.filter(f => Number(f.anio) === anioSel);
+            <div style="margin-bottom:12px;">
+                <strong>${filaAcum}</strong>
+            </div>
 
-    const mesesReales = [...new Set(datos.map(f => f.mes))]
-        .filter(m => m)
-        .sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
+            <div style="font-weight:700; margin-bottom:6px;">
+                📊 Evolución % volumen firmas
+            </div>
 
-    const mapa = {};
-    mesesReales.forEach(m => mapa[m] = 0);
-
-    datos.forEach(f => {
-        if (mapa.hasOwnProperty(f.mes)) mapa[f.mes]++;
-    });
-
-    const cont = document.getElementById("informeContainer");
-    cont.style.display = "block";
-    cont.innerHTML = `
-        <h2 class="titulo-modulo">📅 Informe Anual — ${anioSel}</h2>
-        <div class="card-glass mt-20"><canvas id="chartAnual"></canvas></div>
+            <div>
+                ${filaPct}
+            </div>
+        </div>
     `;
-
-    resetChart();
-
-    const ctx = document.getElementById("chartAnual");
-    chartActual = new Chart(ctx, {
-        type: "line",
-        data: {
-            labels: mesesReales,
-            datasets: [{
-                label: "Firmas",
-                data: mesesReales.map(m => mapa[m]),
-                borderColor: "#10b981",
-                borderWidth: 3,
-                fill: false,
-                tension: 0.2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false }},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
-        }
-    });
 }
-
-/* ============================================================
-   INFORME MENSUAL
-============================================================ */
-async function generarInformeMensual() {
-    let datos = await obtenerFirmas();
-    datos.forEach(aplicarReglas);
-
-    const anioSel = inf_getAnioSeleccionado();
-    datos = datos.filter(f => Number(f.anio) === anioSel);
-
-    const mesesReales = [...new Set(datos.map(f => f.mes))]
-        .filter(m => m)
-        .sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
-
-    const mapa = {};
-    mesesReales.forEach(m => mapa[m] = 0);
-
-    datos.forEach(f => {
-        if (mapa.hasOwnProperty(f.mes)) mapa[f.mes]++;
-    });
-
-    const cont = document.getElementById("informeContainer");
-    cont.style.display = "block";
-    cont.innerHTML = `
-        <h2 class="titulo-modulo">🗓️ Informe Mensual — ${anioSel}</h2>
-        <div class="card-glass mt-20"><canvas id="chartMensual"></canvas></div>
-    `;
-
-    resetChart();
-
-    const ctx = document.getElementById("chartMensual");
-    chartActual = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: mesesReales,
-            datasets: [{
-                label: "Firmas",
-                data: mesesReales.map(m => mapa[m]),
-                backgroundColor: "#f59e0b"
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false }},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
-        }
-    });
-}
-
 /* ============================================================
    INFORME POR APODERADO — PREMIUM CON PORCENTAJES
 ============================================================ */
 async function generarInformeApoderados() {
 
+    const cont = document.getElementById("informeContainer");
+    if (!cont) {
+        console.warn("⏳ generarInformeApoderados() detenido: #informeContainer no existe.");
+        return;
+    }
+
     let datos = await obtenerFirmas();
     datos.forEach(aplicarReglas);
 
-    const anioSel = 2026;
+    const anioSel = inf_getAnioSeleccionado();
     const meses = MESES_ORDEN;
 
     const mesesConDatos = [...new Set(
@@ -530,9 +426,9 @@ async function generarInformeApoderados() {
     const totalesMes = mesesValidos.map(m => {
         return datos.filter(f => f.anio === anioSel && f.mes === m).length;
     });
+
     const totalGlobal = totalesMes.reduce((a,b)=>a+b,0);
 
-    const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
 
     const tablaFirmas = `
@@ -588,18 +484,16 @@ async function generarInformeApoderados() {
                             const idx = meses.indexOf(m);
                             const totalMes = totalesMes[mesesValidos.indexOf(m)];
                             const pct = totalMes ? (d.meses[idx] / totalMes * 100) : 0;
-                            const color = pct < 0 ? "color:#EF4444;font-weight:600;" : "";
-                            return `<td style="${color}">${pct.toFixed(2)}%</td>`;
+                            return `<td>${pct.toFixed(2)}%</td>`;
                         });
 
                         const pctTotal = totalGlobal ? (d.total / totalGlobal * 100) : 0;
-                        const colorTotal = pctTotal < 0 ? "color:#EF4444;font-weight:600;" : "";
 
                         return `
                             <tr>
                                 <td><strong>${apo}</strong></td>
                                 ${valores.join("")}
-                                <td style="${colorTotal}"><strong>${pctTotal.toFixed(2)}%</strong></td>
+                                <td><strong>${pctTotal.toFixed(2)}%</strong></td>
                             </tr>
                         `;
                     }).join("")}
@@ -617,11 +511,17 @@ async function generarInformeApoderados() {
 
     cont.innerHTML = tablaFirmas + tablaPorcentajes;
 }
-
 /* ============================================================
    INFORME POR OFICINA
 ============================================================ */
 async function generarInformeOficinas() {
+
+    const cont = document.getElementById("informeContainer");
+    if (!cont) {
+        console.warn("⏳ generarInformeOficinas() detenido: #informeContainer no existe.");
+        return;
+    }
+
     let datos = await obtenerFirmas();
     datos.forEach(aplicarReglas);
 
@@ -636,7 +536,6 @@ async function generarInformeOficinas() {
     const oficinas = Object.keys(mapa);
     const totales = Object.values(mapa);
 
-    const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
         <h2 class="titulo-modulo">🏢 Informe por Oficina — ${anioSel}</h2>
@@ -666,11 +565,17 @@ async function generarInformeOficinas() {
         }
     });
 }
-
 /* ============================================================
    INFORME POR CIRCUITO
 ============================================================ */
 async function generarInformeCircuito() {
+
+    const cont = document.getElementById("informeContainer");
+    if (!cont) {
+        console.warn("⏳ generarInformeCircuito() detenido: #informeContainer no existe.");
+        return;
+    }
+
     let datos = await obtenerFirmas();
     datos.forEach(aplicarReglas);
 
@@ -685,7 +590,6 @@ async function generarInformeCircuito() {
     const circuitos = Object.keys(mapa);
     const totales = Object.values(mapa);
 
-    const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
         <h2 class="titulo-modulo">🛣️ Informe por Circuito — ${anioSel}</h2>
@@ -710,11 +614,17 @@ async function generarInformeCircuito() {
         }
     });
 }
-
 /* ============================================================
-   INFORME TIPO DE FIRMA
+   INFORME TIPO DE FIRMA — PREMIUM
 ============================================================ */
 async function generarInformeTipoFirma() {
+
+    const cont = document.getElementById("informeContainer");
+    if (!cont) {
+        console.warn("⏳ generarInformeTipoFirma() detenido: #informeContainer no existe.");
+        return;
+    }
+
     let datos = await obtenerFirmas();
     datos.forEach(aplicarReglas);
 
@@ -734,7 +644,6 @@ async function generarInformeTipoFirma() {
         else mapa[f.mes].presencial++;
     });
 
-    const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
         <h2 class="titulo-modulo">✍️ Tipo de Firma — ${anioSel}</h2>
@@ -771,11 +680,17 @@ async function generarInformeTipoFirma() {
         }
     });
 }
-
 /* ============================================================
-   INFORME TIPO DE GESTIÓN
+   INFORME TIPO DE GESTIÓN — PREMIUM
 ============================================================ */
 async function generarInformeTipoGestion() {
+
+    const cont = document.getElementById("informeContainer");
+    if (!cont) {
+        console.warn("⏳ generarInformeTipoGestion() detenido: #informeContainer no existe.");
+        return;
+    }
+
     let datos = await obtenerFirmas();
     datos.forEach(aplicarReglas);
 
@@ -791,7 +706,6 @@ async function generarInformeTipoGestion() {
     const tipos = Object.keys(mapa);
     const totales = Object.values(mapa);
 
-    const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
     cont.innerHTML = `
         <h2 class="titulo-modulo">📂 Informe por Tipo de Gestión — ${anioSel}</h2>
@@ -821,11 +735,17 @@ async function generarInformeTipoGestion() {
         }
     });
 }
-
 /* ============================================================
-   INFORME TIEMPOS
+   INFORME TIEMPOS — PREMIUM
 ============================================================ */
 async function generarInformeTiempos() {
+
+    const cont = document.getElementById("informeContainer");
+    if (!cont) {
+        console.warn("⏳ generarInformeTiempos() detenido: #informeContainer no existe.");
+        return;
+    }
+
     let datos = await obtenerFirmas();
     datos.forEach(aplicarReglas);
 
@@ -840,7 +760,6 @@ async function generarInformeTiempos() {
         if (dias <= 0) return;
 
         const ap = (f.apoderado || "").trim().toLowerCase();
-
         const esOtraEntidad = ap === "oficina otra entidad";
         const esCaixa = !esOtraEntidad;
 
@@ -856,7 +775,6 @@ async function generarInformeTiempos() {
     const slaCaixa = cuentaCaixa ? (sumaCaixa / cuentaCaixa).toFixed(1) : "0";
     const slaOtra  = cuentaOtra  ? (sumaOtra  / cuentaOtra ).toFixed(1) : "0";
 
-    const cont = document.getElementById("informeContainer");
     cont.style.display = "block";
 
     cont.innerHTML = `
@@ -895,17 +813,26 @@ async function generarInformeTiempos() {
         }
     });
 }
-
 /* ============================================================
-   INFORME CENTRO QUE FIRMA
+   INFORME CENTRO QUE FIRMA — GLASS LUXE 2027
 ============================================================ */
 async function generarInformeCentroQueFirma() {
+
+    const cont = document.getElementById("informeContainer");
+    if (!cont) {
+        console.warn("⏳ generarInformeCentroQueFirma() detenido: #informeContainer no existe.");
+        return;
+    }
+
     let datos = await obtenerFirmas();
     datos.forEach(aplicarReglas);
 
     const anioSel = inf_getAnioSeleccionado();
     datos = datos.filter(f => Number(f.anio) === anioSel);
 
+    /* ============================================================
+       NORMALIZACIÓN PREMIUM DE APODERADOS
+    ============================================================= */
     const COLABORADORES = [
         "gestcanarias",
         "gestoria mas",
@@ -921,15 +848,29 @@ async function generarInformeCentroQueFirma() {
     let oficinaCBK = 0;
 
     datos.forEach(f => {
-        const ap = (f.apoderado || "").trim().toLowerCase();
+        const ap = (f.apoderado || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim()
+            .toLowerCase();
 
-        if (ap === "oficina caixabank") oficinaCBK++;
-        else if (ap === "oficina otra entidad") oficinaOE++;
-        else if (COLABORADORES.includes(ap)) colaboradores++;
-        else molsan++;
+        if (ap === "oficina caixabank") {
+            oficinaCBK++;
+        }
+        else if (ap === "oficina otra entidad") {
+            oficinaOE++;
+        }
+        else if (COLABORADORES.includes(ap)) {
+            colaboradores++;
+        }
+        else {
+            molsan++;
+        }
     });
 
-    const cont = document.getElementById("informeContainer");
+    /* ============================================================
+       RENDER PREMIUM
+    ============================================================= */
     cont.style.display = "block";
 
     cont.innerHTML = `
@@ -973,10 +914,128 @@ async function generarInformeCentroQueFirma() {
         }
     });
 }
-
 /* ============================================================
    COMPATIBILIDAD — generarMapasPremium (stub)
 ============================================================ */
 async function generarMapasPremium(datos) {
+    // En Glass Luxe 2027 este módulo se activa desde informes avanzados.
+    // Lo dejamos como stub para evitar errores en main.js.
     return true;
+}
+/* ============================================================
+   INFORME ANUAL — PREMIUM
+============================================================ */
+async function generarInformeAnual() {
+
+    const cont = document.getElementById("informeContainer");
+    if (!cont) {
+        console.warn("⏳ generarInformeAnual() detenido: #informeContainer no existe.");
+        return;
+    }
+
+    let datos = await obtenerFirmas();
+    datos.forEach(aplicarReglas);
+
+    const anioSel = inf_getAnioSeleccionado();
+    datos = datos.filter(f => Number(f.anio) === anioSel);
+
+    const mesesReales = [...new Set(datos.map(f => f.mes))]
+        .filter(m => m)
+        .sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
+
+    const mapa = {};
+    mesesReales.forEach(m => mapa[m] = 0);
+
+    datos.forEach(f => {
+        if (mapa.hasOwnProperty(f.mes)) mapa[f.mes]++;
+    });
+
+    cont.style.display = "block";
+    cont.innerHTML = `
+        <h2 class="titulo-modulo">📅 Informe Anual — ${anioSel}</h2>
+        <div class="card-glass mt-20"><canvas id="chartAnual"></canvas></div>
+    `;
+
+    resetChart();
+
+    const ctx = document.getElementById("chartAnual");
+    chartActual = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: mesesReales,
+            datasets: [{
+                label: "Firmas",
+                data: mesesReales.map(m => mapa[m]),
+                borderColor: "#10B981",
+                borderWidth: 3,
+                fill: false,
+                tension: 0.2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
+}
+/* ============================================================
+   INFORME MENSUAL — PREMIUM
+============================================================ */
+async function generarInformeMensual() {
+
+    const cont = document.getElementById("informeContainer");
+    if (!cont) {
+        console.warn("⏳ generarInformeMensual() detenido: #informeContainer no existe.");
+        return;
+    }
+
+    let datos = await obtenerFirmas();
+    datos.forEach(aplicarReglas);
+
+    const anioSel = inf_getAnioSeleccionado();
+    datos = datos.filter(f => Number(f.anio) === anioSel);
+
+    const mesesReales = [...new Set(datos.map(f => f.mes))]
+        .filter(m => m)
+        .sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
+
+    const mapa = {};
+    mesesReales.forEach(m => mapa[m] = 0);
+
+    datos.forEach(f => {
+        if (mapa.hasOwnProperty(f.mes)) mapa[f.mes]++;
+    });
+
+    cont.style.display = "block";
+    cont.innerHTML = `
+        <h2 class="titulo-modulo">🗓️ Informe Mensual — ${anioSel}</h2>
+        <div class="card-glass mt-20"><canvas id="chartMensual"></canvas></div>
+    `;
+
+    resetChart();
+
+    const ctx = document.getElementById("chartMensual");
+    chartActual = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: mesesReales,
+            datasets: [{
+                label: "Firmas",
+                data: mesesReales.map(m => mapa[m]),
+                backgroundColor: "#F59E0B"
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
 }
