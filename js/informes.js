@@ -235,39 +235,48 @@ async function initInformeEvolutivo() {
 
     const meses = MESES_ORDEN;
 
-  /* ============================
-   TABLA MENSUAL 2020–2026
-============================ */
-mesesConDatos.forEach(mes => {
+    /* ============================
+       MESES REALES DEL ÚLTIMO AÑO
+    ============================= */
+    const ultimoAnio = Math.max(...datos.map(f => f.anio));
 
-    const fila = document.createElement("tr");
+    const mesesConDatos = [...new Set(
+        datos.filter(f => f.anio === ultimoAnio).map(f => f.mes)
+    )].sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
 
-    const valores = [];
-    const porcentajes = [];
+    /* ============================
+       TABLA MENSUAL 2020–2026
+    ============================= */
+    mesesConDatos.forEach(mes => {
 
-    for (let anio = 2020; anio <= 2026; anio++) {
-        const totalMes = datos.filter(d => d.anio == anio && d.mes == mes).length;
-        valores.push(totalMes);
-    }
+        const fila = document.createElement("tr");
 
-    const total = valores.reduce((a,b) => a+b, 0);
+        const valores = [];
+        const porcentajes = [];
 
-    for (let i = 1; i < valores.length; i++) {
-        const prev = valores[i-1];
-        const act  = valores[i];
-        const pct  = prev ? ((act - prev) / prev * 100) : 0;
-        porcentajes.push(pct);
-    }
+        for (let anio = 2020; anio <= 2026; anio++) {
+            const totalMes = datos.filter(d => d.anio == anio && d.mes == mes).length;
+            valores.push(totalMes);
+        }
 
-    fila.innerHTML = `
-        <td>${mes}</td>
-        ${valores.map(v => `<td>${v.toLocaleString()}</td>`).join("")}
-        <td>${total.toLocaleString()}</td>
-        ${porcentajes.map(p => `<td>${p.toFixed(2)}%</td>`).join("")}
-    `;
+        const total = valores.reduce((a,b) => a+b, 0);
 
-    tabla.appendChild(fila);
-});
+        for (let i = 1; i < valores.length; i++) {
+            const prev = valores[i-1];
+            const act  = valores[i];
+            const pct  = prev ? ((act - prev) / prev * 100) : 0;
+            porcentajes.push(pct);
+        }
+
+        fila.innerHTML = `
+            <td>${mes}</td>
+            ${valores.map(v => `<td>${v.toLocaleString()}</td>`).join("")}
+            <td>${total.toLocaleString()}</td>
+            ${porcentajes.map(p => `<td>${p.toFixed(2)}%</td>`).join("")}
+        `;
+
+        tabla.appendChild(fila);
+    });
 
     /* ============================
        TOTAL GENERAL
@@ -300,55 +309,44 @@ mesesConDatos.forEach(mes => {
 
     tabla.appendChild(filaTotal);
 
-/* ============================
-   HASTA MES ACTUAL (REAL)
-============================ */
+    /* ============================
+       HASTA MES ACTUAL (REAL)
+    ============================= */
+    const ultimoMesReal = mesesConDatos[mesesConDatos.length - 1];
+    const mesActualIdx = MESES_ORDEN.indexOf(ultimoMesReal);
+    const mesActualTexto = ultimoMesReal;
 
-// Último año disponible en los datos
-const ultimoAnio = Math.max(...datos.map(f => f.anio));
+    const totalesHasta = [];
 
-// Meses reales del último año
-const mesesConDatos = [...new Set(
-    datos.filter(f => f.anio === ultimoAnio).map(f => f.mes)
-)].sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
+    for (let anio = 2020; anio <= ultimoAnio; anio++) {
+        const totalHasta = datos.filter(f =>
+            f.anio === anio &&
+            MESES_ORDEN.indexOf(f.mes) <= mesActualIdx
+        ).length;
 
-const ultimoMesReal = mesesConDatos[mesesConDatos.length - 1];
-const mesActualIdx = MESES_ORDEN.indexOf(ultimoMesReal);
-const mesActualTexto = ultimoMesReal;
+        totalesHasta.push(totalHasta);
+    }
 
-const totalesHasta = [];
+    const pctHasta = [];
 
-for (let anio = 2020; anio <= ultimoAnio; anio++) {
-    const totalHasta = datos.filter(f =>
-        f.anio === anio &&
-        MESES_ORDEN.indexOf(f.mes) <= mesActualIdx
-    ).length;
+    for (let i = 1; i < totalesHasta.length; i++) {
+        const prev = totalesHasta[i-1];
+        const act  = totalesHasta[i];
+        const pct  = prev ? ((act - prev) / prev * 100) : 0;
+        pctHasta.push(pct);
+    }
 
-    totalesHasta.push(totalHasta);
-}
+    const filaHasta = document.createElement("tr");
+    filaHasta.classList.add("fila-total");
 
-const pctHasta = [];
+    filaHasta.innerHTML = `
+        <td><strong>Hasta ${mesActualTexto}</strong></td>
+        ${totalesHasta.map(t => `<td><strong>${t.toLocaleString()}</strong></td>`).join("")}
+        <td></td>
+        ${pctHasta.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
+    `;
 
-for (let i = 1; i < totalesHasta.length; i++) {
-    const prev = totalesHasta[i-1];
-    const act  = totalesHasta[i];
-    const pct  = prev ? ((act - prev) / prev * 100) : 0;
-    pctHasta.push(pct);
-}
-
-const filaHasta = document.createElement("tr");
-filaHasta.classList.add("fila-total");
-
-filaHasta.innerHTML = `
-    <td><strong>Hasta ${mesActualTexto}</strong></td>
-    ${totalesHasta.map(t => `<td><strong>${t.toLocaleString()}</strong></td>`).join("")}
-    <td></td>
-    ${pctHasta.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
-`;
-
-tabla.appendChild(filaHasta);
-
-
+    tabla.appendChild(filaHasta);
 
     /* ============================
        RESUMEN FINAL
@@ -389,6 +387,7 @@ tabla.appendChild(filaHasta);
         </div>
     `;
 }
+
 /* ============================================================
    INFORME POR APODERADO — PREMIUM CON PORCENTAJES
 ============================================================ */
