@@ -235,39 +235,39 @@ async function initInformeEvolutivo() {
 
     const meses = MESES_ORDEN;
 
-    /* ============================
-       TABLA MENSUAL 2020–2026
-    ============================= */
-    meses.forEach(mes => {
+  /* ============================
+   TABLA MENSUAL 2020–2026
+============================ */
+mesesConDatos.forEach(mes => {
 
-        const fila = document.createElement("tr");
+    const fila = document.createElement("tr");
 
-        const valores = [];
-        const porcentajes = [];
+    const valores = [];
+    const porcentajes = [];
 
-        for (let anio = 2020; anio <= 2026; anio++) {
-            const totalMes = datos.filter(d => d.anio == anio && d.mes == mes).length;
-            valores.push(totalMes);
-        }
+    for (let anio = 2020; anio <= 2026; anio++) {
+        const totalMes = datos.filter(d => d.anio == anio && d.mes == mes).length;
+        valores.push(totalMes);
+    }
 
-        const total = valores.reduce((a,b) => a+b, 0);
+    const total = valores.reduce((a,b) => a+b, 0);
 
-        for (let i = 1; i < valores.length; i++) {
-            const prev = valores[i-1];
-            const act  = valores[i];
-            const pct  = prev ? ((act - prev) / prev * 100) : 0;
-            porcentajes.push(pct);
-        }
+    for (let i = 1; i < valores.length; i++) {
+        const prev = valores[i-1];
+        const act  = valores[i];
+        const pct  = prev ? ((act - prev) / prev * 100) : 0;
+        porcentajes.push(pct);
+    }
 
-        fila.innerHTML = `
-            <td>${mes}</td>
-            ${valores.map(v => `<td>${v.toLocaleString()}</td>`).join("")}
-            <td>${total.toLocaleString()}</td>
-            ${porcentajes.map(p => `<td>${p.toFixed(2)}%</td>`).join("")}
-        `;
+    fila.innerHTML = `
+        <td>${mes}</td>
+        ${valores.map(v => `<td>${v.toLocaleString()}</td>`).join("")}
+        <td>${total.toLocaleString()}</td>
+        ${porcentajes.map(p => `<td>${p.toFixed(2)}%</td>`).join("")}
+    `;
 
-        tabla.appendChild(fila);
-    });
+    tabla.appendChild(fila);
+});
 
     /* ============================
        TOTAL GENERAL
