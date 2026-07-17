@@ -300,48 +300,49 @@ async function initInformeEvolutivo() {
 
     tabla.appendChild(filaTotal);
 
-    /* ============================
-       HASTA MES ACTUAL
-    ============================= */
-   const mesesConDatos = [...new Set(
-    datos.filter(f => f.anio === anio).map(f => f.mes)
+  /* ============================
+   HASTA MES ACTUAL (REAL)
+============================ */
+const mesesConDatos = [...new Set(
+    datos.filter(f => f.anio === anioSel).map(f => f.mes)
 )].sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
 
 const ultimoMesReal = mesesConDatos[mesesConDatos.length - 1];
 const mesActualIdx = MESES_ORDEN.indexOf(ultimoMesReal);
 const mesActualTexto = ultimoMesReal;
 
-    const totalesHasta = [];
+const totalesHasta = [];
 
-    for (let anio = 2020; anio <= 2026; anio++) {
-        const totalHasta = datos.filter(f =>
-            f.anio === anio &&
-            meses.indexOf(f.mes) <= mesActualIdx
-        ).length;
+for (let anio = 2020; anio <= 2026; anio++) {
+    const totalHasta = datos.filter(f =>
+        f.anio === anio &&
+        MESES_ORDEN.indexOf(f.mes) <= mesActualIdx
+    ).length;
 
-        totalesHasta.push(totalHasta);
-    }
+    totalesHasta.push(totalHasta);
+}
 
-    const pctHasta = [];
+const pctHasta = [];
 
-    for (let i = 1; i < totalesHasta.length; i++) {
-        const prev = totalesHasta[i-1];
-        const act  = totalesHasta[i];
-        const pct  = prev ? ((act - prev) / prev * 100) : 0;
-        pctHasta.push(pct);
-    }
+for (let i = 1; i < totalesHasta.length; i++) {
+    const prev = totalesHasta[i-1];
+    const act  = totalesHasta[i];
+    const pct  = prev ? ((act - prev) / prev * 100) : 0;
+    pctHasta.push(pct);
+}
 
-    const filaHasta = document.createElement("tr");
-    filaHasta.classList.add("fila-total");
+const filaHasta = document.createElement("tr");
+filaHasta.classList.add("fila-total");
 
-    filaHasta.innerHTML = `
-        <td><strong>Hasta ${mesActualTexto}</strong></td>
-        ${totalesHasta.map(t => `<td><strong>${t.toLocaleString()}</strong></td>`).join("")}
-        <td></td>
-        ${pctHasta.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
-    `;
+filaHasta.innerHTML = `
+    <td><strong>Hasta ${mesActualTexto}</strong></td>
+    ${totalesHasta.map(t => `<td><strong>${t.toLocaleString()}</strong></td>`).join("")}
+    <td></td>
+    ${pctHasta.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
+`;
 
-    tabla.appendChild(filaHasta);
+tabla.appendChild(filaHasta);
+
 
     /* ============================
        RESUMEN FINAL
