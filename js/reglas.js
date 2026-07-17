@@ -12,77 +12,76 @@ function aplicarReglas(f) {
     f.envio_notario = normalizarFecha(f.envio_notario);
 
     /* ============================================================
-       2) MES (TEXTO) — Fórmula Excel: =TEXTO(K2;"mmmm")
+       2) MES (TEXTO)
     ============================================================= */
     f.mes = obtenerMesTexto(f.fecha_protocolo);
 
     /* ============================================================
-       3) AÑO — Fórmula Excel: =AÑO(K2)
+       3) AÑO
     ============================================================= */
     f.anio = obtenerAnio(f.fecha_protocolo);
 
     /* ============================================================
-       4) CENTRO — Fórmula Excel: =SI(B2=5316;"Cancela";"Oficina")
+       4) CENTRO
     ============================================================= */
     f.centro = obtenerCentro(f.oficina);
 
     /* ============================================================
-       5) TIPO GESTIÓN — Fórmula Excel exacta (18 condiciones)
+       5) TIPO GESTIÓN
     ============================================================= */
     f.tipo_gestion = obtenerTipoGestion(f.tipo_provision);
 
     /* ============================================================
-       6) NOMBRE — Fórmula Excel exacta (18 condiciones)
+       6) NOMBRE
     ============================================================= */
     f.nombre = obtenerNombre(f.apoderado);
 
     /* ============================================================
-       7) APELLIDOS — Fórmula Excel exacta (17 condiciones)
+       7) APELLIDOS
     ============================================================= */
     f.apellidos = obtenerApellidos(f.nombre, f.apoderado, f.contrato);
 
     /* ============================================================
-       8) CENTRO QUE FIRMA — Fórmula Excel exacta (17 condiciones)
+       8) CENTRO QUE FIRMA
     ============================================================= */
     f.centro_que_firma = obtenerCentroQueFirma(f.nombre);
 
     /* ============================================================
-       9) CONTRATO CLASIFICADO — Fórmula Excel exacta (W2)
+       9) CONTRATO CLASIFICADO
     ============================================================= */
     f.contrato = clasificarContrato(f.contrato);
 
     /* ============================================================
-       10) NOTARIO — Fórmula Excel exacta (15 condiciones)
+       10) NOTARIO — NORMALIZACIÓN PREMIUM
     ============================================================= */
     f.notario2 = clasificarNotario(f.notario);
 
     /* ============================================================
-       11) CIRCUITO NOTARIAL — Fórmula Excel exacta (5 condiciones)
+       11) CIRCUITO NOTARIAL
     ============================================================= */
     f.circuito = clasificarCircuito(f.notario2);
 
     /* ============================================================
-       12) TIPO DE FIRMA — Fórmula Excel exacta
+       12) TIPO DE FIRMA
     ============================================================= */
     f.tipo_firma = obtenerTipoFirma(f.vc);
 
     return f;
 }
+
+/* ============================================================
+   FECHAS
+============================================================ */
 function normalizarFecha(v) {
     if (!v) return "";
 
-    // dd-mm-yyyy → dd/mm/yyyy
     if (/^\d{2}-\d{2}-\d{4}$/.test(v)) {
         const [d, m, y] = v.split("-");
         return `${d}/${m}/${y}`;
     }
 
-    // dd/mm/yyyy ya correcto
-    if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) {
-        return v;
-    }
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(v)) return v;
 
-    // Excel numérico
     if (typeof v === "number") {
         const d = new Date((v - 25569) * 86400 * 1000);
         if (!isNaN(d)) {
@@ -93,22 +92,23 @@ function normalizarFecha(v) {
         }
     }
 
-    // yyyy-mm-dd
     if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
         const [y, m, d] = v.split("-");
         return `${d}/${m}/${y}`;
     }
 
-    // fallback
     const d = new Date(v);
     if (isNaN(d)) return "";
 
     const dia = String(d.getDate()).padStart(2, "0");
     const mes = String(d.getMonth() + 1).padStart(2, "0");
     const anio = d.getFullYear();
-
     return `${dia}/${mes}/${anio}`;
 }
+
+/* ============================================================
+   MES / AÑO
+============================================================ */
 function obtenerMesTexto(fecha) {
     if (!fecha) return "";
     const [d, m, y] = fecha.split("/");
@@ -124,9 +124,17 @@ function obtenerAnio(fecha) {
     const [d, m, y] = fecha.split("/");
     return Number(y) || null;
 }
+
+/* ============================================================
+   CENTRO
+============================================================ */
 function obtenerCentro(oficina) {
     return String(oficina) === "5316" ? "Cancela" : "Oficina";
 }
+
+/* ============================================================
+   TIPO GESTIÓN
+============================================================ */
 function obtenerTipoGestion(v) {
     if (!v) return "";
 
@@ -161,6 +169,10 @@ function obtenerTipoGestion(v) {
 
     return "Con provisión";
 }
+
+/* ============================================================
+   NOMBRE / APELLIDOS / CENTRO QUE FIRMA
+============================================================ */
 function obtenerNombre(apoderado) {
     if (!apoderado) return "";
 
@@ -189,6 +201,7 @@ function obtenerNombre(apoderado) {
 
     return mapa[a] || a;
 }
+
 function obtenerApellidos(nombre, apoderado, contratoClasificado) {
     const mapa = {
         "Carlos": "Barbera Garcia",
@@ -215,6 +228,7 @@ function obtenerApellidos(nombre, apoderado, contratoClasificado) {
 
     return "";
 }
+
 function obtenerCentroQueFirma(nombre) {
     const mapa = {
         "Carlos": "Molsan",
@@ -238,6 +252,10 @@ function obtenerCentroQueFirma(nombre) {
 
     return mapa[nombre] || "";
 }
+
+/* ============================================================
+   CONTRATO
+============================================================ */
 function clasificarContrato(contrato) {
     if (!contrato) return "";
 
@@ -246,31 +264,86 @@ function clasificarContrato(contrato) {
 
     return listaCaixa.includes(prefijo) ? "CaixaBank" : "Externa";
 }
-function clasificarNotario(n) {
-    const mapa = {
-        "María Dolores Giménez Arbona": "Circuito Península",
-        "Gonzalo Sauca Núñez de Prado": "Circuito Península",
-        "Isabel Molinos Gil": "Circuito Península",
-        "Raúl González Fuentes": "Circuito Península",
-        "Javier Micó Giner": "Circuito Península",
-        "Rosa María Pérez Paniagua": "Circuito Península",
-        "María del Camino Quiroga Martínez": "Circuito Península",
-        "Ana María Fortuny Subirats": "Circuito Península",
-        "David Gracia Fuentes": "Circuito Canarias",
-        "José Manuel Jiménez Santoveña": "Circuito Canarias",
-        "Guillermo José Croissier Naranjo": "Circuito Canarias",
-        "José Ignacio Olmedo Castañeda": "Circuito Canarias",
-        "Pedro Javier Viñuela Sandoval": "Circuito Canarias"
-    };
 
-    return mapa[n] || "FALSO";
+/* ============================================================
+   NORMALIZACIÓN PREMIUM DE NOTARIOS
+============================================================ */
+
+function normalizarTexto(str) {
+    if (!str) return "";
+    return str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
 }
+
+const MAPA_NOTARIOS = {
+    "maria dolores gimenez arbona": "Circuito Península",
+    "gonzalo sauca nunez de prado": "Circuito Península",
+    "isabel molinos gil": "Circuito Península",
+    "raul gonzalez fuentes": "Circuito Península",
+    "javier mico giner": "Circuito Península",
+    "rosa maria perez paniagua": "Circuito Península",
+    "maria del camino quiroga martinez": "Circuito Península",
+    "ana maria fortuny subirats": "Circuito Península",
+
+    "david gracia fuentes": "Circuito Canarias",
+    "jose manuel jimenez santovena": "Circuito Canarias",
+    "guillermo jose croissier naranjo": "Circuito Canarias",
+    "jose ignacio olmedo castaneda": "Circuito Canarias",
+    "pedro javier vinuela sandoval": "Circuito Canarias"
+};
+
+function levenshtein(a, b) {
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            matrix[i][j] = Math.min(
+                matrix[i-1][j] + 1,
+                matrix[i][j-1] + 1,
+                matrix[i-1][j-1] + (b[i-1] === a[j-1] ? 0 : 1)
+            );
+        }
+    }
+    return matrix[b.length][a.length];
+}
+
+function fuzzyMatch(nombreNormalizado) {
+    for (const clave in MAPA_NOTARIOS) {
+        const distancia = levenshtein(nombreNormalizado, clave);
+        if (distancia <= 3) return MAPA_NOTARIOS[clave];
+    }
+    return null;
+}
+
+function clasificarNotario(n) {
+    const limpio = normalizarTexto(n);
+
+    if (MAPA_NOTARIOS[limpio]) return MAPA_NOTARIOS[limpio];
+
+    const fuzzy = fuzzyMatch(limpio);
+    if (fuzzy) return fuzzy;
+
+    return "FALSO";
+}
+
+/* ============================================================
+   CIRCUITO NOTARIAL
+============================================================ */
 function clasificarCircuito(valor) {
-    if (valor === "FALSO") return "Circuito Externo";
     if (valor === "Circuito Península") return "Circuito Península";
     if (valor === "Circuito Canarias") return "Circuito Canarias";
     return "Circuito Externo";
 }
+
+/* ============================================================
+   TIPO FIRMA
+============================================================ */
 function obtenerTipoFirma(vc) {
     if (vc === "N") return "Presencial";
     if (vc === "S") return "VideoConferencia";
