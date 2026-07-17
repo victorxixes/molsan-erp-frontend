@@ -252,7 +252,6 @@ function clasificarNotario(n) {
         "Gonzalo Sauca Núñez de Prado": "Circuito Península",
         "Isabel Molinos Gil": "Circuito Península",
         "Raúl González Fuentes": "Circuito Península",
-        "María Isabel Gabarró Miquel": "Circuito Península",
         "Javier Micó Giner": "Circuito Península",
         "Rosa María Pérez Paniagua": "Circuito Península",
         "María del Camino Quiroga Martínez": "Circuito Península",
