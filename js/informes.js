@@ -303,9 +303,13 @@ async function initInformeEvolutivo() {
     /* ============================
        HASTA MES ACTUAL
     ============================= */
-    const hoy = new Date();
-    const mesActualIdx = hoy.getMonth();
-    const mesActualTexto = meses[mesActualIdx];
+   const mesesConDatos = [...new Set(
+    datos.filter(f => f.anio === anio).map(f => f.mes)
+)].sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
+
+const ultimoMesReal = mesesConDatos[mesesConDatos.length - 1];
+const mesActualIdx = MESES_ORDEN.indexOf(ultimoMesReal);
+const mesActualTexto = ultimoMesReal;
 
     const totalesHasta = [];
 
