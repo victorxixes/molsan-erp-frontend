@@ -219,12 +219,20 @@ async function generarInformeGeneral() {
 ============================================================ */
 async function initInformeEvolutivo() {
 
+    // 🔒 Bloqueo anti-recursividad
+    if (window.__EVO_RUNNING__) {
+        console.warn("⛔ initInformeEvolutivo() ignorado: ya está ejecutándose.");
+        return;
+    }
+    window.__EVO_RUNNING__ = true;
+
     const tabla = document.getElementById("evo-tabla");
     const resumen = document.getElementById("evo-resumen");
     const contenedorFinal = document.getElementById("evo-final");
 
     if (!tabla || !resumen || !contenedorFinal) {
         console.warn("⏳ initInformeEvolutivo() detenido: panel aún no está en el DOM.");
+        window.__EVO_RUNNING__ = false; // 🔓 desbloqueo
         return;
     }
 
@@ -234,6 +242,162 @@ async function initInformeEvolutivo() {
     datos.forEach(aplicarReglas);
 
     const meses = MESES_ORDEN;
+
+    /* ============================
+       MESES REALES DEL ÚLTIMO AÑO
+    ============================= */
+    const ultimoAnio = Math.max(...datos.map(f => f.anio));
+
+    const mesesConDatos = [...new Set(
+        datos.filter(f => f.anio === ultimoAnio).map(f => f.mes)
+    )].sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
+
+    /* ============================
+       TABLA MENSUAL 2020–2026
+    ============================= */
+    mesesConDatos.forEach(mes => {
+
+        const fila = document.createElement("tr");
+
+        const valores = [];
+        const porcentajes = [];
+
+        for (let anio = 2020; anio <= 2026; anio++) {
+            const totalMes = datos.filter(d => d.anio == anio && d.mes == mes).length;
+            valores.push(totalMes);
+        }
+
+        const total = valores.reduce((a,b) => a+b, 0);
+
+        for (let i = 1; i < valores.length; i++) {
+            const prev = valores[i-1];
+            const act  = valores[i];
+            const pct  = prev ? ((act - prev) / prev * 100) : 0;
+            porcentajes.push(pct);
+        }
+
+        fila.innerHTML = `
+            <td>${mes}</td>
+            ${valores.map(v => `<td>${v.toLocaleString()}</td>`).join("")}
+            <td>${total.toLocaleString()}</td>
+            ${porcentajes.map(p => `<td>${p.toFixed(2)}%</td>`).join("")}
+        `;
+
+        tabla.appendChild(fila);
+    });
+
+    /* ============================
+       TOTAL GENERAL
+    ============================= */
+    const filaTotal = document.createElement("tr");
+    filaTotal.classList.add("fila-total");
+
+    const totalesPorAnio = [];
+
+    for (let anio = 2020; anio <= 2026; anio++) {
+        const totalAnio = datos.filter(d => d.anio == anio).length;
+        totalesPorAnio.push(totalAnio);
+    }
+
+    const totalGeneral = totalesPorAnio.reduce((a,b) => a+b, 0);
+
+    const pctGeneral = [];
+    for (let i = 1; i < totalesPorAnio.length; i++) {
+        const prev = totalesPorAnio[i-1];
+        const act  = totalesPorAnio[i];
+        pctGeneral.push(prev ? ((act - prev) / prev * 100) : 0);
+    }
+
+    filaTotal.innerHTML = `
+        <td><strong>Total general</strong></td>
+        ${totalesPorAnio.map(t => `<td><strong>${t.toLocaleString()}</strong></td>`).join("")}
+        <td><strong>${totalGeneral.toLocaleString()}</strong></td>
+        ${pctGeneral.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
+    `;
+
+    tabla.appendChild(filaTotal);
+
+    /* ============================
+       HASTA MES ACTUAL (REAL)
+    ============================= */
+    const ultimoMesReal = mesesConDatos[mesesConDatos.length - 1];
+    const mesActualIdx = MESES_ORDEN.indexOf(ultimoMesReal);
+    const mesActualTexto = ultimoMesReal;
+
+    const totalesHasta = [];
+
+    for (let anio = 2020; anio <= ultimoAnio; anio++) {
+        const totalHasta = datos.filter(f =>
+            f.anio === anio &&
+            MESES_ORDEN.indexOf(f.mes) <= mesActualIdx
+        ).length;
+
+        totalesHasta.push(totalHasta);
+    }
+
+    const pctHasta = [];
+
+    for (let i = 1; i < totalesHasta.length; i++) {
+        const prev = totalesHasta[i-1];
+        const act  = totalesHasta[i];
+        const pct  = prev ? ((act - prev) / prev * 100) : 0;
+        pctHasta.push(pct);
+    }
+
+    const filaHasta = document.createElement("tr");
+    filaHasta.classList.add("fila-total");
+
+    filaHasta.innerHTML = `
+        <td><strong>Hasta ${mesActualTexto}</strong></td>
+        ${totalesHasta.map(t => `<td><strong>${t.toLocaleString()}</strong></td>`).join("")}
+        <td></td>
+        ${pctHasta.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
+    `;
+
+    tabla.appendChild(filaHasta);
+
+    /* ============================
+       RESUMEN FINAL
+    ============================= */
+    resumen.textContent = `Evolución total: ${pctHasta[pctHasta.length-1].toFixed(2)}%`;
+
+    const filaAcum = totalesHasta.map(t => t.toLocaleString()).join(" | ");
+    const filaPct = pctHasta.map(p => {
+        const color = p >= 0 ? "#10B981" : "#EF4444";
+        return `<span style="color:${color}; font-weight:600;">${p.toFixed(2)}%</span>`;
+    }).join(" | ");
+
+    contenedorFinal.innerHTML = `
+        <div style="
+            margin-top: 25px;
+            padding: 18px;
+            background: rgba(14,165,233,0.10);
+            border-radius: 10px;
+            border-left: 4px solid #0EA5E9;
+            font-size: 15px;
+            line-height: 1.6;
+        ">
+            <div style="font-weight:700; margin-bottom:6px;">
+                📌 Hasta ${mesActualTexto}
+            </div>
+
+            <div style="margin-bottom:12px;">
+                <strong>${filaAcum}</strong>
+            </div>
+
+            <div style="font-weight:700; margin-bottom:6px;">
+                📊 Evolución % volumen firmas
+            </div>
+
+            <div>
+                ${filaPct}
+            </div>
+        </div>
+    `;
+
+    // 🔓 Desbloqueo final
+    window.__EVO_RUNNING__ = false;
+}
 
     /* ============================
        MESES REALES DEL ÚLTIMO AÑO
