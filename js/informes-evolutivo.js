@@ -3,6 +3,11 @@
 ============================================================ */
 console.log("🔥 informes-evolutivo.js cargado");
 
+const MESES_ORDEN = [
+    "enero","febrero","marzo","abril","mayo","junio",
+    "julio","agosto","septiembre","octubre","noviembre","diciembre"
+];
+
 async function initInformeEvolutivo() {
    
 console.log("🔥 initInformeEvolutivo ejecutado");
@@ -27,8 +32,10 @@ console.log("🔥 initInformeEvolutivo ejecutado");
 
         tabla.innerHTML = "";
 
-        const datos = await obtenerFirmas();
-        datos.forEach(aplicarReglas);
+       const datos = await obtenerFirmas();
+// ❌ NO llamamos aplicarReglas aquí para evitar efectos colaterales
+// datos.forEach(aplicarReglas);
+
 
         const ultimoAnio = Math.max(...datos.map(f => f.anio));
 
