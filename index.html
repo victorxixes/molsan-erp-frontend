@@ -830,7 +830,7 @@
 </template>
 
 <!-- ============================================================
-     PANEL TIPO GESTIÓN — PREMIUM 2027
+     PANEL TIPO GESTIÓN — PREMIUM 2027 (FORMATO 2026)
 ============================================================ -->
 <template id="tpl-panel-tipo-gestion">
     <div class="panel-wrapper fade-in">
@@ -843,59 +843,17 @@
                 <label>Año</label>
                 <select id="ptg-select-anio"></select>
             </div>
-
-            <div class="panel-header-right kpi-panel">
-                <div class="kpi-card">
-                    <div class="kpi-label">Total firmas</div>
-                    <div class="kpi-value" id="ptg-kpi-total">0</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">% Con provisión</div>
-                    <div class="kpi-value" id="ptg-kpi-con">0%</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">% Sin provisión</div>
-                    <div class="kpi-value" id="ptg-kpi-sin">0%</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">SLA Con</div>
-                    <div class="kpi-value" id="ptg-kpi-sla-con">0</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">SLA Sin</div>
-                    <div class="kpi-value" id="ptg-kpi-sla-sin">0</div>
-                </div>
-            </div>
         </div>
 
         <!-- Tabla mensual -->
         <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Detalle por tipo de gestión (mes a mes)</h3>
+            <h3 class="subtitulo-modulo">Detalle por tipo de gestión (meses con datos)</h3>
 
             <div class="tabla-scroll-x mt-10">
                 <table id="ptg-tabla-gestion" class="table-premium table-sticky tabla-excel">
                     <thead>
-                        <tr>
-                            <th>Tipo Gestión</th>
-                            <th>Total</th>
-                            <th>Con provisión</th>
-                            <th>Sin provisión</th>
-                            <th>% Con</th>
-                            <th>% Sin</th>
-                            <th>SLA Con</th>
-                            <th>SLA Sin</th>
-                            <th>Enero</th>
-                            <th>Febrero</th>
-                            <th>Marzo</th>
-                            <th>Abril</th>
-                            <th>Mayo</th>
-                            <th>Junio</th>
-                            <th>Julio</th>
-                            <th>Agosto</th>
-                            <th>Septiembre</th>
-                            <th>Octubre</th>
-                            <th>Noviembre</th>
-                            <th>Diciembre</th>
+                        <tr id="ptg-thead-row">
+                            <!-- Se rellena dinámicamente -->
                         </tr>
                     </thead>
                     <tbody></tbody>
