@@ -1,5 +1,5 @@
 /* ============================================================
-   INFORME EVOLUTIVO — TABLA COMPLETA 2020–2026 (VERSIÓN ESTABLE)
+   INFORME EVOLUTIVO — TABLA COMPLETA 2020–2026 (ULTRA OPTIMIZADO)
 ============================================================ */
 
 console.log("🔥 informes-evolutivo.js cargado");
@@ -13,11 +13,7 @@ async function initInformeEvolutivo() {
 
     console.log("🔥 initInformeEvolutivo ejecutado");
 
-    // Protección contra recursión
-    if (window.__EVO_RUNNING__) {
-        console.warn("⛔ initInformeEvolutivo() ignorado: ya está ejecutándose.");
-        return;
-    }
+    if (window.__EVO_RUNNING__) return;
     window.__EVO_RUNNING__ = true;
 
     try {
@@ -25,40 +21,52 @@ async function initInformeEvolutivo() {
         const resumen = document.getElementById("evo-resumen");
         const contenedorFinal = document.getElementById("evo-final");
 
-        if (!tabla || !resumen || !contenedorFinal) {
-            console.warn("⛔ Elementos del informe evolutivo no encontrados.");
-            return;
-        }
+        if (!tabla || !resumen || !contenedorFinal) return;
 
         tabla.innerHTML = "";
 
-        // Obtener datos sin aplicar reglas (evita recursión con mapas/dashboard)
         const datos = await obtenerFirmas();
-        console.log("🔥 datos obtenidos en evolutivo:", datos.length);
-
-// ============================
-// 1) AÑO MÁS RECIENTE (sin spread)
-// ============================
-const ultimoAnio = datos.reduce((max, f) => {
-    const anio = Number(f.anio) || 0;
-    return anio > max ? anio : max;
-}, 0);
+        console.log("🔥 datos obtenidos:", datos.length);
 
         // ============================
-        // 2) MESES DEL ÚLTIMO AÑO (limpios)
+        // 1) PRECALCULAR TODO EN UN SOLO RECORRIDO
         // ============================
-        let mesesConDatos = datos
-            .filter(f => f.anio === ultimoAnio)
-            .map(f => f.mes)
-            .filter(m => MESES_ORDEN.includes(m));   // ← protección total
 
-        mesesConDatos = [...new Set(mesesConDatos)];
+        const totalesPorMesYAnio = {};   // ej: totalesPorMesYAnio["enero"][2023] = 123
+        const totalesPorAnio = {};       // ej: totalesPorAnio[2023] = 5000
+
+        let ultimoAnio = 0;
+
+        for (const f of datos) {
+
+            const anio = Number(f.anio);
+            const mes = f.mes;
+
+            if (!MESES_ORDEN.includes(mes)) continue;
+
+            if (anio > ultimoAnio) ultimoAnio = anio;
+
+            // totales por año
+            totalesPorAnio[anio] = (totalesPorAnio[anio] || 0) + 1;
+
+            // totales por mes y año
+            if (!totalesPorMesYAnio[mes]) totalesPorMesYAnio[mes] = {};
+            totalesPorMesYAnio[mes][anio] = (totalesPorMesYAnio[mes][anio] || 0) + 1;
+        }
+
+        // ============================
+        // 2) MESES DEL ÚLTIMO AÑO
+        // ============================
+
+        let mesesConDatos = Object.keys(totalesPorMesYAnio)
+            .filter(m => totalesPorMesYAnio[m][ultimoAnio] > 0);
 
         mesesConDatos.sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
 
         // ============================
         // 3) FILAS POR MES
         // ============================
+
         mesesConDatos.forEach(mes => {
 
             const fila = document.createElement("tr");
@@ -67,11 +75,10 @@ const ultimoAnio = datos.reduce((max, f) => {
             const porcentajes = [];
 
             for (let anio = 2020; anio <= 2026; anio++) {
-                const totalMes = datos.filter(d => d.anio == anio && d.mes == mes).length;
-                valores.push(totalMes);
+                valores.push(totalesPorMesYAnio[mes][anio] || 0);
             }
 
-            const total = valores.reduce((a,b) => a+b, 0);
+            const total = valores.reduce((a,b)=>a+b,0);
 
             for (let i = 1; i < valores.length; i++) {
                 const prev = valores[i-1];
@@ -93,26 +100,27 @@ const ultimoAnio = datos.reduce((max, f) => {
         // ============================
         // 4) TOTAL POR AÑO
         // ============================
-        const totalesPorAnio = [];
-        for (let anio = 2020; anio <= 2026; anio++) {
-            totalesPorAnio.push(datos.filter(d => d.anio == anio).length);
-        }
 
         const filaTotal = document.createElement("tr");
         filaTotal.classList.add("fila-total");
 
-        const totalGeneral = totalesPorAnio.reduce((a,b)=>a+b,0);
+        const totalesAnioArray = [];
+        for (let anio = 2020; anio <= 2026; anio++) {
+            totalesAnioArray.push(totalesPorAnio[anio] || 0);
+        }
+
+        const totalGeneral = totalesAnioArray.reduce((a,b)=>a+b,0);
 
         const pctGeneral = [];
-        for (let i = 1; i < totalesPorAnio.length; i++) {
-            const prev = totalesPorAnio[i-1];
-            const act  = totalesPorAnio[i];
+        for (let i = 1; i < totalesAnioArray.length; i++) {
+            const prev = totalesAnioArray[i-1];
+            const act  = totalesAnioArray[i];
             pctGeneral.push(prev ? ((act - prev) / prev * 100) : 0);
         }
 
         filaTotal.innerHTML = `
             <td><strong>Total general</strong></td>
-            ${totalesPorAnio.map(t => `<td><strong>${t}</strong></td>`).join("")}
+            ${totalesAnioArray.map(t => `<td><strong>${t}</strong></td>`).join("")}
             <td><strong>${totalGeneral}</strong></td>
             ${pctGeneral.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
         `;
@@ -122,15 +130,22 @@ const ultimoAnio = datos.reduce((max, f) => {
         // ============================
         // 5) TOTAL HASTA ÚLTIMO MES REAL
         // ============================
+
         const ultimoMesReal = mesesConDatos[mesesConDatos.length - 1];
         const mesActualIdx = MESES_ORDEN.indexOf(ultimoMesReal);
 
         const totalesHasta = [];
 
         for (let anio = 2020; anio <= ultimoAnio; anio++) {
-            totalesHasta.push(
-                datos.filter(f => f.anio === anio && MESES_ORDEN.indexOf(f.mes) <= mesActualIdx).length
-            );
+
+            let suma = 0;
+
+            for (let i = 0; i <= mesActualIdx; i++) {
+                const mes = MESES_ORDEN[i];
+                suma += (totalesPorMesYAnio[mes]?.[anio] || 0);
+            }
+
+            totalesHasta.push(suma);
         }
 
         const pctHasta = [];
@@ -155,6 +170,7 @@ const ultimoAnio = datos.reduce((max, f) => {
         // ============================
         // 6) RESUMEN
         // ============================
+
         resumen.textContent = `Evolución total: ${pctHasta[pctHasta.length-1].toFixed(2)}%`;
 
         contenedorFinal.innerHTML = `
