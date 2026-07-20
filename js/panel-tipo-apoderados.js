@@ -1,5 +1,5 @@
 /* ============================================================
-   TABLA DETALLE APODERADOS — FORMATO NUEVO 2026 (CORREGIDA)
+   TABLA DETALLE APODERADOS — FORMATO NUEVO 2026 (VERSIÓN PERFECTA)
 ============================================================ */
 function pap_renderTablaApoderados(info) {
     const tbody = document.querySelector("#pap-tabla-apoderados tbody");
@@ -15,7 +15,7 @@ function pap_renderTablaApoderados(info) {
     const currentYear = new Date().getFullYear();
     const currentMonthIndex = new Date().getMonth();
 
-    // 1) Meses con datos reales (en cualquier apoderado)
+    // 1) Meses con datos reales
     const mesesConDatos = mesesOrden.filter(m =>
         Object.values(info.apoderados).some(a => (a.meses[m] || 0) > 0)
     );
@@ -23,9 +23,12 @@ function pap_renderTablaApoderados(info) {
     // THEAD dinámico
     pap_renderThead(mesesConDatos);
 
-    // 2) Totales por mes (para calcular % por columna)
+    // 2) Totales por mes (solo meses válidos y numéricos)
     const totalesPorMes = mesesConDatos.map(m =>
-        Object.values(info.apoderados).reduce((acc, a) => acc + (a.meses[m] || 0), 0)
+        Object.values(info.apoderados).reduce((acc, a) => {
+            const valor = a.meses[m] || 0;
+            return acc + (typeof valor === "number" ? valor : 0);
+        }, 0)
     );
 
     // 3) Construcción de lista por apoderado
@@ -33,16 +36,19 @@ function pap_renderTablaApoderados(info) {
 
         const valoresMes = mesesConDatos.map(m => {
             const idx = mesesOrden.indexOf(m);
-            if (info.anio === currentYear && idx > currentMonthIndex) return "";
+
+            // Mes futuro → NO se muestra
+            if (info.anio === currentYear && idx > currentMonthIndex) return 0;
+
             return a.meses[m] || 0;
         });
 
-        const totalVisible = valoresMes.reduce((acc, v) => acc + (v || 0), 0);
+        const totalVisible = valoresMes.reduce((acc, v) => acc + v, 0);
 
         // % por mes sobre el total de ese mes (columna)
         const porcentajesMes = valoresMes.map((v, i) => {
             const totalMes = totalesPorMes[i];
-            if (v === "" || totalMes === 0) return "";
+            if (totalMes === 0) return "";
             return ((v / totalMes) * 100).toFixed(1) + "%";
         });
 
@@ -72,7 +78,7 @@ function pap_renderTablaApoderados(info) {
         tbody.appendChild(tr);
     }
 
-    // 5) SUMATORIO FINAL (TOTAL POR MES + % por mes sobre total general)
+    // 5) SUMATORIO FINAL
     const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
 
     const trSum = document.createElement("tr");
