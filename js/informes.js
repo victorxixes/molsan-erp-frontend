@@ -220,6 +220,13 @@ async function generarInformeGeneral() {
 ============================================================ */
 async function initInformeEvolutivo() {
 
+    // 🛑 Si el módulo aún no está visible, NO ejecutar
+    const modulo = document.getElementById("module-container");
+    if (!modulo || modulo.style.opacity === "0") {
+        console.warn("⏳ initInformeEvolutivo() ignorado: módulo aún no está visible.");
+        return;
+    }
+
     // 🔒 Bloqueo anti-recursividad
     if (window.__EVO_RUNNING__) {
         console.warn("⛔ initInformeEvolutivo() ignorado: ya está ejecutándose.");
@@ -241,6 +248,7 @@ async function initInformeEvolutivo() {
 
     const datos = await obtenerFirmas();
     datos.forEach(aplicarReglas);
+
 
     /* ============================
        MESES REALES DEL ÚLTIMO AÑO
