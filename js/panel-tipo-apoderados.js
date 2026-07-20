@@ -139,7 +139,7 @@ function pap_renderTablaApoderados(info) {
         Object.values(info.apoderados).some(a => a.meses[m] > 0)
     );
 
-    // ⛔ ESTA LÍNEA DEBE IR AQUÍ (FUERA DEL MAP)
+    // ⭐ ESTA LÍNEA DEBE IR AQUÍ (FUERA DEL MAP)
     pap_renderThead(mesesConDatos);
 
     // 2) Construcción de lista
@@ -201,3 +201,4 @@ function pap_renderThead(mesesConDatos) {
         <th>%Total</th>
     `;
 }
+
