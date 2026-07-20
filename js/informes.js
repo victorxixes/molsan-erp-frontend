@@ -396,7 +396,7 @@ async function initInformeEvolutivo() {
 
     // 🔓 desbloqueo final
     window.__EVO_RUNNING__ = false;
-
+}
 /* ============================================================
    INFORME POR APODERADO — PREMIUM CON PORCENTAJES
 ============================================================ */
