@@ -1,7 +1,11 @@
 /* ============================================================
    INFORME EVOLUTIVO — TABLA COMPLETA 2020–2026
 ============================================================ */
+console.log("🔥 informes-evolutivo.js cargado");
+
 async function initInformeEvolutivo() {
+   
+console.log("🔥 initInformeEvolutivo ejecutado");
 
     // ✔ Protección inmediata contra recursividad
     if (window.__EVO_RUNNING__) {
