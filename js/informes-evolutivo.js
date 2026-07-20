@@ -134,6 +134,6 @@ async function initInformeEvolutivo() {
         // ✔ Liberamos la bandera cuando el DOM ya está completamente renderizado
         setTimeout(() => {
             window.__EVO_RUNNING__ = false;
-        }, 150);
+        }, 500);
     }
 }
