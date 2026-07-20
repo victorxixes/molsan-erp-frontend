@@ -148,22 +148,24 @@ function pap_renderTablaApoderados(info) {
             return a.meses[m] || 0;
         });
 
-        const total = a.total;
+        // TOTAL SOLO DE LOS MESES VISIBLES
+        const totalVisible = valoresMes.reduce((acc, v) => acc + (v || 0), 0);
 
+        // PORCENTAJES SOLO DE LOS MESES VISIBLES
         const porcentajesMes = valoresMes.map(v => {
-            if (v === "" || total === 0) return "";
-            return ((v / total) * 100).toFixed(1) + "%";
+            if (v === "" || totalVisible === 0) return "";
+            return ((v / totalVisible) * 100).toFixed(1) + "%";
         });
 
         return {
             nombre,
             valoresMes,
-            total,
+            totalVisible,
             porcentajesMes
         };
     });
 
-    lista.sort((a,b)=>b.total - a.total);
+    lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
     // 3) Pintar filas
     for (const ap of lista) {
@@ -172,7 +174,7 @@ function pap_renderTablaApoderados(info) {
         tr.innerHTML = `
             <td>${ap.nombre}</td>
             ${ap.valoresMes.map(v => `<td>${v}</td>`).join("")}
-            <td>${ap.total}</td>
+            <td>${ap.totalVisible}</td>
             ${ap.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
             <td>100%</td>
         `;
