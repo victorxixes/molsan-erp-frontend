@@ -2,6 +2,8 @@
    INFORME POR TIPO DE FIRMA — GLASS LUXE 2027
 ============================================================ */
 
+console.log("✔ informes-tipo-firma.js cargado");
+
 async function generarInformeTipoFirma() {
 
     const cont = document.getElementById("informeContainer");
