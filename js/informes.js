@@ -362,45 +362,7 @@ async function initInformeEvolutivo() {
     `;
 
     tabla.appendChild(filaHasta);
-
-    /* ============================
-       RESUMEN FINAL
-    ============================= */
-    resumen.textContent = `Evolución total: ${pctHasta[pctHasta.length-1].toFixed(2)}%`;
-
-    const filaAcum = totalesHasta.map(t => t.toLocaleString()).join(" | ");
-    const filaPct = pctHasta.map(p => {
-        const color = p >= 0 ? "#10B981" : "#EF4444";
-        return `<span style="color:${color}; font-weight:600;">${p.toFixed(2)}%</span>`;
-    }).join(" | ");
-
-    contenedorFinal.innerHTML = `
-        <div style="
-            margin-top: 25px;
-            padding: 18px;
-            background: rgba(14,165,233,0.10);
-            border-radius: 10px;
-            border-left: 4px solid #0EA5E9;
-            font-size: 15px;
-            line-height: 1.6;
-        ">
-            <div style="font-weight:700; margin-bottom:6px;">
-                📌 Hasta ${mesActualTexto}
-            </div>
-
-            <div style="margin-bottom:12px;">
-                <strong>${filaAcum}</strong>
-            </div>
-
-            <div style="font-weight:700; margin-bottom:6px;">
-                📊 Evolución % volumen firmas
-            </div>
-
-            <div>
-                ${filaPct}
-            </div>
-        </div>
-    `;
+  
 
     // 🔓 desbloqueo final
     window.__EVO_RUNNING__ = false;
