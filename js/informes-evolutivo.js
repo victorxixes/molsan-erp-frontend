@@ -36,10 +36,13 @@ async function initInformeEvolutivo() {
         const datos = await obtenerFirmas();
         console.log("🔥 datos obtenidos en evolutivo:", datos.length);
 
-        // ============================
-        // 1) AÑO MÁS RECIENTE
-        // ============================
-        const ultimoAnio = Math.max(...datos.map(f => f.anio));
+// ============================
+// 1) AÑO MÁS RECIENTE (sin spread)
+// ============================
+const ultimoAnio = datos.reduce((max, f) => {
+    const anio = Number(f.anio) || 0;
+    return anio > max ? anio : max;
+}, 0);
 
         // ============================
         // 2) MESES DEL ÚLTIMO AÑO (limpios)
