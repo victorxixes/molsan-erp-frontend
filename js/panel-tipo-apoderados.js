@@ -1,129 +1,10 @@
 /* ============================================================
-   PANEL APODERADOS — PREMIUM 2027 (ADAPTADO FORMATO 2026)
-============================================================ */
-
-let PAP_DATOS = [];
-let PAP_POR_ANIO = {};
-
-/* ============================================================
-   INIT (con protección DOM)
-============================================================ */
-async function initPanelApoderados() {
-    console.log("👤 initPanelApoderados() ejecutado");
-
-    if (!document.getElementById("pap-select-anio")) {
-        console.warn("⏳ Panel Apoderados aún no está en el DOM. initPanelApoderados() detenido.");
-        return;
-    }
-
-    const datos = await obtenerFirmas();
-    if (!datos || !datos.length) return;
-
-    PAP_DATOS = datos;
-
-    PAP_POR_ANIO = pap_groupByAnioApoderado(PAP_DATOS);
-
-    pap_fillSelectAnios();
-    pap_selectUltimoAnio();
-}
-
-/* ============================================================
-   SELECT AÑOS
-============================================================ */
-function pap_fillSelectAnios() {
-    const sel = document.getElementById("pap-select-anio");
-    if (!sel) return;
-
-    sel.innerHTML = "";
-
-    const anios = Object.keys(PAP_POR_ANIO).map(Number).sort((a,b)=>a-b);
-
-    for (const anio of anios) {
-        const opt = document.createElement("option");
-        opt.value = anio;
-        opt.textContent = anio;
-        sel.appendChild(opt);
-    }
-}
-
-function pap_selectUltimoAnio() {
-    const sel = document.getElementById("pap-select-anio");
-    if (!sel || sel.options.length === 0) return;
-
-    sel.value = sel.options[sel.options.length - 1].value;
-    pap_onChangeAnio();
-}
-
-/* ============================================================
-   CAMBIO DE AÑO
-============================================================ */
-function pap_onChangeAnio() {
-    const sel = document.getElementById("pap-select-anio");
-    if (!sel) return;
-
-    const anio = Number(sel.value);
-    const info = PAP_POR_ANIO[anio];
-    if (!info) return;
-
-    info.anio = anio;
-
-    pap_renderTablaApoderados(info);
-}
-/* ============================================================
-   AGRUPAR POR AÑO → APODERADO → MESES (FORMATO NUEVO)
-============================================================ */
-function pap_groupByAnioApoderado(datos) {
-
-    const mesesValidos = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
-
-    const map = {};
-
-    for (const f of datos) {
-
-        const anio = Number(f.anio);
-        if (!anio || isNaN(anio)) continue;
-
-        const ap = f.apoderado || "Sin apoderado";
-
-        const mes = (f.mes || "").toLowerCase().trim();
-        if (!mesesValidos.includes(mes)) continue;
-
-        if (!map[anio]) {
-            map[anio] = {
-                apoderados: {},
-                mesesConDatos: new Set()
-            };
-        }
-
-        const r = map[anio];
-
-        if (!r.apoderados[ap]) {
-            r.apoderados[ap] = {
-                total: 0,
-                meses: {}
-            };
-
-            mesesValidos.forEach(m => r.apoderados[ap].meses[m] = 0);
-        }
-
-        const a = r.apoderados[ap];
-
-        a.total++;
-        a.meses[mes]++;
-
-        r.mesesConDatos.add(mes);
-    }
-
-    return map;
-}
-/* ============================================================
-   TABLA DETALLE APODERADOS — FORMATO NUEVO 2026
+   TABLA DETALLE APODERADOS — FORMATO NUEVO 2026 (CORREGIDA)
 ============================================================ */
 function pap_renderTablaApoderados(info) {
     const tbody = document.querySelector("#pap-tabla-apoderados tbody");
+    if (!tbody) return;
+
     tbody.innerHTML = "";
 
     const mesesOrden = [
@@ -134,15 +15,20 @@ function pap_renderTablaApoderados(info) {
     const currentYear = new Date().getFullYear();
     const currentMonthIndex = new Date().getMonth();
 
-    // 1) Meses con datos reales
+    // 1) Meses con datos reales (en cualquier apoderado)
     const mesesConDatos = mesesOrden.filter(m =>
-        Object.values(info.apoderados).some(a => a.meses[m] > 0)
+        Object.values(info.apoderados).some(a => (a.meses[m] || 0) > 0)
     );
 
-    // ⭐ ESTA LÍNEA DEBE IR AQUÍ (FUERA DEL MAP)
+    // THEAD dinámico
     pap_renderThead(mesesConDatos);
 
-    // 2) Construcción de lista
+    // 2) Totales por mes (para calcular % por columna)
+    const totalesPorMes = mesesConDatos.map(m =>
+        Object.values(info.apoderados).reduce((acc, a) => acc + (a.meses[m] || 0), 0)
+    );
+
+    // 3) Construcción de lista por apoderado
     const lista = Object.entries(info.apoderados).map(([nombre, a]) => {
 
         const valoresMes = mesesConDatos.map(m => {
@@ -151,13 +37,13 @@ function pap_renderTablaApoderados(info) {
             return a.meses[m] || 0;
         });
 
-        // TOTAL SOLO DE LOS MESES VISIBLES
         const totalVisible = valoresMes.reduce((acc, v) => acc + (v || 0), 0);
 
-        // PORCENTAJES SOLO DE LOS MESES VISIBLES
-        const porcentajesMes = valoresMes.map(v => {
-            if (v === "" || totalVisible === 0) return "";
-            return ((v / totalVisible) * 100).toFixed(1) + "%";
+        // % por mes sobre el total de ese mes (columna)
+        const porcentajesMes = valoresMes.map((v, i) => {
+            const totalMes = totalesPorMes[i];
+            if (v === "" || totalMes === 0) return "";
+            return ((v / totalMes) * 100).toFixed(1) + "%";
         });
 
         return {
@@ -168,9 +54,10 @@ function pap_renderTablaApoderados(info) {
         };
     });
 
+    // Ordenar por total visible
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    // 3) Pintar filas
+    // 4) Pintar filas
     for (const ap of lista) {
         const tr = document.createElement("tr");
 
@@ -184,6 +71,25 @@ function pap_renderTablaApoderados(info) {
 
         tbody.appendChild(tr);
     }
+
+    // 5) SUMATORIO FINAL (TOTAL POR MES + % por mes sobre total general)
+    const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
+
+    const trSum = document.createElement("tr");
+    trSum.classList.add("fila-sumatorio");
+
+    trSum.innerHTML = `
+        <td><b>TOTAL</b></td>
+        ${totalesPorMes.map(v => `<td><b>${v}</b></td>`).join("")}
+        <td><b>${sumatorioTotal}</b></td>
+        ${totalesPorMes.map(v => {
+            if (sumatorioTotal === 0) return "<td></td>";
+            return `<td><b>${((v / sumatorioTotal) * 100).toFixed(1)}%</b></td>`;
+        }).join("")}
+        <td><b>100%</b></td>
+    `;
+
+    tbody.appendChild(trSum);
 }
 
 /* ============================================================
@@ -201,4 +107,3 @@ function pap_renderThead(mesesConDatos) {
         <th>%Total</th>
     `;
 }
-
