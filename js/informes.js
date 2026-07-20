@@ -219,21 +219,20 @@ async function generarInformeGeneral() {
 ============================================================ */
 async function initInformeEvolutivo() {
 
-    // 🔒 Bloqueo anti-recursividad — DEBE SER LA PRIMERA LÍNEA
+    // 🔒 Bloqueo anti-recursividad
     if (window.__EVO_RUNNING__) {
         console.warn("⛔ initInformeEvolutivo() ignorado: ya está ejecutándose.");
         return;
     }
     window.__EVO_RUNNING__ = true;
 
-    // 🔥 IMPORTANTE: el DOM se consulta DESPUÉS del bloqueo
     const tabla = document.getElementById("evo-tabla");
     const resumen = document.getElementById("evo-resumen");
     const contenedorFinal = document.getElementById("evo-final");
 
     if (!tabla || !resumen || !contenedorFinal) {
         console.warn("⏳ initInformeEvolutivo() detenido: panel aún no está en el DOM.");
-        window.__EVO_RUNNING__ = false; // 🔓 desbloqueo
+        window.__EVO_RUNNING__ = false;
         return;
     }
 
@@ -241,10 +240,6 @@ async function initInformeEvolutivo() {
 
     const datos = await obtenerFirmas();
     datos.forEach(aplicarReglas);
-
-    const meses = MESES_ORDEN;
-
-}
 
     /* ============================
        MESES REALES DEL ÚLTIMO AÑO
@@ -398,7 +393,7 @@ async function initInformeEvolutivo() {
         </div>
     `;
 
-    // 🔓 Desbloqueo final
+    // 🔓 desbloqueo final
     window.__EVO_RUNNING__ = false;
 }
 
