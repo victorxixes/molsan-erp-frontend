@@ -683,7 +683,7 @@
     </div>
 </template>
 <!-- ============================================================
-     PANEL APODERADOS — PREMIUM 2027
+     PANEL APODERADOS — PREMIUM 2027 (FORMATO 2026)
 ============================================================ -->
 <template id="tpl-panel-apoderados">
     <div class="modulo-wrapper fade-in panel-apoderados-wrapper">
@@ -698,65 +698,25 @@
                 <select id="pap-select-anio" class="m-select" onchange="pap_onChangeAnio()"></select>
             </div>
 
-            <!-- KPIs -->
-            <div class="kpi-grid">
-                <div class="kpi-box">
-                    <span class="kpi-label">Total firmas</span>
-                    <span class="kpi-value" id="pap-kpi-total">0</span>
-                </div>
-                <div class="kpi-box">
-                    <span class="kpi-label">Media días (SLA)</span>
-                    <span class="kpi-value" id="pap-kpi-sla">0</span>
-                </div>
-                <div class="kpi-box">
-                    <span class="kpi-label">% Videoconferencia</span>
-                    <span class="kpi-value" id="pap-kpi-vc">0%</span>
-                </div>
-                <div class="kpi-box">
-                    <span class="kpi-label">Top apoderado</span>
-                    <span class="kpi-value" id="pap-kpi-apoderado">-</span>
-                </div>
-            </div>
-
             <!-- Tabla mensual -->
-            <h3 class="mt-40">📄 Detalle por apoderado (mes a mes)</h3>
+            <h3 class="mt-40">📄 Detalle por apoderado (meses con datos)</h3>
 
             <div class="tabla-scroll-x mt-10">
                 <table id="pap-tabla-apoderados" class="table-premium table-sticky tabla-excel">
                     <thead>
-                        <tr>
-                            <th>Apoderado</th>
-                            <th>Total</th>
-                            <th>Presencial</th>
-                            <th>% Presencial</th>
-                            <th>VC</th>
-                            <th>% VC</th>
-                            <th>SLA</th>
-                            <th>Enero</th><th>Febrero</th><th>Marzo</th><th>Abril</th>
-                            <th>Mayo</th><th>Junio</th><th>Julio</th><th>Agosto</th>
-                            <th>Septiembre</th><th>Octubre</th><th>Noviembre</th><th>Diciembre</th>
+                        <tr id="pap-thead-row">
+                            <!-- Se rellena dinámicamente -->
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
 
-            <!-- Ranking -->
-            <h3 class="mt-40">📊 Ranking de apoderados (total anual)</h3>
-            <div class="dashboard-chart mt-20">
-                <canvas id="pap-chart-apoderados" height="120"></canvas>
-            </div>
-
-            <!-- Evolución mensual -->
-            <h3 class="mt-40">📈 Evolución mensual global (Presencial vs VC)</h3>
-            <div class="dashboard-chart mt-20">
-                <canvas id="pap-chart-mensual" height="120"></canvas>
-            </div>
-
         </div>
 
     </div>
 </template>
+
 
 <!-- ============================================================
      PANEL TIPO CENTRO QUE FIRMA — PREMIUM 2027
