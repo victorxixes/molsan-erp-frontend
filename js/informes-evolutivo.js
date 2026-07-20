@@ -3,6 +3,7 @@
 ============================================================ */
 async function initInformeEvolutivo() {
 
+    // ✔ Protección inmediata contra recursividad
     if (window.__EVO_RUNNING__) return;
     window.__EVO_RUNNING__ = true;
 
@@ -123,6 +124,9 @@ async function initInformeEvolutivo() {
         `;
 
     } finally {
-        window.__EVO_RUNNING__ = false;
+        // ✔ Liberamos la bandera cuando el DOM ya está completamente renderizado
+        setTimeout(() => {
+            window.__EVO_RUNNING__ = false;
+        }, 150);
     }
 }
