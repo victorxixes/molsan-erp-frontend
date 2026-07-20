@@ -45,12 +45,11 @@ async function cargarModulo(nombre) {
     cont.classList.remove("fadeUp");
     cont.style.opacity = 0;
 
-    setTimeout(() => {
-        cont.innerHTML = "";
-        cont.appendChild(tpl.content.cloneNode(true));
-        cont.classList.add("fadeUp");
-        cont.style.opacity = 1;
-    }, 80);
+    // Insertamos la plantilla SIN meter la lógica en otro setTimeout
+    cont.innerHTML = "";
+    cont.appendChild(tpl.content.cloneNode(true));
+    cont.classList.add("fadeUp");
+    cont.style.opacity = 1;
 
 
     /* ============================================================
@@ -90,99 +89,94 @@ async function cargarModulo(nombre) {
        5. INICIALIZAR MÓDULO (DESPUÉS DE INSERTAR HTML)
     ============================================================ */
     try {
-        setTimeout(async () => {
 
-            switch (nombre) {
+        switch (nombre) {
 
-                /* ============================
-                   CORE
-                ============================ */
+            /* ============================
+               CORE
+            ============================ */
 
-                case "dashboard-premium":
-                    const datos = await obtenerFirmas();
-                    datos.forEach(aplicarReglas);
-                    generarMapasPremium(datos);
-                    await initDashboardPremium();
-                    break;
-
-                case "listado":
-                    await initListado();
-                    break;
-
-                case "acta-reunion":
-                    await initActaReunion();
-                    break;
-
-                case "uploader":
-                    initUploader();
-                    break;
-
-                case "permisos":
-                    initPermisos();
-                    break;
-
-                case "backup":
-                    await initBackup();
-                    break;
-
-                case "restore":
-                    await initRestore();
-                    break;
-
-                case "informes-premium":
-                    await initInformesPremium();
-                    break;
-
-                case "informe-evolutivo":
-                    await initInformeEvolutivo();
-                    break;
-
-
-                /* ============================
-                   PANELES PREMIUM
-                ============================ */
-
-                case "panel-anual":
-                    await initPanelAnual();
-                    break;
-
-                case "panel-mensual":
-                    await initPanelMensual();
-                    break;
-
-                case "panel-apoderados":
-                    await initPanelApoderados();
-                    break;
-
-                case "panel-tipo-firma":
-                    await initPanelTipoFirma();
-                    break;
-
-                case "panel-tipo-gestion":
-                    await initPanelTipoGestion();
-                    break;
-
-                case "panel-oficinas":
-                    await initPanelOficinas();
-                    break;
-
-                case "panel-circuito":
-                    await initPanelCircuito();
-                    break;
-
-                case "panel-tipo-centroquefirma":
-                    await initPanelTipoCentroQueFirma();
-                    break;
-
-                case "panel-sla":
-                    await initPanelSLA();
-                    break;
+            case "dashboard-premium": {
+                const datos = await obtenerFirmas();
+                datos.forEach(aplicarReglas);
+                generarMapasPremium(datos);
+                await initDashboardPremium();
+                break;
             }
 
-            // 🔓 desbloqueo final del módulo
-            window.__MODULO_CARGANDO__ = false;
+            case "listado":
+                await initListado();
+                break;
 
-        }, 100);
+            case "acta-reunion":
+                await initActaReunion();
+                break;
+
+            case "uploader":
+                initUploader();
+                break;
+
+            case "permisos":
+                initPermisos();
+                break;
+
+            case "backup":
+                await initBackup();
+                break;
+
+            case "restore":
+                await initRestore();
+                break;
+
+            case "informes-premium":
+                await initInformesPremium();
+                break;
+
+            case "informe-evolutivo":
+                await initInformeEvolutivo();
+                break;
+
+
+            /* ============================
+               PANELES PREMIUM
+            ============================ */
+
+            case "panel-anual":
+                await initPanelAnual();
+                break;
+
+            case "panel-mensual":
+                await initPanelMensual();
+                break;
+
+            case "panel-apoderados":
+                await initPanelApoderados();
+                break;
+
+            case "panel-tipo-firma":
+                await initPanelTipoFirma();
+                break;
+
+            case "panel-tipo-gestion":
+                await initPanelTipoGestion();
+                break;
+
+            case "panel-oficinas":
+                await initPanelOficinas();
+                break;
+
+            case "panel-circuito":
+                await initPanelCircuito();
+                break;
+
+            case "panel-tipo-centroquefirma":
+                await initPanelTipoCentroQueFirma();
+                break;
+
+            case "panel-sla":
+                await initPanelSLA();
+                break;
+        }
 
     } catch (err) {
         console.error("❌ Error cargando el módulo:", nombre, err);
@@ -192,7 +186,9 @@ async function cargarModulo(nombre) {
                 <p>${err.message}</p>
             </div>
         `;
-        window.__MODULO_CARGANDO__ = false; // 🔓 desbloqueo en error
+    } finally {
+        // 🔓 desbloqueo final del módulo SIEMPRE fuera de cualquier setTimeout
+        window.__MODULO_CARGANDO__ = false;
     }
 
 
