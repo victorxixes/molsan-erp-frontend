@@ -9,7 +9,7 @@ async function initInformeEvolutivo() {
         return;
     }
 
-    window.__EVO_RUNNING__ = true;
+    window.__EVO_RUNNING__ = true;   // ← ACTIVADA Y NO SE LIBERA HASTA EL FINAL REAL
 
     try {
         const tabla = document.getElementById("evo-tabla");
@@ -131,9 +131,11 @@ async function initInformeEvolutivo() {
         `;
 
     } finally {
-        // ✔ Liberamos la bandera cuando el DOM ya está completamente renderizado
+
+        // ✔ NO LIBERAMOS LA BANDERA INMEDIATAMENTE
+        // ✔ ESPERAMOS A QUE EL DOM TERMINE DE RENDERIZAR
         setTimeout(() => {
             window.__EVO_RUNNING__ = false;
-        }, 500);
+        }, 500);   // ← este valor es seguro y NO causa recursión
     }
 }
