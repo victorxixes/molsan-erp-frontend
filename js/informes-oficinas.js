@@ -1,5 +1,5 @@
 /* ============================================================
-   INFORME POR OFICINA
+   INFORME POR OFICINA — GLASS LUXE 2027
 ============================================================ */
 async function generarInformeOficinas() {
 
@@ -13,7 +13,9 @@ async function generarInformeOficinas() {
     datos = datos.filter(f => f.anio == anioSel);
 
     const mapa = {};
-    datos.forEach(f => mapa[f.centro] = (mapa[f.centro] || 0) + 1);
+    datos.forEach(f => {
+        mapa[f.centro] = (mapa[f.centro] || 0) + 1;
+    });
 
     const oficinas = Object.keys(mapa);
     const totales = Object.values(mapa);
@@ -30,4 +32,19 @@ async function generarInformeOficinas() {
         type: "bar",
         data: {
             labels: oficinas,
-            datasets:
+            datasets: [{
+                label: "Firmas",
+                data: totales,
+                backgroundColor: "#6366F1"
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    }));
+}
