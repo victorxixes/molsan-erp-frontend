@@ -243,6 +243,13 @@ async function initInformeEvolutivo() {
 
     const meses = MESES_ORDEN;
 
+    /* ... TU CÓDIGO DEL INFORME EVOLUTIVO ... */
+
+    // 🔓 desbloqueo final
+    window.__EVO_RUNNING__ = false;
+}
+
+
     /* ============================
        MESES REALES DEL ÚLTIMO AÑO
     ============================= */
