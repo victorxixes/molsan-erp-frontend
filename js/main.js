@@ -6,6 +6,15 @@
 async function cargarModulo(nombre) {
 
     /* ============================================================
+       🔒 BLOQUEO ANTI-RECURSIVIDAD
+    ============================================================ */
+    if (window.__MODULO_CARGANDO__) {
+        console.warn("⛔ cargarModulo() ignorado: ya está ejecutándose.");
+        return;
+    }
+    window.__MODULO_CARGANDO__ = true;
+
+    /* ============================================================
        1. MARCAR ITEM ACTIVO EN SIDEBAR
     ============================================================ */
     document.querySelectorAll(".menu-item").forEach(i => i.classList.remove("active"));
@@ -25,6 +34,7 @@ async function cargarModulo(nombre) {
 
     if (!tpl || !cont) {
         console.error("❌ No se encontró el módulo:", nombre);
+        window.__MODULO_CARGANDO__ = false; // 🔓 desbloqueo
         return;
     }
 
@@ -49,27 +59,28 @@ async function cargarModulo(nombre) {
     if (title) {
         const nombresBonitos = {
 
-           /* CORE */
-    "dashboard-premium": "Dashboard Premium",
-    "listado":            "Listado de Firmas",
-    "uploader":           "Importación de Excel",
-    "permisos":           "Permisos del Sistema",
-    "backup":             "Backup de Datos",
-    "restore":            "Restauración de Backups",
-    "informes-premium":   "Informes Premium",
-    "informe-evolutivo":  "Informe Evolutivo",
-"acta-reunion": "Acta de reunión",
-    /* PANELES PREMIUM */
-    "panel-anual":        "Panel Anual",
-    "panel-mensual":      "Panel Mensual",
-    "panel-apoderados":   "Panel Apoderados",
-    "panel-tipo-firma":   "Panel Tipo de Firma",
-    "panel-tipo-gestion": "Panel Tipo de Gestión",
-    "panel-oficinas":     "Panel Oficinas",
-    "panel-circuito":     "Panel Circuito Notarial",
-    "panel-tipo-centroquefirma": "Panel Centro que Firma",
-    "panel-sla":          "Panel SLA / Tiempos"
-};
+            /* CORE */
+            "dashboard-premium": "Dashboard Premium",
+            "listado":            "Listado de Firmas",
+            "uploader":           "Importación de Excel",
+            "permisos":           "Permisos del Sistema",
+            "backup":             "Backup de Datos",
+            "restore":            "Restauración de Backups",
+            "informes-premium":   "Informes Premium",
+            "informe-evolutivo":  "Informe Evolutivo",
+            "acta-reunion":       "Acta de reunión",
+
+            /* PANELES PREMIUM */
+            "panel-anual":        "Panel Anual",
+            "panel-mensual":      "Panel Mensual",
+            "panel-apoderados":   "Panel Apoderados",
+            "panel-tipo-firma":   "Panel Tipo de Firma",
+            "panel-tipo-gestion": "Panel Tipo de Gestión",
+            "panel-oficinas":     "Panel Oficinas",
+            "panel-circuito":     "Panel Circuito Notarial",
+            "panel-tipo-centroquefirma": "Panel Centro que Firma",
+            "panel-sla":          "Panel SLA / Tiempos"
+        };
 
         title.textContent = nombresBonitos[nombre] || nombre;
     }
@@ -97,9 +108,10 @@ async function cargarModulo(nombre) {
                 case "listado":
                     await initListado();
                     break;
-case "acta-reunion":
-    await initActaReunion();
-    break;
+
+                case "acta-reunion":
+                    await initActaReunion();
+                    break;
 
                 case "uploader":
                     initUploader();
@@ -167,16 +179,20 @@ case "acta-reunion":
                     break;
             }
 
+            // 🔓 desbloqueo final del módulo
+            window.__MODULO_CARGANDO__ = false;
+
         }, 100);
 
     } catch (err) {
-        console.error("❌ Error cargando módulo:", nombre, err);
+        console.error("❌ Error cargando el módulo:", nombre, err);
         cont.innerHTML = `
             <div class="card-glass error-box fadeUp">
                 <h3>Error cargando el módulo</h3>
                 <p>${err.message}</p>
             </div>
         `;
+        window.__MODULO_CARGANDO__ = false; // 🔓 desbloqueo en error
     }
 
 
@@ -200,6 +216,8 @@ window.addEventListener("DOMContentLoaded", async () => {
     // ✔ Cargar Dashboard Premium por defecto
     cargarModulo("dashboard-premium");
 });
+
+
 /* ============================================================
    RESET COMPLETO DEL SISTEMA — BORRAR INDEXEDDB
 ============================================================ */
@@ -224,4 +242,3 @@ function molsan_resetDB() {
 
     location.reload();
 }
-
