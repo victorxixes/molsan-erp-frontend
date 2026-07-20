@@ -139,6 +139,9 @@ function pap_renderTablaApoderados(info) {
         Object.values(info.apoderados).some(a => a.meses[m] > 0)
     );
 
+    // ⛔ ESTA LÍNEA DEBE IR AQUÍ (FUERA DEL MAP)
+    pap_renderThead(mesesConDatos);
+
     // 2) Construcción de lista
     const lista = Object.entries(info.apoderados).map(([nombre, a]) => {
 
@@ -182,6 +185,10 @@ function pap_renderTablaApoderados(info) {
         tbody.appendChild(tr);
     }
 }
+
+/* ============================================================
+   THEAD DINÁMICO
+============================================================ */
 function pap_renderThead(mesesConDatos) {
     const theadRow = document.getElementById("pap-thead-row");
     if (!theadRow) return;
