@@ -182,3 +182,15 @@ function pap_renderTablaApoderados(info) {
         tbody.appendChild(tr);
     }
 }
+function pap_renderThead(mesesConDatos) {
+    const theadRow = document.getElementById("pap-thead-row");
+    if (!theadRow) return;
+
+    theadRow.innerHTML = `
+        <th>Apoderado</th>
+        ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
+        <th>Total</th>
+        ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
+        <th>%Total</th>
+    `;
+}
