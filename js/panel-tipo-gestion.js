@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL TIPO GESTIÓN — PREMIUM 2027 (VERSIÓN FINAL)
+   PANEL TIPO GESTIÓN — PREMIUM 2027 (FORMATO 2026)
 ============================================================ */
 
 let PTG_DATOS = [];
@@ -28,75 +28,55 @@ async function initPanelTipoGestion() {
     document.getElementById("ptg-select-anio")
         .addEventListener("change", ptg_onChangeAnio);
 }
-
 /* ============================================================
-   AGRUPAR POR AÑO → TIPO GESTIÓN → MES
+   AGRUPAR POR AÑO → TIPO GESTIÓN → MESES (FORMATO NUEVO)
 ============================================================ */
 function ptg_groupByAnio(datos) {
-    const map = {};
 
     const mesesValidos = [
         "enero","febrero","marzo","abril","mayo","junio",
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
-    const currentYear = new Date().getFullYear();
-    const currentMonthIndex = new Date().getMonth();
+    const map = {};
 
     for (const f of datos) {
 
         const anio = Number(f.anio);
-        if (!anio) continue;
-
-        const mes = (f.mes || "").toLowerCase().trim();
-        const idxMes = mesesValidos.indexOf(mes);
-        if (idxMes === -1) continue;
-
-        if (anio === currentYear && idxMes > currentMonthIndex) continue;
+        if (!anio || isNaN(anio)) continue;
 
         const tipo = f.tipo_gestion || "Con provisión";
-        const dias = Number(f.dias);
+        const mes = (f.mes || "").toLowerCase().trim();
+        if (!mesesValidos.includes(mes)) continue;
 
-        if (!map[anio]) map[anio] = {};
-
-        if (!map[anio][tipo]) {
-            map[anio][tipo] = {
-                total: 0,
-                con: 0,
-                sin: 0,
-                slaCon: { suma: 0, cuenta: 0 },
-                slaSin: { suma: 0, cuenta: 0 },
-                meses: {}
+        if (!map[anio]) {
+            map[anio] = {
+                tipos: {},
+                mesesConDatos: new Set()
             };
         }
 
-        const r = map[anio][tipo];
+        const r = map[anio];
 
-        if (!r.meses[mes]) {
-            r.meses[mes] = { total: 0 };
+        if (!r.tipos[tipo]) {
+            r.tipos[tipo] = {
+                total: 0,
+                meses: {}
+            };
+
+            mesesValidos.forEach(m => r.tipos[tipo].meses[m] = 0);
         }
 
-        r.total++;
-        r.meses[mes].total++;
+        const t = r.tipos[tipo];
 
-        if (tipo === "Con provisión") {
-            r.con++;
-            if (dias > 0) {
-                r.slaCon.suma += dias;
-                r.slaCon.cuenta++;
-            }
-        } else {
-            r.sin++;
-            if (dias > 0) {
-                r.slaSin.suma += dias;
-                r.slaSin.cuenta++;
-            }
-        }
+        t.total++;
+        t.meses[mes]++;
+
+        r.mesesConDatos.add(mes);
     }
 
     return map;
 }
-
 /* ============================================================
    SELECT AÑOS
 ============================================================ */
@@ -123,7 +103,6 @@ function ptg_selectUltimoAnio() {
     sel.value = sel.options[sel.options.length - 1].value;
     ptg_onChangeAnio();
 }
-
 /* ============================================================
    CAMBIO DE AÑO
 ============================================================ */
@@ -135,48 +114,12 @@ function ptg_onChangeAnio() {
     const info = PTG_POR_ANIO[anio];
     if (!info) return;
 
-    ptg_renderKpis(info);
+    info.anio = anio;
+
     ptg_renderTabla(info);
 }
-
 /* ============================================================
-   KPIs
-============================================================ */
-function ptg_renderKpis(info) {
-    let total = 0;
-    let con = 0;
-    let sin = 0;
-
-    let slaCon = 0;
-    let slaSin = 0;
-
-    for (const tipo in info) {
-        const r = info[tipo];
-
-        total += r.total;
-        con += r.con;
-        sin += r.sin;
-
-        if (r.slaCon.cuenta > 0) {
-            slaCon += r.slaCon.suma / r.slaCon.cuenta;
-        }
-        if (r.slaSin.cuenta > 0) {
-            slaSin += r.slaSin.suma / r.slaSin.cuenta;
-        }
-    }
-
-    const pctCon = total ? ((con / total) * 100).toFixed(1) + "%" : "0%";
-    const pctSin = total ? ((sin / total) * 100).toFixed(1) + "%" : "0%";
-
-    document.getElementById("ptg-kpi-total").textContent = total;
-    document.getElementById("ptg-kpi-con").textContent = pctCon;
-    document.getElementById("ptg-kpi-sin").textContent = pctSin;
-    document.getElementById("ptg-kpi-sla-con").textContent = slaCon.toFixed(1);
-    document.getElementById("ptg-kpi-sla-sin").textContent = slaSin.toFixed(1);
-}
-
-/* ============================================================
-   TABLA DETALLE (CON MESES)
+   TABLA DETALLE TIPO GESTIÓN — FORMATO NUEVO 2026 + SUMATORIO FINAL
 ============================================================ */
 function ptg_renderTabla(info) {
     const tbody = document.querySelector("#ptg-tabla-gestion tbody");
@@ -189,49 +132,93 @@ function ptg_renderTabla(info) {
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
-    const lista = Object.entries(info).map(([tipo, r]) => {
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth();
 
-        const pctCon = r.total ? ((r.con / r.total) * 100).toFixed(1) + "%" : "0%";
-        const pctSin = r.total ? ((r.sin / r.total) * 100).toFixed(1) + "%" : "0%";
+    // 1) Meses con datos reales
+    const mesesConDatos = mesesOrden.filter(m =>
+        Object.values(info.tipos).some(t => t.meses[m] > 0)
+    );
 
-        const slaCon = r.slaCon.cuenta ? (r.slaCon.suma / r.slaCon.cuenta).toFixed(1) : "0";
-        const slaSin = r.slaSin.cuenta ? (r.slaSin.suma / r.slaSin.cuenta).toFixed(1) : "0";
+    // ⭐ Encabezado dinámico
+    ptg_renderThead(mesesConDatos);
 
-        const meses = mesesOrden.map(m => {
-            const mm = r.meses[m];
-            return mm ? mm.total : 0;
+    // 2) Construcción de lista
+    const lista = Object.entries(info.tipos).map(([tipo, t]) => {
+
+        const valoresMes = mesesConDatos.map(m => {
+            const idx = mesesOrden.indexOf(m);
+            if (info.anio === currentYear && idx > currentMonthIndex) return "";
+            return t.meses[m] || 0;
+        });
+
+        const totalVisible = valoresMes.reduce((acc, v) => acc + (v || 0), 0);
+
+        const porcentajesMes = valoresMes.map(v => {
+            if (v === "" || totalVisible === 0) return "";
+            return ((v / totalVisible) * 100).toFixed(1) + "%";
         });
 
         return {
             tipo,
-            total: r.total,
-            con: r.con,
-            sin: r.sin,
-            pctCon,
-            pctSin,
-            slaCon,
-            slaSin,
-            meses
+            valoresMes,
+            totalVisible,
+            porcentajesMes
         };
     });
 
-    lista.sort((a,b)=>b.total - a.total);
+    lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
+    // 3) Pintar filas
     for (const row of lista) {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
             <td>${row.tipo}</td>
-            <td>${row.total}</td>
-            <td>${row.con}</td>
-            <td>${row.sin}</td>
-            <td>${row.pctCon}</td>
-            <td>${row.pctSin}</td>
-            <td>${row.slaCon}</td>
-            <td>${row.slaSin}</td>
-            ${row.meses.map(v => `<td>${v}</td>`).join("")}
+            ${row.valoresMes.map(v => `<td>${v}</td>`).join("")}
+            <td>${row.totalVisible}</td>
+            ${row.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
+            <td>100%</td>
         `;
 
         tbody.appendChild(tr);
     }
+
+    // ⭐ 4) SUMATORIO FINAL
+    const sumatorioMeses = mesesConDatos.map(m =>
+        lista.reduce((acc, row) => acc + (row.valoresMes[mesesConDatos.indexOf(m)] || 0), 0)
+    );
+
+    const sumatorioTotal = sumatorioMeses.reduce((acc, v) => acc + v, 0);
+
+    const trSum = document.createElement("tr");
+    trSum.classList.add("fila-sumatorio");
+
+    trSum.innerHTML = `
+        <td><b>TOTAL</b></td>
+        ${sumatorioMeses.map(v => `<td><b>${v}</b></td>`).join("")}
+        <td><b>${sumatorioTotal}</b></td>
+        ${sumatorioMeses.map(v => {
+            if (sumatorioTotal === 0) return "<td></td>";
+            return `<td><b>${((v / sumatorioTotal) * 100).toFixed(1)}%</b></td>`;
+        }).join("")}
+        <td><b>100%</b></td>
+    `;
+
+    tbody.appendChild(trSum);
+}
+/* ============================================================
+   THEAD DINÁMICO
+============================================================ */
+function ptg_renderThead(mesesConDatos) {
+    const theadRow = document.getElementById("ptg-thead-row");
+    if (!theadRow) return;
+
+    theadRow.innerHTML = `
+        <th>Tipo gestión</th>
+        ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
+        <th>Total</th>
+        ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
+        <th>%Total</th>
+    `;
 }
