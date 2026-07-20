@@ -1,10 +1,9 @@
 /* ============================================================
-   PANEL OFICINAS — PREMIUM 2027 (VERSIÓN FINAL)
+   PANEL OFICINAS — PREMIUM 2027 (FORMATO 2026)
 ============================================================ */
 
 let POF_DATOS = [];
 let POF_POR_ANIO = {};
-let POF_CHART = null;
 
 /* ============================================================
    INIT
@@ -31,80 +30,54 @@ async function initPanelOficinas() {
 }
 
 /* ============================================================
-   AGRUPAR POR AÑO → OFICINA → MES
+   AGRUPAR POR AÑO → OFICINA → MESES (FORMATO NUEVO)
 ============================================================ */
 function pof_groupByAnioOficina(datos) {
-    const map = {};
 
     const mesesValidos = [
         "enero","febrero","marzo","abril","mayo","junio",
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
-    const currentYear = new Date().getFullYear();
-    const currentMonthIndex = new Date().getMonth(); // 0 = enero
+    const map = {};
 
     for (const f of datos) {
 
         const anio = Number(f.anio);
-        if (!anio) continue;
+        if (!anio || isNaN(anio)) continue;
 
         const mes = (f.mes || "").toLowerCase().trim();
-        const idxMes = mesesValidos.indexOf(mes);
+        if (!mesesValidos.includes(mes)) continue;
 
-        if (idxMes === -1) continue;
+        // Normalizar oficina
+        let oficinaRaw = String(f.oficina || "").trim();
+        let oficinaNum = oficinaRaw.replace(/[^0-9]/g, "");
+        let oficina = (oficinaNum === "5316") ? "Cancela" : "Oficina";
 
-        // ❌ Mes futuro del año en curso → ignorar
-        if (anio === currentYear && idxMes > currentMonthIndex) continue;
-
-       // Normalizar oficina de forma robusta
-let oficinaRaw = String(f.oficina || "").trim();
-
-// Eliminar todo lo que no sea número (puntos, comas, espacios, decimales)
-let oficinaNum = oficinaRaw.replace(/[^0-9]/g, "");
-
-// Asignar centro real
-let oficina = (oficinaNum === "5316") ? "Cancela" : "Oficina";
-
-        const dias = Number(f.dias);
-        const esVC = (f.tipo_firma === "VideoConferencia");
-
-        if (!map[anio]) map[anio] = {};
-
-        if (!map[anio][oficina]) {
-            map[anio][oficina] = {
-                total: 0,
-                presencial: 0,
-                vc: 0,
-                sumaDias: 0,
-                cuentaDias: 0,
-                meses: {} // ← aquí guardamos los meses
+        if (!map[anio]) {
+            map[anio] = {
+                oficinas: {},
+                mesesConDatos: new Set()
             };
         }
 
-        const r = map[anio][oficina];
+        const r = map[anio];
 
-        // Inicializar mes si no existe
-        if (!r.meses[mes]) {
-            r.meses[mes] = { total: 0, presencial: 0, vc: 0 };
+        if (!r.oficinas[oficina]) {
+            r.oficinas[oficina] = {
+                total: 0,
+                meses: {}
+            };
+
+            mesesValidos.forEach(m => r.oficinas[oficina].meses[m] = 0);
         }
 
-        const m = r.meses[mes];
+        const o = r.oficinas[oficina];
 
-        // Totales
-        r.total++;
-        m.total++;
+        o.total++;
+        o.meses[mes]++;
 
-        if (esVC) {
-            r.vc++; m.vc++;
-        } else {
-            r.presencial++; m.presencial++;
-        }
-
-        if (dias > 0) {
-            r.sumaDias += dias;
-            r.cuentaDias++;
-        }
+        r.mesesConDatos.add(mes);
     }
 
     return map;
@@ -148,49 +121,13 @@ function pof_onChangeAnio() {
     const info = POF_POR_ANIO[anio];
     if (!info) return;
 
-    pof_renderKpis(info);
+    info.anio = anio;
+
     pof_renderTabla(info);
-    pof_renderChart(info);
 }
 
 /* ============================================================
-   KPIs
-============================================================ */
-function pof_renderKpis(info) {
-    let total = 0;
-    let vc = 0;
-    let sumaDias = 0;
-    let cuentaDias = 0;
-
-    let oficinaTop = "-";
-    let maxOficina = 0;
-
-    for (const oficina in info) {
-        const r = info[oficina];
-
-        total += r.total;
-        vc += r.vc;
-
-        sumaDias += r.sumaDias;
-        cuentaDias += r.cuentaDias;
-
-        if (r.total > maxOficina) {
-            maxOficina = r.total;
-            oficinaTop = oficina;
-        }
-    }
-
-    const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
-    const sla = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
-
-    document.getElementById("pof-kpi-total").textContent = total;
-    document.getElementById("pof-kpi-sla").textContent = sla;
-    document.getElementById("pof-kpi-vc").textContent = pctVC;
-    document.getElementById("pof-kpi-oficina").textContent = oficinaTop;
-}
-
-/* ============================================================
-   TABLA DETALLE (CON MESES)
+   TABLA DETALLE OFICINAS — FORMATO NUEVO 2026 + SUMATORIO FINAL
 ============================================================ */
 function pof_renderTabla(info) {
     const tbody = document.querySelector("#pof-tabla-oficinas tbody");
@@ -203,85 +140,94 @@ function pof_renderTabla(info) {
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
-    const lista = Object.entries(info).map(([nombre, o]) => {
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth();
 
-        const pctPres = o.total ? ((o.presencial / o.total) * 100).toFixed(1) + "%" : "0%";
-        const pctVC = o.total ? ((o.vc / o.total) * 100).toFixed(1) + "%" : "0%";
-        const sla = o.cuentaDias ? (o.sumaDias / o.cuentaDias).toFixed(1) : "0";
+    // 1) Meses con datos reales
+    const mesesConDatos = mesesOrden.filter(m =>
+        Object.values(info.oficinas).some(o => o.meses[m] > 0)
+    );
 
-        const meses = mesesOrden.map(m => {
-            const mm = o.meses[m];
-            return mm ? mm.total : 0;
+    // ⭐ Encabezado dinámico
+    pof_renderThead(mesesConDatos);
+
+    // 2) Construcción de lista
+    const lista = Object.entries(info.oficinas).map(([nombre, o]) => {
+
+        const valoresMes = mesesConDatos.map(m => {
+            const idx = mesesOrden.indexOf(m);
+            if (info.anio === currentYear && idx > currentMonthIndex) return "";
+            return o.meses[m] || 0;
+        });
+
+        const totalVisible = valoresMes.reduce((acc, v) => acc + (v || 0), 0);
+
+        const porcentajesMes = valoresMes.map(v => {
+            if (v === "" || totalVisible === 0) return "";
+            return ((v / totalVisible) * 100).toFixed(1) + "%";
         });
 
         return {
             nombre,
-            total: o.total,
-            presencial: o.presencial,
-            pctPres,
-            vc: o.vc,
-            pctVC,
-            sla,
-            meses
+            valoresMes,
+            totalVisible,
+            porcentajesMes
         };
     });
 
-    lista.sort((a,b)=>b.total - a.total);
+    lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    for (const ofi of lista) {
+    // 3) Pintar filas
+    for (const row of lista) {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
-            <td>${ofi.nombre}</td>
-            <td>${ofi.total}</td>
-            <td>${ofi.presencial}</td>
-            <td>${ofi.pctPres}</td>
-            <td>${ofi.vc}</td>
-            <td>${ofi.pctVC}</td>
-            <td>${ofi.sla}</td>
-            ${ofi.meses.map(v => `<td>${v}</td>`).join("")}
+            <td>${row.nombre}</td>
+            ${row.valoresMes.map(v => `<td>${v}</td>`).join("")}
+            <td>${row.totalVisible}</td>
+            ${row.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
+            <td>100%</td>
         `;
 
         tbody.appendChild(tr);
     }
+
+    // ⭐ 4) SUMATORIO FINAL
+    const sumatorioMeses = mesesConDatos.map(m =>
+        lista.reduce((acc, row) => acc + (row.valoresMes[mesesConDatos.indexOf(m)] || 0), 0)
+    );
+
+    const sumatorioTotal = sumatorioMeses.reduce((acc, v) => acc + v, 0);
+
+    const trSum = document.createElement("tr");
+    trSum.classList.add("fila-sumatorio");
+
+    trSum.innerHTML = `
+        <td><b>TOTAL</b></td>
+        ${sumatorioMeses.map(v => `<td><b>${v}</b></td>`).join("")}
+        <td><b>${sumatorioTotal}</b></td>
+        ${sumatorioMeses.map(v => {
+            if (sumatorioTotal === 0) return "<td></td>";
+            return `<td><b>${((v / sumatorioTotal) * 100).toFixed(1)}%</b></td>`;
+        }).join("")}
+        <td><b>100%</b></td>
+    `;
+
+    tbody.appendChild(trSum);
 }
 
 /* ============================================================
-   GRÁFICO
+   THEAD DINÁMICO
 ============================================================ */
-function pof_renderChart(info) {
-    const ctx = document.getElementById("pof-chart-oficinas");
-    if (!ctx) return;
+function pof_renderThead(mesesConDatos) {
+    const theadRow = document.getElementById("pof-thead-row");
+    if (!theadRow) return;
 
-    const lista = Object.entries(info)
-        .map(([nombre, o]) => ({ nombre, total: o.total }))
-        .sort((a,b)=>b.total - a.total);
-
-    const labels = lista.map(o => o.nombre);
-    const data = lista.map(o => o.total);
-
-    if (POF_CHART) POF_CHART.destroy();
-
-    POF_CHART = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels,
-            datasets: [{
-                label: "Firmas por oficina",
-                data,
-                backgroundColor: "rgba(80, 200, 255, 0.4)",
-                borderColor: "rgba(80, 200, 255, 1)",
-                borderWidth: 1.5
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false }},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
-        }
-    });
+    theadRow.innerHTML = `
+        <th>Oficina</th>
+        ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
+        <th>Total</th>
+        ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
+        <th>%Total</th>
+    `;
 }
-
