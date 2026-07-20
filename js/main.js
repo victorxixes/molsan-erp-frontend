@@ -132,10 +132,9 @@ async function cargarModulo(nombre) {
                 await initInformesPremium();
                 break;
 
-            case "informe-evolutivo":
-                await initInformeEvolutivo();
-                break;
-
+case "informe-evolutivo":
+    // NO ejecutar aquí
+    break;
 
             /* ============================
                PANELES PREMIUM
