@@ -4,7 +4,11 @@
 async function initInformeEvolutivo() {
 
     // ✔ Protección inmediata contra recursividad
-    if (window.__EVO_RUNNING__) return;
+    if (window.__EVO_RUNNING__) {
+        console.warn("⛔ initInformeEvolutivo() ignorado: ya está ejecutándose.");
+        return;
+    }
+
     window.__EVO_RUNNING__ = true;
 
     try {
@@ -12,7 +16,10 @@ async function initInformeEvolutivo() {
         const resumen = document.getElementById("evo-resumen");
         const contenedorFinal = document.getElementById("evo-final");
 
-        if (!tabla || !resumen || !contenedorFinal) return;
+        if (!tabla || !resumen || !contenedorFinal) {
+            console.warn("⛔ Elementos del informe evolutivo no encontrados.");
+            return;
+        }
 
         tabla.innerHTML = "";
 
