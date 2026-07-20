@@ -865,7 +865,7 @@
 </template>
 
 <!-- ============================================================
-     PANEL OFICINAS — PREMIUM 2027
+     PANEL OFICINAS — PREMIUM 2027 (FORMATO 2026)
 ============================================================ -->
 <template id="tpl-panel-oficinas">
     <div class="panel-wrapper fade-in">
@@ -878,39 +878,73 @@
                 <label>Año</label>
                 <select id="pof-select-anio"></select>
             </div>
+        </div>
+
+        <!-- Tabla mensual -->
+        <div class="panel-contenido mt-20">
+            <h3 class="subtitulo-modulo">Detalle por Oficina (meses con datos)</h3>
+
+            <div class="tabla-scroll-x mt-10">
+                <table id="pof-tabla-oficinas" class="table-premium table-sticky tabla-excel">
+                    <thead>
+                        <tr id="pof-thead-row">
+                            <!-- Se rellena dinámicamente -->
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</template>
+
+<!-- ============================================================
+     PANEL CIRCUITO — PREMIUM 2027
+============================================================ -->
+<template id="tpl-panel-circuito">
+    <div class="panel-wrapper fade-in">
+
+        <h2 class="titulo-modulo">🛣️ Panel Circuito</h2>
+
+        <!-- Header -->
+        <div class="panel-header">
+            <div class="panel-header-left">
+                <label>Año</label>
+                <select id="pci-select-anio"></select>
+            </div>
 
             <div class="panel-header-right kpi-panel">
                 <div class="kpi-card">
                     <div class="kpi-label">Total firmas</div>
-                    <div class="kpi-value" id="pof-kpi-total">0</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">SLA medio</div>
-                    <div class="kpi-value" id="pof-kpi-sla">0</div>
+                    <div class="kpi-value" id="pci-kpi-total">0</div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-label">% VC</div>
-                    <div class="kpi-value" id="pof-kpi-vc">0%</div>
+                    <div class="kpi-value" id="pci-kpi-vc">0%</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-label">Centro top</div>
-                    <div class="kpi-value" id="pof-kpi-oficina">-</div>
+                    <div class="kpi-label">SLA medio</div>
+                    <div class="kpi-value" id="pci-kpi-sla">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Circuito top</div>
+                    <div class="kpi-value" id="pci-kpi-circuito">-</div>
                 </div>
             </div>
         </div>
 
         <!-- Tabla mensual -->
         <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Detalle por Centro (mes a mes)</h3>
+            <h3 class="subtitulo-modulo">Detalle por Circuito (mes a mes)</h3>
 
             <div class="tabla-scroll-x mt-10">
-                <table id="pof-tabla-oficinas" class="table-premium table-sticky tabla-excel">
+                <table id="pci-tabla-circuito" class="table-premium table-sticky tabla-excel">
                     <thead>
                         <tr>
-                            <th>Centro</th>
+                            <th>Circuito</th>
                             <th>Total</th>
                             <th>Presencial</th>
-                            <th>% Presencial</th>
                             <th>VC</th>
                             <th>% VC</th>
                             <th>SLA</th>
@@ -935,59 +969,7 @@
 
         <!-- Gráfico ranking -->
         <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Ranking de Centros</h3>
-            <canvas id="pof-chart-oficinas"></canvas>
-        </div>
-
-    </div>
-</template>
-<!-- ============================================================
-     PANEL CIRCUITO — PREMIUM 2027
-============================================================ -->
-<template id="tpl-panel-circuito">
-    <div class="panel-wrapper fade-in">
-
-        <h2 class="titulo-modulo">🛣️ Panel Circuito Notarial</h2>
-
-        <div class="panel-header">
-            <div class="panel-header-left">
-                <label>Año</label>
-                <select id="pci-select-anio"></select>
-            </div>
-
-            <div class="panel-header-right kpi-panel">
-                <div class="kpi-card"><div class="kpi-label">Total firmas</div><div class="kpi-value" id="pci-kpi-total">0</div></div>
-                <div class="kpi-card"><div class="kpi-label">Circuito top</div><div class="kpi-value" id="pci-kpi-circuito">-</div></div>
-                <div class="kpi-card"><div class="kpi-label">SLA medio</div><div class="kpi-value" id="pci-kpi-sla">0</div></div>
-                <div class="kpi-card"><div class="kpi-label">% VC</div><div class="kpi-value" id="pci-kpi-vc">0%</div></div>
-            </div>
-        </div>
-
-        <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Detalle por Circuito (mes a mes)</h3>
-
-            <div class="tabla-scroll-x mt-10">
-                <table id="pci-tabla-circuito" class="table-premium table-sticky tabla-excel">
-                    <thead>
-                        <tr>
-                            <th>Circuito</th>
-                            <th>Total</th>
-                            <th>Presencial</th>
-                            <th>VC</th>
-                            <th>% VC</th>
-                            <th>SLA</th>
-                            <th>Enero</th><th>Febrero</th><th>Marzo</th><th>Abril</th>
-                            <th>Mayo</th><th>Junio</th><th>Julio</th><th>Agosto</th>
-                            <th>Septiembre</th><th>Octubre</th><th>Noviembre</th><th>Diciembre</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Distribución por Circuito</h3>
+            <h3 class="subtitulo-modulo">Ranking de Circuitos</h3>
             <canvas id="pci-chart-circuito"></canvas>
         </div>
 
