@@ -219,13 +219,14 @@ async function generarInformeGeneral() {
 ============================================================ */
 async function initInformeEvolutivo() {
 
-    // 🔒 Bloqueo anti-recursividad
+    // 🔒 Bloqueo anti-recursividad — DEBE SER LA PRIMERA LÍNEA
     if (window.__EVO_RUNNING__) {
         console.warn("⛔ initInformeEvolutivo() ignorado: ya está ejecutándose.");
         return;
     }
     window.__EVO_RUNNING__ = true;
 
+    // 🔥 IMPORTANTE: el DOM se consulta DESPUÉS del bloqueo
     const tabla = document.getElementById("evo-tabla");
     const resumen = document.getElementById("evo-resumen");
     const contenedorFinal = document.getElementById("evo-final");
@@ -243,12 +244,7 @@ async function initInformeEvolutivo() {
 
     const meses = MESES_ORDEN;
 
-    /* ... TU CÓDIGO DEL INFORME EVOLUTIVO ... */
-
-    // 🔓 desbloqueo final
-    window.__EVO_RUNNING__ = false;
 }
-
 
     /* ============================
        MESES REALES DEL ÚLTIMO AÑO
