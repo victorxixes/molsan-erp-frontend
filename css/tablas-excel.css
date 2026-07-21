@@ -124,3 +124,45 @@ body.dark .table-excel tbody tr:hover,
 body.dark .tabla-excel tbody tr:hover {
     background: rgba(255,255,255,0.08);
 }
+/* ============================
+   TABLA APODERADOS — BORDES PREMIUM
+============================ */
+
+.table-premium th.th-group {
+    background: #f0f4ff;
+    border-bottom: 2px solid #4a6cf7;
+    border-top: 2px solid #4a6cf7;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 0;
+}
+
+.table-premium thead tr:nth-child(2) th {
+    background: #fafafa;
+    border-bottom: 1px solid #d0d0d0;
+    border-right: 1px solid #e0e0e0;
+    text-align: center;
+    font-size: 13px;
+}
+
+.table-premium td {
+    border-right: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.table-premium tr.fila-sumatorio td {
+    background: #eef3ff;
+    font-weight: bold;
+    border-top: 2px solid #4a6cf7;
+}
+
+.table-premium th:first-child,
+.table-premium td:first-child {
+    border-left: 2px solid #4a6cf7;
+}
+
+.table-premium th:last-child,
+.table-premium td:last-child {
+    border-right: 2px solid #4a6cf7;
+}
