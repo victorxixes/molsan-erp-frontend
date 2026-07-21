@@ -65,13 +65,17 @@
     transition: 0.15s ease;
 }
 
-/* NUMÉRICOS — DESACTIVAMOS TABULAR-NUMS */
+/* ============================================================
+   FIX REAL — Miles SIEMPRE visibles
+============================================================ */
+
 .table-premium td.num,
 .table-premium tbody td.num,
 .table-premium tr td.num {
     text-align: right;
     font-variant-numeric: normal !important;
-    font-feature-settings: normal !important;
+    font-feature-settings: "tnum" !important;
+    white-space: nowrap !important;
 }
 
 /* CABECERA CLICKABLE (ORDENAR) */
