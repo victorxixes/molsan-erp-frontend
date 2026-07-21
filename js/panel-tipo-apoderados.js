@@ -6,18 +6,15 @@ let PAP_DATOS = [];
 let PAP_POR_ANIO = {};
 
 /* ============================================================
-   FORMATO MILES
+   FORMATO MILES — FIX DEFINITIVO
 ============================================================ */
 function formatoMiles(n) {
     if (n === null || n === undefined || n === "") return "-";
 
-    if (typeof n === "string") {
-        n = n.replace(/\./g, "");
-        n = n.replace(/,/g, "");
-        n = n.trim();
-    }
+    // Convertir SIEMPRE a número limpio
+    const limpio = Number(String(n).replace(/\./g, "").replace(/,/g, "").trim());
 
-    return Number(n).toLocaleString("es-ES");
+    return limpio.toLocaleString("es-ES");
 }
 
 /* ============================================================
