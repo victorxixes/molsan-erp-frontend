@@ -147,7 +147,18 @@ function ptf_renderTabla(info) {
     );
 
     // ⭐ Encabezado dinámico
-    ptf_renderThead(mesesConDatos);
+   function ptf_renderThead(mesesConDatos) {
+    const theadRow = document.getElementById("ptf-thead-row");
+    if (!theadRow) return;
+
+    theadRow.innerHTML = `
+        ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
+        <th>Total</th>
+        ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
+        <th>%Total</th>
+    `;
+}
+
 
     // Construcción de lista
     const lista = Object.entries(info.tipos).map(([tipo, t]) => {
