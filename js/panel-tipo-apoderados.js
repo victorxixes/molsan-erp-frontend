@@ -145,30 +145,13 @@ function pap_renderTablaApoderados(info) {
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
-    const currentYear = new Date().getFullYear();
-    const currentMonthIndex = new Date().getMonth();
+    // 👉 Siempre usamos los 12 meses, para cualquier año
+    const mesesConDatos = [...mesesOrden];
 
-    /* ============================================================
-       1) MESES CON DATOS (CORREGIDO)
-    ============================================================ */
-    const mesesConDatos = mesesOrden.filter(m => {
-        const idx = mesesOrden.indexOf(m);
-
-        // Ocultar meses futuros solo del año actual
-        if (info.anio === currentYear && idx > currentMonthIndex) return false;
-
-        // Mostrar todos los meses del año seleccionado
-        return true;
-    });
-
-    /* ============================================================
-       THEAD DINÁMICO
-    ============================================================ */
+    // THEAD dinámico
     pap_renderThead(mesesConDatos);
 
-    /* ============================================================
-       2) Totales por mes
-    ============================================================ */
+    // Totales por mes
     const totalesPorMes = mesesConDatos.map(m =>
         Object.values(info.apoderados).reduce((acc, a) => {
             const v = Number(a.meses[m] || 0);
@@ -176,16 +159,10 @@ function pap_renderTablaApoderados(info) {
         }, 0)
     );
 
-    /* ============================================================
-       3) Construcción de lista por apoderado
-    ============================================================ */
+    // Construcción de lista por apoderado
     const lista = Object.entries(info.apoderados).map(([nombre, a]) => {
 
-        const valoresMes = mesesConDatos.map(m => {
-            const idx = mesesOrden.indexOf(m);
-            if (info.anio === currentYear && idx > currentMonthIndex) return 0;
-            return Number(a.meses[m] || 0);
-        });
+        const valoresMes = mesesConDatos.map(m => Number(a.meses[m] || 0));
 
         const totalVisible = valoresMes.reduce((acc, v) => acc + v, 0);
 
@@ -203,14 +180,10 @@ function pap_renderTablaApoderados(info) {
         };
     });
 
-    /* ============================================================
-       4) Ordenar por total
-    ============================================================ */
+    // Ordenar por total
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    /* ============================================================
-       5) Pintar filas
-    ============================================================ */
+    // Pintar filas
     for (const ap of lista) {
         const tr = document.createElement("tr");
 
@@ -225,9 +198,7 @@ function pap_renderTablaApoderados(info) {
         tbody.appendChild(tr);
     }
 
-    /* ============================================================
-       6) SUMATORIO FINAL
-    ============================================================ */
+    // Sumatorio final
     const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
 
     const trSum = document.createElement("tr");
@@ -235,13 +206,9 @@ function pap_renderTablaApoderados(info) {
 
     trSum.innerHTML = `
         <td><b>TOTAL</b></td>
-
         ${totalesPorMes.map(v => `<td class="num"><b>${formatoMiles(v)}</b></td>`).join("")}
-
         <td class="num"><b>${formatoMiles(sumatorioTotal)}</b></td>
-
         ${totalesPorMes.map(v => `<td><b>100%</b></td>`).join("")}
-
         <td><b>100%</b></td>
     `;
 
