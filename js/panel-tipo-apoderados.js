@@ -227,8 +227,8 @@ function pap_renderTablaApoderados(info) {
    THEAD DINÁMICO — DOS FILAS
 ============================================================ */
 function pap_renderThead(mesesValidos) {
-    const theadRow = document.getElementById("pap-thead-row");
-    if (!theadRow) return;
+    const thead = document.getElementById("pap-thead");
+    if (!thead) return;
 
     const fila1 = `
         <tr>
@@ -247,5 +247,6 @@ function pap_renderThead(mesesValidos) {
         </tr>
     `;
 
-    theadRow.parentElement.innerHTML = fila1 + fila2;
+    thead.innerHTML = fila1 + fila2;
 }
+
