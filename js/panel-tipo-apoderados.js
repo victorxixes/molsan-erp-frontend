@@ -199,20 +199,20 @@ function pap_renderTablaApoderados(info) {
     // 4) Ordenar por total
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    // 5) Pintar filas
-    for (const ap of lista) {
-        const tr = document.createElement("tr");
+ // 5) Pintar filas
+for (const ap of lista) {
+    const tr = document.createElement("tr");
 
-        tr.innerHTML = `
-            <td>${ap.nombre}</td>
-            ${ap.valoresMes.map(v => `<td>${formatoMiles(v)}</td>`).join("")}
-            <td>${formatoMiles(ap.totalVisible)}</td>
-            ${ap.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
-            <td>100%</td>
-        `;
+    tr.innerHTML = `
+        <td>${ap.nombre}</td>
+        ${ap.valoresMes.map(v => `<td>${formatoMiles(v)}</td>`).join("")}
+        <td>${formatoMiles(ap.totalVisible)}</td>
+        ${ap.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
+        <td>100%</td>
+    `;
 
-        tbody.appendChild(tr);
-    }
+    tbody.appendChild(tr);
+}
 
     // 6) SUMATORIO FINAL
     const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
