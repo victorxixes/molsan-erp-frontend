@@ -812,24 +812,21 @@
 
             <table id="ptf-tabla-meses" class="table-premium tabla-excel table-sticky">
 
-                <!-- ============================
-                     THEAD (2 filas, centrado)
-                ============================= -->
-               <thead>
-    <tr>
-        <th rowspan="2">Tipo firma</th>
-        <th colspan="7" class="th-group">Firmas realizadas</th>
-        <th colspan="7" class="th-group">% Firmas realizadas</th>
-    </tr>
-    <tr id="ptf-thead-row"></tr>
-</thead>
+                <thead>
+                    <tr>
+                        <th rowspan="2">Tipo firma</th>
+                        <th colspan="7" class="th-group">Firmas realizadas</th>
+                        <th colspan="7" class="th-group">% Firmas realizadas</th>
+                    </tr>
+
+                    <!-- ⭐ ESTA FILA ES IMPRESCINDIBLE -->
+                    <tr id="ptf-thead-row"></tr>
+                </thead>
 
                 <tbody></tbody>
 
-                <!-- ============================
-                     TOTAL al pie
-                ============================= -->
                 <tfoot>
+                    <!-- ⭐ ESTA FILA ES IMPRESCINDIBLE -->
                     <tr class="fila-sumatorio" id="ptf-total-row"></tr>
                 </tfoot>
 
