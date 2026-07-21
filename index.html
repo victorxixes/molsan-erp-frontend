@@ -792,15 +792,11 @@
 
     </div>
 </template>
-<!-- ============================================================
-     PANEL TIPO FIRMA — PREMIUM 2027 (FORMATO 2026)
-============================================================ -->
 <template id="tpl-panel-tipo-firma">
     <div class="panel-wrapper fade-in">
 
-        <h2 class="titulo-modulo">✍️ Panel Tipo de Firma</h2>
+        <h2 class="titulo-modulo">✍️ Panel Tipo Firma</h2>
 
-        <!-- Header -->
         <div class="panel-header">
             <div class="panel-header-left">
                 <label>Año</label>
@@ -808,24 +804,34 @@
             </div>
         </div>
 
-        <!-- Tabla mensual -->
         <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Detalle por Tipo de Firma (meses con datos)</h3>
+            <h3 class="subtitulo-modulo">Detalle por tipo de firma</h3>
 
-            <div class="tabla-scroll-x mt-10">
-                <table id="ptf-tabla-meses" class="table-premium table-sticky tabla-excel">
-                    <thead>
-                        <tr id="ptf-thead-row">
-                            <!-- Se rellena dinámicamente -->
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+            <table id="ptf-tabla-meses" class="table-premium tabla-excel table-sticky">
+                <thead>
+                    <tr>
+                        <th rowspan="2">Tipo firma</th>
+                        <th colspan="100" class="th-group">Firmas realizadas</th>
+                        <th colspan="100" class="th-group">% Firmas realizadas</th>
+                    </tr>
+                    <tr id="ptf-thead-row">
+                        <!-- Se rellena dinámicamente desde JS -->
+                    </tr>
+                </thead>
+
+                <tbody></tbody>
+
+                <tfoot>
+                    <tr class="fila-sumatorio" id="ptf-total-row">
+                        <!-- Se rellena dinámicamente desde JS -->
+                    </tr>
+                </tfoot>
+            </table>
         </div>
 
     </div>
 </template>
+
 
 <!-- ============================================================
      PANEL TIPO GESTIÓN — PREMIUM 2027 (FORMATO 2026)
