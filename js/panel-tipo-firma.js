@@ -123,7 +123,7 @@ function ptf_onChangeAnio() {
 }
 
 /* ============================================================
-   TABLA DETALLE TIPO FIRMA — FORMATO PREMIUM 2027
+   TABLA DETALLE TIPO FIRMA — PREMIUM 2027
 ============================================================ */
 function ptf_renderTabla(info) {
     const tbody = document.querySelector("#ptf-tabla-meses tbody");
@@ -146,18 +146,8 @@ function ptf_renderTabla(info) {
         Object.values(info.tipos).some(t => t.meses[m] > 0)
     );
 
-    // ⭐ Encabezado dinámico
-  function ptf_renderThead(mesesConDatos) {
-    const theadRow = document.getElementById("ptf-thead-row");
-    if (!theadRow) return;
-
-    theadRow.innerHTML = `
-        ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
-        <th>Total</th>
-        ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
-        <th>%Total</th>
-    `;
-}
+    // ⭐ Encabezado dinámico (llama a la función correcta)
+    ptf_renderThead(mesesConDatos);
 
     // Construcción de lista
     const lista = Object.entries(info.tipos).map(([tipo, t]) => {
@@ -201,7 +191,7 @@ function ptf_renderTabla(info) {
     }
 
     /* ============================================================
-       TOTAL AL PIE (igual que Apoderados)
+       TOTAL AL PIE
     ============================================================= */
 
     const totalesMes = mesesConDatos.map(m =>
@@ -225,14 +215,13 @@ function ptf_renderTabla(info) {
 }
 
 /* ============================================================
-   THEAD DINÁMICO
+   THEAD DINÁMICO — ⭐ ESTA ES LA BUENA ⭐
 ============================================================ */
 function ptf_renderThead(mesesConDatos) {
     const theadRow = document.getElementById("ptf-thead-row");
     if (!theadRow) return;
 
     theadRow.innerHTML = `
-        <th>Tipo firma</th>
         ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
         <th>Total</th>
         ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
