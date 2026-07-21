@@ -79,7 +79,7 @@ function pap_groupByAnio(datos) {
 
         const a = r.apoderados[apoderado];
 
-        // contamos firmas (1 por registro)
+        // 👉 Cada registro es UNA firma → contamos
         a.total++;
         a.meses[mes]++;
 
@@ -149,22 +149,31 @@ function pap_renderTablaApoderados(info) {
     const currentYear = new Date().getFullYear();
     const currentMonthIndex = new Date().getMonth();
 
-    // 1) Meses con datos reales y sin futuros del año actual
+    /* ============================================================
+       1) MESES CON DATOS REALES
+    ============================================================ */
     const mesesConDatos = mesesOrden.filter(m => {
+
         const idx = mesesOrden.indexOf(m);
 
+        // Ocultar meses futuros del año actual
         if (info.anio === currentYear && idx > currentMonthIndex) return false;
 
+        // Ocultar meses sin firmas
         const totalMes = Object.values(info.apoderados)
             .reduce((acc, a) => acc + Number(a.meses[m] || 0), 0);
 
         return totalMes > 0;
     });
 
-    // THEAD dinámico
+    /* ============================================================
+       THEAD DINÁMICO
+    ============================================================ */
     pap_renderThead(mesesConDatos);
 
-    // 2) Totales por mes
+    /* ============================================================
+       2) Totales por mes
+    ============================================================ */
     const totalesPorMes = mesesConDatos.map(m =>
         Object.values(info.apoderados).reduce((acc, a) => {
             const v = Number(a.meses[m] || 0);
@@ -172,7 +181,9 @@ function pap_renderTablaApoderados(info) {
         }, 0)
     );
 
-    // 3) Construcción de lista por apoderado
+    /* ============================================================
+       3) Construcción de lista por apoderado
+    ============================================================ */
     const lista = Object.entries(info.apoderados).map(([nombre, a]) => {
 
         const valoresMes = mesesConDatos.map(m => Number(a.meses[m] || 0));
@@ -193,10 +204,14 @@ function pap_renderTablaApoderados(info) {
         };
     });
 
-    // 4) Ordenar por total
+    /* ============================================================
+       4) Ordenar por total
+    ============================================================ */
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    // 5) Pintar filas
+    /* ============================================================
+       5) Pintar filas
+    ============================================================ */
     for (const ap of lista) {
         const tr = document.createElement("tr");
 
@@ -211,7 +226,9 @@ function pap_renderTablaApoderados(info) {
         tbody.appendChild(tr);
     }
 
-    // 6) SUMATORIO FINAL
+    /* ============================================================
+       6) SUMATORIO FINAL
+    ============================================================ */
     const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
 
     const trSum = document.createElement("tr");
