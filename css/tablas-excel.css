@@ -1,6 +1,5 @@
 /* ============================================================
    TABLAS EXCEL — GLASS LUXE 2027
-   Usado en Paneles, Informes Dinámicos y Premium
 ============================================================ */
 
 /* CONTENEDOR SCROLL */
@@ -66,12 +65,13 @@
     transition: 0.15s ease;
 }
 
-/* NUMÉRICOS */
-.table-excel td.num,
-.tabla-excel td.num,
-.tabla-panel td.num {
+/* NUMÉRICOS — DESACTIVAMOS TABULAR-NUMS */
+.table-premium td.num,
+.table-premium tbody td.num,
+.table-premium tr td.num {
     text-align: right;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: normal !important;
+    font-feature-settings: normal !important;
 }
 
 /* CABECERA CLICKABLE (ORDENAR) */
@@ -92,7 +92,7 @@
     border-top-right-radius: 10px;
 }
 
-/* FOOTER (si existe) */
+/* FOOTER */
 .table-excel tfoot td {
     background: rgba(255,255,255,0.9);
     font-weight: 600;
@@ -100,33 +100,8 @@
 }
 
 /* ============================================================
-   MODO OSCURO (si lo activas en el futuro)
-============================================================ */
-body.dark .table-excel,
-body.dark .tabla-excel,
-body.dark .tabla-panel {
-    background: rgba(20,20,20,0.55);
-    color: #eee;
-}
-
-body.dark .table-excel thead th,
-body.dark .tabla-excel thead th {
-    background: rgba(30,30,30,0.85);
-    color: #fff;
-}
-
-body.dark .table-excel tbody tr:nth-child(even),
-body.dark .tabla-excel tbody tr:nth-child(even) {
-    background: rgba(255,255,255,0.05);
-}
-
-body.dark .table-excel tbody tr:hover,
-body.dark .tabla-excel tbody tr:hover {
-    background: rgba(255,255,255,0.08);
-}
-/* ============================
    TABLA APODERADOS — BORDES PREMIUM
-============================ */
+============================================================ */
 
 .table-premium th.th-group {
     background: #f0f4ff;
@@ -165,14 +140,4 @@ body.dark .tabla-excel tbody tr:hover {
 .table-premium th:last-child,
 .table-premium td:last-child {
     border-right: 2px solid #4a6cf7;
-}
-/* ============================================================
-   FIX REAL — Miles SIEMPRE visibles
-============================================================ */
-
-.table-premium td.num,
-.table-premium tbody td.num,
-.table-premium tr td.num {
-    font-variant-numeric: normal !important;
-    font-feature-settings: normal !important;
 }
