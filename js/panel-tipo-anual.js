@@ -14,6 +14,13 @@ function paSafeSet(id, value) {
     return true;
 }
 
+/* ============================================================
+   FORMATO MILES
+============================================================ */
+function paMiles(n) {
+    return Number(n).toLocaleString("es-ES");
+}
+
 async function initPanelAnual() {
     console.log("📆 initPanelAnual() ejecutado");
 
@@ -158,7 +165,7 @@ function pa_renderKpis(info) {
     const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
     const sla = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
 
-    paSafeSet("pa-kpi-total", total);
+    paSafeSet("pa-kpi-total", paMiles(total));
     paSafeSet("pa-kpi-sla", sla);
     paSafeSet("pa-kpi-vc", pctVC);
     paSafeSet("pa-kpi-top-mes", topMes);
@@ -185,7 +192,6 @@ function pa_renderTabla(info, anio) {
 
         const idxMes = mesesOrden.indexOf(mes);
 
-        // ❌ NO mostrar meses futuros del año en curso
         if (anio === currentYear && idxMes > currentMonthIndex) continue;
 
         const r = info[mes];
@@ -198,9 +204,9 @@ function pa_renderTabla(info, anio) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${mes}</td>
-            <td>${r.total}</td>
-            <td>${r.presencial}</td>
-            <td>${r.vc}</td>
+            <td class="num">${paMiles(r.total)}</td>
+            <td class="num">${paMiles(r.presencial)}</td>
+            <td class="num">${paMiles(r.vc)}</td>
             <td>${pctVC}</td>
             <td>${sla}</td>
         `;
@@ -209,7 +215,7 @@ function pa_renderTabla(info, anio) {
 }
 
 /* ============================================================
-   GRÁFICO EVOLUCIÓN ANUAL (OCULTA MESES FUTUROS)
+   GRÁFICO EVOLUCIÓN ANUAL
 ============================================================ */
 function pa_renderChart(info, anio) {
     const ctx = document.getElementById("pa-chart-anual");
@@ -228,7 +234,7 @@ function pa_renderChart(info, anio) {
         return info[m];
     });
 
-    const data = meses.map(m => info[m].total);
+    const data = meses.map(m => Number(info[m].total));
 
     if (PA_CHART) PA_CHART.destroy();
 
