@@ -5,9 +5,7 @@
 let PTG_DATOS = [];
 let PTG_POR_ANIO = {};
 
-/* ============================================================
-   INIT
-============================================================ */
+/* INIT */
 async function initPanelTipoGestion() {
     console.log("📄 initPanelTipoGestion() ejecutado");
 
@@ -29,9 +27,7 @@ async function initPanelTipoGestion() {
         .addEventListener("change", ptg_onChangeAnio);
 }
 
-/* ============================================================
-   AGRUPAR POR AÑO → TIPO GESTIÓN → MESES
-============================================================ */
+/* AGRUPAR POR AÑO → TIPO GESTIÓN → MESES */
 function ptg_groupByAnio(datos) {
 
     const mesesValidos = [
@@ -79,9 +75,7 @@ function ptg_groupByAnio(datos) {
     return map;
 }
 
-/* ============================================================
-   SELECT AÑOS
-============================================================ */
+/* SELECT AÑOS */
 function ptg_fillSelectAnios() {
     const sel = document.getElementById("ptg-select-anio");
     if (!sel) return;
@@ -106,9 +100,7 @@ function ptg_selectUltimoAnio() {
     ptg_onChangeAnio();
 }
 
-/* ============================================================
-   CAMBIO DE AÑO
-============================================================ */
+/* CAMBIO DE AÑO */
 function ptg_onChangeAnio() {
     const sel = document.getElementById("ptg-select-anio");
     if (!sel) return;
@@ -122,9 +114,7 @@ function ptg_onChangeAnio() {
     ptg_renderTabla(info);
 }
 
-/* ============================================================
-   TABLA DETALLE TIPO GESTIÓN — PREMIUM 2027
-============================================================ */
+/* TABLA DETALLE TIPO GESTIÓN */
 function ptg_renderTabla(info) {
     const tbody = document.querySelector("#ptg-tabla-gestion tbody");
     if (!tbody) return;
@@ -144,10 +134,10 @@ function ptg_renderTabla(info) {
         Object.values(info.tipos).some(t => t.meses[m] > 0)
     );
 
-    // ⭐ Encabezado dinámico
+    // Encabezado dinámico
     ptg_renderThead(mesesConDatos);
 
-    // Construcción de lista
+    // Filas por tipo de gestión
     const lista = Object.entries(info.tipos).map(([tipo, t]) => {
 
         const valoresMes = mesesConDatos.map(m => {
@@ -173,14 +163,13 @@ function ptg_renderTabla(info) {
 
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    // Pintar filas
     for (const row of lista) {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
             <td>${row.tipo}</td>
-            ${row.valoresMes.map(v => `<td>${v}</td>`).join("")}
-            <td>${row.totalVisible}</td>
+            ${row.valoresMes.map(v => `<td class="num">${v}</td>`).join("")}
+            <td class="num">${row.totalVisible}</td>
             ${row.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
             <td>100%</td>
         `;
@@ -188,38 +177,34 @@ function ptg_renderTabla(info) {
         tbody.appendChild(tr);
     }
 
-    /* ============================================================
-       SUMATORIO FINAL — %Total debe sumar 100%
-    ============================================================= */
+    /* SUMATORIO FINAL (TOTAL + % que cuadra) */
 
-    const sumatorioMeses = mesesConDatos.map(m =>
-        lista.reduce((acc, row) => acc + (row.valoresMes[mesesConDatos.indexOf(m)] || 0), 0)
+    const totalesMes = mesesConDatos.map(m =>
+        Object.values(info.tipos).reduce((acc, t) => acc + (t.meses[m] || 0), 0)
     );
 
-    const sumatorioTotal = sumatorioMeses.reduce((acc, v) => acc + v, 0);
+    const totalGeneral = totalesMes.reduce((acc, v) => acc + v, 0);
 
-    const porcentajesTotalesMes = sumatorioMeses.map(v => {
-        if (sumatorioTotal === 0) return "";
-        return ((v / sumatorioTotal) * 100).toFixed(1) + "%";
+    const porcentajesTotalesMes = totalesMes.map(v => {
+        if (totalGeneral === 0) return "";
+        return ((v / totalGeneral) * 100).toFixed(1) + "%";
     });
 
-    const trSum = document.createElement("tr");
-    trSum.classList.add("fila-sumatorio");
+    const trTotal = document.createElement("tr");
+    trTotal.classList.add("fila-sumatorio");
 
-    trSum.innerHTML = `
+    trTotal.innerHTML = `
         <td><b>TOTAL</b></td>
-        ${sumatorioMeses.map(v => `<td><b>${v}</b></td>`).join("")}
-        <td><b>${sumatorioTotal}</b></td>
+        ${totalesMes.map(v => `<td class="num"><b>${v}</b></td>`).join("")}
+        <td class="num"><b>${totalGeneral}</b></td>
         ${porcentajesTotalesMes.map(p => `<td><b>${p}</b></td>`).join("")}
         <td><b>100%</b></td>
     `;
 
-    tbody.appendChild(trSum);
+    tbody.appendChild(trTotal);
 }
 
-/* ============================================================
-   THEAD DINÁMICO — CENTRADO PERFECTO
-============================================================ */
+/* THEAD DINÁMICO */
 function ptg_renderThead(mesesConDatos) {
     const theadRow = document.getElementById("ptg-thead-row");
     if (!theadRow) return;
