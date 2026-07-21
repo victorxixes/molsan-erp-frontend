@@ -148,21 +148,27 @@ function pap_renderTablaApoderados(info) {
     const currentYear = new Date().getFullYear();
     const currentMonthIndex = new Date().getMonth();
 
-// 1) Meses con datos reales
-const mesesConDatos = mesesOrden.filter(m => {
-    const idx = mesesOrden.indexOf(m);
+    /* ============================================================
+       1) MESES CON DATOS (CORREGIDO)
+    ============================================================ */
+    const mesesConDatos = mesesOrden.filter(m => {
+        const idx = mesesOrden.indexOf(m);
 
-    // Ocultar meses futuros solo del año actual
-    if (info.anio === currentYear && idx > currentMonthIndex) return false;
+        // Ocultar meses futuros solo del año actual
+        if (info.anio === currentYear && idx > currentMonthIndex) return false;
 
-    // Mostrar todos los meses del año seleccionado
-    return true;
-});
+        // Mostrar todos los meses del año seleccionado
+        return true;
+    });
 
-    // THEAD dinámico
+    /* ============================================================
+       THEAD DINÁMICO
+    ============================================================ */
     pap_renderThead(mesesConDatos);
 
-    // 2) Totales por mes
+    /* ============================================================
+       2) Totales por mes
+    ============================================================ */
     const totalesPorMes = mesesConDatos.map(m =>
         Object.values(info.apoderados).reduce((acc, a) => {
             const v = Number(a.meses[m] || 0);
@@ -170,7 +176,9 @@ const mesesConDatos = mesesOrden.filter(m => {
         }, 0)
     );
 
-    // 3) Construcción de lista por apoderado
+    /* ============================================================
+       3) Construcción de lista por apoderado
+    ============================================================ */
     const lista = Object.entries(info.apoderados).map(([nombre, a]) => {
 
         const valoresMes = mesesConDatos.map(m => {
@@ -195,25 +203,31 @@ const mesesConDatos = mesesOrden.filter(m => {
         };
     });
 
-    // 4) Ordenar por total
+    /* ============================================================
+       4) Ordenar por total
+    ============================================================ */
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
- // 5) Pintar filas
-for (const ap of lista) {
-    const tr = document.createElement("tr");
+    /* ============================================================
+       5) Pintar filas
+    ============================================================ */
+    for (const ap of lista) {
+        const tr = document.createElement("tr");
 
-    tr.innerHTML = `
-        <td>${ap.nombre}</td>
-        ${ap.valoresMes.map(v => `<td>${formatoMiles(v)}</td>`).join("")}
-        <td>${formatoMiles(ap.totalVisible)}</td>
-        ${ap.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
-        <td>100%</td>
-    `;
+        tr.innerHTML = `
+            <td>${ap.nombre}</td>
+            ${ap.valoresMes.map(v => `<td class="num">${formatoMiles(v)}</td>`).join("")}
+            <td class="num">${formatoMiles(ap.totalVisible)}</td>
+            ${ap.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
+            <td>100%</td>
+        `;
 
-    tbody.appendChild(tr);
-}
+        tbody.appendChild(tr);
+    }
 
-    // 6) SUMATORIO FINAL
+    /* ============================================================
+       6) SUMATORIO FINAL
+    ============================================================ */
     const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
 
     const trSum = document.createElement("tr");
@@ -222,9 +236,9 @@ for (const ap of lista) {
     trSum.innerHTML = `
         <td><b>TOTAL</b></td>
 
-        ${totalesPorMes.map(v => `<td><b>${formatoMiles(v)}</b></td>`).join("")}
+        ${totalesPorMes.map(v => `<td class="num"><b>${formatoMiles(v)}</b></td>`).join("")}
 
-        <td><b>${formatoMiles(sumatorioTotal)}</b></td>
+        <td class="num"><b>${formatoMiles(sumatorioTotal)}</b></td>
 
         ${totalesPorMes.map(v => `<td><b>100%</b></td>`).join("")}
 
