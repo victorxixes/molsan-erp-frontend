@@ -159,7 +159,6 @@ const mesesConDatos = mesesOrden.filter(m => {
     return true;
 });
 
-
     // THEAD dinámico
     pap_renderThead(mesesConDatos);
 
