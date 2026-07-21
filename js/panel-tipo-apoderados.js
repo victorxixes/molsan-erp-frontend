@@ -24,18 +24,12 @@ function formatoMiles(n) {
    INIT
 ============================================================ */
 async function initPanelApoderados() {
-    console.log("👤 initPanelApoderados() ejecutado");
-
     const sel = document.getElementById("pap-select-anio");
-    if (!sel) {
-        console.warn("⏳ Panel Apoderados aún no está en el DOM.");
-        return;
-    }
+    if (!sel) return;
 
     let datos = await obtenerFirmas();
-    if (!datos || !datos.length) return;
+    if (!datos.length) return;
 
-    // IMPORTANTÍSIMO: aplicar reglas antes de agrupar
     datos.forEach(aplicarReglas);
 
     PAP_DATOS = datos;
@@ -48,15 +42,15 @@ async function initPanelApoderados() {
 }
 
 /* ============================================================
-   AGRUPAR POR AÑO → APODERADO → MESES (12 posiciones)
+   AGRUPAR POR AÑO → APODERADO → MESES
 ============================================================ */
 function pap_groupByAnio(datos) {
-    const meses = MESES_ORDEN; // ["enero", ..., "diciembre"]
+    const meses = MESES_ORDEN;
     const map = {};
 
     for (const f of datos) {
         const anio = Number(f.anio);
-        if (!anio || isNaN(anio)) continue;
+        if (!anio) continue;
 
         const mes = (f.mes || "").toLowerCase().trim();
         const idxMes = meses.indexOf(mes);
@@ -64,23 +58,16 @@ function pap_groupByAnio(datos) {
 
         const apoderado = f.apoderado || "Sin apoderado";
 
-        if (!map[anio]) {
-            map[anio] = {
-                apoderados: {}
-            };
-        }
+        if (!map[anio]) map[anio] = { apoderados: {} };
 
-        const r = map[anio];
-
-        if (!r.apoderados[apoderado]) {
-            r.apoderados[apoderado] = {
+        if (!map[anio].apoderados[apoderado]) {
+            map[anio].apoderados[apoderado] = {
                 total: 0,
                 meses: Array(12).fill(0)
             };
         }
 
-        const a = r.apoderados[apoderado];
-
+        const a = map[anio].apoderados[apoderado];
         a.total++;
         a.meses[idxMes]++;
     }
@@ -126,13 +113,25 @@ function pap_onChangeAnio() {
     const info = PAP_POR_ANIO[anio];
     if (!info) return;
 
-    info.anio = anio;
-
     pap_renderTablaApoderados(info);
 }
 
 /* ============================================================
-   TABLA DETALLE APODERADOS — FORMATO 2026
+   OBTENER MESES CON DATOS
+============================================================ */
+function obtenerMesesConDatos(info) {
+    const meses = MESES_ORDEN;
+
+    return meses.filter((m, idx) => {
+        const totalMes = Object.values(info.apoderados)
+            .reduce((acc, a) => acc + Number(a.meses[idx] || 0), 0);
+
+        return totalMes > 0;
+    });
+}
+
+/* ============================================================
+   TABLA DETALLE APODERADOS
 ============================================================ */
 function pap_renderTablaApoderados(info) {
     const tbody = document.querySelector("#pap-tabla-apoderados tbody");
@@ -141,31 +140,16 @@ function pap_renderTablaApoderados(info) {
     tbody.innerHTML = "";
 
     const meses = MESES_ORDEN;
-    const currentYear = new Date().getFullYear();
-    const currentMonthIndex = new Date().getMonth();
+    const mesesValidos = obtenerMesesConDatos(info);
 
-    // 🔥 REGLA CLARA:
-    // - Año actual → hasta mes actual
-    // - Años cerrados → SIEMPRE 12 meses
-    let mesesValidos;
-    if (info.anio === currentYear) {
-        mesesValidos = meses.slice(0, currentMonthIndex + 1);
-    } else {
-        mesesValidos = [...meses];
-    }
-
-    // THEAD SIEMPRE CON LOS MISMOS MESES QUE TBODY
     pap_renderThead(mesesValidos);
 
-    // Totales por mes
-    const totalesPorMes = mesesValidos.map((m, idxVisible) => {
+    const totalesPorMes = mesesValidos.map(m => {
         const idxReal = meses.indexOf(m);
-        return Object.values(info.apoderados).reduce((acc, a) => {
-            return acc + Number(a.meses[idxReal] || 0);
-        }, 0);
+        return Object.values(info.apoderados)
+            .reduce((acc, a) => acc + Number(a.meses[idxReal] || 0), 0);
     });
 
-    // Construcción de lista por apoderado
     const lista = Object.entries(info.apoderados).map(([nombre, a]) => {
         const valoresMes = mesesValidos.map(m => {
             const idxReal = meses.indexOf(m);
@@ -180,18 +164,11 @@ function pap_renderTablaApoderados(info) {
             return ((v / totalMes) * 100).toFixed(1) + "%";
         });
 
-        return {
-            nombre,
-            valoresMes,
-            totalVisible,
-            porcentajesMes
-        };
+        return { nombre, valoresMes, totalVisible, porcentajesMes };
     });
 
-    // Ordenar por total
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    // Pintar filas
     for (const ap of lista) {
         const tr = document.createElement("tr");
 
@@ -206,7 +183,6 @@ function pap_renderTablaApoderados(info) {
         tbody.appendChild(tr);
     }
 
-    // SUMATORIO FINAL
     const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
 
     const trSum = document.createElement("tr");
@@ -224,7 +200,7 @@ function pap_renderTablaApoderados(info) {
 }
 
 /* ============================================================
-   THEAD DINÁMICO — DOS FILAS
+   THEAD DINÁMICO
 ============================================================ */
 function pap_renderThead(mesesValidos) {
     const thead = document.getElementById("pap-thead");
@@ -249,4 +225,3 @@ function pap_renderThead(mesesValidos) {
 
     thead.innerHTML = fila1 + fila2;
 }
-
