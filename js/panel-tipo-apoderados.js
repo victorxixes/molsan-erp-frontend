@@ -6,8 +6,16 @@ let PAP_DATOS = [];
 let PAP_POR_ANIO = {};
 
 /* ============================================================
+   FORMATO MILES
+============================================================ */
+function formatoMiles(n) {
+    if (n === null || n === undefined || n === "") return "-";
+    return Number(n).toLocaleString("es-ES");
+}
+/* ============================================================
    INIT
 ============================================================ */
+
 async function initPanelApoderados() {
     console.log("👤 initPanelApoderados() ejecutado");
 
