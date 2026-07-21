@@ -12,10 +12,10 @@ function formatoMiles(n) {
     if (n === null || n === undefined || n === "") return "-";
     return Number(n).toLocaleString("es-ES");
 }
+
 /* ============================================================
    INIT
 ============================================================ */
-
 async function initPanelApoderados() {
     console.log("👤 initPanelApoderados() ejecutado");
 
@@ -132,7 +132,7 @@ function pap_onChangeAnio() {
 }
 
 /* ============================================================
-   TABLA DETALLE APODERADOS — FORMATO 2026 (VERSIÓN PERFECTA)
+   TABLA DETALLE APODERADOS — FORMATO 2026
 ============================================================ */
 function pap_renderTablaApoderados(info) {
     const tbody = document.querySelector("#pap-tabla-apoderados tbody");
@@ -150,17 +150,15 @@ function pap_renderTablaApoderados(info) {
 
     // 1) Meses con datos reales
     const mesesConDatos = mesesOrden.filter(m => {
-    const idx = mesesOrden.indexOf(m);
+        const idx = mesesOrden.indexOf(m);
 
-    // Eliminar meses futuros del año actual
-    if (info.anio === currentYear && idx > currentMonthIndex) return false;
+        if (info.anio === currentYear && idx > currentMonthIndex) return false;
 
-    // Eliminar meses sin datos reales
-    const totalMes = Object.values(info.apoderados)
-        .reduce((acc, a) => acc + Number(a.meses[m] || 0), 0);
+        const totalMes = Object.values(info.apoderados)
+            .reduce((acc, a) => acc + Number(a.meses[m] || 0), 0);
 
-    return totalMes > 0;
-});
+        return totalMes > 0;
+    });
 
     // THEAD dinámico
     pap_renderThead(mesesConDatos);
@@ -207,8 +205,8 @@ function pap_renderTablaApoderados(info) {
 
         tr.innerHTML = `
             <td>${ap.nombre}</td>
-            ${ap.valoresMes.map(v => `<td>${v}</td>`).join("")}
-            <td>${ap.totalVisible}</td>
+            ${ap.valoresMes.map(v => `<td>${formatoMiles(v)}</td>`).join("")}
+            <td>${formatoMiles(ap.totalVisible)}</td>
             ${ap.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
             <td>100%</td>
         `;
@@ -216,38 +214,34 @@ function pap_renderTablaApoderados(info) {
         tbody.appendChild(tr);
     }
 
-   // 6) SUMATORIO FINAL
-const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
+    // 6) SUMATORIO FINAL
+    const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
 
-const trSum = document.createElement("tr");
-trSum.classList.add("fila-sumatorio");
+    const trSum = document.createElement("tr");
+    trSum.classList.add("fila-sumatorio");
 
-trSum.innerHTML = `
-    <td><b>TOTAL</b></td>
+    trSum.innerHTML = `
+        <td><b>TOTAL</b></td>
 
-    <!-- Totales de firmas realizadas -->
-    ${totalesPorMes.map(v => `<td><b>${v}</b></td>`).join("")}
+        ${totalesPorMes.map(v => `<td><b>${formatoMiles(v)}</b></td>`).join("")}
 
-    <!-- Total general -->
-    <td><b>${sumatorioTotal}</b></td>
+        <td><b>${formatoMiles(sumatorioTotal)}</b></td>
 
-    <!-- % Firmas realizadas (siempre 100% por columna) -->
-    ${totalesPorMes.map(v => `<td><b>100%</b></td>`).join("")}
+        ${totalesPorMes.map(v => `<td><b>100%</b></td>`).join("")}
 
-    <!-- %Total -->
-    <td><b>100%</b></td>
-`;
+        <td><b>100%</b></td>
+    `;
 
-tbody.appendChild(trSum);
+    tbody.appendChild(trSum);
+}
 
 /* ============================================================
-   THEAD DINÁMICO — DOS FILAS (Firmas realizadas / % Firmas)
+   THEAD DINÁMICO — DOS FILAS
 ============================================================ */
 function pap_renderThead(mesesConDatos) {
     const theadRow = document.getElementById("pap-thead-row");
     if (!theadRow) return;
 
-    // Fila 1: títulos agrupados
     const fila1 = `
         <tr>
             <th rowspan="2">Apoderado</th>
@@ -256,7 +250,6 @@ function pap_renderThead(mesesConDatos) {
         </tr>
     `;
 
-    // Fila 2: meses y %meses
     const fila2 = `
         <tr>
             ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
@@ -266,7 +259,5 @@ function pap_renderThead(mesesConDatos) {
         </tr>
     `;
 
-    // Insertar ambas filas
     theadRow.parentElement.innerHTML = fila1 + fila2;
 }
-
