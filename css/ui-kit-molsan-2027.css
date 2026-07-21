@@ -614,3 +614,14 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
+/* ============================================================
+   FIX REAL — Miles SIEMPRE visibles (UI-KIT PRIORITY)
+============================================================ */
+
+.table-premium td.num,
+.table-premium tbody td.num,
+.table-premium tr td.num {
+    font-variant-numeric: normal !important;
+    font-feature-settings: normal !important;
+    white-space: nowrap !important;
+}
