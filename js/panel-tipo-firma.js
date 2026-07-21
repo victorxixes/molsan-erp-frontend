@@ -147,7 +147,7 @@ function ptf_renderTabla(info) {
     );
 
     // ⭐ Encabezado dinámico
-   function ptf_renderThead(mesesConDatos) {
+  function ptf_renderThead(mesesConDatos) {
     const theadRow = document.getElementById("ptf-thead-row");
     if (!theadRow) return;
 
@@ -158,7 +158,6 @@ function ptf_renderTabla(info) {
         <th>%Total</th>
     `;
 }
-
 
     // Construcción de lista
     const lista = Object.entries(info.tipos).map(([tipo, t]) => {
