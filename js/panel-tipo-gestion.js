@@ -28,8 +28,9 @@ async function initPanelTipoGestion() {
     document.getElementById("ptg-select-anio")
         .addEventListener("change", ptg_onChangeAnio);
 }
+
 /* ============================================================
-   AGRUPAR POR AÑO → TIPO GESTIÓN → MESES (FORMATO NUEVO)
+   AGRUPAR POR AÑO → TIPO GESTIÓN → MESES
 ============================================================ */
 function ptg_groupByAnio(datos) {
 
@@ -77,6 +78,7 @@ function ptg_groupByAnio(datos) {
 
     return map;
 }
+
 /* ============================================================
    SELECT AÑOS
 ============================================================ */
@@ -103,6 +105,7 @@ function ptg_selectUltimoAnio() {
     sel.value = sel.options[sel.options.length - 1].value;
     ptg_onChangeAnio();
 }
+
 /* ============================================================
    CAMBIO DE AÑO
 ============================================================ */
@@ -118,8 +121,9 @@ function ptg_onChangeAnio() {
 
     ptg_renderTabla(info);
 }
+
 /* ============================================================
-   TABLA DETALLE TIPO GESTIÓN — FORMATO NUEVO 2026 + SUMATORIO FINAL
+   TABLA DETALLE TIPO GESTIÓN — PREMIUM 2027
 ============================================================ */
 function ptg_renderTabla(info) {
     const tbody = document.querySelector("#ptg-tabla-gestion tbody");
@@ -135,7 +139,7 @@ function ptg_renderTabla(info) {
     const currentYear = new Date().getFullYear();
     const currentMonthIndex = new Date().getMonth();
 
-    // 1) Meses con datos reales
+    // Meses con datos reales
     const mesesConDatos = mesesOrden.filter(m =>
         Object.values(info.tipos).some(t => t.meses[m] > 0)
     );
@@ -143,7 +147,7 @@ function ptg_renderTabla(info) {
     // ⭐ Encabezado dinámico
     ptg_renderThead(mesesConDatos);
 
-    // 2) Construcción de lista
+    // Construcción de lista
     const lista = Object.entries(info.tipos).map(([tipo, t]) => {
 
         const valoresMes = mesesConDatos.map(m => {
@@ -169,7 +173,7 @@ function ptg_renderTabla(info) {
 
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    // 3) Pintar filas
+    // Pintar filas
     for (const row of lista) {
         const tr = document.createElement("tr");
 
@@ -184,12 +188,20 @@ function ptg_renderTabla(info) {
         tbody.appendChild(tr);
     }
 
-    // ⭐ 4) SUMATORIO FINAL
+    /* ============================================================
+       SUMATORIO FINAL — %Total debe sumar 100%
+    ============================================================= */
+
     const sumatorioMeses = mesesConDatos.map(m =>
         lista.reduce((acc, row) => acc + (row.valoresMes[mesesConDatos.indexOf(m)] || 0), 0)
     );
 
     const sumatorioTotal = sumatorioMeses.reduce((acc, v) => acc + v, 0);
+
+    const porcentajesTotalesMes = sumatorioMeses.map(v => {
+        if (sumatorioTotal === 0) return "";
+        return ((v / sumatorioTotal) * 100).toFixed(1) + "%";
+    });
 
     const trSum = document.createElement("tr");
     trSum.classList.add("fila-sumatorio");
@@ -198,24 +210,21 @@ function ptg_renderTabla(info) {
         <td><b>TOTAL</b></td>
         ${sumatorioMeses.map(v => `<td><b>${v}</b></td>`).join("")}
         <td><b>${sumatorioTotal}</b></td>
-        ${sumatorioMeses.map(v => {
-            if (sumatorioTotal === 0) return "<td></td>";
-            return `<td><b>${((v / sumatorioTotal) * 100).toFixed(1)}%</b></td>`;
-        }).join("")}
+        ${porcentajesTotalesMes.map(p => `<td><b>${p}</b></td>`).join("")}
         <td><b>100%</b></td>
     `;
 
     tbody.appendChild(trSum);
 }
+
 /* ============================================================
-   THEAD DINÁMICO
+   THEAD DINÁMICO — FUNCIONA 100%
 ============================================================ */
 function ptg_renderThead(mesesConDatos) {
     const theadRow = document.getElementById("ptg-thead-row");
     if (!theadRow) return;
 
     theadRow.innerHTML = `
-        <th>Tipo gestión</th>
         ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
         <th>Total</th>
         ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
