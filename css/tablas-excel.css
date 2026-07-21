@@ -167,12 +167,12 @@ body.dark .tabla-excel tbody tr:hover {
     border-right: 2px solid #4a6cf7;
 }
 /* ============================================================
-   FIX — Permitir miles en tabla de apoderados
+   FIX REAL — Miles SIEMPRE visibles
 ============================================================ */
 
-.table-premium td,
-.table-premium th {
+.table-premium td.num,
+.table-premium tbody td.num,
+.table-premium tr td.num {
     font-variant-numeric: normal !important;
     font-feature-settings: normal !important;
-    white-space: normal !important;
 }
