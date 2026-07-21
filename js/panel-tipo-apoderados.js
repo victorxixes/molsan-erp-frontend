@@ -208,25 +208,30 @@ function pap_renderTablaApoderados(info) {
         tbody.appendChild(tr);
     }
 
-    // 6) SUMATORIO FINAL
-    const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
+   // 6) SUMATORIO FINAL
+const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
 
-    const trSum = document.createElement("tr");
-    trSum.classList.add("fila-sumatorio");
+const trSum = document.createElement("tr");
+trSum.classList.add("fila-sumatorio");
 
-    trSum.innerHTML = `
-        <td><b>TOTAL</b></td>
-        ${totalesPorMes.map(v => `<td><b>${v}</b></td>`).join("")}
-        <td><b>${sumatorioTotal}</b></td>
-        ${totalesPorMes.map(v => {
-            if (sumatorioTotal === 0) return "<td></td>";
-            return `<td><b>${((v / sumatorioTotal) * 100).toFixed(1)}%</b></td>`;
-        }).join("")}
-        <td><b>100%</b></td>
-    `;
+trSum.innerHTML = `
+    <td><b>TOTAL</b></td>
 
-    tbody.appendChild(trSum);
-}
+    <!-- Totales de firmas realizadas -->
+    ${totalesPorMes.map(v => `<td><b>${v}</b></td>`).join("")}
+
+    <!-- Total general -->
+    <td><b>${sumatorioTotal}</b></td>
+
+    <!-- % Firmas realizadas (siempre 100% por columna) -->
+    ${totalesPorMes.map(v => `<td><b>100%</b></td>`).join("")}
+
+    <!-- %Total -->
+    <td><b>100%</b></td>
+`;
+
+tbody.appendChild(trSum);
+
 /* ============================================================
    THEAD DINÁMICO — DOS FILAS (Firmas realizadas / % Firmas)
 ============================================================ */
