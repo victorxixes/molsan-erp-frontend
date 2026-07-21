@@ -166,3 +166,13 @@ body.dark .tabla-excel tbody tr:hover {
 .table-premium td:last-child {
     border-right: 2px solid #4a6cf7;
 }
+/* ============================================================
+   FIX — Permitir miles en tabla de apoderados
+============================================================ */
+
+.table-premium td,
+.table-premium th {
+    font-variant-numeric: normal !important;
+    font-feature-settings: normal !important;
+    white-space: normal !important;
+}
