@@ -10,6 +10,14 @@ let PAP_POR_ANIO = {};
 ============================================================ */
 function formatoMiles(n) {
     if (n === null || n === undefined || n === "") return "-";
+
+    // Si viene como string con puntos o comas → limpiarlo
+    if (typeof n === "string") {
+        n = n.replace(/\./g, "");   // quitar puntos
+        n = n.replace(/,/g, "");    // quitar comas
+        n = n.trim();
+    }
+
     return Number(n).toLocaleString("es-ES");
 }
 
