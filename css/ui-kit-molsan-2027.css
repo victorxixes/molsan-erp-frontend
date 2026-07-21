@@ -615,13 +615,11 @@
     cursor: not-allowed;
 }
 /* ============================================================
-   FIX REAL — Miles SIEMPRE visibles (UI-KIT PRIORITY)
+   FIX — Desactivar tabular-nums en números
 ============================================================ */
 
-.table-premium td.num,
-.table-premium tbody td.num,
-.table-premium tr td.num {
+.table-premium td.num {
+    font-family: Arial, sans-serif !important;
     font-variant-numeric: normal !important;
     font-feature-settings: normal !important;
-    white-space: nowrap !important;
 }
