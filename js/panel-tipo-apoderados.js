@@ -141,9 +141,18 @@ function pap_renderTablaApoderados(info) {
     const currentMonthIndex = new Date().getMonth();
 
     // 1) Meses con datos reales
-    const mesesConDatos = mesesOrden.filter(m =>
-        Object.values(info.apoderados).some(a => Number(a.meses[m] || 0) > 0)
-    );
+    const mesesConDatos = mesesOrden.filter(m => {
+    const idx = mesesOrden.indexOf(m);
+
+    // Eliminar meses futuros del año actual
+    if (info.anio === currentYear && idx > currentMonthIndex) return false;
+
+    // Eliminar meses sin datos reales
+    const totalMes = Object.values(info.apoderados)
+        .reduce((acc, a) => acc + Number(a.meses[m] || 0), 0);
+
+    return totalMes > 0;
+});
 
     // THEAD dinámico
     pap_renderThead(mesesConDatos);
