@@ -792,6 +792,9 @@
 
     </div>
 </template>
+    <!-- ============================================================
+     PANEL TIPO FIRMA — PREMIUM 2027 (FORMATO 2026)
+============================================================ -->
 <template id="tpl-panel-tipo-firma">
     <div class="panel-wrapper fade-in">
 
@@ -808,30 +811,40 @@
             <h3 class="subtitulo-modulo">Detalle por tipo de firma</h3>
 
             <table id="ptf-tabla-meses" class="table-premium tabla-excel table-sticky">
+
+                <!-- ============================
+                     THEAD (2 filas, como Apoderados)
+                ============================= -->
                 <thead>
                     <tr>
                         <th rowspan="2">Tipo firma</th>
                         <th colspan="100" class="th-group">Firmas realizadas</th>
                         <th colspan="100" class="th-group">% Firmas realizadas</th>
                     </tr>
-                    <tr id="ptf-thead-row">
-                        <!-- Se rellena dinámicamente desde JS -->
-                    </tr>
+
+                    <!-- Esta fila se rellena dinámicamente desde JS -->
+                    <tr id="ptf-thead-row"></tr>
                 </thead>
 
+                <!-- ============================
+                     TBODY (filas dinámicas)
+                ============================= -->
                 <tbody></tbody>
 
+                <!-- ============================
+                     TFOOT (fila TOTAL)
+                ============================= -->
                 <tfoot>
                     <tr class="fila-sumatorio" id="ptf-total-row">
                         <!-- Se rellena dinámicamente desde JS -->
                     </tr>
                 </tfoot>
+
             </table>
         </div>
 
     </div>
 </template>
-
 
 <!-- ============================================================
      PANEL TIPO GESTIÓN — PREMIUM 2027 (FORMATO 2026)
