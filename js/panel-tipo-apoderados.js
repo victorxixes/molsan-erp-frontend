@@ -6,12 +6,11 @@ let PAP_DATOS = [];
 let PAP_POR_ANIO = {};
 
 /* ============================================================
-   FORMATO MILES (ÚNICA VERSIÓN)
+   FORMATO MILES
 ============================================================ */
 function formatoMiles(n) {
     if (n === null || n === undefined || n === "") return "-";
 
-    // Limpiar strings con puntos o comas
     if (typeof n === "string") {
         n = n.replace(/\./g, "");
         n = n.replace(/,/g, "");
@@ -25,16 +24,11 @@ function formatoMiles(n) {
    INIT
 ============================================================ */
 async function initPanelApoderados() {
-    console.log("👤 initPanelApoderados() ejecutado");
-
     const sel = document.getElementById("pap-select-anio");
-    if (!sel) {
-        console.warn("⏳ Panel Apoderados aún no está en el DOM.");
-        return;
-    }
+    if (!sel) return;
 
     const datos = await obtenerFirmas();
-    if (!datos || !datos.length) return;
+    datos.forEach(aplicarReglas);
 
     PAP_DATOS = datos;
     PAP_POR_ANIO = pap_groupByAnio(PAP_DATOS);
@@ -50,17 +44,14 @@ async function initPanelApoderados() {
 ============================================================ */
 function pap_groupByAnio(datos) {
 
-    const mesesValidos = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    const mesesValidos = MESES_ORDEN;
 
     const map = {};
 
     for (const f of datos) {
 
         const anio = Number(f.anio);
-        if (!anio || isNaN(anio)) continue;
+        if (!anio) continue;
 
         const mes = (f.mes || "").toLowerCase().trim();
         if (!mesesValidos.includes(mes)) continue;
@@ -79,17 +70,15 @@ function pap_groupByAnio(datos) {
         if (!r.apoderados[apoderado]) {
             r.apoderados[apoderado] = {
                 total: 0,
-                meses: {}
+                meses: Array(12).fill(0)
             };
-
-            mesesValidos.forEach(m => r.apoderados[apoderado].meses[m] = 0);
         }
 
         const a = r.apoderados[apoderado];
 
-        // Cada registro = 1 firma
         a.total++;
-        a.meses[mes]++;
+        const idx = mesesValidos.indexOf(mes);
+        if (idx >= 0) a.meses[idx]++;
 
         r.mesesConDatos.add(mes);
     }
@@ -118,7 +107,7 @@ function pap_fillSelectAnios() {
 
 function pap_selectUltimoAnio() {
     const sel = document.getElementById("pap-select-anio");
-    if (!sel || sel.options.length === 0) return;
+    if (!sel) return;
 
     sel.value = sel.options[sel.options.length - 1].value;
     pap_onChangeAnio();
@@ -149,52 +138,48 @@ function pap_renderTablaApoderados(info) {
 
     tbody.innerHTML = "";
 
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
-
+    const meses = MESES_ORDEN;
     const currentYear = new Date().getFullYear();
     const currentMonthIndex = new Date().getMonth();
 
+    let mesesValidos;
+
     /* ============================================================
-       1) MESES CON DATOS REALES
-    ============================================================ */
-    const mesesConDatos = mesesOrden.filter(m => {
+       1) MESES CORRECTOS (SOLUCIÓN DEFINITIVA)
+    ============================================================= */
 
-        const idx = mesesOrden.indexOf(m);
-
-        // Ocultar meses futuros del año actual
-        if (info.anio === currentYear && idx > currentMonthIndex) return false;
-
-        // Ocultar meses sin firmas
-        const totalMes = Object.values(info.apoderados)
-            .reduce((acc, a) => acc + Number(a.meses[m] || 0), 0);
-
-        return totalMes > 0;
-    });
+    if (info.anio === currentYear) {
+        // Año actual → solo hasta el mes actual
+        mesesValidos = meses.slice(0, currentMonthIndex + 1);
+    } else {
+        // Años cerrados → SIEMPRE 12 meses
+        mesesValidos = [...meses];
+    }
 
     /* ============================================================
        THEAD DINÁMICO
-    ============================================================ */
-    pap_renderThead(mesesConDatos);
+    ============================================================= */
+    pap_renderThead(mesesValidos);
 
     /* ============================================================
        2) Totales por mes
-    ============================================================ */
-    const totalesPorMes = mesesConDatos.map(m =>
+    ============================================================= */
+    const totalesPorMes = mesesValidos.map(m =>
         Object.values(info.apoderados).reduce((acc, a) => {
-            const v = Number(a.meses[m] || 0);
-            return acc + v;
+            const idx = meses.indexOf(m);
+            return acc + Number(a.meses[idx] || 0);
         }, 0)
     );
 
     /* ============================================================
        3) Construcción de lista por apoderado
-    ============================================================ */
+    ============================================================= */
     const lista = Object.entries(info.apoderados).map(([nombre, a]) => {
 
-        const valoresMes = mesesConDatos.map(m => Number(a.meses[m] || 0));
+        const valoresMes = mesesValidos.map(m => {
+            const idx = meses.indexOf(m);
+            return Number(a.meses[idx] || 0);
+        });
 
         const totalVisible = valoresMes.reduce((acc, v) => acc + v, 0);
 
@@ -212,14 +197,11 @@ function pap_renderTablaApoderados(info) {
         };
     });
 
-    /* ============================================================
-       4) Ordenar por total
-    ============================================================ */
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
     /* ============================================================
        5) Pintar filas
-    ============================================================ */
+    ============================================================= */
     for (const ap of lista) {
         const tr = document.createElement("tr");
 
@@ -236,8 +218,8 @@ function pap_renderTablaApoderados(info) {
 
     /* ============================================================
        6) SUMATORIO FINAL
-    ============================================================ */
-    const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
+    ============================================================= */
+    const sumatorioTotal = totalesPorMes.reduce((a,b)=>a+b,0);
 
     const trSum = document.createElement("tr");
     trSum.classList.add("fila-sumatorio");
@@ -246,7 +228,7 @@ function pap_renderTablaApoderados(info) {
         <td><b>TOTAL</b></td>
         ${totalesPorMes.map(v => `<td class="num"><b>${formatoMiles(v)}</b></td>`).join("")}
         <td class="num"><b>${formatoMiles(sumatorioTotal)}</b></td>
-        ${totalesPorMes.map(v => `<td><b>100%</b></td>`).join("")}
+        ${totalesPorMes.map(() => `<td><b>100%</b></td>`).join("")}
         <td><b>100%</b></td>
     `;
 
@@ -256,23 +238,23 @@ function pap_renderTablaApoderados(info) {
 /* ============================================================
    THEAD DINÁMICO — DOS FILAS
 ============================================================ */
-function pap_renderThead(mesesConDatos) {
+function pap_renderThead(mesesValidos) {
     const theadRow = document.getElementById("pap-thead-row");
     if (!theadRow) return;
 
     const fila1 = `
         <tr>
             <th rowspan="2">Apoderado</th>
-            <th colspan="${mesesConDatos.length + 1}" class="th-group">Firmas realizadas</th>
-            <th colspan="${mesesConDatos.length + 1}" class="th-group">% Firmas realizadas</th>
+            <th colspan="${mesesValidos.length + 1}" class="th-group">Firmas realizadas</th>
+            <th colspan="${mesesValidos.length + 1}" class="th-group">% Firmas realizadas</th>
         </tr>
     `;
 
     const fila2 = `
         <tr>
-            ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
+            ${mesesValidos.map(m => `<th>${m}</th>`).join("")}
             <th>Total</th>
-            ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
+            ${mesesValidos.map(m => `<th>%${m}</th>`).join("")}
             <th>%Total</th>
         </tr>
     `;
