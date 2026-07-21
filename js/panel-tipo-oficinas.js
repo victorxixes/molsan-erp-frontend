@@ -30,7 +30,7 @@ async function initPanelOficinas() {
 }
 
 /* ============================================================
-   AGRUPAR POR AÑO → OFICINA → MESES (FORMATO NUEVO)
+   AGRUPAR POR AÑO → OFICINA → MESES
 ============================================================ */
 function pof_groupByAnioOficina(datos) {
 
@@ -127,7 +127,23 @@ function pof_onChangeAnio() {
 }
 
 /* ============================================================
-   TABLA DETALLE OFICINAS — FORMATO NUEVO 2026 + SUMATORIO FINAL
+   THEAD DINÁMICO — Premium 2027 (Meses + Total + %Mes + %Total)
+============================================================ */
+function pof_renderThead(mesesConDatos) {
+    const theadRow = document.getElementById("pof-thead-row");
+    if (!theadRow) return;
+
+    theadRow.innerHTML = `
+        <th>Oficina</th>
+        ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
+        <th>Total</th>
+        ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
+        <th>%Total</th>
+    `;
+}
+
+/* ============================================================
+   TABLA DETALLE OFICINAS — Premium 2027
 ============================================================ */
 function pof_renderTabla(info) {
     const tbody = document.querySelector("#pof-tabla-oficinas tbody");
@@ -143,15 +159,15 @@ function pof_renderTabla(info) {
     const currentYear = new Date().getFullYear();
     const currentMonthIndex = new Date().getMonth();
 
-    // 1) Meses con datos reales
+    // Meses con datos reales
     const mesesConDatos = mesesOrden.filter(m =>
         Object.values(info.oficinas).some(o => o.meses[m] > 0)
     );
 
-    // ⭐ Encabezado dinámico
+    // THEAD dinámico
     pof_renderThead(mesesConDatos);
 
-    // 2) Construcción de lista
+    // Construcción de lista
     const lista = Object.entries(info.oficinas).map(([nombre, o]) => {
 
         const valoresMes = mesesConDatos.map(m => {
@@ -177,7 +193,7 @@ function pof_renderTabla(info) {
 
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    // 3) Pintar filas
+    // Pintar filas
     for (const row of lista) {
         const tr = document.createElement("tr");
 
@@ -192,12 +208,19 @@ function pof_renderTabla(info) {
         tbody.appendChild(tr);
     }
 
-    // ⭐ 4) SUMATORIO FINAL
-    const sumatorioMeses = mesesConDatos.map(m =>
-        lista.reduce((acc, row) => acc + (row.valoresMes[mesesConDatos.indexOf(m)] || 0), 0)
+    /* ============================================================
+       SUMATORIO FINAL
+    ============================================================= */
+    const sumatorioMeses = mesesConDatos.map((m, idx) =>
+        lista.reduce((acc, row) => acc + (row.valoresMes[idx] || 0), 0)
     );
 
     const sumatorioTotal = sumatorioMeses.reduce((acc, v) => acc + v, 0);
+
+    const porcentajesTotalesMes = sumatorioMeses.map(v => {
+        if (sumatorioTotal === 0) return "";
+        return ((v / sumatorioTotal) * 100).toFixed(1) + "%";
+    });
 
     const trSum = document.createElement("tr");
     trSum.classList.add("fila-sumatorio");
@@ -206,28 +229,9 @@ function pof_renderTabla(info) {
         <td><b>TOTAL</b></td>
         ${sumatorioMeses.map(v => `<td><b>${v}</b></td>`).join("")}
         <td><b>${sumatorioTotal}</b></td>
-        ${sumatorioMeses.map(v => {
-            if (sumatorioTotal === 0) return "<td></td>";
-            return `<td><b>${((v / sumatorioTotal) * 100).toFixed(1)}%</b></td>`;
-        }).join("")}
+        ${porcentajesTotalesMes.map(p => `<td><b>${p}</b></td>`).join("")}
         <td><b>100%</b></td>
     `;
 
     tbody.appendChild(trSum);
-}
-
-/* ============================================================
-   THEAD DINÁMICO
-============================================================ */
-function pof_renderThead(mesesConDatos) {
-    const theadRow = document.getElementById("pof-thead-row");
-    if (!theadRow) return;
-
-    theadRow.innerHTML = `
-        <th>Oficina</th>
-        ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
-        <th>Total</th>
-        ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
-        <th>%Total</th>
-    `;
 }
