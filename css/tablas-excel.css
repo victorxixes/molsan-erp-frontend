@@ -65,19 +65,6 @@
     transition: 0.15s ease;
 }
 
-/* ============================================================
-   FIX REAL — Miles SIEMPRE visibles
-============================================================ */
-
-.table-premium td.num,
-.table-premium tbody td.num,
-.table-premium tr td.num {
-    text-align: right;
-    font-variant-numeric: normal !important;
-    font-feature-settings: "tnum" !important;
-    white-space: nowrap !important;
-}
-
 /* CABECERA CLICKABLE (ORDENAR) */
 .table-excel thead th.sortable:hover,
 .tabla-excel thead th.sortable:hover {
