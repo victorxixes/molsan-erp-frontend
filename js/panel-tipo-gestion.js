@@ -218,7 +218,7 @@ function ptg_renderTabla(info) {
 }
 
 /* ============================================================
-   THEAD DINÁMICO — FUNCIONA 100%
+   THEAD DINÁMICO — CENTRADO PERFECTO
 ============================================================ */
 function ptg_renderThead(mesesConDatos) {
     const theadRow = document.getElementById("ptg-thead-row");
