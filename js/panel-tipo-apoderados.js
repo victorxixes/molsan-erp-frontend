@@ -148,17 +148,17 @@ function pap_renderTablaApoderados(info) {
     const currentYear = new Date().getFullYear();
     const currentMonthIndex = new Date().getMonth();
 
-    // 1) Meses con datos reales
-    const mesesConDatos = mesesOrden.filter(m => {
-        const idx = mesesOrden.indexOf(m);
+// 1) Meses con datos reales
+const mesesConDatos = mesesOrden.filter(m => {
+    const idx = mesesOrden.indexOf(m);
 
-        if (info.anio === currentYear && idx > currentMonthIndex) return false;
+    // Ocultar meses futuros solo del año actual
+    if (info.anio === currentYear && idx > currentMonthIndex) return false;
 
-        const totalMes = Object.values(info.apoderados)
-            .reduce((acc, a) => acc + Number(a.meses[m] || 0), 0);
+    // Mostrar todos los meses del año seleccionado
+    return true;
+});
 
-        return totalMes > 0;
-    });
 
     // THEAD dinámico
     pap_renderThead(mesesConDatos);
