@@ -227,19 +227,33 @@ function pap_renderTablaApoderados(info) {
 
     tbody.appendChild(trSum);
 }
-
 /* ============================================================
-   THEAD DINÁMICO
+   THEAD DINÁMICO — DOS FILAS (Firmas realizadas / % Firmas)
 ============================================================ */
 function pap_renderThead(mesesConDatos) {
     const theadRow = document.getElementById("pap-thead-row");
     if (!theadRow) return;
 
-    theadRow.innerHTML = `
-        <th>Apoderado</th>
-        ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
-        <th>Total</th>
-        ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
-        <th>%Total</th>
+    // Fila 1: títulos agrupados
+    const fila1 = `
+        <tr>
+            <th rowspan="2">Apoderado</th>
+            <th colspan="${mesesConDatos.length + 1}" class="th-group">Firmas realizadas</th>
+            <th colspan="${mesesConDatos.length + 1}" class="th-group">% Firmas realizadas</th>
+        </tr>
     `;
+
+    // Fila 2: meses y %meses
+    const fila2 = `
+        <tr>
+            ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
+            <th>Total</th>
+            ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
+            <th>%Total</th>
+        </tr>
+    `;
+
+    // Insertar ambas filas
+    theadRow.parentElement.innerHTML = fila1 + fila2;
 }
+
