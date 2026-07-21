@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL CIRCUITO — PREMIUM 2027 (VERSIÓN CORREGIDA)
+   PANEL CIRCUITO — PREMIUM 2027 (FORMATO 2026)
 ============================================================ */
 
 let PCI_DATOS = [];
@@ -58,11 +58,9 @@ function pci_groupByAnioCircuito(datos) {
         const idxMes = mesesValidos.indexOf(mes);
         if (idxMes === -1) continue;
 
-        // ✔ Circuito REAL según reglas.js
         const circuito = f.circuito || "Fuera del circuito";
-
         const dias = Number(f.dias);
-        const esVC = (f.tipo_firma === "VideoConferencia");
+        const esVC = (String(f.tipo_firma).toLowerCase() === "videoconferencia");
 
         if (!map[anio]) map[anio] = {};
 
@@ -73,18 +71,14 @@ function pci_groupByAnioCircuito(datos) {
                 vc: 0,
                 sumaDias: 0,
                 cuentaDias: 0,
-                meses: {}
+                meses: Array(12).fill(0)
             };
         }
 
         const r = map[anio][circuito];
 
-        if (!r.meses[mes]) {
-            r.meses[mes] = { total: 0 };
-        }
-
         r.total++;
-        r.meses[mes].total++;
+        r.meses[idxMes]++;
 
         if (esVC) r.vc++;
         else r.presencial++;
@@ -137,8 +131,29 @@ function pci_onChangeAnio() {
     if (!info) return;
 
     pci_renderKpis(info);
+    pci_renderThead();
     pci_renderTabla(info);
     pci_renderChart(info);
+}
+
+/* ============================================================
+   THEAD DINÁMICO — OPCIÓN A (Meses + Total + %Mes + %Total)
+============================================================ */
+function pci_renderThead() {
+    const theadRow = document.getElementById("pci-thead-row");
+    if (!theadRow) return;
+
+    const meses = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    theadRow.innerHTML = `
+        ${meses.map(m => `<th>${m}</th>`).join("")}
+        <th>Total</th>
+        ${meses.map(m => `<th>%${m}</th>`).join("")}
+        <th>%Total</th>
+    `;
 }
 
 /* ============================================================
@@ -178,7 +193,7 @@ function pci_renderKpis(info) {
 }
 
 /* ============================================================
-   TABLA DETALLE (CON MESES)
+   TABLA DETALLE — OPCIÓN A (Meses + Total + %Mes + %Total)
 ============================================================ */
 function pci_renderTabla(info) {
     const tbody = document.querySelector("#pci-tabla-circuito tbody");
@@ -196,9 +211,12 @@ function pci_renderTabla(info) {
         const pctVC = r.total ? ((r.vc / r.total) * 100).toFixed(1) + "%" : "0%";
         const sla = r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : "0";
 
-        const meses = mesesOrden.map(m => {
-            const mm = r.meses[m];
-            return mm ? mm.total : 0;
+        const valoresMes = r.meses;
+        const totalVisible = valoresMes.reduce((acc, v) => acc + v, 0);
+
+        const porcentajesMes = valoresMes.map(v => {
+            if (totalVisible === 0) return "";
+            return ((v / totalVisible) * 100).toFixed(1) + "%";
         });
 
         return {
@@ -208,7 +226,9 @@ function pci_renderTabla(info) {
             vc: r.vc,
             pctVC,
             sla,
-            meses
+            valoresMes,
+            totalVisible,
+            porcentajesMes
         };
     });
 
@@ -224,11 +244,49 @@ function pci_renderTabla(info) {
             <td>${row.vc}</td>
             <td>${row.pctVC}</td>
             <td>${row.sla}</td>
-            ${row.meses.map(v => `<td>${v}</td>`).join("")}
+
+            ${row.valoresMes.map(v => `<td>${v}</td>`).join("")}
+            <td>${row.totalVisible}</td>
+            ${row.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
+            <td>100%</td>
         `;
 
         tbody.appendChild(tr);
     }
+
+    /* ============================================================
+       FILA TOTAL
+    ============================================================= */
+
+    const totalesMes = mesesOrden.map((_, idx) =>
+        lista.reduce((acc, row) => acc + row.valoresMes[idx], 0)
+    );
+
+    const totalGeneral = totalesMes.reduce((acc, v) => acc + v, 0);
+
+    const porcentajesTotalesMes = totalesMes.map(v => {
+        if (totalGeneral === 0) return "";
+        return ((v / totalGeneral) * 100).toFixed(1) + "%";
+    });
+
+    const trTotal = document.createElement("tr");
+    trTotal.classList.add("fila-sumatorio");
+
+    trTotal.innerHTML = `
+        <td><b>TOTAL</b></td>
+        <td><b>${lista.reduce((acc,r)=>acc+r.total,0)}</b></td>
+        <td><b>${lista.reduce((acc,r)=>acc+r.presencial,0)}</b></td>
+        <td><b>${lista.reduce((acc,r)=>acc+r.vc,0)}</b></td>
+        <td><b>-</b></td>
+        <td><b>-</b></td>
+
+        ${totalesMes.map(v => `<td><b>${v}</b></td>`).join("")}
+        <td><b>${totalGeneral}</b></td>
+        ${porcentajesTotalesMes.map(p => `<td><b>${p}</b></td>`).join("")}
+        <td><b>100%</b></td>
+    `;
+
+    tbody.appendChild(trTotal);
 }
 
 /* ============================================================
