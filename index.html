@@ -717,6 +717,9 @@
 <!-- ============================================================
      PANEL TIPO CENTRO QUE FIRMA — PREMIUM 2027
 ============================================================ -->
+<!-- ============================================================
+     PANEL CENTRO QUE FIRMA — PREMIUM 2027 (FORMATO 2026)
+============================================================ -->
 <template id="tpl-panel-tipo-centroquefirma">
     <div class="panel-wrapper fade-in">
 
@@ -755,29 +758,29 @@
 
             <div class="tabla-scroll-x mt-10">
                 <table id="pcf-tabla-meses" class="table-premium table-sticky tabla-excel">
+
                     <thead>
                         <tr>
-                            <th>Centro</th>
-                            <th>Total</th>
-                            <th>Presencial</th>
-                            <th>VC</th>
-                            <th>% VC</th>
-                            <th>SLA</th>
-                            <th>Enero</th>
-                            <th>Febrero</th>
-                            <th>Marzo</th>
-                            <th>Abril</th>
-                            <th>Mayo</th>
-                            <th>Junio</th>
-                            <th>Julio</th>
-                            <th>Agosto</th>
-                            <th>Septiembre</th>
-                            <th>Octubre</th>
-                            <th>Noviembre</th>
-                            <th>Diciembre</th>
+                            <th rowspan="2">Centro</th>
+                            <th rowspan="2">Total</th>
+                            <th rowspan="2">Presencial</th>
+                            <th rowspan="2">VC</th>
+                            <th rowspan="2">% VC</th>
+                            <th rowspan="2">SLA</th>
+
+                            <!-- Grupo meses -->
+                            <th colspan="12" class="th-group">Firmas realizadas por mes</th>
+
+                            <!-- Grupo % meses -->
+                            <th colspan="12" class="th-group">% por mes</th>
                         </tr>
+
+                        <!-- ⭐ ESTA FILA SE RELLENA DESDE JS -->
+                        <tr id="pcf-thead-row"></tr>
                     </thead>
+
                     <tbody></tbody>
+
                 </table>
             </div>
         </div>
@@ -790,6 +793,7 @@
 
     </div>
 </template>
+
     <!-- ============================================================
      PANEL TIPO FIRMA — PREMIUM 2027 (FORMATO 2026)
 ============================================================ -->
@@ -850,31 +854,28 @@
         </div>
 
         <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Detalle por tipo de gestión (meses con datos)</h3>
+            <h3 class="subtitulo-modulo">Detalle por tipo de gestión</h3>
 
-            <div class="tabla-scroll-x mt-10">
-                <table id="ptg-tabla-gestion" class="table-premium table-sticky tabla-excel">
+            <table id="ptg-tabla-gestion" class="table-premium tabla-excel table-sticky">
 
-                    <thead>
-                        <tr>
-                            <th rowspan="2">Tipo gestión</th>
-                            <th class="th-group">Firmas realizadas</th>
-                            <th class="th-group">% Firmas realizadas</th>
-                        </tr>
+                <thead>
+                    <tr>
+                        <th rowspan="2">Tipo gestión</th>
+                        <th colspan="7" class="th-group">Firmas realizadas</th>
+                        <th colspan="7" class="th-group">% Firmas realizadas</th>
+                    </tr>
 
-                        <!-- ⭐ ESTA FILA SE RELLENA DESDE JS -->
-                        <tr id="ptg-thead-row"></tr>
-                    </thead>
+                    <!-- ⭐ ESTA FILA SE RELLENA DESDE JS -->
+                    <tr id="ptg-thead-row"></tr>
+                </thead>
 
-                    <tbody></tbody>
+                <tbody></tbody>
 
-                </table>
-            </div>
+            </table>
         </div>
 
     </div>
 </template>
-
 
 <!-- ============================================================
      PANEL OFICINAS — PREMIUM 2027 (FORMATO 2026)
@@ -884,7 +885,6 @@
 
         <h2 class="titulo-modulo">🏢 Panel Oficinas</h2>
 
-        <!-- Header -->
         <div class="panel-header">
             <div class="panel-header-left">
                 <label>Año</label>
@@ -892,27 +892,31 @@
             </div>
         </div>
 
-        <!-- Tabla mensual -->
         <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Detalle por Oficina (meses con datos)</h3>
+            <h3 class="subtitulo-modulo">Detalle por Oficina</h3>
 
-            <div class="tabla-scroll-x mt-10">
-                <table id="pof-tabla-oficinas" class="table-premium table-sticky tabla-excel">
-                    <thead>
-                        <tr id="pof-thead-row">
-                            <!-- Se rellena dinámicamente -->
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+            <table id="pof-tabla-oficinas" class="table-premium tabla-excel table-sticky">
+
+                <thead>
+                    <tr>
+                        <th rowspan="2">Oficina</th>
+                        <th colspan="7" class="th-group">Firmas realizadas</th>
+                        <th colspan="7" class="th-group">% Firmas realizadas</th>
+                    </tr>
+
+                    <tr id="pof-thead-row"></tr>
+                </thead>
+
+                <tbody></tbody>
+
+            </table>
         </div>
 
     </div>
 </template>
 
 <!-- ============================================================
-     PANEL CIRCUITO — PREMIUM 2027
+     PANEL CIRCUITO — PREMIUM 2027 (FORMATO 2026)
 ============================================================ -->
 <template id="tpl-panel-circuito">
     <div class="panel-wrapper fade-in">
@@ -948,33 +952,33 @@
 
         <!-- Tabla mensual -->
         <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Detalle por Circuito (mes a mes)</h3>
+            <h3 class="subtitulo-modulo">Detalle por Circuito (meses con datos)</h3>
 
             <div class="tabla-scroll-x mt-10">
                 <table id="pci-tabla-circuito" class="table-premium table-sticky tabla-excel">
+
                     <thead>
                         <tr>
-                            <th>Circuito</th>
-                            <th>Total</th>
-                            <th>Presencial</th>
-                            <th>VC</th>
-                            <th>% VC</th>
-                            <th>SLA</th>
-                            <th>Enero</th>
-                            <th>Febrero</th>
-                            <th>Marzo</th>
-                            <th>Abril</th>
-                            <th>Mayo</th>
-                            <th>Junio</th>
-                            <th>Julio</th>
-                            <th>Agosto</th>
-                            <th>Septiembre</th>
-                            <th>Octubre</th>
-                            <th>Noviembre</th>
-                            <th>Diciembre</th>
+                            <th rowspan="2">Circuito</th>
+                            <th rowspan="2">Total</th>
+                            <th rowspan="2">Presencial</th>
+                            <th rowspan="2">VC</th>
+                            <th rowspan="2">% VC</th>
+                            <th rowspan="2">SLA</th>
+
+                            <!-- Grupo meses -->
+                            <th colspan="12" class="th-group">Firmas realizadas por mes</th>
+
+                            <!-- Grupo % meses -->
+                            <th colspan="12" class="th-group">% por mes</th>
                         </tr>
+
+                        <!-- ⭐ ESTA FILA SE RELLENA DESDE JS -->
+                        <tr id="pci-thead-row"></tr>
                     </thead>
+
                     <tbody></tbody>
+
                 </table>
             </div>
         </div>
@@ -987,6 +991,7 @@
 
     </div>
 </template>
+
 
 <!-- ============================================================
      PANEL MENSUAL — PREMIUM 2027
