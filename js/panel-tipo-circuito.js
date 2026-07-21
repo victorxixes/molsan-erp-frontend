@@ -24,7 +24,6 @@ async function initPanelCircuito() {
 
     let datos = await obtenerFirmas();
 
-    // ✔ Aplicar reglas.js para asegurar circuito correcto
     datos = datos.map(f => aplicarReglas(f));
 
     PCI_DATOS = datos;
@@ -137,7 +136,7 @@ function pci_onChangeAnio() {
 }
 
 /* ============================================================
-   THEAD DINÁMICO — OPCIÓN A (Meses + Total + %Mes + %Total)
+   THEAD DINÁMICO — Premium 2027 (Meses + Total + %Mes + %Total)
 ============================================================ */
 function pci_renderThead() {
     const theadRow = document.getElementById("pci-thead-row");
@@ -193,7 +192,7 @@ function pci_renderKpis(info) {
 }
 
 /* ============================================================
-   TABLA DETALLE — OPCIÓN A (Meses + Total + %Mes + %Total)
+   TABLA DETALLE — Premium 2027 (Meses + Total + %Mes + %Total)
 ============================================================ */
 function pci_renderTabla(info) {
     const tbody = document.querySelector("#pci-tabla-circuito tbody");
