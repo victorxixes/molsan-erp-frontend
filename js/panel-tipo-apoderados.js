@@ -6,15 +6,15 @@ let PAP_DATOS = [];
 let PAP_POR_ANIO = {};
 
 /* ============================================================
-   FORMATO MILES
+   FORMATO MILES (ÚNICA VERSIÓN)
 ============================================================ */
 function formatoMiles(n) {
     if (n === null || n === undefined || n === "") return "-";
 
-    // Si viene como string con puntos o comas → limpiarlo
+    // Limpiar strings con puntos o comas
     if (typeof n === "string") {
-        n = n.replace(/\./g, "");   // quitar puntos
-        n = n.replace(/,/g, "");    // quitar comas
+        n = n.replace(/\./g, "");
+        n = n.replace(/,/g, "");
         n = n.trim();
     }
 
@@ -87,7 +87,7 @@ function pap_groupByAnio(datos) {
 
         const a = r.apoderados[apoderado];
 
-        // 👉 Cada registro es UNA firma → contamos
+        // Cada registro = 1 firma
         a.total++;
         a.meses[mes]++;
 
