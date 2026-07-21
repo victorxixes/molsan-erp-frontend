@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL CENTRO QUE FIRMA — PREMIUM 2027 (VERSIÓN REGLAS.JS)
+   PANEL CENTRO QUE FIRMA — PREMIUM 2027 (FORMATO 2026)
 ============================================================ */
 
 let chartCentroFirma = null;
@@ -13,33 +13,26 @@ async function initPanelTipoCentroQueFirma() {
 
     console.log("🏛️ initPanelTipoCentroQueFirma() ejecutado");
 
-    // Esperar a que el HTML esté cargado
     if (!document.getElementById("pcf-select-anio")) {
         console.warn("⏳ Panel Centro que Firma aún no está en el DOM.");
         return;
     }
 
-    // 1) Cargar datos desde IndexedDB
     let datos = await obtenerFirmas();
 
-    // 2) Aplicar reglas de normalización (reglas.js)
     datos = datos.map(f => aplicarReglas(f));
 
     if (!datos || !datos.length) return;
 
-    // 3) Guardar datos globales
     PCF_DATOS = datos;
     PCF_POR_ANIO = pcf_groupByAnio(PCF_DATOS);
 
-    // 4) Rellenar selector de años
     pcf_fillSelectAnios();
     pcf_selectUltimoAnio();
 
-    // 5) Evento al cambiar año
     document.getElementById("pcf-select-anio")
         .addEventListener("change", cargarCentroQueFirma);
 
-    // 6) Primera carga
     await cargarCentroQueFirma();
 }
 
@@ -54,12 +47,8 @@ function pcf_groupByAnio(datos) {
     ];
 
     const COLABORADORES = [
-        "gestcanarias",
-        "gestoria mas",
-        "yarza gestion",
-        "julio cuesta",
-        "castillo 11",
-        "gesgalicia"
+        "gestcanarias","gestoria mas","yarza gestion",
+        "julio cuesta","castillo 11","gesgalicia"
     ];
 
     const centros = ["Molsan", "Colaboradores", "Oficina OE", "Oficina CBK"];
@@ -79,7 +68,6 @@ function pcf_groupByAnio(datos) {
         const dias = Number(f.dias);
 
         let centro = "Molsan";
-
         if (ap === "oficina caixabank") centro = "Oficina CBK";
         else if (ap === "oficina otra entidad") centro = "Oficina OE";
         else if (COLABORADORES.includes(ap)) centro = "Colaboradores";
@@ -101,7 +89,6 @@ function pcf_groupByAnio(datos) {
 
         r.total++;
 
-        // ✔ Usar tipo_firma normalizado (reglas.js)
         if (String(f.tipo_firma).toLowerCase() === "videoconferencia") r.vc++;
         else r.presencial++;
 
@@ -110,7 +97,7 @@ function pcf_groupByAnio(datos) {
             r.slaCount++;
         }
 
-        if (idxMes >= 0) r.meses[idxMes]++;
+        r.meses[idxMes]++;
     }
 
     return map;
@@ -145,10 +132,23 @@ function pcf_selectUltimoAnio() {
 }
 
 /* ============================================================
-   Cambio de año
+   THEAD DINÁMICO — Premium 2027 (Meses + Total + %Mes + %Total)
 ============================================================ */
-function pcf_onChangeAnio() {
-    cargarCentroQueFirma();
+function pcf_renderThead() {
+    const theadRow = document.getElementById("pcf-thead-row");
+    if (!theadRow) return;
+
+    const meses = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    theadRow.innerHTML = `
+        ${meses.map(m => `<th>${m}</th>`).join("")}
+        <th>Total</th>
+        ${meses.map(m => `<th>%${m}</th>`).join("")}
+        <th>%Total</th>
+    `;
 }
 
 /* ============================================================
@@ -161,22 +161,15 @@ async function cargarCentroQueFirma() {
 
     const anioSel = Number(sel.value);
 
-    // ✔ Usar datos ya normalizados en memoria
     const datos = PCF_DATOS.filter(f => Number(f.anio) === anioSel);
 
-    // Listas de clasificación
     const COLABORADORES = [
-        "gestcanarias",
-        "gestoria mas",
-        "yarza gestion",
-        "julio cuesta",
-        "castillo 11",
-        "gesgalicia"
+        "gestcanarias","gestoria mas","yarza gestion",
+        "julio cuesta","castillo 11","gesgalicia"
     ];
 
     const centros = ["Molsan", "Colaboradores", "Oficina OE", "Oficina CBK"];
 
-    // Estructura mensual + totales
     const mapa = {};
     centros.forEach(c => {
         mapa[c] = {
@@ -197,14 +190,12 @@ async function cargarCentroQueFirma() {
         const dias = Number(f.dias);
 
         let centro = "Molsan";
-
         if (ap === "oficina caixabank") centro = "Oficina CBK";
         else if (ap === "oficina otra entidad") centro = "Oficina OE";
         else if (COLABORADORES.includes(ap)) centro = "Colaboradores";
 
         mapa[centro].total++;
 
-        // ✔ Usar tipo_firma normalizado
         if (String(f.tipo_firma).toLowerCase() === "videoconferencia") {
             mapa[centro].vc++;
         } else {
@@ -220,28 +211,102 @@ async function cargarCentroQueFirma() {
     });
 
     /* ============================================================
-       Rellenar tabla mensual
+       THEAD dinámico
+    ============================================================= */
+    pcf_renderThead();
+
+    /* ============================================================
+       TABLA Premium 2027 (Meses + Total + %Mes + %Total)
     ============================================================= */
     const tbody = document.querySelector("#pcf-tabla-meses tbody");
     if (!tbody) return;
 
-    tbody.innerHTML = centros.map(c => {
+    tbody.innerHTML = "";
+
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const lista = centros.map(c => {
         const m = mapa[c];
+
         const sla = m.slaCount ? (m.slaSum / m.slaCount).toFixed(1) : "0";
         const vcPct = m.total ? ((m.vc / m.total) * 100).toFixed(1) + "%" : "0%";
 
-        return `
-            <tr>
-                <td>${c}</td>
-                <td>${m.total}</td>
-                <td>${m.presencial}</td>
-                <td>${m.vc}</td>
-                <td>${vcPct}</td>
-                <td>${sla}</td>
-                ${m.meses.map(v => `<td>${v}</td>`).join("")}
-            </tr>
+        const valoresMes = m.meses;
+        const totalVisible = valoresMes.reduce((acc, v) => acc + v, 0);
+
+        const porcentajesMes = valoresMes.map(v => {
+            if (totalVisible === 0) return "";
+            return ((v / totalVisible) * 100).toFixed(1) + "%";
+        });
+
+        return {
+            centro: c,
+            total: m.total,
+            presencial: m.presencial,
+            vc: m.vc,
+            vcPct,
+            sla,
+            valoresMes,
+            totalVisible,
+            porcentajesMes
+        };
+    });
+
+    lista.forEach(row => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${row.centro}</td>
+            <td>${row.total}</td>
+            <td>${row.presencial}</td>
+            <td>${row.vc}</td>
+            <td>${row.vcPct}</td>
+            <td>${row.sla}</td>
+
+            ${row.valoresMes.map(v => `<td>${v}</td>`).join("")}
+            <td>${row.totalVisible}</td>
+            ${row.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
+            <td>100%</td>
         `;
-    }).join("");
+
+        tbody.appendChild(tr);
+    });
+
+    /* ============================================================
+       FILA TOTAL
+    ============================================================= */
+    const totalesMes = mesesOrden.map((_, idx) =>
+        lista.reduce((acc, row) => acc + row.valoresMes[idx], 0)
+    );
+
+    const totalGeneral = totalesMes.reduce((acc, v) => acc + v, 0);
+
+    const porcentajesTotalesMes = totalesMes.map(v => {
+        if (totalGeneral === 0) return "";
+        return ((v / totalGeneral) * 100).toFixed(1) + "%";
+    });
+
+    const trTotal = document.createElement("tr");
+    trTotal.classList.add("fila-sumatorio");
+
+    trTotal.innerHTML = `
+        <td><b>TOTAL</b></td>
+        <td><b>${lista.reduce((acc,r)=>acc+r.total,0)}</b></td>
+        <td><b>${lista.reduce((acc,r)=>acc+r.presencial,0)}</b></td>
+        <td><b>${lista.reduce((acc,r)=>acc+r.vc,0)}</b></td>
+        <td><b>-</b></td>
+        <td><b>-</b></td>
+
+        ${totalesMes.map(v => `<td><b>${v}</b></td>`).join("")}
+        <td><b>${totalGeneral}</b></td>
+        ${porcentajesTotalesMes.map(p => `<td><b>${p}</b></td>`).join("")}
+        <td><b>100%</b></td>
+    `;
+
+    tbody.appendChild(trTotal);
 
     /* ============================================================
        KPIs
