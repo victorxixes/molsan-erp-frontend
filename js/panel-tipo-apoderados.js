@@ -79,6 +79,7 @@ function pap_groupByAnio(datos) {
 
         const a = r.apoderados[apoderado];
 
+        // contamos firmas (1 por registro)
         a.total++;
         a.meses[mes]++;
 
@@ -145,13 +146,25 @@ function pap_renderTablaApoderados(info) {
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
-    // 👉 Siempre usamos los 12 meses, para cualquier año
-    const mesesConDatos = [...mesesOrden];
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth();
+
+    // 1) Meses con datos reales y sin futuros del año actual
+    const mesesConDatos = mesesOrden.filter(m => {
+        const idx = mesesOrden.indexOf(m);
+
+        if (info.anio === currentYear && idx > currentMonthIndex) return false;
+
+        const totalMes = Object.values(info.apoderados)
+            .reduce((acc, a) => acc + Number(a.meses[m] || 0), 0);
+
+        return totalMes > 0;
+    });
 
     // THEAD dinámico
     pap_renderThead(mesesConDatos);
 
-    // Totales por mes
+    // 2) Totales por mes
     const totalesPorMes = mesesConDatos.map(m =>
         Object.values(info.apoderados).reduce((acc, a) => {
             const v = Number(a.meses[m] || 0);
@@ -159,7 +172,7 @@ function pap_renderTablaApoderados(info) {
         }, 0)
     );
 
-    // Construcción de lista por apoderado
+    // 3) Construcción de lista por apoderado
     const lista = Object.entries(info.apoderados).map(([nombre, a]) => {
 
         const valoresMes = mesesConDatos.map(m => Number(a.meses[m] || 0));
@@ -180,10 +193,10 @@ function pap_renderTablaApoderados(info) {
         };
     });
 
-    // Ordenar por total
+    // 4) Ordenar por total
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    // Pintar filas
+    // 5) Pintar filas
     for (const ap of lista) {
         const tr = document.createElement("tr");
 
@@ -198,7 +211,7 @@ function pap_renderTablaApoderados(info) {
         tbody.appendChild(tr);
     }
 
-    // Sumatorio final
+    // 6) SUMATORIO FINAL
     const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
 
     const trSum = document.createElement("tr");
