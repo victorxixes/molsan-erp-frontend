@@ -11,12 +11,11 @@ let PAP_POR_ANIO = {};
 function formatoMiles(n) {
     if (n === null || n === undefined || n === "") return "-";
 
-    // Elimina TODO tipo de caracteres invisibles
-    n = String(n)
-        .replace(/[^\d\-]/g, "")   // ← elimina TODO lo que no sea número
-        .trim();
+    // Elimina TODO lo que no sea dígito
+    n = String(n).replace(/[^\d]/g, "");
 
     const num = Number(n);
+    if (isNaN(num)) return "-";
 
     return num.toLocaleString("es-ES");
 }
