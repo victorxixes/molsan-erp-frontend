@@ -845,7 +845,6 @@
 
         <h2 class="titulo-modulo">📄 Panel Tipo Gestión</h2>
 
-        <!-- Header -->
         <div class="panel-header">
             <div class="panel-header-left">
                 <label>Año</label>
@@ -853,34 +852,23 @@
             </div>
         </div>
 
-        <!-- Tabla mensual -->
         <div class="panel-contenido mt-20">
             <h3 class="subtitulo-modulo">Detalle por tipo de gestión (meses con datos)</h3>
 
             <div class="tabla-scroll-x mt-10">
                 <table id="ptg-tabla-gestion" class="table-premium table-sticky tabla-excel">
 
-                    <!-- ============================
-                         THEAD (2 filas, centrado)
-                    ============================= -->
                     <thead>
                         <tr>
                             <th rowspan="2">Tipo gestión</th>
-
-                            <!-- Grupo 1 -->
-                            <th colspan="100" class="th-group">Firmas realizadas</th>
-
-                            <!-- Grupo 2 -->
-                            <th colspan="100" class="th-group">% Firmas realizadas</th>
+                            <th class="th-group" colspan="1">Firmas realizadas</th>
+                            <th class="th-group" colspan="1">% Firmas realizadas</th>
                         </tr>
 
                         <!-- ⭐ ESTA FILA SE RELLENA DESDE JS -->
                         <tr id="ptg-thead-row"></tr>
                     </thead>
 
-                    <!-- ============================
-                         TBODY dinámico
-                    ============================= -->
                     <tbody></tbody>
 
                 </table>
