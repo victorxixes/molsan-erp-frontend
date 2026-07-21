@@ -11,10 +11,14 @@ let PAP_POR_ANIO = {};
 function formatoMiles(n) {
     if (n === null || n === undefined || n === "") return "-";
 
-    // Convertir SIEMPRE a número limpio
-    const limpio = Number(String(n).replace(/\./g, "").replace(/,/g, "").trim());
+    // Elimina TODO tipo de caracteres invisibles
+    n = String(n)
+        .replace(/[^\d\-]/g, "")   // ← elimina TODO lo que no sea número
+        .trim();
 
-    return limpio.toLocaleString("es-ES");
+    const num = Number(n);
+
+    return num.toLocaleString("es-ES");
 }
 
 /* ============================================================
