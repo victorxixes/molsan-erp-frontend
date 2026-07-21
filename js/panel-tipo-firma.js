@@ -28,8 +28,9 @@ async function initPanelTipoFirma() {
     document.getElementById("ptf-select-anio")
         .addEventListener("change", ptf_onChangeAnio);
 }
+
 /* ============================================================
-   AGRUPAR POR AÑO → TIPO FIRMA → MESES (FORMATO NUEVO)
+   AGRUPAR POR AÑO → TIPO FIRMA → MESES
 ============================================================ */
 function ptf_groupByAnio(datos) {
 
@@ -77,6 +78,7 @@ function ptf_groupByAnio(datos) {
 
     return map;
 }
+
 /* ============================================================
    SELECT AÑOS
 ============================================================ */
@@ -103,6 +105,7 @@ function ptf_selectUltimoAnio() {
     sel.value = sel.options[sel.options.length - 1].value;
     ptf_onChangeAnio();
 }
+
 /* ============================================================
    CAMBIO DE AÑO
 ============================================================ */
@@ -118,14 +121,17 @@ function ptf_onChangeAnio() {
 
     ptf_renderTabla(info);
 }
+
 /* ============================================================
-   TABLA DETALLE TIPO FIRMA — FORMATO NUEVO 2026
+   TABLA DETALLE TIPO FIRMA — FORMATO PREMIUM 2027
 ============================================================ */
 function ptf_renderTabla(info) {
     const tbody = document.querySelector("#ptf-tabla-meses tbody");
-    if (!tbody) return;
+    const tfoot = document.querySelector("#ptf-tabla-meses tfoot");
+    if (!tbody || !tfoot) return;
 
     tbody.innerHTML = "";
+    tfoot.innerHTML = "";
 
     const mesesOrden = [
         "enero","febrero","marzo","abril","mayo","junio",
@@ -135,15 +141,15 @@ function ptf_renderTabla(info) {
     const currentYear = new Date().getFullYear();
     const currentMonthIndex = new Date().getMonth();
 
-    // 1) Meses con datos reales
+    // Meses con datos reales
     const mesesConDatos = mesesOrden.filter(m =>
         Object.values(info.tipos).some(t => t.meses[m] > 0)
     );
 
-    // ⭐ Generar encabezado dinámico
+    // ⭐ Encabezado dinámico
     ptf_renderThead(mesesConDatos);
 
-    // 2) Construcción de lista
+    // Construcción de lista
     const lista = Object.entries(info.tipos).map(([tipo, t]) => {
 
         const valoresMes = mesesConDatos.map(m => {
@@ -169,21 +175,45 @@ function ptf_renderTabla(info) {
 
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    // 3) Pintar filas
+    // Pintar filas
     for (const row of lista) {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
             <td>${row.tipo}</td>
-            ${row.valoresMes.map(v => `<td>${v}</td>`).join("")}
-            <td>${row.totalVisible}</td>
+            ${row.valoresMes.map(v => `<td class="num">${v}</td>`).join("")}
+            <td class="num">${row.totalVisible}</td>
             ${row.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
             <td>100%</td>
         `;
 
         tbody.appendChild(tr);
     }
+
+    /* ============================================================
+       TOTAL AL PIE (igual que Apoderados)
+    ============================================================= */
+
+    const totalesMes = mesesConDatos.map(m =>
+        Object.values(info.tipos).reduce((acc, t) => acc + (t.meses[m] || 0), 0)
+    );
+
+    const totalGeneral = totalesMes.reduce((acc, v) => acc + v, 0);
+
+    const trTotal = document.createElement("tr");
+    trTotal.classList.add("fila-sumatorio");
+
+    trTotal.innerHTML = `
+        <td><b>TOTAL</b></td>
+        ${totalesMes.map(v => `<td class="num"><b>${v}</b></td>`).join("")}
+        <td class="num"><b>${totalGeneral}</b></td>
+        ${totalesMes.map(() => `<td><b>100%</b></td>`).join("")}
+        <td><b>100%</b></td>
+    `;
+
+    tfoot.appendChild(trTotal);
 }
+
 /* ============================================================
    THEAD DINÁMICO
 ============================================================ */
