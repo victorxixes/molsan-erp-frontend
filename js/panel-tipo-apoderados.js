@@ -24,10 +24,18 @@ function formatoMiles(n) {
    INIT
 ============================================================ */
 async function initPanelApoderados() {
-    const sel = document.getElementById("pap-select-anio");
-    if (!sel) return;
+    console.log("👤 initPanelApoderados() ejecutado");
 
-    const datos = await obtenerFirmas();
+    const sel = document.getElementById("pap-select-anio");
+    if (!sel) {
+        console.warn("⏳ Panel Apoderados aún no está en el DOM.");
+        return;
+    }
+
+    let datos = await obtenerFirmas();
+    if (!datos || !datos.length) return;
+
+    // IMPORTANTÍSIMO: aplicar reglas antes de agrupar
     datos.forEach(aplicarReglas);
 
     PAP_DATOS = datos;
@@ -40,28 +48,25 @@ async function initPanelApoderados() {
 }
 
 /* ============================================================
-   AGRUPAR POR AÑO → APODERADO → MESES
+   AGRUPAR POR AÑO → APODERADO → MESES (12 posiciones)
 ============================================================ */
 function pap_groupByAnio(datos) {
-
-    const mesesValidos = MESES_ORDEN;
-
+    const meses = MESES_ORDEN; // ["enero", ..., "diciembre"]
     const map = {};
 
     for (const f of datos) {
-
         const anio = Number(f.anio);
-        if (!anio) continue;
+        if (!anio || isNaN(anio)) continue;
 
         const mes = (f.mes || "").toLowerCase().trim();
-        if (!mesesValidos.includes(mes)) continue;
+        const idxMes = meses.indexOf(mes);
+        if (idxMes === -1) continue;
 
         const apoderado = f.apoderado || "Sin apoderado";
 
         if (!map[anio]) {
             map[anio] = {
-                apoderados: {},
-                mesesConDatos: new Set()
+                apoderados: {}
             };
         }
 
@@ -77,10 +82,7 @@ function pap_groupByAnio(datos) {
         const a = r.apoderados[apoderado];
 
         a.total++;
-        const idx = mesesValidos.indexOf(mes);
-        if (idx >= 0) a.meses[idx]++;
-
-        r.mesesConDatos.add(mes);
+        a.meses[idxMes]++;
     }
 
     return map;
@@ -107,7 +109,7 @@ function pap_fillSelectAnios() {
 
 function pap_selectUltimoAnio() {
     const sel = document.getElementById("pap-select-anio");
-    if (!sel) return;
+    if (!sel || sel.options.length === 0) return;
 
     sel.value = sel.options[sel.options.length - 1].value;
     pap_onChangeAnio();
@@ -142,43 +144,32 @@ function pap_renderTablaApoderados(info) {
     const currentYear = new Date().getFullYear();
     const currentMonthIndex = new Date().getMonth();
 
+    // 🔥 REGLA CLARA:
+    // - Año actual → hasta mes actual
+    // - Años cerrados → SIEMPRE 12 meses
     let mesesValidos;
-
-    /* ============================================================
-       1) MESES CORRECTOS (SOLUCIÓN DEFINITIVA)
-    ============================================================= */
-
     if (info.anio === currentYear) {
-        // Año actual → solo hasta el mes actual
         mesesValidos = meses.slice(0, currentMonthIndex + 1);
     } else {
-        // Años cerrados → SIEMPRE 12 meses
         mesesValidos = [...meses];
     }
 
-    /* ============================================================
-       THEAD DINÁMICO
-    ============================================================= */
+    // THEAD SIEMPRE CON LOS MISMOS MESES QUE TBODY
     pap_renderThead(mesesValidos);
 
-    /* ============================================================
-       2) Totales por mes
-    ============================================================= */
-    const totalesPorMes = mesesValidos.map(m =>
-        Object.values(info.apoderados).reduce((acc, a) => {
-            const idx = meses.indexOf(m);
-            return acc + Number(a.meses[idx] || 0);
-        }, 0)
-    );
+    // Totales por mes
+    const totalesPorMes = mesesValidos.map((m, idxVisible) => {
+        const idxReal = meses.indexOf(m);
+        return Object.values(info.apoderados).reduce((acc, a) => {
+            return acc + Number(a.meses[idxReal] || 0);
+        }, 0);
+    });
 
-    /* ============================================================
-       3) Construcción de lista por apoderado
-    ============================================================= */
+    // Construcción de lista por apoderado
     const lista = Object.entries(info.apoderados).map(([nombre, a]) => {
-
         const valoresMes = mesesValidos.map(m => {
-            const idx = meses.indexOf(m);
-            return Number(a.meses[idx] || 0);
+            const idxReal = meses.indexOf(m);
+            return Number(a.meses[idxReal] || 0);
         });
 
         const totalVisible = valoresMes.reduce((acc, v) => acc + v, 0);
@@ -197,11 +188,10 @@ function pap_renderTablaApoderados(info) {
         };
     });
 
+    // Ordenar por total
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    /* ============================================================
-       5) Pintar filas
-    ============================================================= */
+    // Pintar filas
     for (const ap of lista) {
         const tr = document.createElement("tr");
 
@@ -216,10 +206,8 @@ function pap_renderTablaApoderados(info) {
         tbody.appendChild(tr);
     }
 
-    /* ============================================================
-       6) SUMATORIO FINAL
-    ============================================================= */
-    const sumatorioTotal = totalesPorMes.reduce((a,b)=>a+b,0);
+    // SUMATORIO FINAL
+    const sumatorioTotal = totalesPorMes.reduce((acc, v) => acc + v, 0);
 
     const trSum = document.createElement("tr");
     trSum.classList.add("fila-sumatorio");
