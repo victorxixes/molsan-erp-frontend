@@ -1,166 +1,273 @@
 /* ============================================================
-   PANEL EVOLUTIVO — PREMIUM 2027 (2020–2026)
+   PANEL SLA — PREMIUM 2027
 ============================================================ */
 
-let EVO_CHART_LINE = null;
-let EVO_CHART_RANKING = null;
-let EVO_CHART_HEATMAP = null;
-let EVO_CHART_PERCENT = null;
+let SLA_DATOS = [];
+let SLA_POR_ANIO = {};
+
+let SLA_CHART_EVOLUCION = null;
+let SLA_CHART_CONTRA = null;
 
 /* ============================================================
    INIT
 ============================================================ */
-async function initInformeEvolutivo() {
-    console.log("📈 initInformeEvolutivo() ejecutado");
+async function initPanelSLA() {
+    console.log("⏱️ initPanelSLA() ejecutado");
+
+    const sel = document.getElementById("sla-select-anio");
+    if (!sel) {
+        console.warn("⏳ Panel SLA aún no está en el DOM.");
+        return;
+    }
 
     const datos = await obtenerFirmas();
     if (!datos || !datos.length) return;
 
-    const agrupado = evo_groupByAnio(datos);
+    SLA_DATOS = datos;
+    SLA_POR_ANIO = sla_groupByAnio(datos);
 
-    evo_renderTabla(agrupado);
-    evo_renderGraficos(agrupado);
+    sla_fillSelectAnios();
+    sla_selectUltimoAnio();
+
+    sel.addEventListener("change", sla_onChangeAnio);
 }
 
 /* ============================================================
-   AGRUPAR POR AÑO → MES → TOTAL
+   AGRUPAR POR AÑO → MES → TIPO GESTIÓN
 ============================================================ */
-function evo_groupByAnio(datos) {
+function sla_groupByAnio(datos) {
 
-    const meses = [
+    const mesesValidos = [
         "enero","febrero","marzo","abril","mayo","junio",
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
     const map = {};
+    const currentYear = new Date().getFullYear();
+    const currentMonthIndex = new Date().getMonth();
 
     for (const f of datos) {
 
         const anio = Number(f.anio);
         const mes = (f.mes || "").toLowerCase().trim();
-        const idx = meses.indexOf(mes);
+        const idxMes = mesesValidos.indexOf(mes);
 
-        if (!anio || idx === -1) continue;
+        if (!anio || idxMes === -1) continue;
 
-        if (!map[anio]) {
-            map[anio] = meses.map(() => 0);
+        // Evitar meses futuros del año actual
+        if (anio === currentYear && idxMes > currentMonthIndex) continue;
+
+        const dias = Number(f.dias);
+        const tipo = f.tipo_gestion || "Con provisión";
+        const esVC = (f.tipo_firma === "VideoConferencia");
+
+        if (!map[anio]) map[anio] = {};
+
+        if (!map[anio][mes]) {
+            map[anio][mes] = {
+                total: 0,
+                presencial: 0,
+                vc: 0,
+                sumaDias: 0,
+                cuentaDias: 0,
+                con: { suma: 0, cuenta: 0 },
+                sin: { suma: 0, cuenta: 0 }
+            };
         }
 
-        map[anio][idx]++;
+        const r = map[anio][mes];
+
+        r.total++;
+        if (esVC) r.vc++; else r.presencial++;
+
+        if (dias > 0) {
+            r.sumaDias += dias;
+            r.cuentaDias++;
+
+            if (tipo === "Con provisión") {
+                r.con.suma += dias;
+                r.con.cuenta++;
+            } else {
+                r.sin.suma += dias;
+                r.sin.cuenta++;
+            }
+        }
     }
 
     return map;
 }
 
 /* ============================================================
-   TABLA EVOLUTIVA 2020–2026
+   SELECT AÑOS
 ============================================================ */
-function evo_renderTabla(map) {
+function sla_fillSelectAnios() {
+    const sel = document.getElementById("sla-select-anio");
+    if (!sel) return;
 
-    const tbody = document.getElementById("evo-tabla");
+    sel.innerHTML = "";
+
+    const anios = Object.keys(SLA_POR_ANIO).map(Number).sort((a,b)=>a-b);
+
+    for (const anio of anios) {
+        const opt = document.createElement("option");
+        opt.value = anio;
+        opt.textContent = anio;
+        sel.appendChild(opt);
+    }
+}
+
+function sla_selectUltimoAnio() {
+    const sel = document.getElementById("sla-select-anio");
+    if (!sel || sel.options.length === 0) return;
+
+    sel.value = sel.options[sel.options.length - 1].value;
+    sla_onChangeAnio();
+}
+
+/* ============================================================
+   CAMBIO DE AÑO
+============================================================ */
+function sla_onChangeAnio() {
+    const sel = document.getElementById("sla-select-anio");
+    if (!sel) return;
+
+    const anio = Number(sel.value);
+    const info = SLA_POR_ANIO[anio];
+    if (!info) return;
+
+    sla_renderKpis(info);
+    sla_renderTabla(info);
+    sla_renderGraficos(info);
+}
+
+/* ============================================================
+   KPIs
+============================================================ */
+function sla_renderKpis(info) {
+
+    let total = 0;
+    let vc = 0;
+
+    let sumaDias = 0;
+    let cuentaDias = 0;
+
+    let sumaCon = 0;
+    let cuentaCon = 0;
+
+    let sumaSin = 0;
+    let cuentaSin = 0;
+
+    for (const mes in info) {
+        const r = info[mes];
+
+        total += r.total;
+        vc += r.vc;
+
+        sumaDias += r.sumaDias;
+        cuentaDias += r.cuentaDias;
+
+        sumaCon += r.con.suma;
+        cuentaCon += r.con.cuenta;
+
+        sumaSin += r.sin.suma;
+        cuentaSin += r.sin.cuenta;
+    }
+
+    const sla = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
+    const slaCon = cuentaCon ? (sumaCon / cuentaCon).toFixed(1) : "0";
+    const slaSin = cuentaSin ? (sumaSin / cuentaSin).toFixed(1) : "0";
+
+    slaSafeSet("sla-kpi-total", total);
+    slaSafeSet("sla-kpi-sla", sla);
+    slaSafeSet("sla-kpi-con", slaCon);
+    slaSafeSet("sla-kpi-sin", slaSin);
+}
+
+/* Helper seguro */
+function slaSafeSet(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+/* ============================================================
+   TABLA DETALLE
+============================================================ */
+function sla_renderTabla(info) {
+
+    const tbody = document.querySelector("#sla-tabla-meses tbody");
     tbody.innerHTML = "";
 
-    const meses = [
+    const mesesOrden = [
         "enero","febrero","marzo","abril","mayo","junio",
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
-    const anios = [2020,2021,2022,2023,2024,2025,2026];
+    for (const mes of mesesOrden) {
 
-    for (let i = 0; i < meses.length; i++) {
+        const r = info[mes];
 
-        const fila = document.createElement("tr");
-
-        const totalesAnio = anios.map(a => map[a] ? map[a][i] : 0);
-        const totalMes = totalesAnio.reduce((acc,v)=>acc+v,0);
-
-        const pct = [];
-        for (let j = 1; j < anios.length; j++) {
-            const prev = map[anios[j-1]] ? map[anios[j-1]][i] : 0;
-            const curr = map[anios[j]] ? map[anios[j]][i] : 0;
-            const p = prev ? ((curr - prev) / prev * 100).toFixed(1) + "%" : "0%";
-            pct.push(p);
+        if (!r) {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${mes}</td>
+                    <td>0</td><td>0</td><td>0</td><td>0</td>
+                    <td>0</td><td>0</td><td>0%</td>
+                </tr>`;
+            continue;
         }
 
-        const pctTotal = totalMes ? ((totalMes / totalesAnio[0]) * 100).toFixed(1) + "%" : "0%";
+        const sla = r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : "0";
+        const slaCon = r.con.cuenta ? (r.con.suma / r.con.cuenta).toFixed(1) : "0";
+        const slaSin = r.sin.cuenta ? (r.sin.suma / r.sin.cuenta).toFixed(1) : "0";
+        const pctVC = r.total ? ((r.vc / r.total) * 100).toFixed(1) + "%" : "0%";
 
-        fila.innerHTML = `
-            <td>${meses[i]}</td>
-            ${totalesAnio.map(v => `<td>${v}</td>`).join("")}
-            <td>${totalMes}</td>
-            ${pct.map(p => `<td>${p}</td>`).join("")}
-            <td>${pctTotal}</td>
-        `;
-
-        tbody.appendChild(fila);
+        tbody.innerHTML += `
+            <tr>
+                <td>${mes}</td>
+                <td>${r.total}</td>
+                <td>${sla}</td>
+                <td>${slaCon}</td>
+                <td>${slaSin}</td>
+                <td>${r.presencial}</td>
+                <td>${r.vc}</td>
+                <td>${pctVC}</td>
+            </tr>`;
     }
 }
 
 /* ============================================================
    GRÁFICOS PREMIUM 2027
 ============================================================ */
-function evo_renderGraficos(map) {
+function sla_renderGraficos(info) {
 
     const meses = [
         "enero","febrero","marzo","abril","mayo","junio",
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
-    const anios = [2020,2021,2022,2023,2024,2025,2026];
+    /* ------------------------------
+       1) Evolución SLA (línea)
+    ------------------------------ */
+    const dataEvo = meses.map(m => {
+        const r = info[m];
+        return r && r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : 0;
+    });
 
-    /* ============================================================
-       1️⃣ Evolución anual comparada (líneas)
-    ============================================================= */
+    const ctxEvo = document.getElementById("sla-chart-evolucion");
 
-    const ctxLine = document.getElementById("evo-chart-line");
+    if (SLA_CHART_EVOLUCION) SLA_CHART_EVOLUCION.destroy();
 
-    if (EVO_CHART_LINE) EVO_CHART_LINE.destroy();
-
-    EVO_CHART_LINE = new Chart(ctxLine, {
+    SLA_CHART_EVOLUCION = new Chart(ctxEvo, {
         type: "line",
         data: {
             labels: meses,
-            datasets: anios.map((a, idx) => ({
-                label: a,
-                data: map[a] || meses.map(()=>0),
-                borderColor: `hsl(${idx*50},70%,50%)`,
-                backgroundColor: `hsla(${idx*50},70%,50%,0.2)`,
+            datasets: [{
+                label: "SLA mensual",
+                data: dataEvo,
+                borderColor: "rgba(80,200,255,1)",
+                backgroundColor: "rgba(80,200,255,0.3)",
                 borderWidth: 2,
                 tension: 0.3
-            }))
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { position: "bottom" }},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
-        }
-    });
-
-    /* ============================================================
-       2️⃣ Ranking anual total (barras)
-    ============================================================= */
-
-    const totalesAnio = anios.map(a =>
-        map[a] ? map[a].reduce((acc,v)=>acc+v,0) : 0
-    );
-
-    const ctxRank = document.getElementById("evo-chart-ranking");
-
-    if (EVO_CHART_RANKING) EVO_CHART_RANKING.destroy();
-
-    EVO_CHART_RANKING = new Chart(ctxRank, {
-        type: "bar",
-        data: {
-            labels: anios,
-            datasets: [{
-                label: "Total anual",
-                data: totalesAnio,
-                backgroundColor: "rgba(80,200,255,0.5)",
-                borderColor: "rgba(80,200,255,1)",
-                borderWidth: 1.5
             }]
         },
         options: {
@@ -173,80 +280,52 @@ function evo_renderGraficos(map) {
         }
     });
 
-    /* ============================================================
-       3️⃣ Heatmap mensual (intensidad)
-    ============================================================= */
+    /* ------------------------------
+       2) SLA Con vs Sin (barras)
+    ------------------------------ */
+    const dataCon = meses.map(m => {
+        const r = info[m];
+        return r && r.con.cuenta ? (r.con.suma / r.con.cuenta).toFixed(1) : 0;
+    });
 
-    const ctxHeat = document.getElementById("evo-chart-heatmap");
+    const dataSin = meses.map(m => {
+        const r = info[m];
+        return r && r.sin.cuenta ? (r.sin.suma / r.sin.cuenta).toFixed(1) : 0;
+    });
 
-    if (EVO_CHART_HEATMAP) EVO_CHART_HEATMAP.destroy();
+    const ctxContra = document.getElementById("sla-chart-contra");
 
-    const heatData = {
-        labels: meses,
-        datasets: anios.map((a, idx) => ({
-            label: a,
-            data: map[a] || meses.map(()=>0),
-            backgroundColor: map[a].map(v => {
-                const pct = v / Math.max(...map[a]) || 0;
-                return `rgba(255,0,0,${pct})`;
-            }),
-            borderWidth: 1
-        }))
-    };
+    if (SLA_CHART_CONTRA) SLA_CHART_CONTRA.destroy();
 
-    EVO_CHART_HEATMAP = new Chart(ctxHeat, {
+    SLA_CHART_CONTRA = new Chart(ctxContra, {
         type: "bar",
-        data: heatData,
+        data: {
+            labels: meses,
+            datasets: [
+                {
+                    label: "SLA Con provisión",
+                    data: dataCon,
+                    backgroundColor: "rgba(255,159,64,0.7)"
+                },
+                {
+                    label: "SLA Sin provisión",
+                    data: dataSin,
+                    backgroundColor: "rgba(99,132,255,0.7)"
+                }
+            ]
+        },
         options: {
-            indexAxis: "y",
             responsive: true,
-            plugins: { legend: { position: "right" }},
+            plugins: { legend: { display: true }},
             scales: {
                 x: { stacked: true, ticks: { color: "#111" }},
                 y: { stacked: true, ticks: { color: "#111" }}
             }
         }
     });
-
-    /* ============================================================
-       4️⃣ % Evolutivo año a año (línea)
-    ============================================================= */
-
-    const percentData = anios.slice(1).map((a, idx) => {
-        const prev = anios[idx];
-        const totalPrev = map[prev] ? map[prev].reduce((acc,v)=>acc+v,0) : 0;
-        const totalCurr = map[a] ? map[a].reduce((acc,v)=>acc+v,0) : 0;
-        return totalPrev ? ((totalCurr - totalPrev) / totalPrev * 100).toFixed(1) : 0;
-    });
-
-    const ctxPercent = document.getElementById("evo-chart-percent");
-
-    if (EVO_CHART_PERCENT) EVO_CHART_PERCENT.destroy();
-
-    EVO_CHART_PERCENT = new Chart(ctxPercent, {
-        type: "line",
-        data: {
-            labels: anios.slice(1),
-            datasets: [{
-                label: "% Evolutivo",
-                data: percentData,
-                borderColor: "rgba(255,120,80,1)",
-                backgroundColor: "rgba(255,120,80,0.3)",
-                borderWidth: 2,
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false }},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
-        }
-    });
 }
-* ============================================================
+
+/* ============================================================
    HACER GLOBAL LA FUNCIÓN PARA main.js
 ============================================================ */
 window.initPanelSLA = initPanelSLA;
