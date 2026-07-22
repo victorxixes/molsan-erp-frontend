@@ -879,6 +879,7 @@
 
         <h2 class="titulo-modulo">🏢 Panel Oficinas</h2>
 
+        <!-- Header -->
         <div class="panel-header">
             <div class="panel-header-left">
                 <label>Año</label>
@@ -886,24 +887,35 @@
             </div>
         </div>
 
+        <!-- Tabla mensual -->
         <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Detalle por Oficina</h3>
+            <h3 class="subtitulo-modulo">Detalle por Oficina (meses con datos)</h3>
 
-            <table id="pof-tabla-oficinas" class="table-premium tabla-excel table-sticky">
+            <div class="tabla-scroll-x mt-10">
+                <table id="pof-tabla-oficinas" class="table-premium table-sticky tabla-excel">
 
-                <thead>
-                    <tr>
-                        <th rowspan="2">Oficina</th>
-                        <th colspan="7" class="th-group">Firmas realizadas</th>
-                        <th colspan="7" class="th-group">% Firmas realizadas</th>
-                    </tr>
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Oficina</th>
 
-                    <tr id="pof-thead-row"></tr>
-                </thead>
+                            <!-- Grupo meses -->
+                            <th colspan="12" class="th-group">Firmas realizadas por mes</th>
 
-                <tbody></tbody>
+                            <!-- Grupo % meses -->
+                            <th colspan="12" class="th-group">% por mes</th>
 
-            </table>
+                            <th rowspan="2">Total</th>
+                            <th rowspan="2">%Total</th>
+                        </tr>
+
+                        <!-- ⭐ ESTA FILA SE RELLENA DESDE JS -->
+                        <tr id="pof-thead-row"></tr>
+                    </thead>
+
+                    <tbody></tbody>
+
+                </table>
+            </div>
         </div>
 
     </div>
