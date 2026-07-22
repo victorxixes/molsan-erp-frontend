@@ -1,5 +1,5 @@
 /* ============================================================
-   INFORME EVOLUTIVO — TABLA COMPLETA 2020–2026 (ULTRA OPTIMIZADO)
+   INFORME EVOLUTIVO — TABLA COMPLETA 2020–2026 (PREMIUM 2027)
 ============================================================ */
 
 console.log("🔥 informes-evolutivo.js cargado");
@@ -23,24 +23,16 @@ async function initInformeEvolutivo() {
 
         if (!tabla || !resumen || !contenedorFinal) return;
 
-        // Limpia el tbody
         tabla.innerHTML = "";
 
-        // ⭐ PARCHE PREMIUM 2027 — Fuerza al navegador a respetar el THEAD del template
+        // ⭐ Parche Premium — fuerza al navegador a respetar el THEAD
         const thead = tabla.parentElement.querySelector("thead");
-        if (thead) {
-            thead.innerHTML = thead.innerHTML;
-        }
+        if (thead) thead.innerHTML = thead.innerHTML;
 
         const datos = await obtenerFirmas();
-        console.log("🔥 datos obtenidos:", datos.length);
 
-        // ============================
-        // 1) PRECALCULAR TODO EN UN SOLO RECORRIDO
-        // ============================
-
-        const totalesPorMesYAnio = {};   // ej: totalesPorMesYAnio["enero"][2023] = 123
-        const totalesPorAnio = {};       // ej: totalesPorAnio[2023] = 5000
+        const totalesPorMesYAnio = {};
+        const totalesPorAnio = {};
 
         let ultimoAnio = 0;
 
@@ -53,26 +45,19 @@ async function initInformeEvolutivo() {
 
             if (anio > ultimoAnio) ultimoAnio = anio;
 
-            // totales por año
             totalesPorAnio[anio] = (totalesPorAnio[anio] || 0) + 1;
 
-            // totales por mes y año
             if (!totalesPorMesYAnio[mes]) totalesPorMesYAnio[mes] = {};
             totalesPorMesYAnio[mes][anio] = (totalesPorMesYAnio[mes][anio] || 0) + 1;
         }
 
-        // ============================
-        // 2) MESES DEL ÚLTIMO AÑO
-        // ============================
-
         let mesesConDatos = Object.keys(totalesPorMesYAnio)
-            .filter(m => totalesPorMesYAnio[m][ultimoAnio] > 0);
+            .filter(m => totalesPorMesYAnio[m][ultimoAnio] > 0)
+            .sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
 
-        mesesConDatos.sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
-
-        // ============================
+        // ============================================================
         // 3) FILAS POR MES
-        // ============================
+        // ============================================================
 
         mesesConDatos.forEach(mes => {
 
@@ -94,19 +79,23 @@ async function initInformeEvolutivo() {
                 porcentajes.push(pct);
             }
 
+            // ⭐ %Total
+            const pctTotal = valores[0] ? ((valores[valores.length-1] - valores[0]) / valores[0] * 100) : 0;
+
             fila.innerHTML = `
                 <td>${mes}</td>
-                ${valores.map(v => `<td>${v}</td>`).join("")}
-                <td>${total}</td>
-                ${porcentajes.map(p => `<td>${p.toFixed(2)}%</td>`).join("")}
+                ${valores.map(v => `<td class="center">${v}</td>`).join("")}
+                <td class="center">${total}</td>
+                ${porcentajes.map(p => `<td class="center">${p.toFixed(2)}%</td>`).join("")}
+                <td class="center">${pctTotal.toFixed(2)}%</td>
             `;
 
             tabla.appendChild(fila);
         });
 
-        // ============================
+        // ============================================================
         // 4) TOTAL POR AÑO
-        // ============================
+        // ============================================================
 
         const filaTotal = document.createElement("tr");
         filaTotal.classList.add("fila-total");
@@ -125,18 +114,24 @@ async function initInformeEvolutivo() {
             pctGeneral.push(prev ? ((act - prev) / prev * 100) : 0);
         }
 
+        // ⭐ %Total general
+        const pctTotalGeneral = totalesAnioArray[0]
+            ? ((totalesAnioArray[totalesAnioArray.length-1] - totalesAnioArray[0]) / totalesAnioArray[0] * 100)
+            : 0;
+
         filaTotal.innerHTML = `
             <td><strong>Total general</strong></td>
-            ${totalesAnioArray.map(t => `<td><strong>${t}</strong></td>`).join("")}
-            <td><strong>${totalGeneral}</strong></td>
-            ${pctGeneral.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
+            ${totalesAnioArray.map(t => `<td class="center"><strong>${t}</strong></td>`).join("")}
+            <td class="center"><strong>${totalGeneral}</strong></td>
+            ${pctGeneral.map(p => `<td class="center"><strong>${p.toFixed(2)}%</strong></td>`).join("")}
+            <td class="center"><strong>${pctTotalGeneral.toFixed(2)}%</strong></td>
         `;
 
         tabla.appendChild(filaTotal);
 
-        // ============================
+        // ============================================================
         // 5) TOTAL HASTA ÚLTIMO MES REAL
-        // ============================
+        // ============================================================
 
         const ultimoMesReal = mesesConDatos[mesesConDatos.length - 1];
         const mesActualIdx = MESES_ORDEN.indexOf(ultimoMesReal);
@@ -162,23 +157,29 @@ async function initInformeEvolutivo() {
             pctHasta.push(prev ? ((act - prev) / prev * 100) : 0);
         }
 
+        // ⭐ %Total hasta último mes
+        const pctTotalHasta = totalesHasta[0]
+            ? ((totalesHasta[totalesHasta.length-1] - totalesHasta[0]) / totalesHasta[0] * 100)
+            : 0;
+
         const filaHasta = document.createElement("tr");
         filaHasta.classList.add("fila-total");
 
         filaHasta.innerHTML = `
             <td><strong>Hasta ${ultimoMesReal}</strong></td>
-            ${totalesHasta.map(t => `<td><strong>${t}</strong></td>`).join("")}
+            ${totalesHasta.map(t => `<td class="center"><strong>${t}</strong></td>`).join("")}
             <td></td>
-            ${pctHasta.map(p => `<td><strong>${p.toFixed(2)}%</strong></td>`).join("")}
+            ${pctHasta.map(p => `<td class="center"><strong>${p.toFixed(2)}%</strong></td>`).join("")}
+            <td class="center"><strong>${pctTotalHasta.toFixed(2)}%</strong></td>
         `;
 
         tabla.appendChild(filaHasta);
 
-        // ============================
+        // ============================================================
         // 6) RESUMEN
-        // ============================
+        // ============================================================
 
-        resumen.textContent = `Evolución total: ${pctHasta[pctHasta.length-1].toFixed(2)}%`;
+        resumen.textContent = `Evolución total: ${pctTotalHasta.toFixed(2)}%`;
 
         contenedorFinal.innerHTML = `
             <div class="card-glass mt-20">
