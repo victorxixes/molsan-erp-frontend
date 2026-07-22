@@ -1,83 +1,64 @@
 /* ============================================================
-   PANEL OFICINAS — PREMIUM 2027 (FORMATO 2026)
+   PANEL OFICINAS — PREMIUM 2027 (FORMATO 7 MESES)
 ============================================================ */
 
 let POF_DATOS = [];
 let POF_POR_ANIO = {};
 
-/* ============================================================
-   INIT
-============================================================ */
 async function initPanelOficinas() {
+
     console.log("🏢 initPanelOficinas() ejecutado");
 
-    if (!document.getElementById("pof-select-anio")) {
-        console.warn("⏳ Panel Oficinas aún no está en el DOM.");
-        return;
-    }
+    if (!document.getElementById("pof-select-anio")) return;
 
-    const datos = await obtenerFirmas();
-    if (!datos || !datos.length) return;
+    let datos = await obtenerFirmas();
+    datos = datos.map(f => aplicarReglas(f));
 
     POF_DATOS = datos;
-    POF_POR_ANIO = pof_groupByAnioOficina(POF_DATOS);
+    POF_POR_ANIO = pof_groupByAnio(datos);
 
     pof_fillSelectAnios();
     pof_selectUltimoAnio();
 
     document.getElementById("pof-select-anio")
-        .addEventListener("change", pof_onChangeAnio);
+        .addEventListener("change", cargarOficinas);
+
+    cargarOficinas();
 }
 
 /* ============================================================
-   AGRUPAR POR AÑO → OFICINA → MESES
+   AGRUPAR POR AÑO → OFICINA → MES (solo enero–junio)
 ============================================================ */
-function pof_groupByAnioOficina(datos) {
+function pof_groupByAnio(datos) {
 
-    const mesesValidos = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    const mesesValidos = ["enero","febrero","marzo","abril","mayo","junio"];
 
     const map = {};
 
     for (const f of datos) {
 
         const anio = Number(f.anio);
-        if (!anio || isNaN(anio)) continue;
+        if (!anio) continue;
 
         const mes = (f.mes || "").toLowerCase().trim();
-        if (!mesesValidos.includes(mes)) continue;
+        const idxMes = mesesValidos.indexOf(mes);
+        if (idxMes === -1) continue;
 
-        // Normalizar oficina
-        let oficinaRaw = String(f.oficina || "").trim();
-        let oficinaNum = oficinaRaw.replace(/[^0-9]/g, "");
-        let oficina = (oficinaNum === "5316") ? "Cancela" : "Oficina";
+        const oficina = f.oficina || "Oficina";
 
-        if (!map[anio]) {
-            map[anio] = {
-                oficinas: {},
-                mesesConDatos: new Set()
+        if (!map[anio]) map[anio] = {};
+
+        if (!map[anio][oficina]) {
+            map[anio][oficina] = {
+                meses: Array(6).fill(0),
+                total: 0
             };
         }
 
-        const r = map[anio];
+        const r = map[anio][oficina];
 
-        if (!r.oficinas[oficina]) {
-            r.oficinas[oficina] = {
-                total: 0,
-                meses: {}
-            };
-
-            mesesValidos.forEach(m => r.oficinas[oficina].meses[m] = 0);
-        }
-
-        const o = r.oficinas[oficina];
-
-        o.total++;
-        o.meses[mes]++;
-
-        r.mesesConDatos.add(mes);
+        r.meses[idxMes]++;
+        r.total++;
     }
 
     return map;
@@ -107,98 +88,69 @@ function pof_selectUltimoAnio() {
     if (!sel || sel.options.length === 0) return;
 
     sel.value = sel.options[sel.options.length - 1].value;
-    pof_onChangeAnio();
 }
 
 /* ============================================================
-   CAMBIO DE AÑO
+   THEAD dinámico — Premium 2027 (enero–junio + Total + %mes + %Total)
 ============================================================ */
-function pof_onChangeAnio() {
-    const sel = document.getElementById("pof-select-anio");
-    if (!sel) return;
-
-    const anio = Number(sel.value);
-    const info = POF_POR_ANIO[anio];
-    if (!info) return;
-
-    info.anio = anio;
-
-    pof_renderTabla(info);
-}
-
-/* ============================================================
-   THEAD DINÁMICO — Premium 2027 (Meses + Total + %Mes + %Total)
-============================================================ */
-function pof_renderThead(mesesConDatos) {
+function pof_renderThead() {
     const theadRow = document.getElementById("pof-thead-row");
     if (!theadRow) return;
 
+    const meses = ["enero","febrero","marzo","abril","mayo","junio"];
+
     theadRow.innerHTML = `
-        <th>Oficina</th>
-        ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
+        ${meses.map(m => `<th>${m}</th>`).join("")}
         <th>Total</th>
-        ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
+        ${meses.map(m => `<th>%${m}</th>`).join("")}
         <th>%Total</th>
     `;
 }
 
 /* ============================================================
-   TABLA DETALLE OFICINAS — Premium 2027
+   TABLA DETALLE — Premium 2027 (enero–junio + Total + %Mes + %Total)
 ============================================================ */
-function pof_renderTabla(info) {
+function cargarOficinas() {
+
+    const sel = document.getElementById("pof-select-anio");
+    if (!sel) return;
+
+    const anioSel = Number(sel.value);
+    const info = POF_POR_ANIO[anioSel];
+    if (!info) return;
+
+    pof_renderThead();
+
     const tbody = document.querySelector("#pof-tabla-oficinas tbody");
     if (!tbody) return;
 
     tbody.innerHTML = "";
 
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    const mesesOrden = ["enero","febrero","marzo","abril","mayo","junio"];
 
-    const currentYear = new Date().getFullYear();
-    const currentMonthIndex = new Date().getMonth();
+    const lista = Object.entries(info).map(([oficina, r]) => {
 
-    // Meses con datos reales
-    const mesesConDatos = mesesOrden.filter(m =>
-        Object.values(info.oficinas).some(o => o.meses[m] > 0)
-    );
-
-    // THEAD dinámico
-    pof_renderThead(mesesConDatos);
-
-    // Construcción de lista
-    const lista = Object.entries(info.oficinas).map(([nombre, o]) => {
-
-        const valoresMes = mesesConDatos.map(m => {
-            const idx = mesesOrden.indexOf(m);
-            if (info.anio === currentYear && idx > currentMonthIndex) return "";
-            return o.meses[m] || 0;
-        });
-
-        const totalVisible = valoresMes.reduce((acc, v) => acc + (v || 0), 0);
+        const valoresMes = r.meses;
+        const totalVisible = valoresMes.reduce((acc, v) => acc + v, 0);
 
         const porcentajesMes = valoresMes.map(v => {
-            if (v === "" || totalVisible === 0) return "";
+            if (totalVisible === 0) return "";
             return ((v / totalVisible) * 100).toFixed(1) + "%";
         });
 
         return {
-            nombre,
+            oficina,
             valoresMes,
             totalVisible,
             porcentajesMes
         };
     });
 
-    lista.sort((a,b)=>b.totalVisible - a.totalVisible);
-
-    // Pintar filas
-    for (const row of lista) {
+    lista.forEach(row => {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
-            <td>${row.nombre}</td>
+            <td>${row.oficina}</td>
             ${row.valoresMes.map(v => `<td>${v}</td>`).join("")}
             <td>${row.totalVisible}</td>
             ${row.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
@@ -206,32 +158,32 @@ function pof_renderTabla(info) {
         `;
 
         tbody.appendChild(tr);
-    }
-
-    /* ============================================================
-       SUMATORIO FINAL
-    ============================================================= */
-    const sumatorioMeses = mesesConDatos.map((m, idx) =>
-        lista.reduce((acc, row) => acc + (row.valoresMes[idx] || 0), 0)
-    );
-
-    const sumatorioTotal = sumatorioMeses.reduce((acc, v) => acc + v, 0);
-
-    const porcentajesTotalesMes = sumatorioMeses.map(v => {
-        if (sumatorioTotal === 0) return "";
-        return ((v / sumatorioTotal) * 100).toFixed(1) + "%";
     });
 
-    const trSum = document.createElement("tr");
-    trSum.classList.add("fila-sumatorio");
+    /* ============================================================
+       FILA TOTAL
+    ============================================================= */
+    const totalesMes = mesesOrden.map((_, idx) =>
+        lista.reduce((acc, row) => acc + row.valoresMes[idx], 0)
+    );
 
-    trSum.innerHTML = `
+    const totalGeneral = totalesMes.reduce((acc, v) => acc + v, 0);
+
+    const porcentajesTotalesMes = totalesMes.map(v => {
+        if (totalGeneral === 0) return "";
+        return ((v / totalGeneral) * 100).toFixed(1) + "%";
+    });
+
+    const trTotal = document.createElement("tr");
+    trTotal.classList.add("fila-sumatorio");
+
+    trTotal.innerHTML = `
         <td><b>TOTAL</b></td>
-        ${sumatorioMeses.map(v => `<td><b>${v}</b></td>`).join("")}
-        <td><b>${sumatorioTotal}</b></td>
+        ${totalesMes.map(v => `<td><b>${v}</b></td>`).join("")}
+        <td><b>${totalGeneral}</b></td>
         ${porcentajesTotalesMes.map(p => `<td><b>${p}</b></td>`).join("")}
         <td><b>100%</b></td>
     `;
 
-    tbody.appendChild(trSum);
+    tbody.appendChild(trTotal);
 }
