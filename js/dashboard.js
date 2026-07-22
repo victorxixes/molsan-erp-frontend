@@ -1,27 +1,84 @@
 /* ============================================================
-   DASHBOARD — COMPARATIVA ANUAL 2027 (GLASS LUXE)
+   DASHBOARD — GLASS LUXE 2027 (COMPLETO)
 ============================================================ */
 
 let DASH_CHART = null;
+let DASH_CHART_MENSUAL = null;
 
 /* ============================================================
-   HELPERS PREMIUM
+   HELPERS
 ============================================================ */
 function dash_safeSet(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
 }
 
-/* ============================================================
-   DASHBOARD PREMIUM — DESACTIVADO COMPLETAMENTE
-============================================================ */
-async function initDashboardPremium() {
-    console.log("📊 Dashboard Premium 2027 desactivado (Opción D)");
-    return; // ← Esto elimina el bloque “derados” de todos los paneles
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+function diffPct(actual, anterior) {
+    if (anterior === 0) return "-";
+    return (((actual - anterior) / anterior) * 100).toFixed(1) + "%";
 }
 
 /* ============================================================
-   RESUMEN ANUAL
+   INIT DASHBOARD
+============================================================ */
+async function initDashboard() {
+    console.log("📊 initDashboard() ejecutado");
+
+    const datos = await obtenerFirmas();
+    if (!datos || !datos.length) return;
+
+    const selActual   = document.getElementById("dash-anio-actual");
+    const selAnterior = document.getElementById("dash-anio-anterior");
+
+    if (!selActual || !selAnterior) return;
+
+    const anios = [...new Set(datos.map(f => Number(f.anio)))].sort();
+
+    selActual.innerHTML = "";
+    selAnterior.innerHTML = "";
+
+    anios.forEach(a => {
+        selActual.innerHTML   += `<option value="${a}">${a}</option>`;
+        selAnterior.innerHTML += `<option value="${a}">${a}</option>`;
+    });
+
+    selActual.value   = anios[anios.length - 1];
+    selAnterior.value = anios[anios.length - 2] || anios[0];
+
+    selActual.onchange   = dashboardActualizar;
+    selAnterior.onchange = dashboardActualizar;
+
+    dashboardActualizar();
+}
+
+/* ============================================================
+   ACTUALIZAR DASHBOARD
+============================================================ */
+async function dashboardActualizar() {
+    const datos = await obtenerFirmas();
+    if (!datos || !datos.length) return;
+
+    const añoActual   = Number(document.getElementById("dash-anio-actual").value);
+    const añoAnterior = Number(document.getElementById("dash-anio-anterior").value);
+
+    const A = calcularResumenAnual(datos, añoActual);
+    const B = calcularResumenAnual(datos, añoAnterior);
+
+    actualizarKpisPrincipales(A, B);
+    actualizarKpisSecundarios(datos, añoActual);
+    generarGraficoComparativo(datos, añoActual, añoAnterior);
+    generarGraficoMensual(datos, añoActual);
+    generarTablaPaneles(datos, añoActual, añoAnterior);
+    generarHighlights(datos, añoActual);
+}
+
+/* ============================================================
+   RESUMEN ANUAL (YA LO TENÍAS)
 ============================================================ */
 function calcularResumenAnual(datos, año) {
     const filtrado = datos.filter(f => Number(f.anio) === año);
@@ -50,31 +107,9 @@ function calcularResumenAnual(datos, año) {
 }
 
 /* ============================================================
-   DIFERENCIA PORCENTUAL
+   KPIS PRINCIPALES
 ============================================================ */
-function diffPct(actual, anterior) {
-    if (anterior === 0) return "-";
-    return (((actual - anterior) / anterior) * 100).toFixed(1) + "%";
-}
-
-/* ============================================================
-   DASHBOARD COMPARATIVO
-============================================================ */
-async function dashboardComparativa() {
-    const datos = await obtenerFirmas();
-    if (!datos || !datos.length) return;
-
-    const selActual   = document.getElementById("dash-anio-actual");
-    const selAnterior = document.getElementById("dash-anio-anterior");
-
-    if (!selActual || !selAnterior) return;
-
-    const añoActual   = Number(selActual.value);
-    const añoAnterior = Number(selAnterior.value);
-
-    const A = calcularResumenAnual(datos, añoActual);
-    const B = calcularResumenAnual(datos, añoAnterior);
-
+function actualizarKpisPrincipales(A, B) {
     setText("dash-total-actual",   A.total);
     setText("dash-total-anterior", B.total);
     setText("dash-total-diff",     diffPct(A.total, B.total));
@@ -86,19 +121,56 @@ async function dashboardComparativa() {
     setText("dash-vc-actual",   A.pctVC + "%");
     setText("dash-vc-anterior", B.pctVC + "%");
     setText("dash-vc-diff",     diffPct(Number(A.pctVC), Number(B.pctVC)));
-
-    generarGraficoComparativo(datos, añoActual, añoAnterior);
-    generarTablaPaneles(datos, añoActual, añoAnterior);
-}
-
-function setText(id, value) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = value;
 }
 
 /* ============================================================
-   GRÁFICO COMPARATIVO MENSUAL
+   KPIS SECUNDARIOS (TOPS)
+============================================================ */
+function actualizarKpisSecundarios(datos, año) {
+
+    // Top oficina
+    const oficinas = {};
+    datos.filter(f => Number(f.anio) === año).forEach(f => {
+        const o = f.oficina || "Sin oficina";
+        oficinas[o] = (oficinas[o] || 0) + 1;
+    });
+    setText("dash-top-oficina", Object.entries(oficinas).sort((a,b)=>b[1]-a[1])[0]?.[0] || "-");
+
+    // Top circuito
+    const circuitos = {};
+    datos.filter(f => Number(f.anio) === año).forEach(f => {
+        const c = f.circuito || "Externo";
+        circuitos[c] = (circuitos[c] || 0) + 1;
+    });
+    setText("dash-top-circuito", Object.entries(circuitos).sort((a,b)=>b[1]-a[1])[0]?.[0] || "-");
+
+    // Top gestión
+    const gestiones = {};
+    datos.filter(f => Number(f.anio) === año).forEach(f => {
+        const g = f.tipo_provision || "Sin provisión";
+        gestiones[g] = (gestiones[g] || 0) + 1;
+    });
+    setText("dash-top-gestion", Object.entries(gestiones).sort((a,b)=>b[1]-a[1])[0]?.[0] || "-");
+
+    // Top apoderado
+    const apoderados = {};
+    datos.filter(f => Number(f.anio) === año).forEach(f => {
+        const a = f.apoderado || "Sin apoderado";
+        apoderados[a] = (apoderados[a] || 0) + 1;
+    });
+    setText("dash-top-apoderado", Object.entries(apoderados).sort((a,b)=>b[1]-a[1])[0]?.[0] || "-");
+
+    // Top centro que firma
+    const centros = {};
+    datos.filter(f => Number(f.anio) === año).forEach(f => {
+        const c = f.centro || "Sin centro";
+        centros[c] = (centros[c] || 0) + 1;
+    });
+    setText("dash-top-centro", Object.entries(centros).sort((a,b)=>b[1]-a[1])[0]?.[0] || "-");
+}
+
+/* ============================================================
+   GRÁFICO COMPARATIVO MENSUAL (YA LO TENÍAS)
 ============================================================ */
 function generarGraficoComparativo(datos, añoActual, añoAnterior) {
     const mesesLabels = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -155,7 +227,49 @@ function generarGraficoComparativo(datos, añoActual, añoAnterior) {
 }
 
 /* ============================================================
-   TABLA COMPARATIVA POR PANEL
+   GRÁFICO MENSUAL DEL AÑO ACTUAL
+============================================================ */
+function generarGraficoMensual(datos, añoActual) {
+    const ctx = document.getElementById("dash-chart-mensual");
+    if (!ctx) return;
+
+    const mesesLabels = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+    const arr = Array(12).fill(0);
+
+    datos.forEach(f => {
+        if (Number(f.anio) === añoActual) {
+            const m = Number(f.mes);
+            if (m >= 1 && m <= 12) arr[m - 1]++;
+        }
+    });
+
+    if (DASH_CHART_MENSUAL) DASH_CHART_MENSUAL.destroy();
+
+    DASH_CHART_MENSUAL = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: mesesLabels,
+            datasets: [{
+                label: "Total mensual",
+                data: arr,
+                borderColor: "rgba(54,162,235,1)",
+                backgroundColor: "rgba(54,162,235,0.2)",
+                tension: 0.2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: true }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
+}
+
+/* ============================================================
+   TABLA POR PANEL (YA LA TENÍAS)
 ============================================================ */
 function generarTablaPaneles(datos, añoActual, añoAnterior) {
     const tbody = document.getElementById("dash-tabla-paneles");
@@ -197,7 +311,44 @@ function generarTablaPaneles(datos, añoActual, añoAnterior) {
 }
 
 /* ============================================================
-   MÉTRICAS POR PANEL
+   HIGHLIGHTS
+============================================================ */
+function generarHighlights(datos, añoActual) {
+
+    const filtrado = datos.filter(f => Number(f.anio) === añoActual);
+
+    // Mejor mes
+    const meses = {};
+    filtrado.forEach(f => {
+        const m = Number(f.mes);
+        meses[m] = (meses[m] || 0) + 1;
+    });
+
+    const mejorMes = Object.entries(meses).sort((a,b)=>b[1]-a[1])[0]?.[0] || "-";
+    const peorMes  = Object.entries(meses).sort((a,b)=>a[1]-b[1])[0]?.[0] || "-";
+
+    setText("dash-hl-mejor-mes", `🔥 Mejor mes: ${mejorMes}`);
+    setText("dash-hl-peor-mes",  `📉 Peor mes: ${peorMes}`);
+
+    // SLA alerta
+    const sla = calcularPanelSLA(datos, añoActual);
+    if (sla > 10) {
+        setText("dash-hl-sla-alerta", `⏱️ SLA alto: ${sla} días`);
+    } else {
+        setText("dash-hl-sla-alerta", "");
+    }
+
+    // VC alerta
+    const vcPct = calcularPanelTipoFirma(datos, añoActual);
+    if (vcPct < 5) {
+        setText("dash-hl-vc-alerta", `✍️ % VC bajo: ${vcPct}%`);
+    } else {
+        setText("dash-hl-vc-alerta", "");
+    }
+}
+
+/* ============================================================
+   MÉTRICAS POR PANEL (YA LAS TENÍAS)
 ============================================================ */
 function calcularPanelAnual(datos, año) {
     return datos.filter(f => Number(f.anio) === año).length;
