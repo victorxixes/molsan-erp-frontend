@@ -96,14 +96,10 @@ async function cargarModulo(nombre) {
                CORE
             ============================ */
 
-            case "dashboard-premium": {
-                const datos = await obtenerFirmas();
-                datos.forEach(aplicarReglas);
-                generarMapasPremium(datos);
-                await initDashboardPremium();
-                break;
-            }
-
+case "dashboard": {
+    await initDashboard();   // ← tu nuevo dashboard
+    break;
+}
             case "listado":
                 await initListado();
                 break;
@@ -144,9 +140,6 @@ case "informe-evolutivo":
                 await initPanelAnual();
                 break;
 
-            case "panel-mensual":
-                await initPanelMensual();
-                break;
 
             case "panel-apoderados":
                 await initPanelApoderados();
