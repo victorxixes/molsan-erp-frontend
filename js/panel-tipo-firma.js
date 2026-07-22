@@ -5,6 +5,9 @@
 let PTF_DATOS = [];
 let PTF_POR_ANIO = {};
 
+let PTF_CHART_RANKING = null;
+let PTF_CHART_EVOLUCION = null;
+
 /* ============================================================
    INIT
 ============================================================ */
@@ -120,6 +123,7 @@ function ptf_onChangeAnio() {
     info.anio = anio;
 
     ptf_renderTabla(info);
+    ptf_renderGraficos(info);   // ⭐ AÑADIDO
 }
 
 /* ============================================================
@@ -141,15 +145,12 @@ function ptf_renderTabla(info) {
     const currentYear = new Date().getFullYear();
     const currentMonthIndex = new Date().getMonth();
 
-    // Meses con datos reales
     const mesesConDatos = mesesOrden.filter(m =>
         Object.values(info.tipos).some(t => t.meses[m] > 0)
     );
 
-    // ⭐ Encabezado dinámico (llama a la función correcta)
     ptf_renderThead(mesesConDatos);
 
-    // Construcción de lista
     const lista = Object.entries(info.tipos).map(([tipo, t]) => {
 
         const valoresMes = mesesConDatos.map(m => {
@@ -175,7 +176,6 @@ function ptf_renderTabla(info) {
 
     lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    // Pintar filas
     for (const row of lista) {
         const tr = document.createElement("tr");
 
@@ -189,10 +189,6 @@ function ptf_renderTabla(info) {
 
         tbody.appendChild(tr);
     }
-
-    /* ============================================================
-       TOTAL AL PIE
-    ============================================================= */
 
     const totalesMes = mesesConDatos.map(m =>
         Object.values(info.tipos).reduce((acc, t) => acc + (t.meses[m] || 0), 0)
@@ -215,7 +211,7 @@ function ptf_renderTabla(info) {
 }
 
 /* ============================================================
-   THEAD DINÁMICO — ⭐ ESTA ES LA BUENA ⭐
+   THEAD DINÁMICO
 ============================================================ */
 function ptf_renderThead(mesesConDatos) {
     const theadRow = document.getElementById("ptf-thead-row");
@@ -227,4 +223,97 @@ function ptf_renderThead(mesesConDatos) {
         ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
         <th>%Total</th>
     `;
+}
+
+/* ============================================================
+   GRÁFICOS PREMIUM 2027
+============================================================ */
+function ptf_renderGraficos(info) {
+
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const mesesConDatos = mesesOrden.filter(m =>
+        Object.values(info.tipos).some(t => t.meses[m] > 0)
+    );
+
+    /* ============================
+       1) Ranking Tipos de Firma
+    ============================ */
+
+    const lista = Object.entries(info.tipos).map(([tipo, t]) => {
+        const valoresMes = mesesConDatos.map(m => t.meses[m] || 0);
+        return {
+            tipo,
+            totalVisible: valoresMes.reduce((acc, v) => acc + v, 0),
+            valoresMes
+        };
+    }).sort((a,b)=>b.totalVisible - a.totalVisible);
+
+    const labelsRanking = lista.map(o => o.tipo);
+    const dataRanking = lista.map(o => o.totalVisible);
+
+    const ctxRanking = document.getElementById("ptf-chart-ranking");
+
+    if (PTF_CHART_RANKING) PTF_CHART_RANKING.destroy();
+
+    PTF_CHART_RANKING = new Chart(ctxRanking, {
+        type: "bar",
+        data: {
+            labels: labelsRanking,
+            datasets: [{
+                label: "Total firmas",
+                data: dataRanking,
+                backgroundColor: "rgba(80, 200, 255, 0.5)",
+                borderColor: "rgba(80, 200, 255, 1)",
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
+
+    /* ============================
+       2) Evolución mensual del total
+    ============================ */
+
+    const totalesMes = mesesConDatos.map(m =>
+        Object.values(info.tipos).reduce((acc, t) => acc + (t.meses[m] || 0), 0)
+    );
+
+    const ctxEvo = document.getElementById("ptf-chart-evolucion");
+
+    if (PTF_CHART_EVOLUCION) PTF_CHART_EVOLUCION.destroy();
+
+    PTF_CHART_EVOLUCION = new Chart(ctxEvo, {
+        type: "line",
+        data: {
+            labels: mesesConDatos,
+            datasets: [{
+                label: "Total mensual",
+                data: totalesMes,
+                borderColor: "rgba(255, 120, 80, 1)",
+                backgroundColor: "rgba(255, 120, 80, 0.3)",
+                borderWidth: 2,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
 }
