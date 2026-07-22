@@ -5,6 +5,9 @@
 let PTG_DATOS = [];
 let PTG_POR_ANIO = {};
 
+let PTG_CHART_RANKING = null;
+let PTG_CHART_EVOLUCION = null;
+
 /* INIT */
 async function initPanelTipoGestion() {
     console.log("📄 initPanelTipoGestion() ejecutado");
@@ -112,6 +115,7 @@ function ptg_onChangeAnio() {
     info.anio = anio;
 
     ptg_renderTabla(info);
+    ptg_renderGraficos(info);   // ⭐ AÑADIDO
 }
 
 /* TABLA DETALLE TIPO GESTIÓN */
@@ -129,15 +133,12 @@ function ptg_renderTabla(info) {
     const currentYear = new Date().getFullYear();
     const currentMonthIndex = new Date().getMonth();
 
-    // Meses con datos reales
     const mesesConDatos = mesesOrden.filter(m =>
         Object.values(info.tipos).some(t => t.meses[m] > 0)
     );
 
-    // Encabezado dinámico
     ptg_renderThead(mesesConDatos);
 
-    // Filas por tipo de gestión
     const lista = Object.entries(info.tipos).map(([tipo, t]) => {
 
         const valoresMes = mesesConDatos.map(m => {
@@ -177,8 +178,6 @@ function ptg_renderTabla(info) {
         tbody.appendChild(tr);
     }
 
-    /* SUMATORIO FINAL (TOTAL + % que cuadra) */
-
     const totalesMes = mesesConDatos.map(m =>
         Object.values(info.tipos).reduce((acc, t) => acc + (t.meses[m] || 0), 0)
     );
@@ -215,4 +214,97 @@ function ptg_renderThead(mesesConDatos) {
         ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
         <th>%Total</th>
     `;
+}
+
+/* ============================================================
+   GRÁFICOS PREMIUM 2027
+============================================================ */
+function ptg_renderGraficos(info) {
+
+    const mesesOrden = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const mesesConDatos = mesesOrden.filter(m =>
+        Object.values(info.tipos).some(t => t.meses[m] > 0)
+    );
+
+    /* ============================
+       1) Ranking Tipos de Gestión
+    ============================ */
+
+    const lista = Object.entries(info.tipos).map(([tipo, t]) => {
+        const valoresMes = mesesConDatos.map(m => t.meses[m] || 0);
+        return {
+            tipo,
+            totalVisible: valoresMes.reduce((acc, v) => acc + v, 0),
+            valoresMes
+        };
+    }).sort((a,b)=>b.totalVisible - a.totalVisible);
+
+    const labelsRanking = lista.map(o => o.tipo);
+    const dataRanking = lista.map(o => o.totalVisible);
+
+    const ctxRanking = document.getElementById("ptg-chart-ranking");
+
+    if (PTG_CHART_RANKING) PTG_CHART_RANKING.destroy();
+
+    PTG_CHART_RANKING = new Chart(ctxRanking, {
+        type: "bar",
+        data: {
+            labels: labelsRanking,
+            datasets: [{
+                label: "Total firmas",
+                data: dataRanking,
+                backgroundColor: "rgba(80, 200, 255, 0.5)",
+                borderColor: "rgba(80, 200, 255, 1)",
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
+
+    /* ============================
+       2) Evolución mensual del total
+    ============================ */
+
+    const totalesMes = mesesConDatos.map(m =>
+        Object.values(info.tipos).reduce((acc, t) => acc + (t.meses[m] || 0), 0)
+    );
+
+    const ctxEvo = document.getElementById("ptg-chart-evolucion");
+
+    if (PTG_CHART_EVOLUCION) PTG_CHART_EVOLUCION.destroy();
+
+    PTG_CHART_EVOLUCION = new Chart(ctxEvo, {
+        type: "line",
+        data: {
+            labels: mesesConDatos,
+            datasets: [{
+                label: "Total mensual",
+                data: totalesMes,
+                borderColor: "rgba(255, 120, 80, 1)",
+                backgroundColor: "rgba(255, 120, 80, 0.3)",
+                borderWidth: 2,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
 }
