@@ -44,7 +44,10 @@ function pof_groupByAnio(datos) {
         const idxMes = mesesValidos.indexOf(mes);
         if (idxMes === -1) continue;
 
-        const oficina = f.oficina || "Oficina";
+        // ⭐ NORMALIZACIÓN PREMIUM 2027
+        let oficinaRaw = String(f.oficina || "").trim();
+        let oficinaNum = oficinaRaw.replace(/[^0-9]/g, "");
+        let oficina = (oficinaNum === "5316") ? "Cancela" : "Oficina";
 
         if (!map[anio]) map[anio] = {};
 
@@ -63,6 +66,7 @@ function pof_groupByAnio(datos) {
 
     return map;
 }
+
 
 /* ============================================================
    SELECT AÑOS
