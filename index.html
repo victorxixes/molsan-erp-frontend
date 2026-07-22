@@ -1308,40 +1308,40 @@
         <table class="table-premium tabla-excel table-sticky">
           <thead>
 
-    <!-- Fila 1: Grupos -->
-    <tr>
-        <th rowspan="2">Mes</th>
+            <!-- Fila 1: Grupos -->
+            <tr>
+                <th rowspan="2">Mes</th>
 
-        <!-- Grupo Firmas realizadas -->
-        <th colspan="8" class="th-group">Firmas realizadas</th>
+                <!-- Grupo Firmas realizadas -->
+                <th colspan="8" class="th-group">Firmas realizadas</th>
 
-        <!-- Grupo % Firmas realizadas -->
-        <th colspan="7" class="th-group">% Firmas realizadas</th>
-    </tr>
+                <!-- Grupo % Firmas realizadas -->
+                <th colspan="7" class="th-group">% Firmas realizadas</th>
+            </tr>
 
-    <!-- Fila 2: Años -->
-    <tr>
-        <th>2020</th>
-        <th>2021</th>
-        <th>2022</th>
-        <th>2023</th>
-        <th>2024</th>
-        <th>2025</th>
-        <th>2026</th>
-        <th>Total</th>
+            <!-- Fila 2: Años -->
+            <tr>
+                <th>2020</th>
+                <th>2021</th>
+                <th>2022</th>
+                <th>2023</th>
+                <th>2024</th>
+                <th>2025</th>
+                <th>2026</th>
+                <th>Total</th>
 
-        <th>% 2021</th>
-        <th>% 2022</th>
-        <th>% 2023</th>
-        <th>% 2024</th>
-        <th>% 2025</th>
-        <th>% 2026</th>
-        <th>% Total</th>
-    </tr>
+                <th>% 2021</th>
+                <th>% 2022</th>
+                <th>% 2023</th>
+                <th>% 2024</th>
+                <th>% 2025</th>
+                <th>% 2026</th>
+                <th>% Total</th>
+            </tr>
 
-</thead>
+          </thead>
 
-            <tbody id="evo-tabla"></tbody>
+          <tbody id="evo-tabla"></tbody>
         </table>
 
         <div id="evo-final" class="mt-30"></div>
@@ -1351,8 +1351,29 @@
 
     </div>
 
+    <!-- ============================================================
+         GRÁFICOS — PREMIUM 2027
+    ============================================================= -->
+    <div class="panel-contenido mt-40"
+         style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
+
+        <!-- Gráfico 1: Evolución anual comparada -->
+        <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+            <h3 class="subtitulo-modulo">📈 Evolución anual comparada</h3>
+            <canvas id="evo-chart-line" style="width:100%; height:300px;"></canvas>
+        </div>
+
+        <!-- Gráfico 2: Ranking anual total -->
+        <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+            <h3 class="subtitulo-modulo">📊 Ranking anual total</h3>
+            <canvas id="evo-chart-ranking" style="width:100%; height:300px;"></canvas>
+        </div>
+
+    </div>
+
 </div>
 </template>
+
 
 <!-- ============================ SCRIPTS ============================ -->
 
