@@ -824,7 +824,7 @@
 
 
 <!-- ============================================================
-     PANEL TIPO GESTIÓN — PREMIUM 2027 (FORMATO 2026)
+     PANEL TIPO GESTIÓN — PREMIUM 2027 (DINÁMICO)
 ============================================================ -->
 <template id="tpl-panel-tipo-gestion">
     <div class="panel-wrapper fade-in">
@@ -845,16 +845,18 @@
 
                 <thead>
                     <tr>
-                        <th rowspan="2">Tipo gestión</th>
-                        <th colspan="7" class="th-group">Firmas realizadas</th>
-                        <th colspan="7" class="th-group">% Firmas realizadas</th>
+                        <th style="text-align:center;">Tipo gestión</th>
+                        <!-- ⭐ Esta fila se rellena dinámicamente -->
+                        <th id="ptg-thead-row" style="text-align:center;"></th>
                     </tr>
-
-                    <!-- ⭐ ESTA FILA SE RELLENA DESDE JS -->
-                    <tr id="ptg-thead-row"></tr>
                 </thead>
 
                 <tbody></tbody>
+
+                <tfoot>
+                    <!-- ⭐ Fila TOTAL dinámica -->
+                    <tr id="ptg-total-row" class="fila-sumatorio"></tr>
+                </tfoot>
 
             </table>
         </div>
@@ -881,6 +883,7 @@
 
     </div>
 </template>
+
 <!-- ============================================================
      PANEL TIPO OFICINAS — PREMIUM 2027 (FORMATO 2026)
 ============================================================ -->
