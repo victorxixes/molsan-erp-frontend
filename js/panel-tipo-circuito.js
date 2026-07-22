@@ -4,7 +4,9 @@
 
 let PCI_DATOS = [];
 let PCI_POR_ANIO = {};
-let PCI_CHART = null;
+
+let PCI_CHART_RANKING = null;
+let PCI_CHART_EVOLUCION = null;
 
 /* Helper seguro */
 function pciSafeSet(id, value) {
@@ -114,11 +116,11 @@ function pci_onChangeAnio() {
     pci_renderKpis(info);
     pci_renderThead();
     pci_renderTabla(info);
-    pci_renderChart(info);
+    pci_renderGraficos(info);   // ⭐ NUEVO
 }
 
 /* ============================================================
-   THEAD DINÁMICO — Premium 2027 (enero–junio + Total + %mes + %Total)
+   THEAD DINÁMICO — Premium 2027
 ============================================================ */
 function pci_renderThead() {
     const theadRow = document.getElementById("pci-thead-row");
@@ -158,7 +160,7 @@ function pci_renderKpis(info) {
 }
 
 /* ============================================================
-   TABLA DETALLE — Premium 2027 (enero–junio + Total + %mes + %Total)
+   TABLA DETALLE — Premium 2027
 ============================================================ */
 function pci_renderTabla(info) {
     const tbody = document.querySelector("#pci-tabla-circuito tbody");
@@ -202,10 +204,6 @@ function pci_renderTabla(info) {
         tbody.appendChild(tr);
     }
 
-    /* ============================================================
-       FILA TOTAL
-    ============================================================= */
-
     const totalesMes = mesesOrden.map((_, idx) =>
         lista.reduce((acc, row) => acc + row.valoresMes[idx], 0)
     );
@@ -232,31 +230,75 @@ function pci_renderTabla(info) {
 }
 
 /* ============================================================
-   GRÁFICO
+   GRÁFICOS — Premium 2027
 ============================================================ */
-function pci_renderChart(info) {
-    const ctx = document.getElementById("pci-chart-circuito");
-    if (!ctx) return;
+function pci_renderGraficos(info) {
 
-    const lista = Object.entries(info)
-        .map(([circuito, r]) => ({ circuito, total: r.total }))
-        .sort((a,b)=>b.total - a.total);
+    const mesesOrden = ["enero","febrero","marzo","abril","mayo","junio"];
 
-    const labels = lista.map(o => o.circuito);
-    const data = lista.map(o => o.total);
+    const lista = Object.entries(info).map(([circuito, r]) => ({
+        circuito,
+        valoresMes: r.meses,
+        totalVisible: r.total
+    })).sort((a,b)=>b.totalVisible - a.totalVisible);
 
-    if (PCI_CHART) PCI_CHART.destroy();
+    /* ============================
+       1) Ranking Circuitos
+    ============================ */
 
-    PCI_CHART = new Chart(ctx, {
+    const labelsRanking = lista.map(o => o.circuito);
+    const dataRanking = lista.map(o => o.totalVisible);
+
+    const ctxRanking = document.getElementById("pci-chart-ranking");
+
+    if (PCI_CHART_RANKING) PCI_CHART_RANKING.destroy();
+
+    PCI_CHART_RANKING = new Chart(ctxRanking, {
         type: "bar",
         data: {
-            labels,
+            labels: labelsRanking,
             datasets: [{
-                label: "Firmas por circuito",
-                data,
-                backgroundColor: "rgba(80, 200, 255, 0.4)",
+                label: "Total firmas",
+                data: dataRanking,
+                backgroundColor: "rgba(80, 200, 255, 0.5)",
                 borderColor: "rgba(80, 200, 255, 1)",
                 borderWidth: 1.5
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
+
+    /* ============================
+       2) Evolución mensual del total
+    ============================ */
+
+    const totalesMes = mesesOrden.map((_, idx) =>
+        lista.reduce((acc, row) => acc + row.valoresMes[idx], 0)
+    );
+
+    const ctxEvo = document.getElementById("pci-chart-evolucion");
+
+    if (PCI_CHART_EVOLUCION) PCI_CHART_EVOLUCION.destroy();
+
+    PCI_CHART_EVOLUCION = new Chart(ctxEvo, {
+        type: "line",
+        data: {
+            labels: mesesOrden,
+            datasets: [{
+                label: "Total mensual",
+                data: totalesMes,
+                borderColor: "rgba(255, 120, 80, 1)",
+                backgroundColor: "rgba(255, 120, 80, 0.3)",
+                borderWidth: 2,
+                tension: 0.3
             }]
         },
         options: {
