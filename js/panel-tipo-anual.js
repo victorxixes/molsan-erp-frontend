@@ -21,6 +21,9 @@ function paMiles(n) {
     return Number(n).toLocaleString("es-ES");
 }
 
+/* ============================================================
+   INIT PANEL ANUAL
+============================================================ */
 async function initPanelAnual() {
     console.log("📆 initPanelAnual() ejecutado");
 
@@ -172,7 +175,14 @@ function pa_renderKpis(info) {
 }
 
 /* ============================================================
-   TABLA MENSUAL (OCULTA MESES FUTUROS)
+   OBTENER DATOS FILTRADOS DEL AÑO (NECESARIO PARA TOTALES)
+============================================================ */
+function pa_getDatosFiltradosDelAnio(anio) {
+    return PA_DATOS.filter(f => Number(f.anio) === anio);
+}
+
+/* ============================================================
+   TABLA MENSUAL + FILA DE TOTALES
 ============================================================ */
 function pa_renderTabla(info, anio) {
     const tbody = document.querySelector("#pa-tabla-meses tbody");
@@ -212,6 +222,48 @@ function pa_renderTabla(info, anio) {
         `;
         tbody.appendChild(tr);
     }
+
+    // 🔥 NUEVO: generar totales del año
+    pa_renderTotales(pa_getDatosFiltradosDelAnio(anio));
+}
+
+/* ============================================================
+   FILA DE TOTALES (NUEVO)
+============================================================ */
+function pa_renderTotales(datosFiltrados) {
+    let total = 0;
+    let presencial = 0;
+    let vc = 0;
+    let sumaSLA = 0;
+    let cuentaSLA = 0;
+
+    datosFiltrados.forEach(f => {
+        total++;
+
+        if (f.tipo_firma === "VideoConferencia") vc++;
+        else presencial++;
+
+        const d = Number(f.dias);
+        if (d > 0) {
+            sumaSLA += d;
+            cuentaSLA++;
+        }
+    });
+
+    const pctVC = total ? ((vc / total) * 100).toFixed(1) : "0";
+    const sla = cuentaSLA ? (sumaSLA / cuentaSLA).toFixed(1) : "0";
+
+    const tr = document.getElementById("pa-total-row");
+    if (!tr) return;
+
+    tr.innerHTML = `
+        <td><strong>Total</strong></td>
+        <td><strong>${paMiles(total)}</strong></td>
+        <td><strong>${paMiles(presencial)}</strong></td>
+        <td><strong>${paMiles(vc)}</strong></td>
+        <td><strong>${pctVC}%</strong></td>
+        <td><strong>${sla}</strong></td>
+    `;
 }
 
 /* ============================================================
