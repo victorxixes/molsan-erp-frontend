@@ -757,7 +757,6 @@
     </div>
 </template>
 
-
 <!-- ============================================================
      PANEL TIPO FIRMA — PREMIUM 2027 (DINÁMICO)
 ============================================================ -->
@@ -779,17 +778,14 @@
             <table id="ptf-tabla-meses" class="table-premium tabla-excel table-sticky">
 
                 <thead>
-                    <tr>
-                        <th style="text-align:center;">Tipo firma</th>
+                    <tr id="ptf-thead-row">
                         <!-- ⭐ Esta fila se rellena dinámicamente -->
-                        <th id="ptf-thead-row" style="text-align:center;"></th>
                     </tr>
                 </thead>
 
                 <tbody></tbody>
 
                 <tfoot>
-                    <!-- ⭐ Fila TOTAL dinámica -->
                     <tr id="ptf-total-row" class="fila-sumatorio"></tr>
                 </tfoot>
 
@@ -802,13 +798,11 @@
         <div class="panel-contenido mt-40"
              style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
 
-            <!-- Gráfico 1: Ranking de Tipos de Firma -->
             <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
                 <h3 class="subtitulo-modulo">📊 Ranking Tipos de Firma</h3>
                 <canvas id="ptf-chart-ranking" style="width:100%; height:300px;"></canvas>
             </div>
 
-            <!-- Gráfico 2: Evolución mensual del total -->
             <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
                 <h3 class="subtitulo-modulo">📈 Evolución mensual del total</h3>
                 <canvas id="ptf-chart-evolucion" style="width:100%; height:300px;"></canvas>
