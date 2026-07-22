@@ -79,7 +79,6 @@ async function initInformeEvolutivo() {
                 porcentajes.push(pct);
             }
 
-            // ⭐ %Total
             const pctTotal = valores[0] ? ((valores[valores.length-1] - valores[0]) / valores[0] * 100) : 0;
 
             fila.innerHTML = `
@@ -114,7 +113,6 @@ async function initInformeEvolutivo() {
             pctGeneral.push(prev ? ((act - prev) / prev * 100) : 0);
         }
 
-        // ⭐ %Total general
         const pctTotalGeneral = totalesAnioArray[0]
             ? ((totalesAnioArray[totalesAnioArray.length-1] - totalesAnioArray[0]) / totalesAnioArray[0] * 100)
             : 0;
@@ -157,7 +155,6 @@ async function initInformeEvolutivo() {
             pctHasta.push(prev ? ((act - prev) / prev * 100) : 0);
         }
 
-        // ⭐ %Total hasta último mes
         const pctTotalHasta = totalesHasta[0]
             ? ((totalesHasta[totalesHasta.length-1] - totalesHasta[0]) / totalesHasta[0] * 100)
             : 0;
@@ -190,9 +187,122 @@ async function initInformeEvolutivo() {
             </div>
         `;
 
+        // ============================================================
+        // 7) GRÁFICOS PREMIUM 2027
+        // ============================================================
+
+        evo_renderGraficos(totalesPorMesYAnio, totalesPorAnio);
+
     } finally {
         setTimeout(() => {
             window.__EVO_RUNNING__ = false;
         }, 500);
+    }
+}
+
+/* ============================================================
+   FUNCIÓN DE GRÁFICOS PREMIUM 2027
+============================================================ */
+function evo_renderGraficos(totalesPorMesYAnio, totalesPorAnio) {
+
+    const meses = MESES_ORDEN;
+    const anios = [2020,2021,2022,2023,2024,2025,2026];
+
+    /* --------------------------------------------
+       1) Evolución anual comparada (líneas)
+    -------------------------------------------- */
+    const ctxLine = document.getElementById("evo-chart-line");
+    if (ctxLine) {
+        const datasets = anios.map((a, idx) => ({
+            label: a,
+            data: meses.map(m => totalesPorMesYAnio[m]?.[a] || 0),
+            borderColor: `hsl(${idx*50},70%,50%)`,
+            backgroundColor: `hsla(${idx*50},70%,50%,0.2)`,
+            borderWidth: 2,
+            tension: 0.3
+        }));
+
+        new Chart(ctxLine, {
+            type: "line",
+            data: { labels: meses, datasets },
+            options: { responsive: true, plugins: { legend: { position: "bottom" }} }
+        });
+    }
+
+    /* --------------------------------------------
+       2) Ranking anual total (barras)
+    -------------------------------------------- */
+    const ctxRank = document.getElementById("evo-chart-ranking");
+    if (ctxRank) {
+        const totales = anios.map(a => totalesPorAnio[a] || 0);
+
+        new Chart(ctxRank, {
+            type: "bar",
+            data: {
+                labels: anios,
+                datasets: [{
+                    label: "Total anual",
+                    data: totales,
+                    backgroundColor: "rgba(80,200,255,0.5)",
+                    borderColor: "rgba(80,200,255,1)",
+                    borderWidth: 1.5
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false }} }
+        });
+    }
+
+    /* --------------------------------------------
+       3) Heatmap mensual
+    -------------------------------------------- */
+    const ctxHeat = document.getElementById("evo-chart-heatmap");
+    if (ctxHeat) {
+        const datasets = anios.map((a, idx) => ({
+            label: a,
+            data: meses.map(m => totalesPorMesYAnio[m]?.[a] || 0),
+            backgroundColor: meses.map(m => {
+                const v = totalesPorMesYAnio[m]?.[a] || 0;
+                const max = Math.max(...meses.map(mm => totalesPorMesYAnio[mm]?.[a] || 0));
+                const pct = max ? v / max : 0;
+                return `rgba(255,0,0,${pct})`;
+            })
+        }));
+
+        new Chart(ctxHeat, {
+            type: "bar",
+            data: { labels: meses, datasets },
+            options: { indexAxis: "y", responsive: true }
+        });
+    }
+
+    /* --------------------------------------------
+       4) % Evolutivo año a año
+    -------------------------------------------- */
+    const ctxPercent = document.getElementById("evo-chart-percent");
+    if (ctxPercent) {
+        const totales = anios.map(a => totalesPorAnio[a] || 0);
+        const pct = [];
+
+        for (let i = 1; i < totales.length; i++) {
+            const prev = totales[i-1];
+            const curr = totales[i];
+            pct.push(prev ? ((curr - prev) / prev * 100).toFixed(1) : 0);
+        }
+
+        new Chart(ctxPercent, {
+            type: "line",
+            data: {
+                labels: anios.slice(1),
+                datasets: [{
+                    label: "% Evolutivo",
+                    data: pct,
+                    borderColor: "rgba(255,120,80,1)",
+                    backgroundColor: "rgba(255,120,80,0.3)",
+                    borderWidth: 2,
+                    tension: 0.3
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false }} }
+        });
     }
 }
