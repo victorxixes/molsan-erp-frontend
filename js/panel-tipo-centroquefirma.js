@@ -2,7 +2,9 @@
    PANEL CENTRO QUE FIRMA — PREMIUM 2027 (FORMATO 7 MESES)
 ============================================================ */
 
-let chartCentroFirma = null;
+let PCF_CHART_RANKING = null;
+let PCF_CHART_EVOLUCION = null;
+
 let PCF_DATOS = [];
 let PCF_POR_ANIO = {};
 
@@ -72,7 +74,10 @@ function pcf_groupByAnio(datos) {
         if (!map[anio][centro]) {
             map[anio][centro] = {
                 meses: Array(6).fill(0),
-                total: 0
+                total: 0,
+                slaSum: 0,
+                slaCount: 0,
+                vc: 0
             };
         }
 
@@ -80,6 +85,15 @@ function pcf_groupByAnio(datos) {
 
         r.meses[idxMes]++;
         r.total++;
+
+        if (Number(f.dias) > 0) {
+            r.slaSum += Number(f.dias);
+            r.slaCount++;
+        }
+
+        if (String(f.tipo_firma).toLowerCase() === "videoconferencia") {
+            r.vc++;
+        }
     }
 
     return map;
@@ -114,7 +128,7 @@ function pcf_selectUltimoAnio() {
 }
 
 /* ============================================================
-   THEAD DINÁMICO — Premium 2027 (enero–junio + Total + %mes + %Total)
+   THEAD DINÁMICO — Premium 2027
 ============================================================ */
 function pcf_renderThead() {
     const theadRow = document.getElementById("pcf-thead-row");
@@ -153,7 +167,10 @@ async function cargarCentroQueFirma() {
     centros.forEach(c => {
         mapa[c] = {
             meses: Array(6).fill(0),
-            total: 0
+            total: 0,
+            slaSum: 0,
+            slaCount: 0,
+            vc: 0
         };
     });
 
@@ -170,7 +187,46 @@ async function cargarCentroQueFirma() {
 
         if (mesIdx >= 0) mapa[centro].meses[mesIdx]++;
         mapa[centro].total++;
+
+        if (Number(f.dias) > 0) {
+            mapa[centro].slaSum += Number(f.dias);
+            mapa[centro].slaCount++;
+        }
+
+        if (String(f.tipo_firma).toLowerCase() === "videoconferencia") {
+            mapa[centro].vc++;
+        }
     });
+
+    /* ============================================================
+       KPIs
+    ============================================================= */
+    let totalFirmas = 0;
+    let centroTop = "-";
+    let maxFirmas = 0;
+    let slaGlobal = 0;
+    let vcGlobal = 0;
+
+    centros.forEach(c => {
+        const r = mapa[c];
+        totalFirmas += r.total;
+
+        if (r.total > maxFirmas) {
+            maxFirmas = r.total;
+            centroTop = c;
+        }
+
+        slaGlobal += r.slaSum;
+        vcGlobal += r.vc;
+    });
+
+    const slaMedio = slaGlobal > 0 ? (slaGlobal / (datos.length)).toFixed(1) : 0;
+    const vcPorcentaje = totalFirmas > 0 ? ((vcGlobal / totalFirmas) * 100).toFixed(1) + "%" : "0%";
+
+    document.getElementById("pcf-kpi-total").textContent = totalFirmas;
+    document.getElementById("pcf-kpi-top").textContent = centroTop;
+    document.getElementById("pcf-kpi-sla").textContent = slaMedio;
+    document.getElementById("pcf-kpi-vc").textContent = vcPorcentaje;
 
     /* ============================================================
        THEAD dinámico
@@ -178,7 +234,7 @@ async function cargarCentroQueFirma() {
     pcf_renderThead();
 
     /* ============================================================
-       TABLA Premium 2027 (enero–junio + Total + %Mes + %Total)
+       TABLA Premium 2027
     ============================================================= */
     const tbody = document.querySelector("#pcf-tabla-meses tbody");
     if (!tbody) return;
@@ -248,21 +304,73 @@ async function cargarCentroQueFirma() {
     tbody.appendChild(trTotal);
 
     /* ============================================================
-       Gráfico
+       GRÁFICOS PREMIUM 2027
     ============================================================= */
-    if (chartCentroFirma) chartCentroFirma.destroy();
+    pcf_renderGraficos(lista, mesesOrden);
+}
 
-    const ctx = document.getElementById("pcf-chart-centro");
-    if (!ctx) return;
+/* ============================================================
+   GRÁFICOS — Premium 2027
+============================================================ */
+function pcf_renderGraficos(lista, mesesOrden) {
 
-    chartCentroFirma = new Chart(ctx, {
+    /* ============================
+       1) Ranking Centros
+    ============================ */
+
+    const labelsRanking = lista.map(o => o.centro);
+    const dataRanking = lista.map(o => o.totalVisible);
+
+    const ctxRanking = document.getElementById("pcf-chart-ranking");
+
+    if (PCF_CHART_RANKING) PCF_CHART_RANKING.destroy();
+
+    PCF_CHART_RANKING = new Chart(ctxRanking, {
         type: "bar",
         data: {
-            labels: centros,
+            labels: labelsRanking,
             datasets: [{
-                label: "Firmas por centro",
-                data: centros.map(c => mapa[c].total),
-                backgroundColor: ["#3B82F6", "#10B981", "#F59E0B", "#6366F1"]
+                label: "Total firmas",
+                data: dataRanking,
+                backgroundColor: "rgba(80, 200, 255, 0.5)",
+                borderColor: "rgba(80, 200, 255, 1)",
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
+
+    /* ============================
+       2) Evolución mensual del total
+    ============================ */
+
+    const totalesMes = mesesOrden.map((_, idx) =>
+        lista.reduce((acc, row) => acc + row.valoresMes[idx], 0)
+    );
+
+    const ctxEvo = document.getElementById("pcf-chart-evolucion");
+
+    if (PCF_CHART_EVOLUCION) PCF_CHART_EVOLUCION.destroy();
+
+    PCF_CHART_EVOLUCION = new Chart(ctxEvo, {
+        type: "line",
+        data: {
+            labels: mesesOrden,
+            datasets: [{
+                label: "Total mensual",
+                data: totalesMes,
+                borderColor: "rgba(255, 120, 80, 1)",
+                backgroundColor: "rgba(255, 120, 80, 0.3)",
+                borderWidth: 2,
+                tension: 0.3
             }]
         },
         options: {
