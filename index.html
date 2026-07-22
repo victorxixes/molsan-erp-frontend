@@ -121,7 +121,7 @@
 <template id="tpl-dashboard">
 <div id="dashboard-root" class="modulo-wrapper fade-in dashboard-wrapper">
 
-    <h2 class="titulo-modulo">📊 Dashboard — Visión Global</h2>
+    <h2 class="titulo-modulo">📊 Dashboard</h2>
 
     <div class="card-glass p-20">
 
@@ -138,102 +138,124 @@
             </div>
         </div>
 
-        <!-- KPIs PRINCIPALES -->
-        <h3 class="mt-10">🔝 KPIs principales</h3>
-        <div class="kpi-grid-compare mt-10">
+        <!-- ============================================================
+             BLOQUE DE KPIs — 3 COLUMNAS
+        ============================================================= -->
+        <div class="dashboard-kpis-wrapper"
+             style="display:flex; gap:40px; flex-wrap:wrap; align-items:flex-start;">
 
-            <div class="kpi-box-compare">
-                <div class="kpi-title">Firmas totales</div>
-                <div class="kpi-values">
-                    <span id="dash-total-actual" class="kpi-big"></span>
-                    <span id="dash-total-anterior" class="kpi-small"></span>
+            <!-- 🔝 KPIs PRINCIPALES -->
+            <div class="card-glass p-20" style="flex:1; min-width:320px;">
+                <h3 class="subtitulo-modulo">🔝 KPIs principales</h3>
+
+                <div class="kpi-grid-compare mt-10">
+
+                    <div class="kpi-box-compare">
+                        <div class="kpi-title">Firmas totales</div>
+                        <div class="kpi-values">
+                            <span id="dash-total-actual" class="kpi-big"></span>
+                            <span id="dash-total-anterior" class="kpi-small"></span>
+                        </div>
+                        <div id="dash-total-diff" class="kpi-diff"></div>
+                    </div>
+
+                    <div class="kpi-box-compare">
+                        <div class="kpi-title">SLA medio</div>
+                        <div class="kpi-values">
+                            <span id="dash-sla-actual" class="kpi-big"></span>
+                            <span id="dash-sla-anterior" class="kpi-small"></span>
+                        </div>
+                        <div id="dash-sla-diff" class="kpi-diff"></div>
+                    </div>
+
+                    <div class="kpi-box-compare">
+                        <div class="kpi-title">% VC</div>
+                        <div class="kpi-values">
+                            <span id="dash-vc-actual" class="kpi-big"></span>
+                            <span id="dash-vc-anterior" class="kpi-small"></span>
+                        </div>
+                        <div id="dash-vc-diff" class="kpi-diff"></div>
+                    </div>
+
+                    <div class="kpi-box-compare">
+                        <div class="kpi-title">Mes más fuerte</div>
+                        <div class="kpi-values">
+                            <span id="dash-top-mes-actual" class="kpi-big"></span>
+                            <span id="dash-top-mes-anterior" class="kpi-small"></span>
+                        </div>
+                        <div id="dash-top-mes-diff" class="kpi-diff"></div>
+                    </div>
+
                 </div>
-                <div id="dash-total-diff" class="kpi-diff"></div>
             </div>
 
-            <div class="kpi-box-compare">
-                <div class="kpi-title">SLA medio</div>
-                <div class="kpi-values">
-                    <span id="dash-sla-actual" class="kpi-big"></span>
-                    <span id="dash-sla-anterior" class="kpi-small"></span>
+            <!-- 📌 KPIs SECUNDARIOS -->
+            <div class="card-glass p-20" style="flex:1; min-width:320px;">
+                <h3 class="subtitulo-modulo">📌 KPIs secundarios</h3>
+
+                <div class="kpi-grid mt-10">
+
+                    <div class="kpi-box">
+                        <div class="kpi-title">Oficina líder</div>
+                        <div class="kpi-value" id="dash-top-oficina"></div>
+                    </div>
+
+                    <div class="kpi-box">
+                        <div class="kpi-title">Circuito dominante</div>
+                        <div class="kpi-value" id="dash-top-circuito"></div>
+                    </div>
+
+                    <div class="kpi-box">
+                        <div class="kpi-title">Tipo gestión dominante</div>
+                        <div class="kpi-value" id="dash-top-gestion"></div>
+                    </div>
+
+                    <div class="kpi-box">
+                        <div class="kpi-title">Apoderado top</div>
+                        <div class="kpi-value" id="dash-top-apoderado"></div>
+                    </div>
+
+                    <div class="kpi-box">
+                        <div class="kpi-title">Centro que firma dominante</div>
+                        <div class="kpi-value" id="dash-top-centro"></div>
+                    </div>
+
                 </div>
-                <div id="dash-sla-diff" class="kpi-diff"></div>
             </div>
 
-            <div class="kpi-box-compare">
-                <div class="kpi-title">% VC</div>
-                <div class="kpi-values">
-                    <span id="dash-vc-actual" class="kpi-big"></span>
-                    <span id="dash-vc-anterior" class="kpi-small"></span>
-                </div>
-                <div id="dash-vc-diff" class="kpi-diff"></div>
-            </div>
+            <!-- 🔥 HIGHLIGHTS -->
+            <div class="card-glass p-20" style="flex:1; min-width:320px;">
+                <h3 class="subtitulo-modulo">🔥 Highlights</h3>
 
-            <div class="kpi-box-compare">
-                <div class="kpi-title">Mes más fuerte</div>
-                <div class="kpi-values">
-                    <span id="dash-top-mes-actual" class="kpi-big"></span>
-                    <span id="dash-top-mes-anterior" class="kpi-small"></span>
-                </div>
-                <div id="dash-top-mes-diff" class="kpi-diff"></div>
+                <ul class="mt-10" style="list-style:none; padding-left:0;">
+                    <li id="dash-hl-mejor-mes" class="highlight-item"></li>
+                    <li id="dash-hl-peor-mes" class="highlight-item"></li>
+                    <li id="dash-hl-sla-alerta" class="highlight-item"></li>
+                    <li id="dash-hl-vc-alerta" class="highlight-item"></li>
+                </ul>
             </div>
 
         </div>
 
-        <!-- KPIs SECUNDARIOS -->
-        <h3 class="mt-30">📌 KPIs secundarios</h3>
-        <div class="kpi-grid-compare mt-10">
-
-            <div class="kpi-box-compare">
-                <div class="kpi-title">Oficina líder</div>
-                <div class="kpi-values">
-                    <span id="dash-top-oficina" class="kpi-big"></span>
-                </div>
-            </div>
-
-            <div class="kpi-box-compare">
-                <div class="kpi-title">Circuito dominante</div>
-                <div class="kpi-values">
-                    <span id="dash-top-circuito" class="kpi-big"></span>
-                </div>
-            </div>
-
-            <div class="kpi-box-compare">
-                <div class="kpi-title">Tipo gestión dominante</div>
-                <div class="kpi-values">
-                    <span id="dash-top-gestion" class="kpi-big"></span>
-                </div>
-            </div>
-
-            <div class="kpi-box-compare">
-                <div class="kpi-title">Apoderado top</div>
-                <div class="kpi-values">
-                    <span id="dash-top-apoderado" class="kpi-big"></span>
-                </div>
-            </div>
-
-            <div class="kpi-box-compare">
-                <div class="kpi-title">Centro que firma dominante</div>
-                <div class="kpi-values">
-                    <span id="dash-top-centro" class="kpi-big"></span>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- GRÁFICO COMPARATIVO ANUAL -->
+        <!-- ============================================================
+             GRÁFICO COMPARATIVO ANUAL
+        ============================================================= -->
         <h3 class="mt-30">📈 Comparativa anual (actual vs anterior)</h3>
         <div class="dashboard-chart mt-10">
             <canvas id="dash-chart-comparativa" height="140"></canvas>
         </div>
 
-        <!-- GRÁFICO EVOLUCIÓN MENSUAL -->
+        <!-- ============================================================
+             GRÁFICO EVOLUCIÓN MENSUAL
+        ============================================================= -->
         <h3 class="mt-30">📈 Evolución mensual del año actual</h3>
         <div class="dashboard-chart mt-10">
             <canvas id="dash-chart-mensual" height="140"></canvas>
         </div>
 
-        <!-- TABLA RESUMEN DE PANELES -->
+        <!-- ============================================================
+             TABLA RESUMEN DE PANELES
+        ============================================================= -->
         <h3 class="mt-40">📊 Comparativa por panel</h3>
 
         <table class="table-premium table-sticky">
@@ -247,15 +269,6 @@
             </thead>
             <tbody id="dash-tabla-paneles"></tbody>
         </table>
-
-        <!-- HIGHLIGHTS -->
-        <h3 class="mt-40">🔥 Highlights</h3>
-        <ul class="mt-10">
-            <li id="dash-hl-mejor-mes"></li>
-            <li id="dash-hl-peor-mes"></li>
-            <li id="dash-hl-sla-alerta"></li>
-            <li id="dash-hl-vc-alerta"></li>
-        </ul>
 
     </div>
 
