@@ -209,7 +209,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     aplicarEstadoSidebar(estado);
 
     // ✔ Cargar Dashboard Premium por defecto
-    cargarModulo("dashboard-premium");
+    cargarModulo("dashboard");
 });
 
 
