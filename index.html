@@ -820,6 +820,69 @@
 
     </div>
 </template>
+<!-- ============================================================
+     PANEL TIPO GESTIÓN — PREMIUM 2027 (DINÁMICO)
+============================================================ -->
+<template id="panel-tipo-gestion">
+    <div class="panel-wrapper fade-in">
+
+        <h2 class="titulo-modulo">📄 Panel Tipo Gestión</h2>
+
+        <div class="panel-header">
+            <div class="panel-header-left">
+                <label>Año</label>
+                <select id="ptg-select-anio"></select>
+            </div>
+        </div>
+
+        <div class="panel-contenido mt-20">
+            <h3 class="subtitulo-modulo">Detalle por tipo de gestión</h3>
+
+            <table id="ptg-tabla-gestion" class="table-premium tabla-excel table-sticky">
+
+                <thead>
+
+                    <!-- ⭐ Fila 1: grupos -->
+                    <tr id="ptg-thead-grupos">
+                        <th rowspan="2" style="text-align:center;">Tipo gestión</th>
+                        <th id="ptg-th-firmas" style="text-align:center;">Firmas realizadas</th>
+                        <th id="ptg-th-porc" style="text-align:center;">% Firmas realizadas</th>
+                    </tr>
+
+                    <!-- ⭐ Fila 2: meses -->
+                    <tr id="ptg-thead-row"></tr>
+
+                </thead>
+
+                <tbody></tbody>
+
+                <tfoot>
+                    <tr id="ptg-total-row" class="fila-sumatorio"></tr>
+                </tfoot>
+
+            </table>
+        </div>
+
+        <!-- ============================================================
+             GRÁFICOS — LADO A LADO
+        ============================================================= -->
+        <div class="panel-contenido mt-40"
+             style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
+
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📊 Ranking Tipos de Gestión</h3>
+                <canvas id="ptg-chart-ranking" style="width:100%; height:300px;"></canvas>
+            </div>
+
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📈 Evolución mensual del total</h3>
+                <canvas id="ptg-chart-evolucion" style="width:100%; height:300px;"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+</template>
 
 
 <!-- ============================================================
