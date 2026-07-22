@@ -778,9 +778,17 @@
             <table id="ptf-tabla-meses" class="table-premium tabla-excel table-sticky">
 
                 <thead>
-                    <tr id="ptf-thead-row">
-                        <!-- ⭐ Esta fila se rellena dinámicamente -->
+
+                    <!-- ⭐ Fila 1: grupos -->
+                    <tr id="ptf-thead-grupos">
+                        <th rowspan="2" style="text-align:center;">Tipo firma</th>
+                        <th id="ptf-th-firmas" style="text-align:center;">Firmas realizadas</th>
+                        <th id="ptf-th-porc" style="text-align:center;">% Firmas realizadas</th>
                     </tr>
+
+                    <!-- ⭐ Fila 2: meses -->
+                    <tr id="ptf-thead-row"></tr>
+
                 </thead>
 
                 <tbody></tbody>
