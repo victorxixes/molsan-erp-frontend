@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL CIRCUITO — PREMIUM 2027 (FORMATO 2026)
+   PANEL CIRCUITO — PREMIUM 2027 (FORMATO 7 MESES)
 ============================================================ */
 
 let PCI_DATOS = [];
@@ -23,7 +23,6 @@ async function initPanelCircuito() {
     }
 
     let datos = await obtenerFirmas();
-
     datos = datos.map(f => aplicarReglas(f));
 
     PCI_DATOS = datos;
@@ -37,14 +36,11 @@ async function initPanelCircuito() {
 }
 
 /* ============================================================
-   AGRUPAR POR AÑO → CIRCUITO → MES
+   AGRUPAR POR AÑO → CIRCUITO → MES (solo enero–junio)
 ============================================================ */
 function pci_groupByAnioCircuito(datos) {
 
-    const mesesValidos = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    const mesesValidos = ["enero","febrero","marzo","abril","mayo","junio"];
 
     const map = {};
 
@@ -58,34 +54,20 @@ function pci_groupByAnioCircuito(datos) {
         if (idxMes === -1) continue;
 
         const circuito = f.circuito || "Fuera del circuito";
-        const dias = Number(f.dias);
-        const esVC = (String(f.tipo_firma).toLowerCase() === "videoconferencia");
 
         if (!map[anio]) map[anio] = {};
 
         if (!map[anio][circuito]) {
             map[anio][circuito] = {
-                total: 0,
-                presencial: 0,
-                vc: 0,
-                sumaDias: 0,
-                cuentaDias: 0,
-                meses: Array(12).fill(0)
+                meses: Array(6).fill(0),
+                total: 0
             };
         }
 
         const r = map[anio][circuito];
 
-        r.total++;
         r.meses[idxMes]++;
-
-        if (esVC) r.vc++;
-        else r.presencial++;
-
-        if (dias > 0) {
-            r.sumaDias += dias;
-            r.cuentaDias++;
-        }
+        r.total++;
     }
 
     return map;
@@ -136,16 +118,13 @@ function pci_onChangeAnio() {
 }
 
 /* ============================================================
-   THEAD DINÁMICO — Premium 2027 (Meses + Total + %Mes + %Total)
+   THEAD DINÁMICO — Premium 2027 (enero–junio + Total + %mes + %Total)
 ============================================================ */
 function pci_renderThead() {
     const theadRow = document.getElementById("pci-thead-row");
     if (!theadRow) return;
 
-    const meses = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    const meses = ["enero","febrero","marzo","abril","mayo","junio"];
 
     theadRow.innerHTML = `
         ${meses.map(m => `<th>${m}</th>`).join("")}
@@ -160,10 +139,6 @@ function pci_renderThead() {
 ============================================================ */
 function pci_renderKpis(info) {
     let total = 0;
-    let vc = 0;
-    let sumaDias = 0;
-    let cuentaDias = 0;
-
     let circuitoTop = "-";
     let maxCircuito = 0;
 
@@ -171,10 +146,6 @@ function pci_renderKpis(info) {
         const r = info[circuito];
 
         total += r.total;
-        vc += r.vc;
-
-        sumaDias += r.sumaDias;
-        cuentaDias += r.cuentaDias;
 
         if (r.total > maxCircuito) {
             maxCircuito = r.total;
@@ -182,17 +153,12 @@ function pci_renderKpis(info) {
         }
     }
 
-    const pctVC = total ? ((vc / total) * 100).toFixed(1) + "%" : "0%";
-    const sla = cuentaDias ? (sumaDias / cuentaDias).toFixed(1) : "0";
-
     pciSafeSet("pci-kpi-total", total);
     pciSafeSet("pci-kpi-circuito", circuitoTop);
-    pciSafeSet("pci-kpi-sla", sla);
-    pciSafeSet("pci-kpi-vc", pctVC);
 }
 
 /* ============================================================
-   TABLA DETALLE — Premium 2027 (Meses + Total + %Mes + %Total)
+   TABLA DETALLE — Premium 2027 (enero–junio + Total + %mes + %Total)
 ============================================================ */
 function pci_renderTabla(info) {
     const tbody = document.querySelector("#pci-tabla-circuito tbody");
@@ -200,15 +166,9 @@ function pci_renderTabla(info) {
 
     tbody.innerHTML = "";
 
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    const mesesOrden = ["enero","febrero","marzo","abril","mayo","junio"];
 
     const lista = Object.entries(info).map(([circuito, r]) => {
-
-        const pctVC = r.total ? ((r.vc / r.total) * 100).toFixed(1) + "%" : "0%";
-        const sla = r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : "0";
 
         const valoresMes = r.meses;
         const totalVisible = valoresMes.reduce((acc, v) => acc + v, 0);
@@ -220,30 +180,19 @@ function pci_renderTabla(info) {
 
         return {
             circuito,
-            total: r.total,
-            presencial: r.presencial,
-            vc: r.vc,
-            pctVC,
-            sla,
             valoresMes,
             totalVisible,
             porcentajesMes
         };
     });
 
-    lista.sort((a,b)=>b.total - a.total);
+    lista.sort((a,b)=>b.totalVisible - a.totalVisible);
 
     for (const row of lista) {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
             <td>${row.circuito}</td>
-            <td>${row.total}</td>
-            <td>${row.presencial}</td>
-            <td>${row.vc}</td>
-            <td>${row.pctVC}</td>
-            <td>${row.sla}</td>
-
             ${row.valoresMes.map(v => `<td>${v}</td>`).join("")}
             <td>${row.totalVisible}</td>
             ${row.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
@@ -273,12 +222,6 @@ function pci_renderTabla(info) {
 
     trTotal.innerHTML = `
         <td><b>TOTAL</b></td>
-        <td><b>${lista.reduce((acc,r)=>acc+r.total,0)}</b></td>
-        <td><b>${lista.reduce((acc,r)=>acc+r.presencial,0)}</b></td>
-        <td><b>${lista.reduce((acc,r)=>acc+r.vc,0)}</b></td>
-        <td><b>-</b></td>
-        <td><b>-</b></td>
-
         ${totalesMes.map(v => `<td><b>${v}</b></td>`).join("")}
         <td><b>${totalGeneral}</b></td>
         ${porcentajesTotalesMes.map(p => `<td><b>${p}</b></td>`).join("")}
