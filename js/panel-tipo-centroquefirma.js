@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL CENTRO QUE FIRMA — PREMIUM 2027 (FORMATO 2026)
+   PANEL CENTRO QUE FIRMA — PREMIUM 2027 (FORMATO 7 MESES)
 ============================================================ */
 
 let chartCentroFirma = null;
@@ -19,7 +19,6 @@ async function initPanelTipoCentroQueFirma() {
     }
 
     let datos = await obtenerFirmas();
-
     datos = datos.map(f => aplicarReglas(f));
 
     if (!datos || !datos.length) return;
@@ -37,14 +36,11 @@ async function initPanelTipoCentroQueFirma() {
 }
 
 /* ============================================================
-   AGRUPAR POR AÑO → CENTRO QUE FIRMA → MES
+   AGRUPAR POR AÑO → CENTRO QUE FIRMA → MES (solo enero–junio)
 ============================================================ */
 function pcf_groupByAnio(datos) {
 
-    const mesesValidos = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    const mesesValidos = ["enero","febrero","marzo","abril","mayo","junio"];
 
     const COLABORADORES = [
         "gestcanarias","gestoria mas","yarza gestion",
@@ -65,7 +61,6 @@ function pcf_groupByAnio(datos) {
         if (idxMes === -1) continue;
 
         const ap = (f.apoderado || "").trim().toLowerCase();
-        const dias = Number(f.dias);
 
         let centro = "Molsan";
         if (ap === "oficina caixabank") centro = "Oficina CBK";
@@ -76,28 +71,15 @@ function pcf_groupByAnio(datos) {
 
         if (!map[anio][centro]) {
             map[anio][centro] = {
-                total: 0,
-                presencial: 0,
-                vc: 0,
-                slaSum: 0,
-                slaCount: 0,
-                meses: Array(12).fill(0)
+                meses: Array(6).fill(0),
+                total: 0
             };
         }
 
         const r = map[anio][centro];
 
-        r.total++;
-
-        if (String(f.tipo_firma).toLowerCase() === "videoconferencia") r.vc++;
-        else r.presencial++;
-
-        if (dias > 0) {
-            r.slaSum += dias;
-            r.slaCount++;
-        }
-
         r.meses[idxMes]++;
+        r.total++;
     }
 
     return map;
@@ -132,16 +114,13 @@ function pcf_selectUltimoAnio() {
 }
 
 /* ============================================================
-   THEAD DINÁMICO — Premium 2027 (Meses + Total + %Mes + %Total)
+   THEAD DINÁMICO — Premium 2027 (enero–junio + Total + %mes + %Total)
 ============================================================ */
 function pcf_renderThead() {
     const theadRow = document.getElementById("pcf-thead-row");
     if (!theadRow) return;
 
-    const meses = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    const meses = ["enero","febrero","marzo","abril","mayo","junio"];
 
     theadRow.innerHTML = `
         ${meses.map(m => `<th>${m}</th>`).join("")}
@@ -173,12 +152,8 @@ async function cargarCentroQueFirma() {
     const mapa = {};
     centros.forEach(c => {
         mapa[c] = {
-            total: 0,
-            presencial: 0,
-            vc: 0,
-            slaSum: 0,
-            slaCount: 0,
-            meses: Array(12).fill(0)
+            meses: Array(6).fill(0),
+            total: 0
         };
     });
 
@@ -186,28 +161,15 @@ async function cargarCentroQueFirma() {
 
         const ap = (f.apoderado || "").trim().toLowerCase();
         const mesNombre = String(f.mes || "").toLowerCase().trim();
-        const mesIdx = MESES_ORDEN.indexOf(mesNombre);
-        const dias = Number(f.dias);
+        const mesIdx = ["enero","febrero","marzo","abril","mayo","junio"].indexOf(mesNombre);
 
         let centro = "Molsan";
         if (ap === "oficina caixabank") centro = "Oficina CBK";
         else if (ap === "oficina otra entidad") centro = "Oficina OE";
         else if (COLABORADORES.includes(ap)) centro = "Colaboradores";
 
-        mapa[centro].total++;
-
-        if (String(f.tipo_firma).toLowerCase() === "videoconferencia") {
-            mapa[centro].vc++;
-        } else {
-            mapa[centro].presencial++;
-        }
-
-        if (dias > 0) {
-            mapa[centro].slaSum += dias;
-            mapa[centro].slaCount++;
-        }
-
         if (mesIdx >= 0) mapa[centro].meses[mesIdx]++;
+        mapa[centro].total++;
     });
 
     /* ============================================================
@@ -216,23 +178,17 @@ async function cargarCentroQueFirma() {
     pcf_renderThead();
 
     /* ============================================================
-       TABLA Premium 2027 (Meses + Total + %Mes + %Total)
+       TABLA Premium 2027 (enero–junio + Total + %Mes + %Total)
     ============================================================= */
     const tbody = document.querySelector("#pcf-tabla-meses tbody");
     if (!tbody) return;
 
     tbody.innerHTML = "";
 
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
+    const mesesOrden = ["enero","febrero","marzo","abril","mayo","junio"];
 
     const lista = centros.map(c => {
         const m = mapa[c];
-
-        const sla = m.slaCount ? (m.slaSum / m.slaCount).toFixed(1) : "0";
-        const vcPct = m.total ? ((m.vc / m.total) * 100).toFixed(1) + "%" : "0%";
 
         const valoresMes = m.meses;
         const totalVisible = valoresMes.reduce((acc, v) => acc + v, 0);
@@ -244,11 +200,6 @@ async function cargarCentroQueFirma() {
 
         return {
             centro: c,
-            total: m.total,
-            presencial: m.presencial,
-            vc: m.vc,
-            vcPct,
-            sla,
             valoresMes,
             totalVisible,
             porcentajesMes
@@ -260,12 +211,6 @@ async function cargarCentroQueFirma() {
 
         tr.innerHTML = `
             <td>${row.centro}</td>
-            <td>${row.total}</td>
-            <td>${row.presencial}</td>
-            <td>${row.vc}</td>
-            <td>${row.vcPct}</td>
-            <td>${row.sla}</td>
-
             ${row.valoresMes.map(v => `<td>${v}</td>`).join("")}
             <td>${row.totalVisible}</td>
             ${row.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
@@ -294,12 +239,6 @@ async function cargarCentroQueFirma() {
 
     trTotal.innerHTML = `
         <td><b>TOTAL</b></td>
-        <td><b>${lista.reduce((acc,r)=>acc+r.total,0)}</b></td>
-        <td><b>${lista.reduce((acc,r)=>acc+r.presencial,0)}</b></td>
-        <td><b>${lista.reduce((acc,r)=>acc+r.vc,0)}</b></td>
-        <td><b>-</b></td>
-        <td><b>-</b></td>
-
         ${totalesMes.map(v => `<td><b>${v}</b></td>`).join("")}
         <td><b>${totalGeneral}</b></td>
         ${porcentajesTotalesMes.map(p => `<td><b>${p}</b></td>`).join("")}
@@ -307,28 +246,6 @@ async function cargarCentroQueFirma() {
     `;
 
     tbody.appendChild(trTotal);
-
-    /* ============================================================
-       KPIs
-    ============================================================= */
-    const totalFirmas = datos.length;
-    document.getElementById("pcf-kpi-total").textContent = totalFirmas;
-
-    const centroTop = centros.reduce((a,b) => mapa[a].total > mapa[b].total ? a : b);
-    document.getElementById("pcf-kpi-top").textContent = centroTop;
-
-    const slaGlobal = (() => {
-        const sum = centros.reduce((acc,c) => acc + mapa[c].slaSum, 0);
-        const cnt = centros.reduce((acc,c) => acc + mapa[c].slaCount, 0);
-        return cnt ? (sum / cnt).toFixed(1) : "0";
-    })();
-    document.getElementById("pcf-kpi-sla").textContent = slaGlobal;
-
-    const vcGlobal = (() => {
-        const vc = centros.reduce((acc,c) => acc + mapa[c].vc, 0);
-        return totalFirmas ? ((vc / totalFirmas) * 100).toFixed(1) + "%" : "0%";
-    })();
-    document.getElementById("pcf-kpi-vc").textContent = vcGlobal;
 
     /* ============================================================
        Gráfico
@@ -343,7 +260,7 @@ async function cargarCentroQueFirma() {
         data: {
             labels: centros,
             datasets: [{
-                label: "Total firmas",
+                label: "Firmas por centro",
                 data: centros.map(c => mapa[c].total),
                 backgroundColor: ["#3B82F6", "#10B981", "#F59E0B", "#6366F1"]
             }]
