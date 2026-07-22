@@ -4,7 +4,9 @@
 
 let SLA_DATOS = [];
 let SLA_POR_ANIO = {};
-let SLA_CHART = null;
+
+let SLA_CHART_EVOLUCION = null;
+let SLA_CHART_CONTRA = null;
 
 /* Helper seguro */
 function slaSafeSet(id, value) {
@@ -58,7 +60,6 @@ function sla_groupByAnio(datos) {
         const idxMes = mesesValidos.indexOf(mes);
         if (idxMes === -1) continue;
 
-        // ❌ Mes futuro del año en curso → ignorar
         if (anio === currentYear && idxMes > currentMonthIndex) continue;
 
         const dias = Number(f.dias);
@@ -143,7 +144,7 @@ function sla_onChangeAnio() {
 
     sla_renderKpis(info);
     sla_renderTabla(info);
-    sla_renderChart(info);
+    sla_renderGraficos(info);   // ⭐ NUEVO
 }
 
 /* ============================================================
@@ -209,7 +210,6 @@ function sla_renderTabla(info) {
         const r = info[mes];
 
         if (!r) {
-            // Mes sin datos
             const tr = document.createElement("tr");
             tr.innerHTML = `
                 <td>${mes}</td>
@@ -246,32 +246,35 @@ function sla_renderTabla(info) {
 }
 
 /* ============================================================
-   GRÁFICO EVOLUCIÓN SLA
+   GRÁFICOS PREMIUM 2027
 ============================================================ */
-function sla_renderChart(info) {
-    const ctx = document.getElementById("sla-chart-evolucion");
-    if (!ctx) return;
+function sla_renderGraficos(info) {
 
     const mesesOrden = [
         "enero","febrero","marzo","abril","mayo","junio",
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
-    const labels = mesesOrden;
-    const data = mesesOrden.map(m => {
+    /* ============================
+       1) Evolución del SLA (line)
+    ============================ */
+
+    const dataEvo = mesesOrden.map(m => {
         const r = info[m];
         return r && r.cuentaDias ? (r.sumaDias / r.cuentaDias).toFixed(1) : 0;
     });
 
-    if (SLA_CHART) SLA_CHART.destroy();
+    const ctxEvo = document.getElementById("sla-chart-evolucion");
 
-    SLA_CHART = new Chart(ctx, {
+    if (SLA_CHART_EVOLUCION) SLA_CHART_EVOLUCION.destroy();
+
+    SLA_CHART_EVOLUCION = new Chart(ctxEvo, {
         type: "line",
         data: {
-            labels,
+            labels: mesesOrden,
             datasets: [{
                 label: "SLA mensual",
-                data,
+                data: dataEvo,
                 borderColor: "rgba(80,200,255,1)",
                 backgroundColor: "rgba(80,200,255,0.3)",
                 borderWidth: 2,
@@ -284,6 +287,51 @@ function sla_renderChart(info) {
             scales: {
                 x: { ticks: { color: "#111" }},
                 y: { ticks: { color: "#111" }}
+            }
+        }
+    });
+
+    /* ============================
+       2) SLA Con vs Sin provisión (stacked bar)
+    ============================ */
+
+    const dataCon = mesesOrden.map(m => {
+        const r = info[m];
+        return r && r.con.cuenta ? (r.con.suma / r.con.cuenta).toFixed(1) : 0;
+    });
+
+    const dataSin = mesesOrden.map(m => {
+        const r = info[m];
+        return r && r.sin.cuenta ? (r.sin.suma / r.sin.cuenta).toFixed(1) : 0;
+    });
+
+    const ctxContra = document.getElementById("sla-chart-contra");
+
+    if (SLA_CHART_CONTRA) SLA_CHART_CONTRA.destroy();
+
+    SLA_CHART_CONTRA = new Chart(ctxContra, {
+        type: "bar",
+        data: {
+            labels: mesesOrden,
+            datasets: [
+                {
+                    label: "SLA Con provisión",
+                    data: dataCon,
+                    backgroundColor: "rgba(255, 159, 64, 0.7)"
+                },
+                {
+                    label: "SLA Sin provisión",
+                    data: dataSin,
+                    backgroundColor: "rgba(99, 132, 255, 0.7)"
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: true }},
+            scales: {
+                x: { stacked: true, ticks: { color: "#111" }},
+                y: { stacked: true, ticks: { color: "#111" }}
             }
         }
     });
