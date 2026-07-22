@@ -712,7 +712,7 @@
 
 
 <!-- ============================================================
-     PANEL CENTRO QUE FIRMA — PREMIUM 2027 (FORMATO 2026)
+     PANEL TIPO CENTRO QUE FIRMA — PREMIUM 2027 (FORMATO 2026)
 ============================================================ -->
 <template id="tpl-panel-tipo-centroquefirma">
     <div class="panel-wrapper fade-in">
@@ -748,35 +748,28 @@
 
         <!-- Tabla mensual -->
         <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Detalle por Centro (mes a mes)</h3>
+            <h3 class="subtitulo-modulo">Detalle por Centro que Firma</h3>
 
-            <div class="tabla-scroll-x mt-10">
-                <table id="pcf-tabla-meses" class="table-premium table-sticky tabla-excel">
+            <table id="pcf-tabla-meses" class="table-premium tabla-excel table-sticky">
 
-                    <thead>
-                        <tr>
-                            <th rowspan="2">Centro</th>
-                            <th rowspan="2">Total</th>
-                            <th rowspan="2">Presencial</th>
-                            <th rowspan="2">VC</th>
-                            <th rowspan="2">% VC</th>
-                            <th rowspan="2">SLA</th>
+                <thead>
+                    <tr>
+                        <th rowspan="2">Centro que firma</th>
 
-                            <!-- Grupo meses -->
-                            <th colspan="12" class="th-group">Firmas realizadas por mes</th>
+                        <!-- Grupo Firmas realizadas -->
+                        <th colspan="7" class="th-group">Firmas realizadas</th>
 
-                            <!-- Grupo % meses -->
-                            <th colspan="12" class="th-group">% por mes</th>
-                        </tr>
+                        <!-- Grupo % Firmas realizadas -->
+                        <th colspan="7" class="th-group">% Firmas realizadas</th>
+                    </tr>
 
-                        <!-- ⭐ ESTA FILA SE RELLENA DESDE JS -->
-                        <tr id="pcf-thead-row"></tr>
-                    </thead>
+                    <!-- ⭐ ESTA FILA SE RELLENA DESDE JS -->
+                    <tr id="pcf-thead-row"></tr>
+                </thead>
 
-                    <tbody></tbody>
+                <tbody></tbody>
 
-                </table>
-            </div>
+            </table>
         </div>
 
         <!-- Gráfico distribución -->
@@ -952,35 +945,28 @@
 
         <!-- Tabla mensual -->
         <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Detalle por Circuito (meses con datos)</h3>
+            <h3 class="subtitulo-modulo">Detalle por Circuito</h3>
 
-            <div class="tabla-scroll-x mt-10">
-                <table id="pci-tabla-circuito" class="table-premium table-sticky tabla-excel">
+            <table id="pci-tabla-circuito" class="table-premium tabla-excel table-sticky">
 
-                    <thead>
-                        <tr>
-                            <th rowspan="2">Circuito</th>
-                            <th rowspan="2">Total</th>
-                            <th rowspan="2">Presencial</th>
-                            <th rowspan="2">VC</th>
-                            <th rowspan="2">% VC</th>
-                            <th rowspan="2">SLA</th>
+                <thead>
+                    <tr>
+                        <th rowspan="2">Circuito</th>
 
-                            <!-- Grupo Firmas realizadas -->
-                            <th colspan="13" class="th-group">Firmas realizadas</th>
+                        <!-- Grupo Firmas realizadas -->
+                        <th colspan="7" class="th-group">Firmas realizadas</th>
 
-                            <!-- Grupo % Firmas realizadas -->
-                            <th colspan="13" class="th-group">% Firmas realizadas</th>
-                        </tr>
+                        <!-- Grupo % Firmas realizadas -->
+                        <th colspan="7" class="th-group">% Firmas realizadas</th>
+                    </tr>
 
-                        <!-- ⭐ ESTA FILA SE RELLENA DESDE JS -->
-                        <tr id="pci-thead-row"></tr>
-                    </thead>
+                    <!-- ⭐ ESTA FILA SE RELLENA DESDE JS -->
+                    <tr id="pci-thead-row"></tr>
+                </thead>
 
-                    <tbody></tbody>
+                <tbody></tbody>
 
-                </table>
-            </div>
+            </table>
         </div>
 
         <!-- Gráfico ranking -->
