@@ -2,6 +2,9 @@
    KPIS MOLSAN — GLASS LUXE 2027 (VERSIÓN FINAL)
 ============================================================ */
 
+/* ============================================================
+   RE-CÁLCULO COMPLETO DE KPIs (IndexedDB → localStorage)
+============================================================ */
 async function recalcularKPIs() {
     const datos = await obtenerFirmas(); // IndexedDB
 
@@ -20,10 +23,6 @@ async function recalcularKPIs() {
         if (!fila) continue;
 
         totalRegistros++;
-
-        /* ============================================================
-           NORMALIZACIÓN CORRECTA PARA KPIs
-        ============================================================= */
 
         // Mes numérico (1–12)
         const mesNum = obtenerMesNumero(fila.mes);
@@ -46,10 +45,7 @@ async function recalcularKPIs() {
         // Días SLA
         const dias = Number(fila.dias) || 0;
 
-        /* ============================================================
-           INCREMENTAR CONTADORES
-        ============================================================= */
-
+        // Incrementar contadores
         incrementar(porMes, mesNum);
         incrementar(porAnio, anio);
         incrementar(porApoderado, apo);
@@ -92,9 +88,8 @@ function obtenerKPIs() {
 }
 
 /* ============================================================
-   Helpers
+   Helpers básicos
 ============================================================ */
-
 function incrementar(obj, clave) {
     if (!clave) clave = "Sin dato";
     obj[clave] = (obj[clave] || 0) + 1;
@@ -112,9 +107,6 @@ function ordenarRanking(obj, campo) {
         .sort((a, b) => b.total - a.total);
 }
 
-/* ============================================================
-   Convertir "enero" → 1, "febrero" → 2...
-============================================================ */
 function obtenerMesNumero(mesTexto) {
     if (!mesTexto) return 0;
 
@@ -127,3 +119,163 @@ function obtenerMesNumero(mesTexto) {
     return idx >= 0 ? idx + 1 : 0;
 }
 
+/* ============================================================
+   FUNCIONES PARA EL DASHBOARD (TOPS + KPIs por año)
+============================================================ */
+
+/* ------------------------------
+   Total firmas por año
+------------------------------ */
+function kpi_totalFirmasAnio(anio) {
+    const k = obtenerKPIs();
+    return k.por_anio?.[anio] || 0;
+}
+
+/* ------------------------------
+   SLA medio por año
+------------------------------ */
+async function kpi_slaMedioAnio(anio) {
+    const datos = await obtenerFirmas();
+    let suma = 0, cuenta = 0;
+
+    datos.forEach(f => {
+        if (Number(f.anio) === anio) {
+            const d = Number(f.dias);
+            if (d > 0) {
+                suma += d;
+                cuenta++;
+            }
+        }
+    });
+
+    return cuenta ? Number((suma / cuenta).toFixed(1)) : 0;
+}
+
+/* ------------------------------
+   % VC por año
+------------------------------ */
+async function kpi_vcPorcentajeAnio(anio) {
+    const datos = await obtenerFirmas();
+    const filtrado = datos.filter(f => Number(f.anio) === anio);
+
+    const total = filtrado.length;
+    const vc = filtrado.filter(f => f.tipo_firma === "VideoConferencia").length;
+
+    return total ? Number(((vc / total) * 100).toFixed(1)) : 0;
+}
+
+/* ------------------------------
+   Mes más fuerte del año
+------------------------------ */
+async function kpi_mesMasFuerte(anio) {
+    const datos = await obtenerFirmas();
+    const mapa = {};
+
+    datos.forEach(f => {
+        if (Number(f.anio) === anio) {
+            const m = Number(f.mes);
+            mapa[m] = (mapa[m] || 0) + 1;
+        }
+    });
+
+    const top = Object.entries(mapa).sort((a,b)=>b[1]-a[1])[0];
+    return top ? top[0] : "-";
+}
+
+/* ------------------------------
+   Detalle mensual (para gráfico)
+------------------------------ */
+async function kpi_detalleMensual(anio) {
+    const datos = await obtenerFirmas();
+    const arr = [];
+
+    for (let m = 1; m <= 12; m++) {
+        const filtrado = datos.filter(f => Number(f.anio) === anio && Number(f.mes) === m);
+
+        const total = filtrado.length;
+        const presencial = filtrado.filter(f => f.tipo_firma !== "VideoConferencia").length;
+        const vc = filtrado.filter(f => f.tipo_firma === "VideoConferencia").length;
+
+        let suma = 0, cuenta = 0;
+        filtrado.forEach(f => {
+            const d = Number(f.dias);
+            if (d > 0) { suma += d; cuenta++; }
+        });
+
+        const sla = cuenta ? Number((suma / cuenta).toFixed(1)) : 0;
+
+        arr.push({ mes: m, total, presencial, vc, sla });
+    }
+
+    return arr;
+}
+
+/* ------------------------------
+   Top oficina del año
+------------------------------ */
+function kpi_topOficina(anio) {
+    const k = obtenerKPIs();
+    const mapa = k.por_oficina || {};
+    const top = Object.entries(mapa).sort((a,b)=>b[1]-a[1])[0];
+    return top ? top[0] : "-";
+}
+
+/* ------------------------------
+   Top circuito del año
+------------------------------ */
+function kpi_topCircuito(anio) {
+    const k = obtenerKPIs();
+    const mapa = k.por_circuito || {};
+    const top = Object.entries(mapa).sort((a,b)=>b[1]-a[1])[0];
+    return top ? top[0] : "-";
+}
+
+/* ------------------------------
+   Top tipo gestión del año
+------------------------------ */
+async function kpi_topGestion(anio) {
+    const datos = await obtenerFirmas();
+    const mapa = {};
+
+    datos.filter(f => Number(f.anio) === anio).forEach(f => {
+        const g = f.tipo_provision || "Sin dato";
+        mapa[g] = (mapa[g] || 0) + 1;
+    });
+
+    const top = Object.entries(mapa).sort((a,b)=>b[1]-a[1])[0];
+    return top ? top[0] : "-";
+}
+
+/* ------------------------------
+   Top apoderado del año
+------------------------------ */
+function kpi_topApoderado() {
+    const k = obtenerKPIs();
+    return k.ranking_apoderados?.[0]?.apoderado || "-";
+}
+
+/* ------------------------------
+   Top centro que firma del año
+------------------------------ */
+function kpi_topCentro(anio) {
+    const k = obtenerKPIs();
+    const mapa = k.por_oficina || {};
+    const top = Object.entries(mapa).sort((a,b)=>b[1]-a[1])[0];
+    return top ? top[0] : "-";
+}
+
+/* ------------------------------
+   Total firmas por panel (Dashboard)
+------------------------------ */
+function kpi_totalPanel(panel, anio) {
+    const k = obtenerKPIs();
+
+    switch(panel) {
+        case "anual":       return k.por_anio?.[anio] || 0;
+        case "apoderados":  return Object.keys(k.por_apoderado || {}).length;
+        case "tipo_firma":  return Object.keys(k.por_tipo_firma || {}).length;
+        case "oficinas":    return Object.keys(k.por_oficina || {}).length;
+        case "circuito":    return Object.keys(k.por_circuito || {}).length;
+        default:            return 0;
+    }
+}
