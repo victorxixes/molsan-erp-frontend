@@ -5,6 +5,9 @@
 let POF_DATOS = [];
 let POF_POR_ANIO = {};
 
+let POF_CHART_RANKING = null;
+let POF_CHART_EVOLUCION = null;
+
 async function initPanelOficinas() {
 
     console.log("🏢 initPanelOficinas() ejecutado");
@@ -44,7 +47,6 @@ function pof_groupByAnio(datos) {
         const idxMes = mesesValidos.indexOf(mes);
         if (idxMes === -1) continue;
 
-        // ⭐ NORMALIZACIÓN PREMIUM 2027
         let oficinaRaw = String(f.oficina || "").trim();
         let oficinaNum = oficinaRaw.replace(/[^0-9]/g, "");
         let oficina = (oficinaNum === "5316") ? "Cancela" : "Oficina";
@@ -66,7 +68,6 @@ function pof_groupByAnio(datos) {
 
     return map;
 }
-
 
 /* ============================================================
    SELECT AÑOS
@@ -95,7 +96,7 @@ function pof_selectUltimoAnio() {
 }
 
 /* ============================================================
-   THEAD dinámico — Premium 2027 (enero–junio + Total + %mes + %Total)
+   THEAD dinámico — Premium 2027
 ============================================================ */
 function pof_renderThead() {
     const theadRow = document.getElementById("pof-thead-row");
@@ -112,7 +113,7 @@ function pof_renderThead() {
 }
 
 /* ============================================================
-   TABLA DETALLE — Premium 2027 (enero–junio + Total + %Mes + %Total)
+   TABLA DETALLE — Premium 2027
 ============================================================ */
 function cargarOficinas() {
 
@@ -190,4 +191,84 @@ function cargarOficinas() {
     `;
 
     tbody.appendChild(trTotal);
+
+    /* ============================================================
+       GRÁFICOS PREMIUM 2027
+    ============================================================= */
+    pof_renderGraficos(lista, mesesOrden);
+}
+
+/* ============================================================
+   GRÁFICOS — Premium 2027
+============================================================ */
+function pof_renderGraficos(lista, mesesOrden) {
+
+    /* ============================
+       1) Ranking Oficinas
+    ============================ */
+
+    const labelsRanking = lista.map(o => o.oficina);
+    const dataRanking = lista.map(o => o.totalVisible);
+
+    const ctxRanking = document.getElementById("pof-chart-ranking");
+
+    if (POF_CHART_RANKING) POF_CHART_RANKING.destroy();
+
+    POF_CHART_RANKING = new Chart(ctxRanking, {
+        type: "bar",
+        data: {
+            labels: labelsRanking,
+            datasets: [{
+                label: "Total firmas",
+                data: dataRanking,
+                backgroundColor: "rgba(80, 200, 255, 0.5)",
+                borderColor: "rgba(80, 200, 255, 1)",
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
+
+    /* ============================
+       2) Evolución mensual del total
+    ============================ */
+
+    const totalesMes = mesesOrden.map((_, idx) =>
+        lista.reduce((acc, row) => acc + row.valoresMes[idx], 0)
+    );
+
+    const ctxEvo = document.getElementById("pof-chart-evolucion");
+
+    if (POF_CHART_EVOLUCION) POF_CHART_EVOLUCION.destroy();
+
+    POF_CHART_EVOLUCION = new Chart(ctxEvo, {
+        type: "line",
+        data: {
+            labels: mesesOrden,
+            datasets: [{
+                label: "Total mensual",
+                data: totalesMes,
+                borderColor: "rgba(255, 120, 80, 1)",
+                backgroundColor: "rgba(255, 120, 80, 0.3)",
+                borderWidth: 2,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
 }
