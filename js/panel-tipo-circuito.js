@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL CIRCUITO — PREMIUM 2027 (FORMATO 7 MESES)
+   PANEL CIRCUITO — PREMIUM 2027 (MESES DINÁMICOS)
 ============================================================ */
 
 let PCI_DATOS = [];
@@ -38,11 +38,14 @@ async function initPanelCircuito() {
 }
 
 /* ============================================================
-   AGRUPAR POR AÑO → CIRCUITO → MES (solo enero–junio)
+   AGRUPAR POR AÑO → CIRCUITO → MESES DINÁMICOS
 ============================================================ */
 function pci_groupByAnioCircuito(datos) {
 
-    const mesesValidos = ["enero","febrero","marzo","abril","mayo","junio"];
+    const mesesValidos = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
 
     const map = {};
 
@@ -61,7 +64,7 @@ function pci_groupByAnioCircuito(datos) {
 
         if (!map[anio][circuito]) {
             map[anio][circuito] = {
-                meses: Array(6).fill(0),
+                meses: Array(12).fill(0),
                 total: 0
             };
         }
@@ -114,24 +117,36 @@ function pci_onChangeAnio() {
     if (!info) return;
 
     pci_renderKpis(info);
-    pci_renderThead();
+    pci_renderThead(info);
     pci_renderTabla(info);
-    pci_renderGraficos(info);   // ⭐ NUEVO
+    pci_renderGraficos(info);
 }
 
 /* ============================================================
-   THEAD DINÁMICO — Premium 2027
+   THEAD DINÁMICO — SOLO MESES CON DATOS
 ============================================================ */
-function pci_renderThead() {
+function pci_renderThead(info) {
     const theadRow = document.getElementById("pci-thead-row");
     if (!theadRow) return;
 
-    const meses = ["enero","febrero","marzo","abril","mayo","junio"];
+    const meses = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const mesesConDatos = [];
+
+    meses.forEach((m, idx) => {
+        const totalMes = Object.values(info)
+            .reduce((acc, r) => acc + r.meses[idx], 0);
+
+        if (totalMes > 0) mesesConDatos.push(m);
+    });
 
     theadRow.innerHTML = `
-        ${meses.map(m => `<th>${m}</th>`).join("")}
+        ${mesesConDatos.map(m => `<th style="text-align:center;">${m}</th>`).join("")}
         <th>Total</th>
-        ${meses.map(m => `<th>%${m}</th>`).join("")}
+        ${mesesConDatos.map(m => `<th style="text-align:center;">%${m}</th>`).join("")}
         <th>%Total</th>
     `;
 }
@@ -160,19 +175,30 @@ function pci_renderKpis(info) {
 }
 
 /* ============================================================
-   TABLA DETALLE — Premium 2027
+   TABLA DETALLE — MESES DINÁMICOS + TOTAL
 ============================================================ */
 function pci_renderTabla(info) {
-    const tbody = document.querySelector("#pci-tabla-circuito tbody");
+    const tbody = document.querySelector("#pcf-tabla-meses tbody");
     if (!tbody) return;
 
     tbody.innerHTML = "";
 
-    const mesesOrden = ["enero","febrero","marzo","abril","mayo","junio"];
+    const meses = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const mesesConDatos = meses.filter((m, idx) =>
+        Object.values(info).some(r => r.meses[idx] > 0)
+    );
 
     const lista = Object.entries(info).map(([circuito, r]) => {
 
-        const valoresMes = r.meses;
+        const valoresMes = mesesConDatos.map((m, idx) => {
+            const realIdx = meses.indexOf(m);
+            return r.meses[realIdx];
+        });
+
         const totalVisible = valoresMes.reduce((acc, v) => acc + v, 0);
 
         const porcentajesMes = valoresMes.map(v => {
@@ -194,17 +220,17 @@ function pci_renderTabla(info) {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
-            <td>${row.circuito}</td>
-            ${row.valoresMes.map(v => `<td>${v}</td>`).join("")}
-            <td>${row.totalVisible}</td>
-            ${row.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
-            <td>100%</td>
+            <td style="text-align:center;">${row.circuito}</td>
+            ${row.valoresMes.map(v => `<td style="text-align:center;">${v}</td>`).join("")}
+            <td style="text-align:center;">${row.totalVisible}</td>
+            ${row.porcentajesMes.map(p => `<td style="text-align:center;">${p}</td>`).join("")}
+            <td style="text-align:center;">100%</td>
         `;
 
         tbody.appendChild(tr);
     }
 
-    const totalesMes = mesesOrden.map((_, idx) =>
+    const totalesMes = mesesConDatos.map((m, idx) =>
         lista.reduce((acc, row) => acc + row.valoresMes[idx], 0)
     );
 
@@ -220,25 +246,32 @@ function pci_renderTabla(info) {
 
     trTotal.innerHTML = `
         <td><b>TOTAL</b></td>
-        ${totalesMes.map(v => `<td><b>${v}</b></td>`).join("")}
-        <td><b>${totalGeneral}</b></td>
-        ${porcentajesTotalesMes.map(p => `<td><b>${p}</b></td>`).join("")}
-        <td><b>100%</b></td>
+        ${totalesMes.map(v => `<td style="text-align:center;"><b>${v}</b></td>`).join("")}
+        <td style="text-align:center;"><b>${totalGeneral}</b></td>
+        ${porcentajesTotalesMes.map(p => `<td style="text-align:center;"><b>${p}</b></td>`).join("")}
+        <td style="text-align:center;"><b>100%</b></td>
     `;
 
     tbody.appendChild(trTotal);
 }
 
 /* ============================================================
-   GRÁFICOS — Premium 2027
+   GRÁFICOS — MESES DINÁMICOS
 ============================================================ */
 function pci_renderGraficos(info) {
 
-    const mesesOrden = ["enero","febrero","marzo","abril","mayo","junio"];
+    const meses = [
+        "enero","febrero","marzo","abril","mayo","junio",
+        "julio","agosto","septiembre","octubre","noviembre","diciembre"
+    ];
+
+    const mesesConDatos = meses.filter((m, idx) =>
+        Object.values(info).some(r => r.meses[idx] > 0)
+    );
 
     const lista = Object.entries(info).map(([circuito, r]) => ({
         circuito,
-        valoresMes: r.meses,
+        valoresMes: mesesConDatos.map(m => r.meses[meses.indexOf(m)]),
         totalVisible: r.total
     })).sort((a,b)=>b.totalVisible - a.totalVisible);
 
@@ -280,7 +313,7 @@ function pci_renderGraficos(info) {
        2) Evolución mensual del total
     ============================ */
 
-    const totalesMes = mesesOrden.map((_, idx) =>
+    const totalesMes = mesesConDatos.map((m, idx) =>
         lista.reduce((acc, row) => acc + row.valoresMes[idx], 0)
     );
 
@@ -291,7 +324,7 @@ function pci_renderGraficos(info) {
     PCI_CHART_EVOLUCION = new Chart(ctxEvo, {
         type: "line",
         data: {
-            labels: mesesOrden,
+            labels: mesesConDatos,
             datasets: [{
                 label: "Total mensual",
                 data: totalesMes,
