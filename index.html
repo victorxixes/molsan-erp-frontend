@@ -384,13 +384,13 @@
 
             <h3 class="subtitulo-modulo mt-30">Asistentes</h3>
 
-            <table class="table-premium mt-10">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Cargo</th>
-                    </tr>
-                </thead>
+            <thead>
+    <tr>
+        <th style="text-align:center;">Nombre</th>
+        <th style="text-align:center;">Cargo</th>
+    </tr>
+</thead>
+
                 <tbody id="ar-asistentes">
                     <tr><td>Sr. Yosef David Sánchez Molina</td><td>Presidencia</td></tr>
                     <tr><td>Sra. Yolanda Vives</td><td>Gerencia</td></tr>
@@ -404,9 +404,20 @@
             </table>
 
             <h3 class="subtitulo-modulo mt-30">Puntos de la reunión</h3>
+
 <!-- Campo para añadir puntos -->
+<div class="mt-10">
+    <label>Añadir punto</label>
+    <div class="flex gap-10">
+        <input type="text" id="ar-punto-input" class="m-input" placeholder="Escribe un punto de la reunión...">
+        <button class="m-btn m-btn-primary m-btn-round" onclick="ar_addPunto()">Añadir</button>
+    </div>
+</div>
 
+<!-- Lista de puntos añadidos -->
+<ul id="ar-puntos-list" class="mt-15" style="padding-left:20px;"></ul>
 
+            
             <button class="m-btn m-btn-primary m-btn-round mt-20"
                     onclick="ar_generarActa()">
                 Generar acta
