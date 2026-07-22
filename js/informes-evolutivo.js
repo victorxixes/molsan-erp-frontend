@@ -23,7 +23,14 @@ async function initInformeEvolutivo() {
 
         if (!tabla || !resumen || !contenedorFinal) return;
 
+        // Limpia el tbody
         tabla.innerHTML = "";
+
+        // ⭐ PARCHE PREMIUM 2027 — Fuerza al navegador a respetar el THEAD del template
+        const thead = tabla.parentElement.querySelector("thead");
+        if (thead) {
+            thead.innerHTML = thead.innerHTML;
+        }
 
         const datos = await obtenerFirmas();
         console.log("🔥 datos obtenidos:", datos.length);
