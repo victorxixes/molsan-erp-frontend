@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL TIPO GESTIÓN — PREMIUM 2027 (FORMATO 2026)
+   PANEL TIPO GESTIÓN — PREMIUM 2027 (MESES DINÁMICOS)
 ============================================================ */
 
 let PTG_DATOS = [];
@@ -30,7 +30,7 @@ async function initPanelTipoGestion() {
         .addEventListener("change", ptg_onChangeAnio);
 }
 
-/* AGRUPAR POR AÑO → TIPO GESTIÓN → MESES */
+/* AGRUPAR POR AÑO → TIPO GESTIÓN → MESES DINÁMICOS */
 function ptg_groupByAnio(datos) {
 
     const mesesValidos = [
@@ -115,10 +115,23 @@ function ptg_onChangeAnio() {
     info.anio = anio;
 
     ptg_renderTabla(info);
-    ptg_renderGraficos(info);   // ⭐ AÑADIDO
+    ptg_renderGraficos(info);
 }
 
-/* TABLA DETALLE TIPO GESTIÓN */
+/* THEAD DINÁMICO — SOLO MESES CON DATOS */
+function ptg_renderThead(mesesConDatos) {
+    const theadRow = document.getElementById("ptg-thead-row");
+    if (!theadRow) return;
+
+    theadRow.innerHTML = `
+        ${mesesConDatos.map(m => `<th style="text-align:center;">${m}</th>`).join("")}
+        <th>Total</th>
+        ${mesesConDatos.map(m => `<th style="text-align:center;">%${m}</th>`).join("")}
+        <th>%Total</th>
+    `;
+}
+
+/* TABLA DETALLE TIPO GESTIÓN — MESES DINÁMICOS + TOTAL */
 function ptg_renderTabla(info) {
     const tbody = document.querySelector("#ptg-tabla-gestion tbody");
     if (!tbody) return;
@@ -130,9 +143,6 @@ function ptg_renderTabla(info) {
         "julio","agosto","septiembre","octubre","noviembre","diciembre"
     ];
 
-    const currentYear = new Date().getFullYear();
-    const currentMonthIndex = new Date().getMonth();
-
     const mesesConDatos = mesesOrden.filter(m =>
         Object.values(info.tipos).some(t => t.meses[m] > 0)
     );
@@ -141,16 +151,12 @@ function ptg_renderTabla(info) {
 
     const lista = Object.entries(info.tipos).map(([tipo, t]) => {
 
-        const valoresMes = mesesConDatos.map(m => {
-            const idx = mesesOrden.indexOf(m);
-            if (info.anio === currentYear && idx > currentMonthIndex) return "";
-            return t.meses[m] || 0;
-        });
+        const valoresMes = mesesConDatos.map(m => t.meses[m] || 0);
 
-        const totalVisible = valoresMes.reduce((acc, v) => acc + (v || 0), 0);
+        const totalVisible = valoresMes.reduce((acc, v) => acc + v, 0);
 
         const porcentajesMes = valoresMes.map(v => {
-            if (v === "" || totalVisible === 0) return "";
+            if (totalVisible === 0) return "";
             return ((v / totalVisible) * 100).toFixed(1) + "%";
         });
 
@@ -168,11 +174,11 @@ function ptg_renderTabla(info) {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
-            <td>${row.tipo}</td>
-            ${row.valoresMes.map(v => `<td class="num">${v}</td>`).join("")}
-            <td class="num">${row.totalVisible}</td>
-            ${row.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
-            <td>100%</td>
+            <td style="text-align:center;">${row.tipo}</td>
+            ${row.valoresMes.map(v => `<td style="text-align:center;">${v}</td>`).join("")}
+            <td style="text-align:center;">${row.totalVisible}</td>
+            ${row.porcentajesMes.map(p => `<td style="text-align:center;">${p}</td>`).join("")}
+            <td style="text-align:center;">100%</td>
         `;
 
         tbody.appendChild(tr);
@@ -194,31 +200,16 @@ function ptg_renderTabla(info) {
 
     trTotal.innerHTML = `
         <td><b>TOTAL</b></td>
-        ${totalesMes.map(v => `<td class="num"><b>${v}</b></td>`).join("")}
-        <td class="num"><b>${totalGeneral}</b></td>
-        ${porcentajesTotalesMes.map(p => `<td><b>${p}</b></td>`).join("")}
-        <td><b>100%</b></td>
+        ${totalesMes.map(v => `<td style="text-align:center;"><b>${v}</b></td>`).join("")}
+        <td style="text-align:center;"><b>${totalGeneral}</b></td>
+        ${porcentajesTotalesMes.map(p => `<td style="text-align:center;"><b>${p}</b></td>`).join("")}
+        <td style="text-align:center;"><b>100%</b></td>
     `;
 
     tbody.appendChild(trTotal);
 }
 
-/* THEAD DINÁMICO */
-function ptg_renderThead(mesesConDatos) {
-    const theadRow = document.getElementById("ptg-thead-row");
-    if (!theadRow) return;
-
-    theadRow.innerHTML = `
-        ${mesesConDatos.map(m => `<th>${m}</th>`).join("")}
-        <th>Total</th>
-        ${mesesConDatos.map(m => `<th>%${m}</th>`).join("")}
-        <th>%Total</th>
-    `;
-}
-
-/* ============================================================
-   GRÁFICOS PREMIUM 2027
-============================================================ */
+/* GRÁFICOS PREMIUM 2027 — MESES DINÁMICOS */
 function ptg_renderGraficos(info) {
 
     const mesesOrden = [
