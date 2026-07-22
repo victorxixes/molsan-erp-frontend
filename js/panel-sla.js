@@ -246,3 +246,7 @@ function evo_renderGraficos(map) {
         }
     });
 }
+* ============================================================
+   HACER GLOBAL LA FUNCIÓN PARA main.js
+============================================================ */
+window.initPanelSLA = initPanelSLA;
