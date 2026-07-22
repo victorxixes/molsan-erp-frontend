@@ -1038,20 +1038,24 @@
         <div class="panel-contenido mt-20">
             <h3 class="subtitulo-modulo">Detalle por mes</h3>
 
-            <table id="pa-tabla-meses" class="table-premium table-sticky">
-                <thead>
-                    <tr>
-                        <th>Mes</th>
-                        <th>Total</th>
-                        <th>Presencial</th>
-                        <th>VC</th>
-                        <th>% VC</th>
-                        <th>SLA</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+           <table id="pa-tabla-meses" class="table-premium table-sticky">
+    <thead>
+        <tr>
+            <th>Mes</th>
+            <th>Total</th>
+            <th>Presencial</th>
+            <th>VC</th>
+            <th>% VC</th>
+            <th>SLA</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+
+    <tfoot>
+        <tr class="fila-sumatorio" id="pa-total-row"></tr>
+    </tfoot>
+</table>
+
 
         <!-- ============================================================
              GRÁFICOS — LADO A LADO
@@ -1101,23 +1105,27 @@
         <div class="panel-contenido mt-20">
             <h3 class="subtitulo-modulo">Detalle mensual</h3>
 
-            <table id="sla-tabla-meses" class="table-premium table-sticky">
-                <thead>
-                    <tr>
-                        <th>Mes</th>
-                        <th>Total</th>
-                        <th>SLA</th>
-                        <th>SLA Con</th>
-                        <th>SLA Sin</th>
-                        <th>Presencial</th>
-                        <th>VC</th>
-                        <th>% Presencial</th>
-                        <th>% VC</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+           <table id="sla-tabla-meses" class="table-premium table-sticky">
+    <thead>
+        <tr>
+            <th>Mes</th>
+            <th>Total</th>
+            <th>SLA</th>
+            <th>SLA Con</th>
+            <th>SLA Sin</th>
+            <th>Presencial</th>
+            <th>VC</th>
+            <th>% Presencial</th>
+            <th>% VC</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+
+    <tfoot>
+        <tr class="fila-sumatorio" id="sla-total-row"></tr>
+    </tfoot>
+</table>
+
 
         <!-- ============================================================
              GRÁFICOS — LADO A LADO
