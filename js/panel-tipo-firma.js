@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL TIPO FIRMA — PREMIUM 2027 (MESES DINÁMICOS)
+   PANEL TIPO FIRMA — PREMIUM 2027 (DINÁMICO)
 ============================================================ */
 
 let PTF_DATOS = [];
@@ -8,9 +8,7 @@ let PTF_POR_ANIO = {};
 let PTF_CHART_RANKING = null;
 let PTF_CHART_EVOLUCION = null;
 
-/* ============================================================
-   INIT
-============================================================ */
+/* INIT */
 async function initPanelTipoFirma() {
     console.log("✍️ initPanelTipoFirma() ejecutado");
 
@@ -32,9 +30,7 @@ async function initPanelTipoFirma() {
         .addEventListener("change", ptf_onChangeAnio);
 }
 
-/* ============================================================
-   AGRUPAR POR AÑO → TIPO FIRMA → MESES DINÁMICOS
-============================================================ */
+/* AGRUPAR POR AÑO → TIPO FIRMA → MESES */
 function ptf_groupByAnio(datos) {
 
     const mesesValidos = [
@@ -82,9 +78,7 @@ function ptf_groupByAnio(datos) {
     return map;
 }
 
-/* ============================================================
-   SELECT AÑOS
-============================================================ */
+/* SELECT AÑOS */
 function ptf_fillSelectAnios() {
     const sel = document.getElementById("ptf-select-anio");
     if (!sel) return;
@@ -109,9 +103,7 @@ function ptf_selectUltimoAnio() {
     ptf_onChangeAnio();
 }
 
-/* ============================================================
-   CAMBIO DE AÑO
-============================================================ */
+/* CAMBIO DE AÑO */
 function ptf_onChangeAnio() {
     const sel = document.getElementById("ptf-select-anio");
     if (!sel) return;
@@ -126,24 +118,25 @@ function ptf_onChangeAnio() {
     ptf_renderGraficos(info);
 }
 
-/* ============================================================
-   THEAD DINÁMICO — SOLO MESES CON DATOS
-============================================================ */
+/* THEAD DINÁMICO */
 function ptf_renderThead(mesesConDatos) {
+
+    const thFirmas = document.getElementById("ptf-th-firmas");
+    const thPorc   = document.getElementById("ptf-th-porc");
     const theadRow = document.getElementById("ptf-thead-row");
-    if (!theadRow) return;
+
+    thFirmas.colSpan = mesesConDatos.length + 1; // meses + Total
+    thPorc.colSpan   = mesesConDatos.length + 1; // meses + %Total
 
     theadRow.innerHTML = `
         ${mesesConDatos.map(m => `<th style="text-align:center;">${m}</th>`).join("")}
-        <th>Total</th>
+        <th style="text-align:center;">Total</th>
         ${mesesConDatos.map(m => `<th style="text-align:center;">%${m}</th>`).join("")}
-        <th>%Total</th>
+        <th style="text-align:center;">%Total</th>
     `;
 }
 
-/* ============================================================
-   TABLA DETALLE TIPO FIRMA — MESES DINÁMICOS + TOTAL
-============================================================ */
+/* TABLA DETALLE */
 function ptf_renderTabla(info) {
     const tbody = document.querySelector("#ptf-tabla-meses tbody");
     const tfoot = document.querySelector("#ptf-tabla-meses tfoot");
@@ -223,9 +216,7 @@ function ptf_renderTabla(info) {
     tfoot.appendChild(trTotal);
 }
 
-/* ============================================================
-   GRÁFICOS PREMIUM 2027 — MESES DINÁMICOS
-============================================================ */
+/* GRÁFICOS */
 function ptf_renderGraficos(info) {
 
     const mesesOrden = [
@@ -236,10 +227,6 @@ function ptf_renderGraficos(info) {
     const mesesConDatos = mesesOrden.filter(m =>
         Object.values(info.tipos).some(t => t.meses[m] > 0)
     );
-
-    /* ============================
-       1) Ranking Tipos de Firma
-    ============================ */
 
     const lista = Object.entries(info.tipos).map(([tipo, t]) => {
         const valoresMes = mesesConDatos.map(m => t.meses[m] || 0);
@@ -279,10 +266,6 @@ function ptf_renderGraficos(info) {
             }
         }
     });
-
-    /* ============================
-       2) Evolución mensual del total
-    ============================ */
 
     const totalesMes = mesesConDatos.map(m =>
         Object.values(info.tipos).reduce((acc, t) => acc + (t.meses[m] || 0), 0)
