@@ -27,6 +27,10 @@
     <ul>
 
         <!-- DASHBOARD PREMIUM -->
+<li class="menu-item" onclick="cargarModulo('dashboard')">
+    <span class="icon">📊</span>
+    <span class="text">Dashboard</span>
+</li>
 
 <li class="menu-item" onclick="cargarModulo('informe-evolutivo'); setTimeout(() => initInformeEvolutivo(), 50);">
     <span class="icon">📈</span>
@@ -111,14 +115,13 @@
     </main>
 
 </div>
-
 <!-- ============================================================
-     DASHBOARD — COMPARATIVA ANUAL 2027
+     DASHBOARD — GLASS LUXE 2027 (COMPLETO)
 ============================================================ -->
 <template id="tpl-dashboard">
 <div id="dashboard-root" class="modulo-wrapper fade-in dashboard-wrapper">
 
-    <h2 class="titulo-modulo">📊 Dashboard — Comparativa Anual</h2>
+    <h2 class="titulo-modulo">📊 Dashboard — Visión Global</h2>
 
     <div class="card-glass p-20">
 
@@ -135,8 +138,9 @@
             </div>
         </div>
 
-        <!-- KPIs COMPARATIVOS -->
-        <div class="kpi-grid-compare">
+        <!-- KPIs PRINCIPALES -->
+        <h3 class="mt-10">🔝 KPIs principales</h3>
+        <div class="kpi-grid-compare mt-10">
 
             <div class="kpi-box-compare">
                 <div class="kpi-title">Firmas totales</div>
@@ -165,15 +169,72 @@
                 <div id="dash-vc-diff" class="kpi-diff"></div>
             </div>
 
+            <div class="kpi-box-compare">
+                <div class="kpi-title">Mes más fuerte</div>
+                <div class="kpi-values">
+                    <span id="dash-top-mes-actual" class="kpi-big"></span>
+                    <span id="dash-top-mes-anterior" class="kpi-small"></span>
+                </div>
+                <div id="dash-top-mes-diff" class="kpi-diff"></div>
+            </div>
+
         </div>
 
-        <!-- GRÁFICO COMPARATIVO -->
-        <div class="dashboard-chart mt-30">
+        <!-- KPIs SECUNDARIOS -->
+        <h3 class="mt-30">📌 KPIs secundarios</h3>
+        <div class="kpi-grid-compare mt-10">
+
+            <div class="kpi-box-compare">
+                <div class="kpi-title">Oficina líder</div>
+                <div class="kpi-values">
+                    <span id="dash-top-oficina" class="kpi-big"></span>
+                </div>
+            </div>
+
+            <div class="kpi-box-compare">
+                <div class="kpi-title">Circuito dominante</div>
+                <div class="kpi-values">
+                    <span id="dash-top-circuito" class="kpi-big"></span>
+                </div>
+            </div>
+
+            <div class="kpi-box-compare">
+                <div class="kpi-title">Tipo gestión dominante</div>
+                <div class="kpi-values">
+                    <span id="dash-top-gestion" class="kpi-big"></span>
+                </div>
+            </div>
+
+            <div class="kpi-box-compare">
+                <div class="kpi-title">Apoderado top</div>
+                <div class="kpi-values">
+                    <span id="dash-top-apoderado" class="kpi-big"></span>
+                </div>
+            </div>
+
+            <div class="kpi-box-compare">
+                <div class="kpi-title">Centro que firma dominante</div>
+                <div class="kpi-values">
+                    <span id="dash-top-centro" class="kpi-big"></span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- GRÁFICO COMPARATIVO ANUAL -->
+        <h3 class="mt-30">📈 Comparativa anual (actual vs anterior)</h3>
+        <div class="dashboard-chart mt-10">
             <canvas id="dash-chart-comparativa" height="140"></canvas>
         </div>
 
+        <!-- GRÁFICO EVOLUCIÓN MENSUAL -->
+        <h3 class="mt-30">📈 Evolución mensual del año actual</h3>
+        <div class="dashboard-chart mt-10">
+            <canvas id="dash-chart-mensual" height="140"></canvas>
+        </div>
+
         <!-- TABLA RESUMEN DE PANELES -->
-        <h3 class="mt-40">📈 Comparativa por panel</h3>
+        <h3 class="mt-40">📊 Comparativa por panel</h3>
 
         <table class="table-premium table-sticky">
             <thead>
@@ -187,10 +248,20 @@
             <tbody id="dash-tabla-paneles"></tbody>
         </table>
 
+        <!-- HIGHLIGHTS -->
+        <h3 class="mt-40">🔥 Highlights</h3>
+        <ul class="mt-10">
+            <li id="dash-hl-mejor-mes"></li>
+            <li id="dash-hl-peor-mes"></li>
+            <li id="dash-hl-sla-alerta"></li>
+            <li id="dash-hl-vc-alerta"></li>
+        </ul>
+
     </div>
 
 </div>
 </template>
+
     
     <!-- ============================================================
      TEMPLATE LISTADO
