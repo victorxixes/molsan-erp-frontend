@@ -148,163 +148,45 @@ function ar_imprimirActa() {
 }
 
 /* ============================================================
-   PDF COMPLETO (ACTA + INFORMES PREMIUM + EVOLUTIVO)
+   PDF COMPLETO (SOLO ACTA — SIN INFORMES)
 ============================================================ */
 
-async function ar_imprimirActaCompleta() {
+function ar_imprimirActaCompleta() {
+
+    // Si aún no se ha generado el acta, la generamos
+    if (!document.getElementById("ar-acta-contenido").innerHTML.trim()) {
+        ar_generarActa();
+    }
 
     const acta = document.getElementById("ar-acta-contenido").innerHTML;
-
-    const datos = JSON.parse(localStorage.getItem("molsan_firmas") || "[]");
-
-    /* ============================================================
-       FUNCIÓN TABLA
-    ============================================================= */
-    const tabla = (titulo, headers, filas) => `
-        <h2>${titulo}</h2>
-        <table style="width:100%; border-collapse:collapse; margin-top:10px;">
-            <thead>
-                <tr>${headers.map(h => `<th style="border:1px solid #ccc; padding:6px;">${h}</th>`).join("")}</tr>
-            </thead>
-            <tbody>
-                ${filas.map(f => `
-                    <tr>${f.map(v => `<td style="border:1px solid #ccc; padding:6px;">${v}</td>`).join("")}</tr>
-                `).join("")}
-            </tbody>
-        </table>
-    `;
-
-    /* ============================================================
-       AGRUPADOR CORREGIDO (NOMBRES REALES)
-    ============================================================= */
-    const agrupar = (campo) => {
-        const mapa = {};
-        datos.forEach(f => {
-            const clave = f[campo] || "Sin dato";
-            if (!mapa[clave]) mapa[clave] = 0;
-            mapa[clave]++;
-        });
-        return mapa;
-    };
-
-    /* ============================================================
-       INFORMES CORREGIDOS (NOMBRES REALES)
-    ============================================================= */
-
-    const informeApoderados = tabla("🧑‍💼 Informe por Apoderado", ["Apoderado", "Total"], Object.entries(agrupar("Apoderado")));
-    const informeOficinas   = tabla("🏢 Informe por Oficina", ["Oficina", "Total"], Object.entries(agrupar("Oficina")));
-    const informeCentros    = tabla("🏛️ Informe por Centro", ["Centro", "Total"], Object.entries(agrupar("Centro")));
-    const informeCircuito   = tabla("🛣️ Informe por Circuito", ["Circuito", "Total"], Object.entries(agrupar("Circuito notarial")));
-    const informeTipoGestion= tabla("📄 Informe por Tipo Gestión", ["Tipo Gestión", "Total"], Object.entries(agrupar("Tipo Gestión")));
-    const informeTipoFirma  = tabla("✍️ Informe por Tipo Firma", ["Tipo Firma", "Total"], Object.entries(agrupar("Tipo de firm")));
-    const informeCanal      = tabla("🏢 Informe por Canal", ["Canal", "Total"], Object.entries(agrupar("Centro que firma")));
-
-    /* ============================================================
-       INFORME EVOLUTIVO — CORREGIDO
-    ============================================================= */
-
-    const evolutivo = (() => {
-
-        const mapa = {};
-        datos.forEach(f => {
-            const a = f.Año || "Sin año";
-            const m = Number(f.Mes) || 0;
-            if (!mapa[a]) mapa[a] = Array(12).fill(0);
-            if (m >= 1 && m <= 12) mapa[a][m - 1]++;
-        });
-
-        const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-        const anios = Object.keys(mapa);
-
-        let ultimoMesIndex = -1;
-        anios.forEach(a => {
-            mapa[a].forEach((v, idx) => {
-                if (v > 0 && idx > ultimoMesIndex) ultimoMesIndex = idx;
-            });
-        });
-
-        if (ultimoMesIndex === -1) {
-            return "<p>Sin datos evolutivos.</p>";
-        }
-
-        const nombreUltimoMes = meses[ultimoMesIndex];
-
-        const headers = ["Mes", ...anios];
-
-        const filas = meses
-            .slice(0, ultimoMesIndex + 1)
-            .map((mes, i) => {
-                const row = [mes];
-                anios.forEach(a => row.push(mapa[a][i]));
-                return row;
-            });
-
-        const totalesHastaMes = {};
-        anios.forEach(a => {
-            totalesHastaMes[a] = mapa[a]
-                .slice(0, ultimoMesIndex + 1)
-                .reduce((s, v) => s + v, 0);
-        });
-
-        const filaHastaMes = [
-            `Hasta ${nombreUltimoMes}`,
-            ...anios.map(a => totalesHastaMes[a])
-        ];
-
-        filas.push(filaHastaMes);
-
-        const tablaEvolutivo = tabla("📈 Informe Evolutivo", headers, filas);
-
-        const anioActual = Math.max(...anios.map(a => Number(a)));
-        const totalActual = totalesHastaMes[anioActual] || 0;
-
-        const resumenEvolucion = anios
-            .filter(a => Number(a) < anioActual)
-            .map(a => {
-                const totalPrev = totalesHastaMes[a] || 0;
-                if (!totalPrev) return `${anioActual} vs ${a}: sin datos`;
-                const pct = ((totalActual - totalPrev) / totalPrev) * 100;
-                return `${anioActual} vs ${a}: ${pct.toFixed(2)}%`;
-            })
-            .join("<br>");
-
-        const bloqueResumen = `
-            <h3>📊 Evolución % volumen de firmas</h3>
-            <p>${resumenEvolucion}</p>
-        `;
-
-        return tablaEvolutivo + bloqueResumen;
-    })();
-
-    /* ============================================================
-       CONSTRUCCIÓN FINAL DEL PDF COMPLETO
-    ============================================================= */
 
     const ventana = window.open("", "_blank");
 
     ventana.document.write(`
         <html>
         <head>
-            <title>Acta + Informes</title>
+            <title>Acta de reunión</title>
             <style>
-                body { font-family: Arial; padding: 40px; line-height: 1.6; }
-                h1, h2 { margin-top: 40px; }
-                table { margin-bottom: 30px; }
+                body {
+                    font-family: Arial, sans-serif;
+                    padding: 40px;
+                    line-height: 1.6;
+                    color: #111;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+                table, th, td {
+                    border: 1px solid #ccc;
+                    padding: 8px;
+                }
             </style>
         </head>
         <body>
 
-            <h1>📄 Acta de reunión</h1>
             ${acta}
-
-            ${evolutivo}
-            ${informeApoderados}
-            ${informeOficinas}
-            ${informeCentros}
-            ${informeCircuito}
-            ${informeTipoGestion}
-            ${informeTipoFirma}
-            ${informeCanal}
 
         </body>
         </html>
