@@ -207,12 +207,12 @@ function sla_renderTabla(info) {
         const r = info[mes];
 
         if (!r) {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${mes}</td>
-                    <td>0</td><td>0</td><td>0</td><td>0</td>
-                    <td>0</td><td>0</td><td>0%</td>
-                </tr>`;
+    <tbody.innerHTML += `
+    <tr>
+        <td>${mes}</td>
+        <td>0</td><td>0</td><td>0</td><td>0</td>
+        <td>0</td><td>0</td><td>0%</td><td>0%</td>
+    </tr>`;
             continue;
         }
 
@@ -220,6 +220,7 @@ function sla_renderTabla(info) {
         const slaCon = r.con.cuenta ? (r.con.suma / r.con.cuenta).toFixed(1) : "0";
         const slaSin = r.sin.cuenta ? (r.sin.suma / r.sin.cuenta).toFixed(1) : "0";
         const pctVC = r.total ? ((r.vc / r.total) * 100).toFixed(1) + "%" : "0%";
+       const pctPres = r.total ? ((r.presencial / r.total) * 100).toFixed(1) + "%" : "0%";
 
         tbody.innerHTML += `
             <tr>
@@ -230,6 +231,7 @@ function sla_renderTabla(info) {
                 <td>${slaSin}</td>
                 <td>${r.presencial}</td>
                 <td>${r.vc}</td>
+                <td>${pctPres}</td>
                 <td>${pctVC}</td>
             </tr>`;
     }
