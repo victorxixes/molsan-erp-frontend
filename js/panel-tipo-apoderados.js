@@ -5,18 +5,17 @@
 let PAP_DATOS = [];
 let PAP_POR_ANIO = {};
 
+let PAP_CHART_RANKING = null;
+let PAP_CHART_EVOLUCION = null;
+
 /* ============================================================
    FORMATO MILES — FIX DEFINITIVO
 ============================================================ */
 function formatoMiles(n) {
     if (n === null || n === undefined || n === "") return "-";
-
-    // Elimina TODO lo que no sea dígito
     n = String(n).replace(/[^\d]/g, "");
-
     const num = Number(n);
     if (isNaN(num)) return "-";
-
     return num.toLocaleString("es-ES");
 }
 
@@ -114,6 +113,7 @@ function pap_onChangeAnio() {
     if (!info) return;
 
     pap_renderTablaApoderados(info);
+    pap_renderGraficos(info);
 }
 
 /* ============================================================
@@ -224,4 +224,95 @@ function pap_renderThead(mesesValidos) {
     `;
 
     thead.innerHTML = fila1 + fila2;
+}
+
+/* ============================================================
+   GRÁFICOS PREMIUM 2027
+============================================================ */
+function pap_renderGraficos(info) {
+
+    const meses = MESES_ORDEN;
+    const mesesValidos = obtenerMesesConDatos(info);
+
+    /* ============================
+       1) Ranking de Apoderados
+    ============================ */
+
+    const lista = Object.entries(info.apoderados).map(([nombre, a]) => {
+        const valoresMes = mesesValidos.map(m => {
+            const idxReal = meses.indexOf(m);
+            return Number(a.meses[idxReal] || 0);
+        });
+        return {
+            nombre,
+            totalVisible: valoresMes.reduce((acc, v) => acc + v, 0),
+            valoresMes
+        };
+    }).sort((a,b)=>b.totalVisible - a.totalVisible);
+
+    const labelsRanking = lista.map(o => o.nombre);
+    const dataRanking = lista.map(o => o.totalVisible);
+
+    const ctxRanking = document.getElementById("pap-chart-ranking");
+
+    if (PAP_CHART_RANKING) PAP_CHART_RANKING.destroy();
+
+    PAP_CHART_RANKING = new Chart(ctxRanking, {
+        type: "bar",
+        data: {
+            labels: labelsRanking,
+            datasets: [{
+                label: "Total firmas",
+                data: dataRanking,
+                backgroundColor: "rgba(80, 200, 255, 0.5)",
+                borderColor: "rgba(80, 200, 255, 1)",
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
+
+    /* ============================
+       2) Evolución mensual del total
+    ============================ */
+
+    const totalesMes = mesesValidos.map(m => {
+        const idxReal = meses.indexOf(m);
+        return lista.reduce((acc, row) => acc + row.valoresMes[idxReal], 0);
+    });
+
+    const ctxEvo = document.getElementById("pap-chart-evolucion");
+
+    if (PAP_CHART_EVOLUCION) PAP_CHART_EVOLUCION.destroy();
+
+    PAP_CHART_EVOLUCION = new Chart(ctxEvo, {
+        type: "line",
+        data: {
+            labels: mesesValidos,
+            datasets: [{
+                label: "Total mensual",
+                data: totalesMes,
+                borderColor: "rgba(255, 120, 80, 1)",
+                backgroundColor: "rgba(255, 120, 80, 0.3)",
+                borderWidth: 2,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false }},
+            scales: {
+                x: { ticks: { color: "#111" }},
+                y: { ticks: { color: "#111" }}
+            }
+        }
+    });
 }
