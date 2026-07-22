@@ -3,6 +3,7 @@
 ============================================================ */
 
 let DASH_CHART = null;
+
 /* ============================================================
    HELPERS PREMIUM
 ============================================================ */
@@ -10,173 +11,14 @@ function dash_safeSet(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
 }
+
+/* ============================================================
+   DASHBOARD PREMIUM — DESACTIVADO COMPLETAMENTE
+============================================================ */
 async function initDashboardPremium() {
-    console.log("📊 Dashboard Premium 2027 recalculado");
-
-    const yAct = 2026;
-    const yPrev = 2025;
-
-    /* ============================
-       APODERADOS
-    ============================ */
-    const apAct = window.MP.porApoderado[yAct] || {};
-    const apPrev = window.MP.porApoderado[yPrev] || {};
-
-    const totalApAct = Object.values(apAct).reduce((a,b)=>a+b,0);
-    const totalApPrev = Object.values(apPrev).reduce((a,b)=>a+b,0);
-
-    const topAp = Object.entries(apAct).sort((a,b)=>b[1]-a[1])[0];
-
-    dash_safeSet("dash-apod-total-2026", totalApAct);
-    dash_safeSet("dash-apod-total-2025", totalApPrev);
-    dash_safeSet("dash-apod-diff", diffPct(totalApAct, totalApPrev));
-    dash_safeSet("dash-apod-top", topAp ? topAp[0] : "-");
-
-    /* ============================
-       TIPO FIRMA
-    ============================ */
-    const tfAct = window.MP.porTipoFirma[yAct] || {};
-    const tfPrev = window.MP.porTipoFirma[yPrev] || {};
-
-    const vcAct = tfAct["VideoConferencia"] || 0;
-    const vcPrev = tfPrev["VideoConferencia"] || 0;
-
-    const presAct = tfAct["Presencial"] || 0;
-    const presPrev = tfPrev["Presencial"] || 0;
-
-    const totalActTF = vcAct + presAct;
-    const totalPrevTF = vcPrev + presPrev;
-
-    const pctVCAct = totalActTF ? ((vcAct / totalActTF) * 100).toFixed(1) : "0";
-    const pctVCPrev = totalPrevTF ? ((vcPrev / totalPrevTF) * 100).toFixed(1) : "0";
-
-    dash_safeSet("dash-tf-vc-2026", vcAct);
-    dash_safeSet("dash-tf-pres-2026", presAct);
-    dash_safeSet("dash-tf-vc-pct-2026", pctVCAct + "%");
-    dash_safeSet("dash-tf-vc-pct-diff", diffPct(Number(pctVCAct), Number(pctVCPrev)));
-
-    /* ============================
-       TIPO GESTIÓN
-    ============================ */
-    const tgAct = window.MP.porTipoGestion[yAct] || {};
-    const tgPrev = window.MP.porTipoGestion[yPrev] || {};
-
-    const conAct = tgAct["Con provisión"] || 0;
-    const conPrev = tgPrev["Con provisión"] || 0;
-
-    const sinAct = tgAct["Sin provisión"] || 0;
-
-    dash_safeSet("dash-tg-con-2026", conAct);
-    dash_safeSet("dash-tg-sin-2026", sinAct);
-    dash_safeSet("dash-tg-ej-con", conAct);
-    dash_safeSet("dash-tg-ej-con-diff", diffPct(conAct, conPrev));
-
-    /* ============================
-       OFICINAS
-    ============================ */
-    const ofAct = window.MP.porOficina[yAct] || {};
-    const ofPrev = window.MP.porOficina[yPrev] || {};
-
-    const totalOfAct = Object.values(ofAct).reduce((a,b)=>a+b,0);
-    const totalOfPrev = Object.values(ofPrev).reduce((a,b)=>a+b,0);
-
-    const topOf = Object.entries(ofAct).sort((a,b)=>b[1]-a[1])[0];
-
-    dash_safeSet("dash-ofi-total-2026", totalOfAct);
-    dash_safeSet("dash-ofi-total-2025", totalOfPrev);
-    dash_safeSet("dash-ofi-diff", diffPct(totalOfAct, totalOfPrev));
-    dash_safeSet("dash-ofi-top", topOf ? topOf[0] : "-");
-
-    /* ============================
-       CIRCUITO
-    ============================ */
-    const ciAct = window.MP.porCircuito[yAct] || {};
-    const ciPrev = window.MP.porCircuito[yPrev] || {};
-
-    const totalCiAct = Object.values(ciAct).reduce((a,b)=>a+b,0);
-    const totalCiPrev = Object.values(ciPrev).reduce((a,b)=>a+b,0);
-
-    const topCi = Object.entries(ciAct).sort((a,b)=>b[1]-a[1])[0];
-
-    dash_safeSet("dash-circ-total-2026", totalCiAct);
-    dash_safeSet("dash-circ-total-2025", totalCiPrev);
-    dash_safeSet("dash-circ-diff", diffPct(totalCiAct, totalCiPrev));
-    dash_safeSet("dash-circ-top", topCi ? topCi[0] : "-");
-
-    /* ============================
-       CENTRO QUE FIRMA
-    ============================ */
-    const ceAct = window.MP.porCentroQueFirma[yAct] || {};
-    const cePrev = window.MP.porCentroQueFirma[yPrev] || {};
-
-    const totalCeAct = Object.values(ceAct).reduce((a,b)=>a+b,0);
-    const totalCePrev = Object.values(cePrev).reduce((a,b)=>a+b,0);
-
-    const topCe = Object.entries(ceAct).sort((a,b)=>b[1]-a[1])[0];
-
-    dash_safeSet("dash-centro-total-2026", totalCeAct);
-    dash_safeSet("dash-centro-total-2025", totalCePrev);
-    dash_safeSet("dash-centro-diff", diffPct(totalCeAct, totalCePrev));
-    dash_safeSet("dash-centro-top", topCe ? topCe[0] : "-");
-
-    /* ============================
-       SLA
-    ============================ */
-    const slaActList = window.MP.slaPorAnio[yAct] || [];
-    const slaPrevList = window.MP.slaPorAnio[yPrev] || [];
-
-    const slaAct = slaActList.length ? (slaActList.reduce((a,b)=>a+b,0) / slaActList.length).toFixed(1) : "0";
-    const slaPrev = slaPrevList.length ? (slaPrevList.reduce((a,b)=>a+b,0) / slaPrevList.length).toFixed(1) : "0";
-
-    dash_safeSet("dash-sla-2026", slaAct);
-    dash_safeSet("dash-sla-2025", slaPrev);
-    dash_safeSet("dash-sla-diff", diffPct(Number(slaAct), Number(slaPrev)));
-
-    /* ============================
-       GRÁFICO — Evolución mensual
-    ============================ */
-    const mesesOrden = [
-        "enero","febrero","marzo","abril","mayo","junio",
-        "julio","agosto","septiembre","octubre","noviembre","diciembre"
-    ];
-
-    const datosMes = window.MP.porMes[yAct] || {};
-
-    const mesActual = new Date().getMonth() + 1;
-
-    const mesesVisibles = mesesOrden.slice(0, mesActual);
-
-    const labelsGrafico = mesesVisibles.filter(m => datosMes[m] !== undefined);
-
-    const valoresGrafico = labelsGrafico.map(m => datosMes[m] || 0);
-
-    const ctx = document.getElementById("dp-chart-evolucion");
-    if (window.dpChart) window.dpChart.destroy();
-
-    window.dpChart = new Chart(ctx, {
-        type: "line",
-        data: {
-            labels: labelsGrafico,
-            datasets: [{
-                label: "Firmas",
-                data: valoresGrafico,
-                borderColor: "#3B82F6",
-                backgroundColor: "rgba(59,130,246,0.2)",
-                borderWidth: 2,
-                tension: 0.2
-            }]
-        },
-        options: {
-            plugins: { legend: { display: false }},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
-            }
-        }
-    });
+    console.log("📊 Dashboard Premium 2027 desactivado (Opción D)");
+    return; // ← Esto elimina el bloque “derados” de todos los paneles
 }
-
-
 
 /* ============================================================
    RESUMEN ANUAL
