@@ -70,10 +70,6 @@
             <span class="text">Panel Anual</span>
         </li>
 
-        <li class="menu-item" onclick="cargarModulo('panel-mensual')">
-            <span class="icon">📅</span>
-            <span class="text">Panel Mensual</span>
-        </li>
 
         <li class="menu-item" onclick="cargarModulo('panel-apoderados')">
             <span class="icon">🧑‍</span>
@@ -971,53 +967,7 @@
 </template>
 
 
-<!-- ============================================================
-     PANEL TIPO MENSUAL — PREMIUM 2027
-============================================================ -->
-<template id="tpl-panel-mensual">
-    <div class="panel-wrapper fade-in">
 
-        <h2 class="titulo-modulo">📅 Panel Mensual</h2>
-
-        <div class="panel-header">
-            <div class="panel-header-left">
-                <label>Año</label>
-                <select id="pm-select-anio"></select>
-            </div>
-
-            <div class="panel-header-right kpi-panel">
-                <div class="kpi-card"><div class="kpi-label">Total firmas</div><div class="kpi-value" id="pm-kpi-total">0</div></div>
-                <div class="kpi-card"><div class="kpi-label">SLA medio</div><div class="kpi-value" id="pm-kpi-sla">0</div></div>
-                <div class="kpi-card"><div class="kpi-label">% VC</div><div class="kpi-value" id="pm-kpi-vc">0%</div></div>
-                <div class="kpi-card"><div class="kpi-label">Mes más fuerte</div><div class="kpi-value" id="pm-kpi-top-mes">-</div></div>
-            </div>
-        </div>
-
-        <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Detalle por mes</h3>
-
-            <table id="pm-tabla-meses" class="table-premium table-sticky">
-                <thead>
-                    <tr>
-                        <th>Mes</th>
-                        <th>Total</th>
-                        <th>Presencial</th>
-                        <th>VC</th>
-                        <th>% VC</th>
-                        <th>SLA</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Evolución mensual</h3>
-            <canvas id="pm-chart-mensual"></canvas>
-        </div>
-
-    </div>
-</template>
 
 <!-- ============================================================
      PANEL TIPO ANUAL — PREMIUM 2027
