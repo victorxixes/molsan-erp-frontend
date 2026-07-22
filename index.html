@@ -789,16 +789,31 @@
             </table>
         </div>
 
-        <!-- Gráfico distribución -->
-        <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Distribución por Centro</h3>
-            <canvas id="pcf-chart-centro"></canvas>
+        <!-- ============================================================
+             GRÁFICOS — LADO A LADO
+        ============================================================= -->
+        <div class="panel-contenido mt-40"
+             style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
+
+            <!-- Gráfico 1: Ranking de Centros -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📊 Ranking Centros</h3>
+                <canvas id="pcf-chart-ranking" style="width:100%; height:300px;"></canvas>
+            </div>
+
+            <!-- Gráfico 2: Evolución mensual del total -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📈 Evolución mensual del total</h3>
+                <canvas id="pcf-chart-evolucion" style="width:100%; height:300px;"></canvas>
+            </div>
+
         </div>
 
     </div>
 </template>
 
-    <!-- ============================================================
+
+  <!-- ============================================================
      PANEL TIPO FIRMA — PREMIUM 2027 (FORMATO 2026)
 ============================================================ -->
 <template id="tpl-panel-tipo-firma">
@@ -839,8 +854,29 @@
             </table>
         </div>
 
+        <!-- ============================================================
+             GRÁFICOS — LADO A LADO
+        ============================================================= -->
+        <div class="panel-contenido mt-40"
+             style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
+
+            <!-- Gráfico 1: Ranking de Tipos de Firma -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📊 Ranking Tipos de Firma</h3>
+                <canvas id="ptf-chart-ranking" style="width:100%; height:300px;"></canvas>
+            </div>
+
+            <!-- Gráfico 2: Evolución mensual del total -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📈 Evolución mensual del total</h3>
+                <canvas id="ptf-chart-evolucion" style="width:100%; height:300px;"></canvas>
+            </div>
+
+        </div>
+
     </div>
 </template>
+
 
 <!-- ============================================================
      PANEL TIPO GESTIÓN — PREMIUM 2027 (FORMATO 2026)
@@ -878,8 +914,29 @@
             </table>
         </div>
 
+        <!-- ============================================================
+             GRÁFICOS — LADO A LADO
+        ============================================================= -->
+        <div class="panel-contenido mt-40"
+             style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
+
+            <!-- Gráfico 1: Ranking de Tipos de Gestión -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📊 Ranking Tipos de Gestión</h3>
+                <canvas id="ptg-chart-ranking" style="width:100%; height:300px;"></canvas>
+            </div>
+
+            <!-- Gráfico 2: Evolución mensual del total -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📈 Evolución mensual del total</h3>
+                <canvas id="ptg-chart-evolucion" style="width:100%; height:300px;"></canvas>
+            </div>
+
+        </div>
+
     </div>
 </template>
+
 
 <!-- ============================================================
      PANEL TIPO OFICINAS — PREMIUM 2027 (FORMATO 2026)
@@ -923,8 +980,29 @@
             </div>
         </div>
 
+        <!-- ============================================================
+             GRÁFICOS — LADO A LADO
+        ============================================================= -->
+        <div class="panel-contenido mt-40"
+             style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
+
+            <!-- Gráfico 1: Ranking de Oficinas -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📊 Ranking Oficinas</h3>
+                <canvas id="pof-chart-ranking" style="width:100%; height:300px;"></canvas>
+            </div>
+
+            <!-- Gráfico 2: Evolución mensual del total -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📈 Evolución mensual del total</h3>
+                <canvas id="pof-chart-evolucion" style="width:100%; height:300px;"></canvas>
+            </div>
+
+        </div>
+
     </div>
 </template>
+
 <!-- ============================================================
      PANEL TIPO CIRCUITO — PREMIUM 2027 (FORMATO 2026)
 ============================================================ -->
@@ -978,17 +1056,28 @@
             </table>
         </div>
 
-        <!-- Gráfico ranking -->
-        <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Ranking de Circuitos</h3>
-            <canvas id="pci-chart-circuito"></canvas>
+        <!-- ============================================================
+             GRÁFICOS — LADO A LADO
+        ============================================================= -->
+        <div class="panel-contenido mt-40"
+             style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
+
+            <!-- Gráfico 1: Ranking de Circuitos -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📊 Ranking Circuitos</h3>
+                <canvas id="pci-chart-ranking" style="width:100%; height:300px;"></canvas>
+            </div>
+
+            <!-- Gráfico 2: Evolución mensual del total -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📈 Evolución mensual del total</h3>
+                <canvas id="pci-chart-evolucion" style="width:100%; height:300px;"></canvas>
+            </div>
+
         </div>
 
     </div>
 </template>
-
-
-
 
 <!-- ============================================================
      PANEL TIPO ANUAL — PREMIUM 2027
@@ -1045,14 +1134,28 @@
             </table>
         </div>
 
-        <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Evolución anual</h3>
-            <canvas id="pa-chart-anual"></canvas>
+        <!-- ============================================================
+             GRÁFICOS — LADO A LADO
+        ============================================================= -->
+        <div class="panel-contenido mt-40"
+             style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
+
+            <!-- Gráfico 1: Evolución anual -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📈 Evolución anual</h3>
+                <canvas id="pa-chart-anual" style="width:100%; height:300px;"></canvas>
+            </div>
+
+            <!-- Gráfico 2: Presencial vs VC -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📊 Presencial vs VC</h3>
+                <canvas id="pa-chart-pres-vc" style="width:100%; height:300px;"></canvas>
+            </div>
+
         </div>
 
     </div>
 </template>
-
 
 <!-- ============================================================
      PANEL TIPO SLA — PREMIUM 2027
@@ -1096,9 +1199,24 @@
             </table>
         </div>
 
-        <div class="panel-contenido mt-20">
-            <h3 class="subtitulo-modulo">Evolución del SLA</h3>
-            <canvas id="sla-chart-evolucion"></canvas>
+        <!-- ============================================================
+             GRÁFICOS — LADO A LADO
+        ============================================================= -->
+        <div class="panel-contenido mt-40"
+             style="display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
+
+            <!-- Gráfico 1: Evolución del SLA -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📈 Evolución del SLA</h3>
+                <canvas id="sla-chart-evolucion" style="width:100%; height:300px;"></canvas>
+            </div>
+
+            <!-- Gráfico 2: SLA Con vs Sin provisión -->
+            <div style="flex:1; min-width:320px; max-width:480px; text-align:center;">
+                <h3 class="subtitulo-modulo">📊 SLA Con vs Sin provisión</h3>
+                <canvas id="sla-chart-contra" style="width:100%; height:300px;"></canvas>
+            </div>
+
         </div>
 
     </div>
