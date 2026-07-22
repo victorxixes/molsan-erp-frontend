@@ -879,7 +879,6 @@
 
         <h2 class="titulo-modulo">🏢 Panel Oficinas</h2>
 
-        <!-- Header -->
         <div class="panel-header">
             <div class="panel-header-left">
                 <label>Año</label>
@@ -887,7 +886,6 @@
             </div>
         </div>
 
-        <!-- Tabla mensual -->
         <div class="panel-contenido mt-20">
             <h3 class="subtitulo-modulo">Detalle por Oficina (meses con datos)</h3>
 
@@ -898,17 +896,14 @@
                         <tr>
                             <th rowspan="2">Oficina</th>
 
-                            <!-- Grupo meses -->
-                            <th colspan="12" class="th-group">Firmas realizadas</th>
+                            <!-- Grupo Firmas realizadas -->
+                            <th colspan="7" class="th-group">Firmas realizadas</th>
 
-                            <!-- Grupo % meses -->
-                            <th colspan="12" class="th-group">% Firmas realizadas</th>
-
-                            <th rowspan="2">Total</th>
-                            <th rowspan="2">%Total</th>
+                            <!-- Grupo % Firmas realizadas -->
+                            <th colspan="7" class="th-group">% Firmas realizadas</th>
                         </tr>
 
-                        <!-- ⭐ ESTA FILA SE RELLENA DESDE JS -->
+                        <!-- Fila dinámica -->
                         <tr id="pof-thead-row"></tr>
                     </thead>
 
@@ -920,7 +915,6 @@
 
     </div>
 </template>
-
 <!-- ============================================================
      PANEL CIRCUITO — PREMIUM 2027 (FORMATO 2026)
 ============================================================ -->
