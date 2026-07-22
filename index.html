@@ -1217,8 +1217,20 @@
 
         <table class="table-premium tabla-excel table-sticky">
             <thead>
+
+                <!-- Fila 1: Grupos -->
                 <tr>
-                    <th>Mes</th>
+                    <th rowspan="2">Mes</th>
+
+                    <!-- Grupo Firmas realizadas -->
+                    <th colspan="7" class="th-group">Firmas realizadas</th>
+
+                    <!-- Grupo % Firmas realizadas -->
+                    <th colspan="6" class="th-group">% Firmas realizadas</th>
+                </tr>
+
+                <!-- Fila 2: Años -->
+                <tr>
                     <th>2020</th>
                     <th>2021</th>
                     <th>2022</th>
@@ -1226,7 +1238,7 @@
                     <th>2024</th>
                     <th>2025</th>
                     <th>2026</th>
-                    <th>Total</th>
+
                     <th>% 2021</th>
                     <th>% 2022</th>
                     <th>% 2023</th>
@@ -1234,14 +1246,16 @@
                     <th>% 2025</th>
                     <th>% 2026</th>
                 </tr>
+
             </thead>
-          <tbody id="evo-tabla"></tbody>
-</table>
 
-<div id="evo-final" class="mt-30"></div>
+            <tbody id="evo-tabla"></tbody>
+        </table>
 
-<h3 class="mt-40">📊 Evolución % volumen firmas</h3>
-<p id="evo-resumen" class="texto-secundario"></p>
+        <div id="evo-final" class="mt-30"></div>
+
+        <h3 class="mt-40">📊 Evolución % volumen firmas</h3>
+        <p id="evo-resumen" class="texto-secundario"></p>
 
     </div>
 
