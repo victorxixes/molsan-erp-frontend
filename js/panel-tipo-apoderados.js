@@ -432,8 +432,8 @@ async function initPanelApoderadosTipoFirma() {
         tbody.appendChild(trDetail);
     }
 
-    // Evento acordeón
-    tbody.addEventListener("click", (ev) => {
+    // Evento acordeón (corregido)
+    tbody.onclick = (ev) => {
         const tr = ev.target.closest(".apo-row-main");
         if (!tr) return;
 
@@ -448,7 +448,7 @@ async function initPanelApoderadosTipoFirma() {
         if (toggleCell) {
             toggleCell.textContent = (isHidden ? "▼ " : "▶ ") + toggleCell.textContent.replace(/^.[ ]/, "");
         }
-    });
+    };
 }
 
 /* ============================================================
@@ -474,7 +474,7 @@ function renderDetalleTipos(info, totalApoderado, mesesValidos) {
         `);
     }
 
-   return `
+    return `
         <div class="card-glass mt-10">
             <div><b>Detalle por tipo de firma</b></div>
             <table class="table-premium tabla-excel mt-10">
