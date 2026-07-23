@@ -318,9 +318,9 @@ function generarTablaPaneles(datos, añoActual, añoAnterior) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${p.nombre}</td>
-            <td>${valActual}</td>
-            <td>${valAnterior}</td>
-            <td>${diff}</td>
+            <td style="text-align:center;">${valActual}</td>
+            <td style="text-align:center;">${valAnterior}</td>
+            <td style="text-align:center;">${diff}</td>
         `;
         tbody.appendChild(tr);
     });
