@@ -129,7 +129,7 @@ case "dashboard": {
                 break;
 
 case "informe-evolutivo":
-    // NO ejecutar aquí
+    await initInformeEvolutivo();
     break;
 
             /* ============================
