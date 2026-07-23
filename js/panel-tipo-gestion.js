@@ -1,5 +1,5 @@
 /* ============================================================
-   PANEL TIPO GESTIÓN — PREMIUM 2027 (MESES DINÁMICOS)
+   PANEL TIPO GESTIÓN — PREMIUM 2027 (DINÁMICO)
 ============================================================ */
 
 let PTG_DATOS = [];
@@ -30,7 +30,7 @@ async function initPanelTipoGestion() {
         .addEventListener("change", ptg_onChangeAnio);
 }
 
-/* AGRUPAR POR AÑO → TIPO GESTIÓN → MESES DINÁMICOS */
+/* AGRUPAR POR AÑO → TIPO GESTIÓN → MESES */
 function ptg_groupByAnio(datos) {
 
     const mesesValidos = [
@@ -118,25 +118,32 @@ function ptg_onChangeAnio() {
     ptg_renderGraficos(info);
 }
 
-/* THEAD DINÁMICO — SOLO MESES CON DATOS */
+/* THEAD DINÁMICO */
 function ptg_renderThead(mesesConDatos) {
+
+    const thFirmas = document.getElementById("ptg-th-firmas");
+    const thPorc   = document.getElementById("ptg-th-porc");
     const theadRow = document.getElementById("ptg-thead-row");
-    if (!theadRow) return;
+
+    thFirmas.colSpan = mesesConDatos.length + 1; // meses + Total
+    thPorc.colSpan   = mesesConDatos.length + 1; // meses + %Total
 
     theadRow.innerHTML = `
         ${mesesConDatos.map(m => `<th style="text-align:center;">${m}</th>`).join("")}
-        <th>Total</th>
+        <th style="text-align:center;">Total</th>
         ${mesesConDatos.map(m => `<th style="text-align:center;">%${m}</th>`).join("")}
-        <th>%Total</th>
+        <th style="text-align:center;">%Total</th>
     `;
 }
 
-/* TABLA DETALLE TIPO GESTIÓN — MESES DINÁMICOS + TOTAL */
+/* TABLA DETALLE */
 function ptg_renderTabla(info) {
     const tbody = document.querySelector("#ptg-tabla-gestion tbody");
-    if (!tbody) return;
+    const tfoot = document.querySelector("#ptg-tabla-gestion tfoot");
+    if (!tbody || !tfoot) return;
 
     tbody.innerHTML = "";
+    tfoot.innerHTML = "";
 
     const mesesOrden = [
         "enero","febrero","marzo","abril","mayo","junio",
@@ -206,10 +213,10 @@ function ptg_renderTabla(info) {
         <td style="text-align:center;"><b>100%</b></td>
     `;
 
-    tbody.appendChild(trTotal);
+    tfoot.appendChild(trTotal);
 }
 
-/* GRÁFICOS PREMIUM 2027 — MESES DINÁMICOS */
+/* GRÁFICOS */
 function ptg_renderGraficos(info) {
 
     const mesesOrden = [
@@ -220,10 +227,6 @@ function ptg_renderGraficos(info) {
     const mesesConDatos = mesesOrden.filter(m =>
         Object.values(info.tipos).some(t => t.meses[m] > 0)
     );
-
-    /* ============================
-       1) Ranking Tipos de Gestión
-    ============================ */
 
     const lista = Object.entries(info.tipos).map(([tipo, t]) => {
         const valoresMes = mesesConDatos.map(m => t.meses[m] || 0);
@@ -263,10 +266,6 @@ function ptg_renderGraficos(info) {
             }
         }
     });
-
-    /* ============================
-       2) Evolución mensual del total
-    ============================ */
 
     const totalesMes = mesesConDatos.map(m =>
         Object.values(info.tipos).reduce((acc, t) => acc + (t.meses[m] || 0), 0)
