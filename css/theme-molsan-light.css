@@ -177,6 +177,23 @@ textarea:focus {
 .table-base tbody tr:hover {
     background: var(--m-primary-soft);
 }
+/* ============================================================
+   DASHBOARD — Ajuste de tamaño de gráficos
+============================================================ */
+#dashboard-root canvas {
+    max-width: 480px !important;
+    height: 260px !important;
+    display: block;
+    margin: 0 auto;
+}
+
+/* ============================================================
+   DASHBOARD — Centrado de tabla comparativa
+============================================================ */
+#dash-tabla-paneles td,
+#dash-tabla-paneles th {
+    text-align: center !important;
+}
 
 
 
