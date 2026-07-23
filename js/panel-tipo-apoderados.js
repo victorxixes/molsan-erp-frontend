@@ -337,19 +337,13 @@ async function initPanelApoderadosTipoFirma() {
     let datos = await obtenerFirmas();
     datos = datos.map(f => aplicarReglas(f));
 
-    // Detectar meses con datos reales
-    const mesesValidos = obtenerMesesConDatos({
-        apoderados: datos.reduce((acc, f) => {
-            const ap = f.apoderado || "Sin apoderado";
-            const mes = (f.mes || "").toLowerCase().trim();
-            const idx = MESES_ORDEN.indexOf(mes);
+    // ⭐ AÑO SELECCIONADO
+const sel = document.getElementById("pap-select-anio");
+const anioSeleccionado = Number(sel.value);
 
-            if (!acc[ap]) acc[ap] = { meses: Array(12).fill(0) };
-            if (idx !== -1) acc[ap].meses[idx]++;
+// ⭐ MESES SOLO DEL AÑO SELECCIONADO
+const mesesValidos = obtenerMesesConDatos(PAP_POR_ANIO[anioSeleccionado]);
 
-            return acc;
-        }, {})
-    });
 
     // Agrupar por apoderado → tipoFirma → meses válidos
     const map = {};
