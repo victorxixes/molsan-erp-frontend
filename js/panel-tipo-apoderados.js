@@ -38,9 +38,10 @@ async function initPanelApoderados() {
     pap_selectUltimoAnio();
 
     sel.addEventListener("change", pap_onChangeAnio);
-   
-   initPanelApoderadosTipoFirma();
+
+    initPanelApoderadosTipoFirma();   // ⭐ CARGA INICIAL DEL ACORDEÓN
 }
+
 /* ============================================================
    CAMBIO DE AÑO
 ============================================================ */
@@ -52,12 +53,10 @@ function pap_onChangeAnio() {
     const info = PAP_POR_ANIO[anio];
     if (!info) return;
 
-    pap_renderThead(info);
-    pap_renderTabla(info);
+    pap_renderTablaApoderados(info);
     pap_renderGraficos(info);
 
-    // ⭐ ACTUALIZAR ACORDEÓN AL CAMBIAR DE AÑO ⭐
-    initPanelApoderadosTipoFirma();
+    initPanelApoderadosTipoFirma();   // ⭐ ACTUALIZAR ACORDEÓN AL CAMBIAR DE AÑO
 }
 
 /* ============================================================
@@ -119,21 +118,6 @@ function pap_selectUltimoAnio() {
 
     sel.value = sel.options[sel.options.length - 1].value;
     pap_onChangeAnio();
-}
-
-/* ============================================================
-   CAMBIO DE AÑO
-============================================================ */
-function pap_onChangeAnio() {
-    const sel = document.getElementById("pap-select-anio");
-    if (!sel) return;
-
-    const anio = Number(sel.value);
-    const info = PAP_POR_ANIO[anio];
-    if (!info) return;
-
-    pap_renderTablaApoderados(info);
-    pap_renderGraficos(info);
 }
 
 /* ============================================================
@@ -336,23 +320,16 @@ function pap_renderGraficos(info) {
         }
     });
 }
-/* ============================================================
-   PANEL APODERADOS — ACORDEÓN POR TIPO DE FIRMA
-============================================================ */
 
-const APO_MESES = [
-    "enero","febrero","marzo","abril","mayo","junio",
-    "julio","agosto","septiembre","octubre","noviembre","diciembre"
-];
+/* ============================================================
+   PANEL APODERADOS — ACORDEÓN POR TIPO DE FIRMA (MESES DINÁMICOS)
+============================================================ */
 
 async function initPanelApoderadosTipoFirma() {
     console.log("🧑‍⚖️ initPanelApoderadosTipoFirma() ejecutado");
 
     const tabla = document.getElementById("apo-tabla-tipo-firma");
-    if (!tabla) {
-        console.warn("No se encontró #apo-tabla-tipo-firma en el DOM");
-        return;
-    }
+    if (!tabla) return;
 
     const tbody = tabla.querySelector("tbody");
     if (!tbody) return;
@@ -360,7 +337,21 @@ async function initPanelApoderadosTipoFirma() {
     let datos = await obtenerFirmas();
     datos = datos.map(f => aplicarReglas(f));
 
-    // Agrupar por apoderado → tipoFirma → meses
+    // Detectar meses con datos reales
+    const mesesValidos = obtenerMesesConDatos({
+        apoderados: datos.reduce((acc, f) => {
+            const ap = f.apoderado || "Sin apoderado";
+            const mes = (f.mes || "").toLowerCase().trim();
+            const idx = MESES_ORDEN.indexOf(mes);
+
+            if (!acc[ap]) acc[ap] = { meses: Array(12).fill(0) };
+            if (idx !== -1) acc[ap].meses[idx]++;
+
+            return acc;
+        }, {})
+    });
+
+    // Agrupar por apoderado → tipoFirma → meses válidos
     const map = {};
 
     for (const f of datos) {
@@ -368,7 +359,10 @@ async function initPanelApoderadosTipoFirma() {
         if (!apoderado) continue;
 
         const mes = (f.mes || "").toLowerCase().trim();
-        const idxMes = APO_MESES.indexOf(mes);
+        const idxMesReal = MESES_ORDEN.indexOf(mes);
+        if (idxMesReal === -1) continue;
+
+        const idxMes = mesesValidos.indexOf(mes);
         if (idxMes === -1) continue;
 
         const tipo = (f.tipo_firma || f.tipoFirma || "").trim();
@@ -378,11 +372,11 @@ async function initPanelApoderadosTipoFirma() {
         else if (/video/i.test(tipo)) tipoFirma = "VideoConferencia";
 
         if (!map[apoderado]) map[apoderado] = {
-            totalMeses: Array(APO_MESES.length).fill(0),
+            totalMeses: Array(mesesValidos.length).fill(0),
             tipos: {
-                Presencial: Array(APO_MESES.length).fill(0),
-                VideoConferencia: Array(APO_MESES.length).fill(0),
-                Otros: Array(APO_MESES.length).fill(0)
+                Presencial: Array(mesesValidos.length).fill(0),
+                VideoConferencia: Array(mesesValidos.length).fill(0),
+                Otros: Array(mesesValidos.length).fill(0)
             }
         };
 
@@ -426,10 +420,10 @@ async function initPanelApoderadosTipoFirma() {
         trDetail.dataset.apoId = idRow;
         trDetail.style.display = "none";
 
-        const detalleHTML = renderDetalleTipos(row.info, row.total);
+        const detalleHTML = renderDetalleTipos(row.info, row.total, mesesValidos);
 
         trDetail.innerHTML = `
-            <td colspan="${1 + APO_MESES.length + APO_MESES.length + 2}">
+            <td colspan="${1 + mesesValidos.length + mesesValidos.length + 2}">
                 ${detalleHTML}
             </td>
         `;
@@ -460,7 +454,7 @@ async function initPanelApoderadosTipoFirma() {
 /* ============================================================
    RENDER DETALLE TIPOS DE FIRMA (Presencial / VC)
 ============================================================ */
-function renderDetalleTipos(info, totalApoderado) {
+function renderDetalleTipos(info, totalApoderado, mesesValidos) {
 
     const tipos = ["Presencial","VideoConferencia"];
     const rows = [];
@@ -473,7 +467,7 @@ function renderDetalleTipos(info, totalApoderado) {
         rows.push(`
             <tr>
                 <td class="center"><b>${tipo}</b></td>
-                ${valores.map(v => `<td class="center">${v}</td>`).join("")}
+                ${mesesValidos.map((m, idx) => `<td class="center">${valores[idx]}</td>`).join("")}
                 <td class="center"><b>${totalTipo}</b></td>
                 <td class="center"><b>${pctTipo}</b></td>
             </tr>
@@ -481,21 +475,4 @@ function renderDetalleTipos(info, totalApoderado) {
     }
 
     return `
-        <div class="card-glass mt-10">
-            <div><b>Detalle por tipo de firma</b></div>
-            <table class="table-premium tabla-excel mt-10">
-                <thead>
-                    <tr>
-                        <th>Tipo firma</th>
-                        ${APO_MESES.map(m => `<th class="center">${m}</th>`).join("")}
-                        <th>Total</th>
-                        <th>% sobre apoderado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${rows.join("")}
-                </tbody>
-            </table>
-        </div>
-    `;
-}
+        <div class="card-glass
