@@ -950,7 +950,7 @@
 </template>
 
 <!-- ============================================================
-     PANEL TIPO CIRCUITO — PREMIUM 2027 (FORMATO 2026)
+     PANEL TIPO CIRCUITO — PREMIUM 2027 (DINÁMICO)
 ============================================================ -->
 <template id="tpl-panel-circuito">
     <div class="panel-wrapper fade-in">
@@ -983,21 +983,24 @@
             <table id="pci-tabla-circuito" class="table-premium tabla-excel table-sticky">
 
                 <thead>
-                    <tr>
-                        <th rowspan="2">Circuito</th>
 
-                        <!-- Grupo Firmas realizadas -->
-                        <th colspan="7" class="th-group">Firmas realizadas</th>
-
-                        <!-- Grupo % Firmas realizadas -->
-                        <th colspan="7" class="th-group">% Firmas realizadas</th>
+                    <!-- ⭐ Fila 1: grupos -->
+                    <tr id="pci-thead-grupos">
+                        <th rowspan="2" style="text-align:center;">Circuito</th>
+                        <th id="pci-th-firmas" style="text-align:center;">Firmas realizadas</th>
+                        <th id="pci-th-porc" style="text-align:center;">% Firmas realizadas</th>
                     </tr>
 
-                    <!-- ⭐ Fila dinámica -->
+                    <!-- ⭐ Fila 2: meses -->
                     <tr id="pci-thead-row"></tr>
+
                 </thead>
 
                 <tbody></tbody>
+
+                <tfoot>
+                    <tr id="pci-total-row" class="fila-sumatorio"></tr>
+                </tfoot>
 
             </table>
         </div>
