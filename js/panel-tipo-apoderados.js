@@ -474,5 +474,22 @@ function renderDetalleTipos(info, totalApoderado, mesesValidos) {
         `);
     }
 
-    return `
-        <div class="card-glass
+   return `
+        <div class="card-glass mt-10">
+            <div><b>Detalle por tipo de firma</b></div>
+            <table class="table-premium tabla-excel mt-10">
+                <thead>
+                    <tr>
+                        <th>Tipo firma</th>
+                        ${mesesValidos.map(m => `<th class="center">${m}</th>`).join("")}
+                        <th>Total</th>
+                        <th>% sobre apoderado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.join("")}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
