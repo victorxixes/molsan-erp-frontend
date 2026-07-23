@@ -143,6 +143,10 @@ function pci_renderThead(info) {
         if (totalMes > 0) mesesConDatos.push(m);
     });
 
+    // Ajustar colspan dinámico
+    document.getElementById("pci-th-firmas").setAttribute("colspan", mesesConDatos.length);
+    document.getElementById("pci-th-porc").setAttribute("colspan", mesesConDatos.length);
+
     theadRow.innerHTML = `
         ${mesesConDatos.map(m => `<th style="text-align:center;">${m}</th>`).join("")}
         <th>Total</th>
@@ -178,7 +182,7 @@ function pci_renderKpis(info) {
    TABLA DETALLE — MESES DINÁMICOS + TOTAL
 ============================================================ */
 function pci_renderTabla(info) {
-    const tbody = document.querySelector("#pcf-tabla-meses tbody");
+    const tbody = document.querySelector("#pci-tabla-circuito tbody");
     if (!tbody) return;
 
     tbody.innerHTML = "";
