@@ -54,9 +54,9 @@ async function initInformeEvolutivo() {
             .filter(m => totalesPorMesYAnio[m][ultimoAnio] > 0)
             .sort((a,b) => MESES_ORDEN.indexOf(a) - MESES_ORDEN.indexOf(b));
 
-        // ============================================================
-        // 3) FILAS POR MES (sin % Total)
-        // ============================================================
+        /* ============================================================
+           3) FILAS POR MES — Fórmula correcta (act-prev)/act
+        ============================================================ */
 
         mesesConDatos.forEach(mes => {
 
@@ -71,7 +71,7 @@ async function initInformeEvolutivo() {
 
             const total = valores.reduce((a,b)=>a+b,0);
 
-            // % año a año (2021–2026)
+            // % año a año (2021–2026) usando fórmula correcta
             for (let i = 1; i < valores.length; i++) {
                 const prev = valores[i-1];
                 const act  = valores[i];
@@ -89,9 +89,9 @@ async function initInformeEvolutivo() {
             tabla.appendChild(fila);
         });
 
-        // ============================================================
-        // 4) TOTAL POR AÑO (sin % Total general)
-        // ============================================================
+        /* ============================================================
+           4) TOTAL POR AÑO — SIN %2026 (año vigente)
+        ============================================================ */
 
         const filaTotal = document.createElement("tr");
         filaTotal.classList.add("fila-total");
@@ -110,6 +110,8 @@ async function initInformeEvolutivo() {
             pctGeneral.push(prev ? ((act - prev) / act * 100) : 0);
         }
 
+        pctGeneral.pop(); // ❌ eliminar %2026 (año vigente)
+
         filaTotal.innerHTML = `
             <td><strong>Total general</strong></td>
             ${totalesAnioArray.map(t => `<td class="center"><strong>${t}</strong></td>`).join("")}
@@ -119,9 +121,9 @@ async function initInformeEvolutivo() {
 
         tabla.appendChild(filaTotal);
 
-        // ============================================================
-        // 5) TOTAL HASTA ÚLTIMO MES REAL (sin % Total)
-        // ============================================================
+        /* ============================================================
+           5) TOTAL HASTA ÚLTIMO MES REAL — SIN %2026
+        ============================================================ */
 
         const ultimoMesReal = mesesConDatos[mesesConDatos.length - 1];
         const mesActualIdx = MESES_ORDEN.indexOf(ultimoMesReal);
@@ -140,13 +142,14 @@ async function initInformeEvolutivo() {
             totalesHasta.push(suma);
         }
 
-        // % año a año (2021–último año real)
         const pctHasta = [];
         for (let i = 1; i < totalesHasta.length; i++) {
             const prev = totalesHasta[i-1];
             const act  = totalesHasta[i];
-           pctHasta.push(prev ? ((act - prev) / act * 100) : 0);
+            pctHasta.push(prev ? ((act - prev) / act * 100) : 0);
         }
+
+        pctHasta.pop(); // ❌ eliminar %2026
 
         const filaHasta = document.createElement("tr");
         filaHasta.classList.add("fila-total");
@@ -160,9 +163,9 @@ async function initInformeEvolutivo() {
 
         tabla.appendChild(filaHasta);
 
-        // ============================================================
-        // 6) RESUMEN (sin % Total)
-        // ============================================================
+        /* ============================================================
+           6) RESUMEN
+        ============================================================ */
 
         resumen.textContent = `Evolución año a año: ${pctHasta.map(p => p.toFixed(2) + "%").join(" | ")}`;
 
@@ -175,9 +178,9 @@ async function initInformeEvolutivo() {
             </div>
         `;
 
-        // ============================================================
-        // 7) GRÁFICOS PREMIUM 2027
-        // ============================================================
+        /* ============================================================
+           7) GRÁFICOS PREMIUM 2027
+        ============================================================ */
 
         evo_renderGraficos(totalesPorMesYAnio, totalesPorAnio);
 
