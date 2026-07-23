@@ -990,8 +990,15 @@
                     <!-- ⭐ Fila 1: grupos -->
                     <tr id="pci-thead-grupos">
                         <th rowspan="2" style="text-align:center;">Circuito</th>
-                        <th colspan="12" class="th-group" style="text-align:center;">Firmas realizadas</th>
-                        <th colspan="12" class="th-group" style="text-align:center;">% Firmas realizadas</th>
+
+                        <!-- Estos colspan se ajustan dinámicamente desde el JS -->
+                        <th id="pci-th-firmas" colspan="12" style="text-align:center;">
+                            Firmas realizadas
+                        </th>
+
+                        <th id="pci-th-porc" colspan="12" style="text-align:center;">
+                            % Firmas realizadas
+                        </th>
                     </tr>
 
                     <!-- ⭐ Fila 2: meses -->
@@ -1030,7 +1037,6 @@
 
     </div>
 </template>
-
 
 <!-- ============================================================
      PANEL TIPO ANUAL — PREMIUM 2027
