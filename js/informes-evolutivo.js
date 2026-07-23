@@ -75,7 +75,7 @@ async function initInformeEvolutivo() {
             for (let i = 1; i < valores.length; i++) {
                 const prev = valores[i-1];
                 const act  = valores[i];
-                const pct  = prev ? ((act - prev) / prev * 100) : 0;
+                const pct  = prev ? ((act - prev) / act * 100) : 0;
                 porcentajes.push(pct);
             }
 
@@ -107,7 +107,7 @@ async function initInformeEvolutivo() {
         for (let i = 1; i < totalesAnioArray.length; i++) {
             const prev = totalesAnioArray[i-1];
             const act  = totalesAnioArray[i];
-            pctGeneral.push(prev ? ((act - prev) / prev * 100) : 0);
+            pctGeneral.push(prev ? ((act - prev) / act * 100) : 0);
         }
 
         filaTotal.innerHTML = `
@@ -145,7 +145,7 @@ async function initInformeEvolutivo() {
         for (let i = 1; i < totalesHasta.length; i++) {
             const prev = totalesHasta[i-1];
             const act  = totalesHasta[i];
-            pctHasta.push(prev ? ((act - prev) / prev * 100) : 0);
+           pctHasta.push(prev ? ((act - prev) / act * 100) : 0);
         }
 
         const filaHasta = document.createElement("tr");
