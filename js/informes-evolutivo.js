@@ -127,77 +127,76 @@ async function initInformeEvolutivo() {
 
         tabla.appendChild(filaTotal);
 
-        // ============================================================
-        // 5) TOTAL HASTA ÚLTIMO MES REAL
-        // ============================================================
+     // ============================================================
+// 5) TOTAL HASTA ÚLTIMO MES REAL (SIN % TOTAL)
+// ============================================================
 
-        const ultimoMesReal = mesesConDatos[mesesConDatos.length - 1];
-        const mesActualIdx = MESES_ORDEN.indexOf(ultimoMesReal);
+const ultimoMesReal = mesesConDatos[mesesConDatos.length - 1];
+const mesActualIdx = MESES_ORDEN.indexOf(ultimoMesReal);
 
-        const totalesHasta = [];
+const totalesHasta = [];
 
-        for (let anio = 2020; anio <= ultimoAnio; anio++) {
+for (let anio = 2020; anio <= ultimoAnio; anio++) {
 
-            let suma = 0;
+    let suma = 0;
 
-            for (let i = 0; i <= mesActualIdx; i++) {
-                const mes = MESES_ORDEN[i];
-                suma += (totalesPorMesYAnio[mes]?.[anio] || 0);
-            }
-
-            totalesHasta.push(suma);
-        }
-
-        const pctHasta = [];
-        for (let i = 1; i < totalesHasta.length; i++) {
-            const prev = totalesHasta[i-1];
-            const act  = totalesHasta[i];
-            pctHasta.push(prev ? ((act - prev) / prev * 100) : 0);
-        }
-
-        const pctTotalHasta = totalesHasta[0]
-            ? ((totalesHasta[totalesHasta.length-1] - totalesHasta[0]) / totalesHasta[0] * 100)
-            : 0;
-
-        const filaHasta = document.createElement("tr");
-        filaHasta.classList.add("fila-total");
-
-        filaHasta.innerHTML = `
-            <td><strong>Hasta ${ultimoMesReal}</strong></td>
-            ${totalesHasta.map(t => `<td class="center"><strong>${t}</strong></td>`).join("")}
-            <td></td>
-            ${pctHasta.map(p => `<td class="center"><strong>${p.toFixed(2)}%</strong></td>`).join("")}
-            <td class="center"><strong>${pctTotalHasta.toFixed(2)}%</strong></td>
-        `;
-
-        tabla.appendChild(filaHasta);
-
-        // ============================================================
-        // 6) RESUMEN
-        // ============================================================
-
-        resumen.textContent = `Evolución total: ${pctTotalHasta.toFixed(2)}%`;
-
-        contenedorFinal.innerHTML = `
-            <div class="card-glass mt-20">
-                <strong>Hasta ${ultimoMesReal}</strong><br>
-                ${totalesHasta.join(" | ")}<br><br>
-                <strong>% Evolución:</strong><br>
-                ${pctHasta.map(p => p.toFixed(2) + "%").join(" | ")}
-            </div>
-        `;
-
-        // ============================================================
-        // 7) GRÁFICOS PREMIUM 2027
-        // ============================================================
-
-        evo_renderGraficos(totalesPorMesYAnio, totalesPorAnio);
-
-    } finally {
-        setTimeout(() => {
-            window.__EVO_RUNNING__ = false;
-        }, 500);
+    for (let i = 0; i <= mesActualIdx; i++) {
+        const mes = MESES_ORDEN[i];
+        suma += (totalesPorMesYAnio[mes]?.[anio] || 0);
     }
+
+    totalesHasta.push(suma);
+}
+
+// % año a año (2021–2026)
+const pctHasta = [];
+for (let i = 1; i < totalesHasta.length; i++) {
+    const prev = totalesHasta[i-1];
+    const act  = totalesHasta[i];
+    pctHasta.push(prev ? ((act - prev) / prev * 100) : 0);
+}
+
+// ❌ Eliminado: pctTotalHasta
+
+const filaHasta = document.createElement("tr");
+filaHasta.classList.add("fila-total");
+
+filaHasta.innerHTML = `
+    <td><strong>Hasta ${ultimoMesReal}</strong></td>
+    ${totalesHasta.map(t => `<td class="center"><strong>${t}</strong></td>`).join("")}
+    <td></td>
+    ${pctHasta.map(p => `<td class="center"><strong>${p.toFixed(2)}%</strong></td>`).join("")}
+`;
+
+tabla.appendChild(filaHasta);
+
+// ============================================================
+// 6) RESUMEN (SIN % TOTAL)
+// ============================================================
+
+// ❌ Eliminado: resumen con pctTotalHasta
+resumen.textContent = `Evolución año a año: ${pctHasta.map(p => p.toFixed(2) + "%").join(" | ")}`;
+
+contenedorFinal.innerHTML = `
+    <div class="card-glass mt-20">
+        <strong>Hasta ${ultimoMesReal}</strong><br>
+        ${totalesHasta.join(" | ")}<br><br>
+        <strong>% Evolución año a año:</strong><br>
+        ${pctHasta.map(p => p.toFixed(2) + "%").join(" | ")}
+    </div>
+`;
+
+// ============================================================
+// 7) GRÁFICOS PREMIUM 2027
+// ============================================================
+
+evo_renderGraficos(totalesPorMesYAnio, totalesPorAnio);
+
+} finally {
+    setTimeout(() => {
+        window.__EVO_RUNNING__ = false;
+    }, 500);
+}
 }
 
 /* ============================================================
