@@ -318,10 +318,74 @@ function generarTablaPaneles(datos, añoActual, añoAnterior) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${p.nombre}</td>
-            <td style="text-align:center;">${valActual}</td>
-            <td style="text-align:center;">${valAnterior}</td>
-            <td style="text-align:center;">${diff}</td>
+            <td>${valActual}</td>
+            <td>${valAnterior}</td>
+            <td>${diff}</td>
         `;
         tbody.appendChild(tr);
     });
+}
+/* ============================================================
+   FUNCIONES PARA TABLA COMPARATIVA POR PANEL
+============================================================ */
+
+function calcularPanelAnual(datos, año) {
+    return datos.filter(f => Number(f.anio) === año).length;
+}
+
+function calcularPanelMensual(datos, año) {
+    const mesActual = Math.max(...datos
+        .filter(f => Number(f.anio) === año)
+        .map(f => Number(f.mes))
+    );
+    return datos.filter(f => Number(f.anio) === año && Number(f.mes) <= mesActual).length;
+}
+
+function calcularPanelApoderados(datos, año) {
+    const set = new Set();
+    datos.forEach(f => {
+        if (Number(f.anio) === año && f.apoderado) {
+            set.add(f.apoderado);
+        }
+    });
+    return set.size;
+}
+
+function calcularPanelTipoFirma(datos, año) {
+    const total = datos.filter(f => Number(f.anio) === año).length;
+    const vc = datos.filter(f => Number(f.anio) === año && f.tipo_firma === "VideoConferencia").length;
+    return total ? ((vc / total) * 100).toFixed(1) : 0;
+}
+
+function calcularPanelTipoGestion(datos, año) {
+    return datos.filter(f => Number(f.anio) === año && f.tipo_gestion === "Con provisión").length;
+}
+
+function calcularPanelOficinas(datos, año) {
+    const map = {};
+    datos.forEach(f => {
+        if (Number(f.anio) === año) {
+            map[f.oficina] = (map[f.oficina] || 0) + 1;
+        }
+    });
+    const top = Object.entries(map).sort((a,b)=>b[1]-a[1])[0];
+    return top ? top[1] : 0;
+}
+
+function calcularPanelCircuito(datos, año) {
+    const map = {};
+    datos.forEach(f => {
+        if (Number(f.anio) === año) {
+            map[f.circuito] = (map[f.circuito] || 0) + 1;
+        }
+    });
+    const top = Object.entries(map).sort((a,b)=>b[1]-a[1])[0];
+    return top ? top[1] : 0;
+}
+
+function calcularPanelSLA(datos, año) {
+    const arr = datos.filter(f => Number(f.anio) === año && Number(f.dias) > 0);
+    if (!arr.length) return 0;
+    const suma = arr.reduce((acc,f)=>acc+Number(f.dias),0);
+    return (suma / arr.length).toFixed(1);
 }
