@@ -331,19 +331,40 @@ async function initPanelApoderadosTipoFirma() {
     const tabla = document.getElementById("apo-tabla-tipo-firma");
     if (!tabla) return;
 
+    const thead = tabla.querySelector("thead");
     const tbody = tabla.querySelector("tbody");
-    if (!tbody) return;
+    if (!thead || !tbody) return;
+
+    // ⭐ CABECERA DINÁMICA CORRECTA
+    thead.innerHTML = `
+        <tr>
+            <th>Apoderado</th>
+            <th>enero</th>
+            <th>febrero</th>
+            <th>marzo</th>
+            <th>abril</th>
+            <th>mayo</th>
+            <th>junio</th>
+            <th>Total</th>
+            <th>%enero</th>
+            <th>%febrero</th>
+            <th>%marzo</th>
+            <th>%abril</th>
+            <th>%mayo</th>
+            <th>%junio</th>
+            <th>%Total</th>
+        </tr>
+    `;
 
     let datos = await obtenerFirmas();
     datos = datos.map(f => aplicarReglas(f));
 
     // ⭐ AÑO SELECCIONADO
-const sel = document.getElementById("pap-select-anio");
-const anioSeleccionado = Number(sel.value);
+    const sel = document.getElementById("pap-select-anio");
+    const anioSeleccionado = Number(sel.value);
 
-// ⭐ MESES SOLO DEL AÑO SELECCIONADO
-const mesesValidos = obtenerMesesConDatos(PAP_POR_ANIO[anioSeleccionado]);
-
+    // ⭐ MESES SOLO DEL AÑO SELECCIONADO
+    const mesesValidos = obtenerMesesConDatos(PAP_POR_ANIO[anioSeleccionado]);
 
     // Agrupar por apoderado → tipoFirma → meses válidos
     const map = {};
