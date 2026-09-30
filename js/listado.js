@@ -181,45 +181,162 @@ function getClaseFirma(t) {
 /* ============================================================
    DETALLE (MODAL)
 ============================================================ */
+/* ============================================================
+   DETALLE — MODAL
+============================================================ */
 function verDetalle(expediente) {
-    const f = listadoDatos.find(x => x.expediente == expediente);
-    if (!f) return;
 
-    document.getElementById("detalleTitulo").textContent =
-        `Expediente ${f.expediente}`;
+    console.log("🔎 Abriendo detalle:", expediente);
 
-    document.getElementById("detalleContenido").innerHTML = `
+    const f = listadoDatos.find(x => String(x.expediente) === String(expediente));
+
+    if (!f) {
+        console.error("❌ No se encontró el expediente:", expediente);
+        return;
+    }
+
+    const titulo = document.getElementById("detalleTitulo");
+    const contenido = document.getElementById("detalleContenido");
+    const modal = document.getElementById("modal-detalle");
+
+    /* Comprobar que existe el modal */
+    if (!titulo) {
+        console.error("❌ Falta en el HTML el elemento #detalleTitulo");
+        return;
+    }
+
+    if (!contenido) {
+        console.error("❌ Falta en el HTML el elemento #detalleContenido");
+        return;
+    }
+
+    if (!modal) {
+        console.error("❌ Falta en el HTML el elemento #modal-detalle");
+        return;
+    }
+
+    /* TÍTULO */
+    titulo.textContent = `Expediente ${f.expediente}`;
+
+    /* CONTENIDO */
+    contenido.innerHTML = `
         <table class="tabla-detalle">
-            <tr><td><b>Expediente:</b></td><td>${f.expediente}</td></tr>
-            <tr><td><b>Oficina:</b></td><td>${f.oficina}</td></tr>
-            <tr><td><b>Fecha Alta:</b></td><td>${formatearFechaES(f.fecha_alta)}</td></tr>
-            <tr><td><b>Contrato:</b></td><td>${f.contrato}</td></tr>
-            <tr><td><b>Tipo Provisión:</b></td><td>${f.tipo_provision}</td></tr>
-            <tr><td><b>Notario:</b></td><td>${f.notario}</td></tr>
-            <tr><td><b>Provincia:</b></td><td>${f.provincia}</td></tr>
-            <tr><td><b>Municipio:</b></td><td>${f.municipio}</td></tr>
-            <tr><td><b>Comunidad:</b></td><td>${f.comunidad}</td></tr>
-            <tr><td><b>Protocolo:</b></td><td>${f.protocolo}</td></tr>
-            <tr><td><b>Fecha Protocolo:</b></td><td>${formatearFechaES(f.fecha_protocolo)}</td></tr>
-            <tr><td><b>V.C.:</b></td><td>${f.vc}</td></tr>
-            <tr><td><b>Apoderado:</b></td><td>${f.apoderado}</td></tr>
-            <tr><td><b>Envio Notario:</b></td><td>${formatearFechaES(f.envio_notario)}</td></tr>
-            <tr><td><b>Días:</b></td><td>${f.dias}</td></tr>
-            <tr><td><b>Mes:</b></td><td>${f.mes}</td></tr>
-            <tr><td><b>Año:</b></td><td>${f.anio}</td></tr>
-            <tr><td><b>Centro:</b></td><td>${f.centro}</td></tr>
-            <tr><td><b>Tipo Gestión:</b></td><td>${f.tipo_gestion}</td></tr>
-            <tr><td><b>Centro que firma:</b></td><td>${f.centro_que_firma}</td></tr>
-            <tr><td><b>Circuito:</b></td><td>${f.circuito}</td></tr>
-            <tr><td><b>Tipo Firma:</b></td><td>${f.tipo_firma}</td></tr>
+
+            <tr>
+                <td><b>Expediente:</b></td>
+                <td>${f.expediente ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Oficina:</b></td>
+                <td>${f.oficina ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Fecha Alta:</b></td>
+                <td>${formatearFechaES(f.fecha_alta)}</td>
+            </tr>
+
+            <tr>
+                <td><b>Contrato:</b></td>
+                <td>${f.contrato ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Tipo Provisión:</b></td>
+                <td>${f.tipo_provision ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Notario:</b></td>
+                <td>${f.notario ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Provincia:</b></td>
+                <td>${f.provincia ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Municipio:</b></td>
+                <td>${f.municipio ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Comunidad:</b></td>
+                <td>${f.comunidad ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Protocolo:</b></td>
+                <td>${f.protocolo ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Fecha Protocolo:</b></td>
+                <td>${formatearFechaES(f.fecha_protocolo)}</td>
+            </tr>
+
+            <tr>
+                <td><b>V.C.:</b></td>
+                <td>${f.vc ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Apoderado:</b></td>
+                <td>${f.apoderado ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Envío Notario:</b></td>
+                <td>${formatearFechaES(f.envio_notario)}</td>
+            </tr>
+
+            <tr>
+                <td><b>Días:</b></td>
+                <td>${f.dias ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Mes:</b></td>
+                <td>${f.mes ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Año:</b></td>
+                <td>${f.anio ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Centro:</b></td>
+                <td>${f.centro ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Tipo Gestión:</b></td>
+                <td>${f.tipo_gestion ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Centro que firma:</b></td>
+                <td>${f.centro_que_firma ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Circuito:</b></td>
+                <td>${f.circuito ?? ""}</td>
+            </tr>
+
+            <tr>
+                <td><b>Tipo Firma:</b></td>
+                <td>${f.tipo_firma ?? ""}</td>
+            </tr>
+
         </table>
     `;
 
-    document.getElementById("modal-detalle").classList.remove("hidden");
-}
-
-function cerrarModalDetalle() {
-    document.getElementById("modal-detalle").classList.add("hidden");
+    /* MOSTRAR MODAL */
+    modal.classList.remove("hidden");
 }
 
 /* ============================================================
