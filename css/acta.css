@@ -1,0 +1,264 @@
+/* ============================================================
+   ACTA DE REUNIÓN
+============================================================ */
+
+.acta-documento {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 35px 45px;
+    background: #ffffff;
+    color: #29415f;
+    font-family: "Segoe UI", Arial, sans-serif;
+    line-height: 1.55;
+}
+
+
+/* ============================================================
+   CABECERA
+============================================================ */
+
+.acta-cabecera {
+    padding-bottom: 20px;
+    border-bottom: 2px solid #dbeaf5;
+}
+
+.acta-empresa {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.acta-empresa-nombre {
+    font-size: 20px;
+    font-weight: 700;
+    color: #123f68;
+    margin-bottom: 5px;
+}
+
+
+/* ============================================================
+   TITULO
+============================================================ */
+
+.acta-titulo {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.acta-titulo-linea {
+    width: 60px;
+    height: 4px;
+    margin: 0 auto 15px;
+    background: #2f6f9f;
+    border-radius: 10px;
+}
+
+.acta-titulo h2 {
+    margin: 0;
+    font-size: 27px;
+    font-weight: 700;
+    color: #123f68;
+    letter-spacing: 0.5px;
+}
+
+.acta-subtitulo {
+    margin-top: 5px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #5b7187;
+}
+
+
+/* ============================================================
+   INFORMACIÓN REUNIÓN
+============================================================ */
+
+.acta-info {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 28px 0;
+}
+
+.acta-info-item {
+    padding: 14px;
+    text-align: center;
+    background: #f3f8fc;
+    border: 1px solid #d9e7f1;
+    border-radius: 10px;
+}
+
+.acta-info-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6c8297;
+    letter-spacing: 0.6px;
+}
+
+.acta-info-item strong {
+    font-size: 16px;
+    color: #123f68;
+}
+
+
+/* ============================================================
+   BLOQUES
+============================================================ */
+
+.acta-bloque {
+    margin-top: 28px;
+}
+
+.acta-bloque h3 {
+    margin: 0 0 12px;
+    padding-bottom: 7px;
+    border-bottom: 2px solid #dbeaf5;
+    color: #123f68;
+    font-size: 19px;
+}
+
+.acta-bloque p {
+    margin: 8px 0;
+}
+
+
+/* ============================================================
+   TABLA DE ASISTENTES
+============================================================ */
+
+.acta-tabla {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border: 1px solid #d5e1eb;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+
+.acta-tabla th {
+    padding: 13px 15px;
+    background: #e4f2fb;
+    color: #123f68;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    border-bottom: 1px solid #cbdce8;
+}
+
+.acta-tabla td {
+    padding: 11px 15px;
+    text-align: center;
+    border-bottom: 1px solid #e2e9ef;
+    font-size: 14px;
+}
+
+.acta-tabla tbody tr:nth-child(even) {
+    background: #f7fafc;
+}
+
+.acta-tabla tbody tr:hover {
+    background: #edf6fc;
+}
+
+.acta-tabla tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* ============================================================
+   PUNTOS
+============================================================ */
+
+.acta-puntos {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.acta-punto {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    background: #f7fafc;
+    border: 1px solid #e0e8ef;
+    border-radius: 9px;
+}
+
+.acta-punto-numero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 27px;
+    height: 27px;
+
+    border-radius: 50%;
+
+    background: #2f6f9f;
+    color: white;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.acta-punto-texto {
+    font-size: 14px;
+}
+
+.acta-sin-puntos {
+    padding: 15px;
+    color: #718096;
+    background: #f7fafc;
+    border-radius: 8px;
+}
+
+
+/* ============================================================
+   PIE
+============================================================ */
+
+.acta-pie {
+    margin-top: 45px;
+    padding-top: 15px;
+    border-top: 1px solid #dbe3ea;
+    text-align: center;
+    color: #7a8b9b;
+    font-size: 12px;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 800px) {
+
+    .acta-documento {
+        padding: 25px 20px;
+    }
+
+    .acta-info {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+@media (max-width: 550px) {
+
+    .acta-info {
+        grid-template-columns: 1fr;
+    }
+
+    .acta-tabla {
+        font-size: 12px;
+    }
+
+    .acta-tabla th,
+    .acta-tabla td {
+        padding: 8px;
+    }
+
+}
