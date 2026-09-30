@@ -11,12 +11,149 @@ let PAP_CHART_EVOLUCION = null;
 /* ============================================================
    FORMATO MILES — FIX DEFINITIVO
 ============================================================ */
+/* ============================================================
+   FORMATO MILES — FORMATO ESPAÑOL ROBUSTO
+   1078      → 1.078
+   2345      → 2.345
+   10000     → 10.000
+   1.078     → 1.078
+   1,078     → 1.078
+   1.078,50  → 1.079
+============================================================ */
 function formatoMiles(n) {
-    if (n === null || n === undefined || n === "") return "-";
-    n = String(n).replace(/[^\d]/g, "");
-    const num = Number(n);
-    if (isNaN(num)) return "-";
-    return num.toLocaleString("es-ES");
+
+    if (
+        n === null ||
+        n === undefined ||
+        n === ""
+    ) {
+        return "-";
+    }
+
+    /* ---------------------------------------------
+       Si ya es un número
+    --------------------------------------------- */
+
+    if (typeof n === "number") {
+
+        if (!Number.isFinite(n)) {
+            return "-";
+        }
+
+        return Math.round(n)
+            .toLocaleString("es-ES");
+    }
+
+
+    /* ---------------------------------------------
+       Convertimos a texto
+    --------------------------------------------- */
+
+    let valor =
+        String(n)
+            .trim();
+
+
+    if (!valor) {
+        return "-";
+    }
+
+
+    valor =
+        valor.replace(/\s/g, "");
+
+
+    let numero;
+
+
+    /* ---------------------------------------------
+       Formato español:
+
+       1.078,50
+       12.345,67
+    --------------------------------------------- */
+
+    if (
+        valor.includes(".") &&
+        valor.includes(",")
+    ) {
+
+        numero =
+            Number(
+                valor
+                    .replace(/\./g, "")
+                    .replace(",", ".")
+            );
+    }
+
+
+    /* ---------------------------------------------
+       Formato con coma decimal:
+
+       1078,50
+    --------------------------------------------- */
+
+    else if (
+        valor.includes(",")
+    ) {
+
+        numero =
+            Number(
+                valor.replace(",", ".")
+            );
+    }
+
+
+    /* ---------------------------------------------
+       Formato con punto de miles:
+
+       1.078
+       10.532
+       100.000
+    --------------------------------------------- */
+
+    else if (
+        /^\d{1,3}(\.\d{3})+$/.test(valor)
+    ) {
+
+        numero =
+            Number(
+                valor.replace(/\./g, "")
+            );
+    }
+
+
+    /* ---------------------------------------------
+       Número normal:
+
+       1078
+       1078.00
+    --------------------------------------------- */
+
+    else {
+
+        numero =
+            Number(valor);
+    }
+
+
+    /* ---------------------------------------------
+       Comprobación final
+    --------------------------------------------- */
+
+    if (
+        !Number.isFinite(numero)
+    ) {
+        return "-";
+    }
+
+
+    /* ---------------------------------------------
+       Formato español con separador de miles
+    --------------------------------------------- */
+
+    return Math.round(numero)
+        .toLocaleString("es-ES");
 }
 
 /* ============================================================
