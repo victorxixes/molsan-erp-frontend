@@ -1,118 +1,230 @@
+<!-- ============================================================
+     TEMPLATE — LISTADO DE EXPEDIENTES
+============================================================ -->
+
 <template id="tpl-listado">
 
-<div class="modulo-wrapper fade-in">
+    <div class="modulo-wrapper fade-in">
 
-    <h3 class="titulo-modulo">📄 Listado de Expedientes</h3>
+        <div id="module-container">
 
-    <div class="card-glass p-20">
+            <h2 class="titulo-modulo">📄 Listado de Expedientes</h2>
 
-        <div class="filtros-grid">
-            <input id="filtroExpediente" placeholder="Expediente">
-            <input id="filtroApoderado" placeholder="Apoderado">
-            <input id="filtroOficina" placeholder="Oficina">
-            <input id="filtroCircuito" placeholder="Circuito">
-            <input id="filtroTipoFirma" placeholder="Tipo Firma">
-            <input id="filtroMes" placeholder="Mes">
-            <input id="filtroAnio" placeholder="Año">
-            <input id="filtroDiasMin" placeholder="Días mín">
-            <input id="filtroDiasMax" placeholder="Días máx">
+            <div class="card-glass p-20">
+
+                <!-- ==================================================
+                     FILTROS
+                =================================================== -->
+
+                <div class="filtros-grid">
+
+                    <input
+                        id="filtroExpediente"
+                        placeholder="Expediente"
+                    >
+
+                    <input
+                        id="filtroApoderado"
+                        placeholder="Apoderado"
+                    >
+
+                    <input
+                        id="filtroOficina"
+                        placeholder="Oficina"
+                    >
+
+                    <input
+                        id="filtroCircuito"
+                        placeholder="Circuito"
+                    >
+
+                    <input
+                        id="filtroTipoFirma"
+                        placeholder="Tipo Firma"
+                    >
+
+                    <input
+                        id="filtroMes"
+                        placeholder="Mes"
+                    >
+
+                    <select id="filtroAnio">
+                        <option value="">Año</option>
+                    </select>
+
+                    <input
+                        id="filtroDiasMin"
+                        type="number"
+                        placeholder="Días mín"
+                    >
+
+                    <input
+                        id="filtroDiasMax"
+                        type="number"
+                        placeholder="Días máx"
+                    >
+
+                </div>
+
+                <button
+                    class="btn-primary mt-10"
+                    onclick="aplicarFiltros()"
+                >
+                    Aplicar filtros
+                </button>
+
+                <div
+                    id="chipsFiltros"
+                    class="chips mt-10"
+                ></div>
+
+
+                <!-- ==================================================
+                     TABLA
+                =================================================== -->
+
+                <div class="tabla-responsive mt-20">
+
+                    <table class="tabla-listado">
+
+                        <thead>
+                            <tr>
+
+                                <th>Expediente</th>
+                                <th>Oficina</th>
+                                <th>Fecha alta</th>
+                                <th>Contrato</th>
+                                <th>Tipo provisión</th>
+                                <th>Notario</th>
+                                <th>Provincia</th>
+                                <th>Municipio</th>
+                                <th>Comunidad</th>
+                                <th>Protocolo</th>
+                                <th>Fecha protocolo</th>
+                                <th>V.C.</th>
+                                <th>Apoderado</th>
+                                <th>Envío notario</th>
+                                <th>Días</th>
+                                <th>Mes</th>
+                                <th>Año</th>
+                                <th>Centro</th>
+                                <th>Tipo gestión</th>
+                                <th>Centro que firma</th>
+                                <th>Circuito notarial</th>
+                                <th>Tipo firma</th>
+                                <th>Acciones</th>
+
+                            </tr>
+                        </thead>
+
+                        <tbody id="tabla-listado"></tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- ==================================================
+                     PAGINACIÓN
+                =================================================== -->
+
+                <div class="paginacion mt-20">
+
+                    <button
+                        id="btnPrev"
+                        class="btn-secondary"
+                        onclick="paginaAnterior()"
+                    >
+                        Anterior
+                    </button>
+
+                    <span id="paginaActual"></span>
+
+                    <button
+                        id="btnNext"
+                        class="btn-secondary"
+                        onclick="siguientePagina()"
+                    >
+                        Siguiente
+                    </button>
+
+                </div>
+
+
+                <!-- ==================================================
+                     EXPORTAR
+                =================================================== -->
+
+                <button
+                    class="btn-primary mt-20"
+                    onclick="exportarFiltrados()"
+                >
+                    Exportar CSV
+                </button>
+
+            </div>
+
         </div>
-
-        <button class="btn-primary mt-10" onclick="aplicarFiltros()">Aplicar filtros</button>
-
-        <div id="chipsFiltros" class="chips mt-10"></div>
-
-        <table class="tabla-listado mt-20">
-            <thead>
-                <tr>
-                    <th>Expediente</th>
-                    <th>Oficina</th>
-                    <th>Fecha Protocolo</th>
-                    <th>Apoderado</th>
-                    <th>Centro</th>
-                    <th>Circuito</th>
-                    <th>Tipo Firma</th>
-                    <th>Días</th>
-                </tr>
-            </thead>
-            <tbody id="tabla-listado"></tbody>
-        </table>
-
-        <div class="paginacion mt-20">
-            <button id="btnPrev" class="btn-secondary">Anterior</button>
-            <span id="paginaActual"></span>
-            <button id="btnNext" class="btn-secondary">Siguiente</button>
-        </div>
-
-        <button class="btn-primary mt-20" onclick="exportarFiltrados()">Exportar CSV</button>
 
     </div>
 
-</div>
 
-</template>
-<template id="tpl-listado">
+    <!-- ============================================================
+         MODAL — DETALLE DEL EXPEDIENTE
+    ============================================================= -->
 
-<div class="modulo-wrapper fade-in">
+    <div
+        id="modal-detalle"
+        class="modal-overlay hidden"
+    >
 
-    <div id="module-container">
+        <div class="modal-detalle">
 
-        <h2 class="titulo-modulo">📄 Listado de Expedientes</h2>
+            <!-- CABECERA -->
 
-        <div class="card-glass p-20">
+            <div class="modal-detalle-header">
 
-            <!-- FILTROS -->
-            <div class="filtros-grid">
-                <input id="filtroExpediente" placeholder="Expediente">
-                <input id="filtroApoderado" placeholder="Apoderado">
-                <input id="filtroOficina" placeholder="Oficina">
-                <input id="filtroCircuito" placeholder="Circuito">
-                <input id="filtroTipoFirma" placeholder="Tipo Firma">
-                <input id="filtroMes" placeholder="Mes">
+                <h3 id="detalleTitulo">
+                    Detalle del expediente
+                </h3>
 
-                <!-- SELECTOR DE AÑO CORRECTO -->
-                <select id="filtroAnio">
-                    <option value="">Año</option>
-                </select>
+                <button
+                    type="button"
+                    class="modal-close"
+                    onclick="cerrarModalDetalle()"
+                    aria-label="Cerrar"
+                >
+                    ×
+                </button>
 
-                <input id="filtroDiasMin" placeholder="Días mín">
-                <input id="filtroDiasMax" placeholder="Días máx">
             </div>
 
-            <button class="btn-primary mt-10" onclick="aplicarFiltros()">Aplicar filtros</button>
 
-            <div id="chipsFiltros" class="chips mt-10"></div>
+            <!-- CONTENIDO -->
 
-            <!-- TABLA -->
-            <table class="tabla-listado mt-20">
-                <thead>
-                    <tr>
-                        <th>Expediente</th>
-                        <th>Oficina</th>
-                        <th>Fecha Protocolo</th>
-                        <th>Apoderado</th>
-                        <th>Centro</th>
-                        <th>Circuito</th>
-                        <th>Tipo Firma</th>
-                        <th>Días</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-listado"></tbody>
-            </table>
-
-            <!-- PAGINACIÓN -->
-            <div class="paginacion mt-20">
-                <button id="btnPrev" class="btn-secondary">Anterior</button>
-                <span id="paginaActual"></span>
-                <button id="btnNext" class="btn-secondary">Siguiente</button>
+            <div
+                id="detalleContenido"
+                class="modal-detalle-content"
+            >
             </div>
 
-            <button class="btn-primary mt-20" onclick="exportarFiltrados()">Exportar CSV</button>
+
+            <!-- PIE -->
+
+            <div class="modal-detalle-footer">
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    onclick="cerrarModalDetalle()"
+                >
+                    Cerrar
+                </button>
+
+            </div>
 
         </div>
 
     </div>
-
-</div>
 
 </template>
