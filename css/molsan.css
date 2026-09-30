@@ -26,6 +26,9 @@
 @import url("informes-dinamicos.css");
 @import url("paneles.css");
 
+/* ACTA */
+@import url("acta.css");
+
 /* MODALES */
 @import url("modals.css");
 
