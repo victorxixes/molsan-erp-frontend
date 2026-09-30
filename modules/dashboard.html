@@ -1,112 +1,92 @@
 <!-- ============================================================
-     DASHBOARD — COMPARATIVA ANUAL
+     DASHBOARD — MOLSAN ERP
+     COMPARATIVA ANUAL
 ============================================================ -->
 
 <template id="tpl-dashboard">
 
-    <div id="dashboard-root" class="modulo-wrapper fade-in dashboard-wrapper">
+    <div
+        id="dashboard-premium"
+        class="modulo-wrapper fade-in dashboard-wrapper"
+    >
 
-        <!-- ======================================================
+        <!-- =====================================================
              CABECERA
-        ======================================================= -->
+        ====================================================== -->
 
         <div class="dashboard-header">
 
             <div>
                 <h2 class="titulo-modulo">
-                    📊 Dashboard — Comparativa Anual
+                    📊 Dashboard
                 </h2>
 
-                <p class="dashboard-subtitulo">
-                    Visión general de actividad, rendimiento y evolución
+                <p class="dashboard-subtitle">
+                    Comparativa anual y evolución de la actividad
                 </p>
             </div>
 
         </div>
 
 
-        <!-- ======================================================
+        <!-- =====================================================
              SELECTORES DE AÑO
-        ======================================================= -->
+        ====================================================== -->
 
-        <div class="card-glass p-20 dashboard-filtros">
+        <div class="dashboard-card dashboard-filtros">
 
-            <div class="dashboard-filtros-grid">
+            <div class="dashboard-filter">
 
-                <div class="dashboard-selector">
+                <label for="dash-anio-actual">
+                    Año actual
+                </label>
 
-                    <label for="dash-anio-actual">
-                        Año actual
-                    </label>
+                <select id="dash-anio-actual"></select>
 
-                    <select id="dash-anio-actual">
-                    </select>
-
-                </div>
+            </div>
 
 
-                <div class="dashboard-selector">
+            <div class="dashboard-filter">
 
-                    <label for="dash-anio-anterior">
-                        Año anterior
-                    </label>
+                <label for="dash-anio-anterior">
+                    Año anterior
+                </label>
 
-                    <select id="dash-anio-anterior">
-                    </select>
-
-                </div>
+                <select id="dash-anio-anterior"></select>
 
             </div>
 
         </div>
 
 
-        <!-- ======================================================
+        <!-- =====================================================
              KPIs PRINCIPALES
-        ======================================================= -->
+        ====================================================== -->
 
-        <div class="dashboard-section-title">
-            <span>📌</span>
-            <span>KPIs principales</span>
-        </div>
+        <div class="dashboard-kpis">
 
+            <!-- FIRMAS -->
+            <div class="dashboard-kpi">
 
-        <div class="kpi-grid-compare">
-
-
-            <!-- TOTAL FIRMAS -->
-
-            <div class="kpi-box-compare">
-
-                <div class="kpi-title">
+                <div class="dashboard-kpi-title">
                     📄 Firmas totales
                 </div>
 
-                <div class="kpi-values">
-
-                    <span
-                        id="dash-total-actual"
-                        class="kpi-big"
-                    >
-                        -
-                    </span>
-
-                    <span
-                        id="dash-total-anterior"
-                        class="kpi-small"
-                    >
-                        -
-                    </span>
-
+                <div
+                    id="dash-total-actual"
+                    class="dashboard-kpi-value"
+                >
+                    -
                 </div>
 
-                <div class="kpi-label">
-                    Actual / anterior
+                <div class="dashboard-kpi-previous">
+                    Año anterior:
+                    <span id="dash-total-anterior">-</span>
                 </div>
 
                 <div
                     id="dash-total-diff"
-                    class="kpi-diff"
+                    class="dashboard-kpi-difference"
                 >
                     -
                 </div>
@@ -115,38 +95,27 @@
 
 
             <!-- SLA -->
+            <div class="dashboard-kpi">
 
-            <div class="kpi-box-compare">
-
-                <div class="kpi-title">
-                    ⏱️ SLA medio
+                <div class="dashboard-kpi-title">
+                    ⏱ SLA medio
                 </div>
 
-                <div class="kpi-values">
-
-                    <span
-                        id="dash-sla-actual"
-                        class="kpi-big"
-                    >
-                        -
-                    </span>
-
-                    <span
-                        id="dash-sla-anterior"
-                        class="kpi-small"
-                    >
-                        -
-                    </span>
-
+                <div
+                    id="dash-sla-actual"
+                    class="dashboard-kpi-value"
+                >
+                    -
                 </div>
 
-                <div class="kpi-label">
-                    Días medios
+                <div class="dashboard-kpi-previous">
+                    Año anterior:
+                    <span id="dash-sla-anterior">-</span>
                 </div>
 
                 <div
                     id="dash-sla-diff"
-                    class="kpi-diff"
+                    class="dashboard-kpi-difference"
                 >
                     -
                 </div>
@@ -155,67 +124,27 @@
 
 
             <!-- VIDEO CONFERENCIA -->
+            <div class="dashboard-kpi">
 
-            <div class="kpi-box-compare">
-
-                <div class="kpi-title">
+                <div class="dashboard-kpi-title">
                     🎥 % VideoConferencia
                 </div>
 
-                <div class="kpi-values">
-
-                    <span
-                        id="dash-vc-actual"
-                        class="kpi-big"
-                    >
-                        -
-                    </span>
-
-                    <span
-                        id="dash-vc-anterior"
-                        class="kpi-small"
-                    >
-                        -
-                    </span>
-
+                <div
+                    id="dash-vc-actual"
+                    class="dashboard-kpi-value"
+                >
+                    -
                 </div>
 
-                <div class="kpi-label">
-                    Peso sobre el total
+                <div class="dashboard-kpi-previous">
+                    Año anterior:
+                    <span id="dash-vc-anterior">-</span>
                 </div>
 
                 <div
                     id="dash-vc-diff"
-                    class="kpi-diff"
-                >
-                    -
-                </div>
-
-            </div>
-
-
-            <!-- MEJOR MES -->
-
-            <div class="kpi-box-compare">
-
-                <div class="kpi-title">
-                    📅 Mejor mes
-                </div>
-
-                <div
-                    id="dash-top-mes-actual"
-                    class="kpi-big"
-                >
-                    -
-                </div>
-
-                <div class="kpi-label">
-                    Mayor volumen de firmas
-                </div>
-
-                <div
-                    id="dash-top-mes-anterior"
-                    class="kpi-small"
+                    class="dashboard-kpi-difference"
                 >
                     -
                 </div>
@@ -225,226 +154,271 @@
         </div>
 
 
-        <!-- ======================================================
-             INDICADORES SECUNDARIOS
-        ======================================================= -->
+        <!-- =====================================================
+             GRID SECUNDARIO
+        ====================================================== -->
 
-        <div class="dashboard-section-title mt-30">
-            <span>📍</span>
-            <span>Indicadores destacados</span>
+        <div class="dash-grid">
+
+            <!-- =================================================
+                 KPIs SECUNDARIOS
+            ================================================== -->
+
+            <div class="dash-card">
+
+                <h3>
+                    📌 KPIs secundarios
+                </h3>
+
+
+                <div class="dash-metric">
+
+                    <div class="dash-sub">
+                        Oficina líder
+                    </div>
+
+                    <div
+                        id="dash-top-oficina"
+                        class="dash-main"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+
+                <div class="dash-metric">
+
+                    <div class="dash-sub">
+                        Circuito dominante
+                    </div>
+
+                    <div
+                        id="dash-top-circuito"
+                        class="dash-main"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+
+                <div class="dash-metric">
+
+                    <div class="dash-sub">
+                        Tipo gestión dominante
+                    </div>
+
+                    <div
+                        id="dash-top-gestion"
+                        class="dash-main"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+
+                <div class="dash-metric">
+
+                    <div class="dash-sub">
+                        Apoderado principal
+                    </div>
+
+                    <div
+                        id="dash-top-apoderado"
+                        class="dash-main"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+
+                <div class="dash-metric">
+
+                    <div class="dash-sub">
+                        Centro que firma
+                    </div>
+
+                    <div
+                        id="dash-top-centro"
+                        class="dash-main"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 HIGHLIGHTS
+            ================================================== -->
+
+            <div class="dash-card">
+
+                <h3>
+                    🔥 Highlights
+                </h3>
+
+
+                <div
+                    id="dash-hl-mejor-mes"
+                    class="dash-highlight"
+                >
+                    🔥 Mejor mes: -
+                </div>
+
+
+                <div
+                    id="dash-hl-peor-mes"
+                    class="dash-highlight"
+                >
+                    📉 Peor mes: -
+                </div>
+
+
+                <div
+                    id="dash-hl-sla-alerta"
+                    class="dash-highlight"
+                >
+                </div>
+
+
+                <div
+                    id="dash-hl-vc-alerta"
+                    class="dash-highlight"
+                >
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 RESUMEN RÁPIDO
+            ================================================== -->
+
+            <div class="dash-card">
+
+                <h3>
+                    📈 Resumen
+                </h3>
+
+
+                <div class="dash-metric">
+
+                    <div class="dash-sub">
+                        Mes más fuerte
+                    </div>
+
+                    <div
+                        id="dash-top-mes-actual"
+                        class="dash-main"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+
+                <div class="dash-metric">
+
+                    <div class="dash-sub">
+                        Mes más fuerte año anterior
+                    </div>
+
+                    <div
+                        id="dash-top-mes-anterior"
+                        class="dash-main"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+
+                <div class="dash-metric">
+
+                    <div class="dash-sub">
+                        Diferencia
+                    </div>
+
+                    <div
+                        id="dash-top-mes-diff"
+                        class="dash-main"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
 
 
-        <div class="dashboard-insights-grid">
-
-
-            <!-- OFICINA -->
-
-            <div class="dashboard-insight-card">
-
-                <div class="dashboard-insight-title">
-                    🏢 Oficina líder
-                </div>
-
-                <div
-                    id="dash-top-oficina"
-                    class="dashboard-insight-value"
-                >
-                    -
-                </div>
-
-            </div>
-
-
-            <!-- CIRCUITO -->
-
-            <div class="dashboard-insight-card">
-
-                <div class="dashboard-insight-title">
-                    🔄 Circuito dominante
-                </div>
-
-                <div
-                    id="dash-top-circuito"
-                    class="dashboard-insight-value"
-                >
-                    -
-                </div>
-
-            </div>
-
-
-            <!-- GESTIÓN -->
-
-            <div class="dashboard-insight-card">
-
-                <div class="dashboard-insight-title">
-                    📂 Tipo de gestión dominante
-                </div>
-
-                <div
-                    id="dash-top-gestion"
-                    class="dashboard-insight-value"
-                >
-                    -
-                </div>
-
-            </div>
-
-
-            <!-- APODERADO -->
-
-            <div class="dashboard-insight-card">
-
-                <div class="dashboard-insight-title">
-                    👤 Apoderado principal
-                </div>
-
-                <div
-                    id="dash-top-apoderado"
-                    class="dashboard-insight-value"
-                >
-                    -
-                </div>
-
-            </div>
-
-
-            <!-- CENTRO -->
-
-            <div class="dashboard-insight-card">
-
-                <div class="dashboard-insight-title">
-                    🏛️ Centro que firma
-                </div>
-
-                <div
-                    id="dash-top-centro"
-                    class="dashboard-insight-value"
-                >
-                    -
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- ======================================================
-             HIGHLIGHTS
-        ======================================================= -->
-
-        <div class="dashboard-section-title mt-30">
-            <span>🔥</span>
-            <span>Highlights</span>
-        </div>
-
-
-        <div class="dashboard-highlights">
-
-            <div
-                id="dash-hl-mejor-mes"
-                class="dashboard-highlight"
-            >
-                🔥 Mejor mes: -
-            </div>
-
-            <div
-                id="dash-hl-peor-mes"
-                class="dashboard-highlight"
-            >
-                📉 Peor mes: -
-            </div>
-
-            <div
-                id="dash-hl-sla-alerta"
-                class="dashboard-highlight"
-            >
-            </div>
-
-            <div
-                id="dash-hl-vc-alerta"
-                class="dashboard-highlight"
-            >
-            </div>
-
-        </div>
-
-
-        <!-- ======================================================
+        <!-- =====================================================
              GRÁFICOS
-        ======================================================= -->
+        ====================================================== -->
 
-        <div class="dashboard-section-title mt-30">
-            <span>📈</span>
-            <span>Evolución y comparativa</span>
-        </div>
-
-
-        <div class="dashboard-charts-grid">
-
+        <div class="dash-grid dashboard-charts-grid">
 
             <!-- COMPARATIVA -->
+            <div class="dashboard-chart dash-card">
 
-            <div class="dashboard-chart-card">
+                <h3>
+                    📊 Comparativa anual
+                </h3>
 
-                <div class="dashboard-chart-title">
-                    📊 Comparativa anual por mes
-                </div>
-
-                <div class="dashboard-chart-container">
-
-                    <canvas
-                        id="dash-chart-comparativa"
-                    ></canvas>
-
-                </div>
+                <canvas
+                    id="dash-chart-comparativa"
+                    height="140"
+                ></canvas>
 
             </div>
 
 
-            <!-- EVOLUCIÓN -->
+            <!-- EVOLUCIÓN MENSUAL -->
+            <div class="dashboard-chart dash-card">
 
-            <div class="dashboard-chart-card">
+                <h3>
+                    📈 Evolución mensual
+                </h3>
 
-                <div class="dashboard-chart-title">
-                    📈 Evolución mensual del año actual
-                </div>
-
-                <div class="dashboard-chart-container">
-
-                    <canvas
-                        id="dash-chart-mensual"
-                    ></canvas>
-
-                </div>
+                <canvas
+                    id="dash-chart-mensual"
+                    height="140"
+                ></canvas>
 
             </div>
 
         </div>
 
 
-        <!-- ======================================================
-             TABLA COMPARATIVA
-        ======================================================= -->
+        <!-- =====================================================
+             TABLA COMPARATIVA POR PANEL
+        ====================================================== -->
 
-        <div class="dashboard-section-title mt-30">
-            <span>📋</span>
-            <span>Comparativa por panel</span>
-        </div>
+        <div class="dashboard-card dashboard-table-card">
+
+            <h3 class="dashboard-section-title">
+                📋 Comparativa por panel
+            </h3>
 
 
-        <div class="dashboard-table-card">
+            <div class="dashboard-table-wrapper">
 
-            <div class="tabla-responsive">
-
-                <table class="table-premium table-sticky dashboard-table">
+                <table class="table-premium table-sticky">
 
                     <thead>
 
                         <tr>
 
-                            <th>Panel</th>
+                            <th>
+                                Panel
+                            </th>
 
                             <th>
                                 Año actual
@@ -461,6 +435,7 @@
                         </tr>
 
                     </thead>
+
 
                     <tbody id="dash-tabla-paneles">
 
