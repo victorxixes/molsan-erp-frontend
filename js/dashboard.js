@@ -1,6 +1,6 @@
 /* ============================================================
-   DASHBOARD — GLASS LUXE
-   Comparativa anual + KPIs + gráficos + paneles
+   DASHBOARD — MOLSAN ERP
+   COMPARATIVA ANUAL + KPIs + GRÁFICOS
 ============================================================ */
 
 let DASH_CHART_COMPARATIVA = null;
@@ -8,42 +8,7 @@ let DASH_CHART_MENSUAL = null;
 
 
 /* ============================================================
-   CONSTANTES
-============================================================ */
-
-const DASH_MESES = [
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre"
-];
-
-const DASH_MESES_CORTOS = [
-    "Ene",
-    "Feb",
-    "Mar",
-    "Abr",
-    "May",
-    "Jun",
-    "Jul",
-    "Ago",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dic"
-];
-
-
-/* ============================================================
-   HELPER SEGURO
+   HELPERS
 ============================================================ */
 
 function dashSet(id, value) {
@@ -56,94 +21,25 @@ function dashSet(id, value) {
 }
 
 
-/* ============================================================
-   CONVERTIR MES
-   Admite:
-   1
-   "1"
-   "enero"
-   "Enero"
-   "ene"
-   etc.
-============================================================ */
+function dashNumero(valor) {
 
-function dashNumeroMes(valor) {
+    const n = Number(valor);
 
-    if (valor === null || valor === undefined) {
-        return 0;
-    }
-
-    const texto = String(valor)
-        .trim()
-        .toLowerCase();
-
-    /* Número */
-
-    const numero = Number(texto);
-
-    if (!isNaN(numero) && numero >= 1 && numero <= 12) {
-        return numero;
-    }
-
-    /* Texto */
-
-    const meses = {
-        enero: 1,
-        ene: 1,
-
-        febrero: 2,
-        feb: 2,
-
-        marzo: 3,
-        mar: 3,
-
-        abril: 4,
-        abr: 4,
-
-        mayo: 5,
-        may: 5,
-
-        junio: 6,
-        jun: 6,
-
-        julio: 7,
-        jul: 7,
-
-        agosto: 8,
-        ago: 8,
-
-        septiembre: 9,
-        setiembre: 9,
-        sep: 9,
-        sept: 9,
-
-        octubre: 10,
-        oct: 10,
-
-        noviembre: 11,
-        nov: 11,
-
-        diciembre: 12,
-        dic: 12
-    };
-
-    return meses[texto] || 0;
+    return Number.isFinite(n) ? n : 0;
 }
 
 
-/* ============================================================
-   NOMBRE DEL MES
-============================================================ */
+function dashTexto(valor) {
 
-function dashNombreMes(valor) {
-
-    const mes = dashNumeroMes(valor);
-
-    if (mes >= 1 && mes <= 12) {
-        return DASH_MESES[mes - 1];
+    if (
+        valor === null ||
+        valor === undefined ||
+        String(valor).trim() === ""
+    ) {
+        return "-";
     }
 
-    return "-";
+    return String(valor);
 }
 
 
@@ -175,10 +71,10 @@ async function initDashboard() {
     const datos = await obtenerFirmas();
 
 
-    if (!datos || !datos.length) {
+    if (!Array.isArray(datos) || !datos.length) {
 
         console.warn(
-            "⚠️ No hay datos para mostrar en el dashboard."
+            "⚠️ No hay datos para mostrar en Dashboard."
         );
 
         limpiarDashboard();
@@ -195,7 +91,7 @@ async function initDashboard() {
         ...new Set(
             datos
                 .map(f => Number(f.anio))
-                .filter(a => !isNaN(a))
+                .filter(a => Number.isFinite(a) && a > 0)
         )
     ].sort((a, b) => a - b);
 
@@ -203,7 +99,7 @@ async function initDashboard() {
     if (!anios.length) {
 
         console.warn(
-            "⚠️ No se encontraron años válidos."
+            "⚠️ No se han encontrado años válidos."
         );
 
         return;
@@ -220,51 +116,52 @@ async function initDashboard() {
 
     anios.forEach(anio => {
 
-        const optionActual =
+        const optActual =
             document.createElement("option");
 
-        optionActual.value = anio;
-        optionActual.textContent = anio;
+        optActual.value = anio;
+        optActual.textContent = anio;
 
-        selActual.appendChild(optionActual);
+        selActual.appendChild(optActual);
 
 
-        const optionAnterior =
+        const optAnterior =
             document.createElement("option");
 
-        optionAnterior.value = anio;
-        optionAnterior.textContent = anio;
+        optAnterior.value = anio;
+        optAnterior.textContent = anio;
 
-        selAnterior.appendChild(optionAnterior);
+        selAnterior.appendChild(optAnterior);
 
     });
 
 
     /* ========================================================
-       SELECCIÓN POR DEFECTO
+       SELECCIÓN AUTOMÁTICA
     ======================================================== */
 
-    const ultimo =
+    const añoActual =
         anios[anios.length - 1];
 
-    const anterior =
+    const añoAnterior =
         anios.length > 1
             ? anios[anios.length - 2]
-            : ultimo;
+            : anios[anios.length - 1];
 
 
-    selActual.value = ultimo;
-    selAnterior.value = anterior;
+    selActual.value = añoActual;
+    selAnterior.value = añoAnterior;
 
 
     /* ========================================================
        EVENTOS
-       Usamos onchange para evitar duplicados si el módulo
-       se vuelve a cargar.
     ======================================================== */
 
-    selActual.onchange = dashboardActualizar;
-    selAnterior.onchange = dashboardActualizar;
+    selActual.onchange =
+        dashboardActualizar;
+
+    selAnterior.onchange =
+        dashboardActualizar;
 
 
     /* ========================================================
@@ -276,39 +173,90 @@ async function initDashboard() {
 
 
 /* ============================================================
+   LIMPIAR DASHBOARD
+============================================================ */
+
+function limpiarDashboard() {
+
+    const ids = [
+
+        "dash-total-actual",
+        "dash-total-anterior",
+        "dash-total-diff",
+
+        "dash-sla-actual",
+        "dash-sla-anterior",
+        "dash-sla-diff",
+
+        "dash-vc-actual",
+        "dash-vc-anterior",
+        "dash-vc-diff",
+
+        "dash-top-oficina",
+        "dash-top-circuito",
+        "dash-top-gestion",
+        "dash-top-apoderado",
+        "dash-top-centro",
+
+        "dash-top-mes-actual",
+        "dash-top-mes-anterior",
+        "dash-top-mes-diff",
+
+        "dash-hl-mejor-mes",
+        "dash-hl-peor-mes"
+
+    ];
+
+
+    ids.forEach(id => {
+
+        dashSet(id, "-");
+
+    });
+}
+
+
+/* ============================================================
    ACTUALIZAR DASHBOARD
 ============================================================ */
 
 async function dashboardActualizar() {
 
-    const datos = await obtenerFirmas();
+    console.log("🔄 Actualizando Dashboard...");
 
-    if (!datos || !datos.length) {
+
+    const datos =
+        await obtenerFirmas();
+
+
+    if (!Array.isArray(datos) || !datos.length) {
+
         limpiarDashboard();
+
         return;
     }
 
 
-    const selectorActual =
+    const selActual =
         document.getElementById("dash-anio-actual");
 
-    const selectorAnterior =
+    const selAnterior =
         document.getElementById("dash-anio-anterior");
 
 
-    if (!selectorActual || !selectorAnterior) {
+    if (!selActual || !selAnterior) {
         return;
     }
 
 
     const añoActual =
-        Number(selectorActual.value);
+        Number(selActual.value);
 
     const añoAnterior =
-        Number(selectorAnterior.value);
+        Number(selAnterior.value);
 
 
-    if (!añoActual) {
+    if (!Number.isFinite(añoActual)) {
         return;
     }
 
@@ -332,7 +280,7 @@ async function dashboardActualizar() {
 
 
     /* ========================================================
-       KPIs PRINCIPALES
+       KPI — FIRMAS
     ======================================================== */
 
     dashSet(
@@ -340,10 +288,12 @@ async function dashboardActualizar() {
         formatearNumero(A.total)
     );
 
+
     dashSet(
         "dash-total-anterior",
         formatearNumero(B.total)
     );
+
 
     dashSet(
         "dash-total-diff",
@@ -351,15 +301,21 @@ async function dashboardActualizar() {
     );
 
 
+    /* ========================================================
+       KPI — SLA
+    ======================================================== */
+
     dashSet(
         "dash-sla-actual",
         A.sla
     );
 
+
     dashSet(
         "dash-sla-anterior",
         B.sla
     );
+
 
     dashSet(
         "dash-sla-diff",
@@ -370,15 +326,21 @@ async function dashboardActualizar() {
     );
 
 
+    /* ========================================================
+       KPI — VIDEO CONFERENCIA
+    ======================================================== */
+
     dashSet(
         "dash-vc-actual",
         `${A.pctVC}%`
     );
 
+
     dashSet(
         "dash-vc-anterior",
         `${B.pctVC}%`
     );
+
 
     dashSet(
         "dash-vc-diff",
@@ -390,7 +352,61 @@ async function dashboardActualizar() {
 
 
     /* ========================================================
-       MEJOR MES
+       KPIs SECUNDARIOS
+    ======================================================== */
+
+    dashSet(
+        "dash-top-oficina",
+        obtenerDominante(
+            datos,
+            añoActual,
+            "oficina"
+        )
+    );
+
+
+    dashSet(
+        "dash-top-circuito",
+        obtenerDominante(
+            datos,
+            añoActual,
+            "circuito"
+        )
+    );
+
+
+    dashSet(
+        "dash-top-gestion",
+        obtenerDominante(
+            datos,
+            añoActual,
+            "tipo_gestion"
+        )
+    );
+
+
+    dashSet(
+        "dash-top-apoderado",
+        obtenerDominante(
+            datos,
+            añoActual,
+            "apoderado"
+        )
+    );
+
+
+    dashSet(
+        "dash-top-centro",
+        obtenerDominante(
+            datos,
+            añoActual,
+            "centro_que_firma"
+        )
+    );
+
+
+    /* ========================================================
+       RESUMEN DE MEJORES MESES
     ======================================================== */
 
     dashSet(
@@ -398,57 +414,18 @@ async function dashboardActualizar() {
         A.topMes
     );
 
+
     dashSet(
         "dash-top-mes-anterior",
         B.topMes
     );
 
 
-    /* ========================================================
-       INDICADORES SECUNDARIOS
-    ======================================================== */
-
     dashSet(
-        "dash-top-oficina",
-        kpi_topOficina(
-            datos,
-            añoActual
-        )
-    );
-
-
-    dashSet(
-        "dash-top-circuito",
-        kpi_topCircuito(
-            datos,
-            añoActual
-        )
-    );
-
-
-    dashSet(
-        "dash-top-gestion",
-        kpi_topGestion(
-            datos,
-            añoActual
-        )
-    );
-
-
-    dashSet(
-        "dash-top-apoderado",
-        kpi_topApoderado(
-            datos,
-            añoActual
-        )
-    );
-
-
-    dashSet(
-        "dash-top-centro",
-        kpi_topCentro(
-            datos,
-            añoActual
+        "dash-top-mes-diff",
+        diffPct(
+            A.topMesTotal,
+            B.topMesTotal
         )
     );
 
@@ -489,6 +466,18 @@ async function dashboardActualizar() {
         añoActual,
         añoAnterior
     );
+
+}
+
+
+/* ============================================================
+   FORMATEAR NÚMEROS
+============================================================ */
+
+function formatearNumero(numero) {
+
+    return Number(numero || 0)
+        .toLocaleString("es-ES");
 }
 
 
@@ -508,8 +497,6 @@ function calcularResumenAnual(datos, año) {
 
     let vc = 0;
 
-    let presencial = 0;
-
     let sumaDias = 0;
 
     let cuentaDias = 0;
@@ -519,46 +506,36 @@ function calcularResumenAnual(datos, año) {
 
     filtrado.forEach(f => {
 
-        /* Tipo firma */
-
         if (
-            String(f.tipo_firma || "")
+            String(f.tipo_firma)
                 .toLowerCase()
                 .includes("videoconferencia")
         ) {
-
             vc++;
-
-        } else {
-
-            presencial++;
-
         }
 
-
-        /* SLA */
 
         const dias =
             Number(f.dias);
 
+
         if (
-            !isNaN(dias) &&
+            Number.isFinite(dias) &&
             dias > 0
         ) {
 
             sumaDias += dias;
-
             cuentaDias++;
 
         }
 
 
-        /* Mes */
-
         const mes =
-            dashNumeroMes(f.mes);
+            Number(f.mes);
+
 
         if (
+            Number.isFinite(mes) &&
             mes >= 1 &&
             mes <= 12
         ) {
@@ -583,24 +560,21 @@ function calcularResumenAnual(datos, año) {
             : "0.0";
 
 
-    /* ========================================================
-       MEJOR MES
-    ======================================================== */
-
     let topMes = "-";
-
-    let max = 0;
+    let topMesTotal = 0;
 
 
     Object.entries(meses)
         .forEach(([mes, cantidad]) => {
 
-            if (cantidad > max) {
+            if (cantidad > topMesTotal) {
 
-                max = cantidad;
+                topMesTotal = cantidad;
 
                 topMes =
-                    `${DASH_MESES[Number(mes) - 1]} (${cantidad})`;
+                    obtenerNombreMes(
+                        Number(mes)
+                    );
 
             }
 
@@ -610,18 +584,52 @@ function calcularResumenAnual(datos, año) {
     return {
 
         total,
+
         vc,
-        presencial,
+
         sla,
+
         pctVC,
-        topMes
+
+        topMes,
+
+        topMesTotal
 
     };
+
 }
 
 
 /* ============================================================
-   DIFERENCIA PORCENTUAL
+   NOMBRE MES
+============================================================ */
+
+function obtenerNombreMes(mes) {
+
+    const meses = [
+
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre"
+
+    ];
+
+
+    return meses[mes - 1] || "-";
+}
+
+
+/* ============================================================
+   DIFERENCIA %
 ============================================================ */
 
 function diffPct(actual, anterior) {
@@ -631,52 +639,38 @@ function diffPct(actual, anterior) {
 
 
     if (
-        isNaN(actual) ||
-        isNaN(anterior)
+        !Number.isFinite(actual) ||
+        !Number.isFinite(anterior)
     ) {
+
         return "-";
+
     }
 
 
     if (anterior === 0) {
 
-        if (actual === 0) {
-            return "0.0%";
-        }
-
         return "-";
+
     }
 
 
     return (
         ((actual - anterior) / anterior) * 100
     ).toFixed(1) + "%";
+
 }
 
 
 /* ============================================================
-   FORMATEAR NÚMERO
+   OBTENER DOMINANTE
 ============================================================ */
 
-function formatearNumero(numero) {
-
-    const n = Number(numero);
-
-    if (isNaN(n)) {
-        return "-";
-    }
-
-    return n.toLocaleString(
-        "es-ES"
-    );
-}
-
-
-/* ============================================================
-   OBTENER VALOR DOMINANTE
-============================================================ */
-
-function obtenerDominante(datos, campo, año) {
+function obtenerDominante(
+    datos,
+    año,
+    campo
+) {
 
     const mapa = {};
 
@@ -691,11 +685,10 @@ function obtenerDominante(datos, campo, año) {
 
 
         const valor =
-            String(f[campo] ?? "")
-                .trim();
+            dashTexto(f[campo]);
 
 
-        if (!valor) {
+        if (valor === "-") {
             return;
         }
 
@@ -706,89 +699,20 @@ function obtenerDominante(datos, campo, año) {
     });
 
 
-    const ordenado =
+    const lista =
         Object.entries(mapa)
             .sort(
                 (a, b) => b[1] - a[1]
             );
 
 
-    if (!ordenado.length) {
+    if (!lista.length) {
         return "-";
     }
 
 
-    return ordenado[0][0];
-}
+    return lista[0][0];
 
-
-/* ============================================================
-   OFICINA DOMINANTE
-============================================================ */
-
-function kpi_topOficina(datos, año) {
-
-    return obtenerDominante(
-        datos,
-        "oficina",
-        año
-    );
-}
-
-
-/* ============================================================
-   CIRCUITO DOMINANTE
-============================================================ */
-
-function kpi_topCircuito(datos, año) {
-
-    return obtenerDominante(
-        datos,
-        "circuito",
-        año
-    );
-}
-
-
-/* ============================================================
-   GESTIÓN DOMINANTE
-============================================================ */
-
-function kpi_topGestion(datos, año) {
-
-    return obtenerDominante(
-        datos,
-        "tipo_gestion",
-        año
-    );
-}
-
-
-/* ============================================================
-   APODERADO DOMINANTE
-============================================================ */
-
-function kpi_topApoderado(datos, año) {
-
-    return obtenerDominante(
-        datos,
-        "apoderado",
-        año
-    );
-}
-
-
-/* ============================================================
-   CENTRO DOMINANTE
-============================================================ */
-
-function kpi_topCentro(datos, año) {
-
-    return obtenerDominante(
-        datos,
-        "centro_que_firma",
-        año
-    );
 }
 
 
@@ -796,7 +720,10 @@ function kpi_topCentro(datos, año) {
    HIGHLIGHTS
 ============================================================ */
 
-function generarHighlights(datos, año) {
+function generarHighlights(
+    datos,
+    año
+) {
 
     const filtrado =
         datos.filter(
@@ -810,10 +737,11 @@ function generarHighlights(datos, año) {
     filtrado.forEach(f => {
 
         const mes =
-            dashNumeroMes(f.mes);
+            Number(f.mes);
 
 
         if (
+            Number.isFinite(mes) &&
             mes >= 1 &&
             mes <= 12
         ) {
@@ -827,13 +755,7 @@ function generarHighlights(datos, año) {
 
 
     const arr =
-        Object.entries(meses)
-            .map(
-                ([mes, cantidad]) => ({
-                    mes: Number(mes),
-                    cantidad
-                })
-            );
+        Object.entries(meses);
 
 
     if (!arr.length) {
@@ -843,56 +765,42 @@ function generarHighlights(datos, año) {
             "🔥 Mejor mes: -"
         );
 
+
         dashSet(
             "dash-hl-peor-mes",
             "📉 Peor mes: -"
         );
 
-        dashSet(
-            "dash-hl-sla-alerta",
-            ""
-        );
-
-        dashSet(
-            "dash-hl-vc-alerta",
-            ""
-        );
 
         return;
     }
 
 
-    /* Mejor */
-
     const mejor =
         [...arr].sort(
-            (a, b) =>
-                b.cantidad - a.cantidad
+            (a, b) => b[1] - a[1]
         )[0];
 
 
-    /* Peor */
-
     const peor =
         [...arr].sort(
-            (a, b) =>
-                a.cantidad - b.cantidad
+            (a, b) => a[1] - b[1]
         )[0];
 
 
     dashSet(
         "dash-hl-mejor-mes",
         `🔥 Mejor mes: ${
-            DASH_MESES[mejor.mes - 1]
-        } (${formatearNumero(mejor.cantidad)} firmas)`
+            obtenerNombreMes(Number(mejor[0]))
+        } (${formatearNumero(mejor[1])} firmas)`
     );
 
 
     dashSet(
         "dash-hl-peor-mes",
         `📉 Peor mes: ${
-            DASH_MESES[peor.mes - 1]
-        } (${formatearNumero(peor.cantidad)} firmas)`
+            obtenerNombreMes(Number(peor[0]))
+        } (${formatearNumero(peor[1])} firmas)`
     );
 
 
@@ -907,18 +815,18 @@ function generarHighlights(datos, año) {
         );
 
 
-    if (Number(resumen.sla) > 10) {
+    if (Number(resumen.sla) > 15) {
 
         dashSet(
             "dash-hl-sla-alerta",
-            `⏱️ SLA medio elevado: ${resumen.sla} días`
+            `⚠️ SLA elevado: ${resumen.sla} días`
         );
 
     } else {
 
         dashSet(
             "dash-hl-sla-alerta",
-            `⏱️ SLA medio: ${resumen.sla} días`
+            ""
         );
 
     }
@@ -928,60 +836,22 @@ function generarHighlights(datos, año) {
        ALERTA VC
     ======================================================== */
 
-    if (Number(resumen.pctVC) > 20) {
+    if (Number(resumen.pctVC) >= 20) {
 
         dashSet(
             "dash-hl-vc-alerta",
-            `🎥 VideoConferencia: ${resumen.pctVC}%`
+            `🎥 VC: ${resumen.pctVC}%`
         );
 
     } else {
 
         dashSet(
             "dash-hl-vc-alerta",
-            `🎥 VideoConferencia: ${resumen.pctVC}%`
+            ""
         );
 
     }
-}
 
-
-/* ============================================================
-   DATOS POR MES
-============================================================ */
-
-function obtenerDatosMensuales(datos, año) {
-
-    const arr =
-        Array(12).fill(0);
-
-
-    datos.forEach(f => {
-
-        if (
-            Number(f.anio) !== Number(año)
-        ) {
-            return;
-        }
-
-
-        const mes =
-            dashNumeroMes(f.mes);
-
-
-        if (
-            mes >= 1 &&
-            mes <= 12
-        ) {
-
-            arr[mes - 1]++;
-
-        }
-
-    });
-
-
-    return arr;
 }
 
 
@@ -1006,38 +876,73 @@ function generarGraficoComparativa(
     }
 
 
-    if (
-        typeof Chart === "undefined"
-    ) {
+    const labels = [
 
-        console.warn(
-            "⚠️ Chart.js no está cargado."
-        );
+        "Ene",
+        "Feb",
+        "Mar",
+        "Abr",
+        "May",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dic"
 
-        return;
+    ];
+
+
+    function obtenerDatos(año) {
+
+        const arr =
+            Array(12).fill(0);
+
+
+        datos.forEach(f => {
+
+            if (
+                Number(f.anio) !== Number(año)
+            ) {
+                return;
+            }
+
+
+            const mes =
+                Number(f.mes);
+
+
+            if (
+                mes >= 1 &&
+                mes <= 12
+            ) {
+
+                arr[mes - 1]++;
+
+            }
+
+        });
+
+
+        return arr;
+
     }
+
+
+    const actual =
+        obtenerDatos(añoActual);
+
+
+    const anterior =
+        obtenerDatos(añoAnterior);
 
 
     if (DASH_CHART_COMPARATIVA) {
 
         DASH_CHART_COMPARATIVA.destroy();
 
-        DASH_CHART_COMPARATIVA = null;
     }
-
-
-    const actual =
-        obtenerDatosMensuales(
-            datos,
-            añoActual
-        );
-
-
-    const anterior =
-        obtenerDatosMensuales(
-            datos,
-            añoAnterior
-        );
 
 
     DASH_CHART_COMPARATIVA =
@@ -1049,40 +954,35 @@ function generarGraficoComparativa(
 
                 data: {
 
-                    labels:
-                        DASH_MESES_CORTOS,
+                    labels,
 
                     datasets: [
 
                         {
-                            label:
-                                String(añoActual),
+                            label: añoActual,
 
-                            data:
-                                actual,
+                            data: actual,
 
                             backgroundColor:
-                                "rgba(80, 200, 255, 0.65)",
+                                "rgba(80,200,255,0.65)",
 
                             borderColor:
-                                "rgba(80, 200, 255, 1)",
+                                "rgba(80,200,255,1)",
 
                             borderWidth: 1
                         },
 
 
                         {
-                            label:
-                                String(añoAnterior),
+                            label: añoAnterior,
 
-                            data:
-                                anterior,
+                            data: anterior,
 
                             backgroundColor:
-                                "rgba(180, 180, 180, 0.45)",
+                                "rgba(180,180,180,0.45)",
 
                             borderColor:
-                                "rgba(130, 130, 130, 1)",
+                                "rgba(140,140,140,1)",
 
                             borderWidth: 1
                         }
@@ -1098,29 +998,10 @@ function generarGraficoComparativa(
 
                     maintainAspectRatio: false,
 
-                    interaction: {
-                        mode: "index",
-                        intersect: false
-                    },
-
                     plugins: {
 
                         legend: {
-                            display: true,
-                            position: "top"
-                        },
-
-                        tooltip: {
-                            callbacks: {
-
-                                label:
-                                    function(context) {
-
-                                        return `${context.dataset.label}: ${formatearNumero(context.raw)} firmas`;
-
-                                    }
-
-                            }
+                            display: true
                         }
 
                     },
@@ -1130,7 +1011,7 @@ function generarGraficoComparativa(
 
                         x: {
                             ticks: {
-                                color: "#163f6b"
+                                color: "#0A3A67"
                             }
                         },
 
@@ -1139,14 +1020,7 @@ function generarGraficoComparativa(
                             beginAtZero: true,
 
                             ticks: {
-
-                                color: "#163f6b",
-
-                                callback:
-                                    function(value) {
-                                        return formatearNumero(value);
-                                    }
-
+                                color: "#0A3A67"
                             }
 
                         }
@@ -1157,6 +1031,7 @@ function generarGraficoComparativa(
 
             }
         );
+
 }
 
 
@@ -1180,26 +1055,58 @@ function generarGraficoMensual(
     }
 
 
-    if (
-        typeof Chart === "undefined"
-    ) {
-        return;
-    }
+    const labels = [
+
+        "Ene",
+        "Feb",
+        "Mar",
+        "Abr",
+        "May",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dic"
+
+    ];
+
+
+    const arr =
+        Array(12).fill(0);
+
+
+    datos.forEach(f => {
+
+        if (
+            Number(f.anio) !== Number(año)
+        ) {
+            return;
+        }
+
+
+        const mes =
+            Number(f.mes);
+
+
+        if (
+            mes >= 1 &&
+            mes <= 12
+        ) {
+
+            arr[mes - 1]++;
+
+        }
+
+    });
 
 
     if (DASH_CHART_MENSUAL) {
 
         DASH_CHART_MENSUAL.destroy();
 
-        DASH_CHART_MENSUAL = null;
     }
-
-
-    const valores =
-        obtenerDatosMensuales(
-            datos,
-            año
-        );
 
 
     DASH_CHART_MENSUAL =
@@ -1211,24 +1118,21 @@ function generarGraficoMensual(
 
                 data: {
 
-                    labels:
-                        DASH_MESES_CORTOS,
+                    labels,
 
                     datasets: [
 
                         {
 
-                            label:
-                                `Firmas ${año}`,
+                            label: "Firmas",
 
-                            data:
-                                valores,
+                            data: arr,
 
                             borderColor:
-                                "rgba(80, 200, 255, 1)",
+                                "rgba(80,200,255,1)",
 
                             backgroundColor:
-                                "rgba(80, 200, 255, 0.15)",
+                                "rgba(80,200,255,0.18)",
 
                             borderWidth: 2,
 
@@ -1236,9 +1140,7 @@ function generarGraficoMensual(
 
                             fill: true,
 
-                            pointRadius: 4,
-
-                            pointHoverRadius: 6
+                            pointRadius: 3
 
                         }
 
@@ -1267,7 +1169,7 @@ function generarGraficoMensual(
                         x: {
 
                             ticks: {
-                                color: "#163f6b"
+                                color: "#0A3A67"
                             }
 
                         },
@@ -1278,14 +1180,7 @@ function generarGraficoMensual(
                             beginAtZero: true,
 
                             ticks: {
-
-                                color: "#163f6b",
-
-                                callback:
-                                    function(value) {
-                                        return formatearNumero(value);
-                                    }
-
+                                color: "#0A3A67"
                             }
 
                         }
@@ -1296,11 +1191,12 @@ function generarGraficoMensual(
 
             }
         );
+
 }
 
 
 /* ============================================================
-   TABLA COMPARATIVA
+   TABLA COMPARATIVA POR PANEL
 ============================================================ */
 
 function generarTablaPaneles(
@@ -1326,74 +1222,43 @@ function generarTablaPaneles(
     const paneles = [
 
         {
-            nombre:
-                "Panel Anual — Total firmas",
-
-            fn:
-                calcularPanelAnual
+            nombre: "Panel Anual — total firmas",
+            fn: calcularPanelAnual
         },
 
-
         {
-            nombre:
-                "Panel Mensual — Hasta mes disponible",
-
-            fn:
-                calcularPanelMensual
+            nombre: "Panel Mensual — actividad",
+            fn: calcularPanelMensual
         },
 
-
         {
-            nombre:
-                "Panel Apoderados — Apoderados activos",
-
-            fn:
-                calcularPanelApoderados
+            nombre: "Panel Apoderados — apoderados activos",
+            fn: calcularPanelApoderados
         },
 
-
         {
-            nombre:
-                "Panel Tipo Firma — VideoConferencia %",
-
-            fn:
-                calcularPanelTipoFirma
+            nombre: "Panel Tipo Firma — VC %",
+            fn: calcularPanelTipoFirma
         },
 
-
         {
-            nombre:
-                "Panel Tipo Gestión — Con provisión",
-
-            fn:
-                calcularPanelTipoGestion
+            nombre: "Panel Tipo Gestión — Con provisión",
+            fn: calcularPanelTipoGestion
         },
 
-
         {
-            nombre:
-                "Panel Oficinas — Oficina dominante",
-
-            fn:
-                calcularPanelOficinas
+            nombre: "Panel Oficinas — oficina dominante",
+            fn: calcularPanelOficinas
         },
 
-
         {
-            nombre:
-                "Panel Circuito — Circuito dominante",
-
-            fn:
-                calcularPanelCircuito
+            nombre: "Panel Circuito — circuito dominante",
+            fn: calcularPanelCircuito
         },
 
-
         {
-            nombre:
-                "Panel SLA — SLA medio",
-
-            fn:
-                calcularPanelSLA
+            nombre: "Panel SLA — SLA medio",
+            fn: calcularPanelSLA
         }
 
     ];
@@ -1439,19 +1304,19 @@ function generarTablaPaneles(
         tr.innerHTML = `
 
             <td>
-                ${escapeHTML(panel.nombre)}
+                ${panel.nombre}
             </td>
 
             <td>
-                ${escapeHTML(String(actual))}
+                ${formatearValorPanel(actual)}
             </td>
 
             <td>
-                ${escapeHTML(String(anterior))}
+                ${formatearValorPanel(anterior)}
             </td>
 
             <td>
-                ${escapeHTML(String(diferencia))}
+                ${diferencia}
             </td>
 
         `;
@@ -1460,11 +1325,12 @@ function generarTablaPaneles(
         tbody.appendChild(tr);
 
     });
+
 }
 
 
 /* ============================================================
-   PANEL ANUAL
+   FUNCIONES TABLA
 ============================================================ */
 
 function calcularPanelAnual(
@@ -1473,40 +1339,36 @@ function calcularPanelAnual(
 ) {
 
     return datos.filter(
-        f =>
-            Number(f.anio) === Number(año)
+        f => Number(f.anio) === Number(año)
     ).length;
+
 }
 
-
-/* ============================================================
-   PANEL MENSUAL
-============================================================ */
 
 function calcularPanelMensual(
     datos,
     año
 ) {
 
-    const datosAño =
+    const filtrado =
         datos.filter(
-            f =>
-                Number(f.anio) === Number(año)
+            f => Number(f.anio) === Number(año)
         );
 
 
-    if (!datosAño.length) {
+    if (!filtrado.length) {
         return 0;
     }
 
 
     const meses =
-        datosAño
-            .map(
-                f => dashNumeroMes(f.mes)
-            )
+        filtrado
+            .map(f => Number(f.mes))
             .filter(
-                m => m >= 1 && m <= 12
+                m =>
+                    Number.isFinite(m) &&
+                    m >= 1 &&
+                    m <= 12
             );
 
 
@@ -1515,20 +1377,17 @@ function calcularPanelMensual(
     }
 
 
-    const ultimoMes =
+    const mesActual =
         Math.max(...meses);
 
 
-    return datosAño.filter(
+    return filtrado.filter(
         f =>
-            dashNumeroMes(f.mes) <= ultimoMes
+            Number(f.mes) <= mesActual
     ).length;
+
 }
 
-
-/* ============================================================
-   PANEL APODERADOS
-============================================================ */
 
 function calcularPanelApoderados(
     datos,
@@ -1556,12 +1415,9 @@ function calcularPanelApoderados(
 
 
     return set.size;
+
 }
 
-
-/* ============================================================
-   PANEL TIPO FIRMA
-============================================================ */
 
 function calcularPanelTipoFirma(
     datos,
@@ -1570,33 +1426,30 @@ function calcularPanelTipoFirma(
 
     const total =
         datos.filter(
-            f =>
-                Number(f.anio) === Number(año)
+            f => Number(f.anio) === Number(año)
         ).length;
 
 
     const vc =
         datos.filter(
+
             f =>
+
                 Number(f.anio) === Number(año) &&
-                String(f.tipo_firma || "")
+
+                String(f.tipo_firma)
                     .toLowerCase()
                     .includes("videoconferencia")
+
         ).length;
 
 
     return total
-        ? Number(
-            ((vc / total) * 100)
-                .toFixed(1)
-        )
+        ? Number(((vc / total) * 100).toFixed(1))
         : 0;
+
 }
 
-
-/* ============================================================
-   PANEL TIPO GESTIÓN
-============================================================ */
 
 function calcularPanelTipoGestion(
     datos,
@@ -1604,56 +1457,47 @@ function calcularPanelTipoGestion(
 ) {
 
     return datos.filter(
+
         f =>
+
             Number(f.anio) === Number(año) &&
-            String(f.tipo_gestion || "")
-                .trim()
-                .toLowerCase() ===
-                "con provisión"
+
+            String(f.tipo_gestion)
                 .toLowerCase()
+                .includes("con provisión")
+
     ).length;
+
 }
 
-
-/* ============================================================
-   PANEL OFICINAS
-   Devuelve el nombre de la oficina dominante
-============================================================ */
 
 function calcularPanelOficinas(
     datos,
     año
 ) {
 
-    return obtenerDominante(
+    return obtenerDominanteConCantidad(
         datos,
-        "oficina",
-        año
+        año,
+        "oficina"
     );
+
 }
 
-
-/* ============================================================
-   PANEL CIRCUITO
-   Devuelve el circuito dominante
-============================================================ */
 
 function calcularPanelCircuito(
     datos,
     año
 ) {
 
-    return obtenerDominante(
+    return obtenerDominanteConCantidad(
         datos,
-        "circuito",
-        año
+        año,
+        "circuito"
     );
+
 }
 
-
-/* ============================================================
-   PANEL SLA
-============================================================ */
 
 function calcularPanelSLA(
     datos,
@@ -1662,9 +1506,13 @@ function calcularPanelSLA(
 
     const arr =
         datos.filter(
+
             f =>
+
                 Number(f.anio) === Number(año) &&
+
                 Number(f.dias) > 0
+
         );
 
 
@@ -1682,94 +1530,92 @@ function calcularPanelSLA(
 
 
     return Number(
-        (suma / arr.length)
-            .toFixed(1)
+        (suma / arr.length).toFixed(1)
     );
+
 }
 
 
 /* ============================================================
-   ESCAPAR HTML
+   DOMINANTE + CANTIDAD
 ============================================================ */
 
-function escapeHTML(valor) {
+function obtenerDominanteConCantidad(
+    datos,
+    año,
+    campo
+) {
 
-    return String(valor)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    const mapa = {};
+
+
+    datos.forEach(f => {
+
+        if (
+            Number(f.anio) !== Number(año)
+        ) {
+            return;
+        }
+
+
+        const valor =
+            dashTexto(f[campo]);
+
+
+        if (valor === "-") {
+            return;
+        }
+
+
+        mapa[valor] =
+            (mapa[valor] || 0) + 1;
+
+    });
+
+
+    const top =
+        Object.entries(mapa)
+            .sort(
+                (a, b) => b[1] - a[1]
+            )[0];
+
+
+    if (!top) {
+        return 0;
+    }
+
+
+    return top[1];
+
 }
 
 
 /* ============================================================
-   LIMPIAR DASHBOARD
+   FORMATEAR VALOR TABLA
 ============================================================ */
 
-function limpiarDashboard() {
+function formatearValorPanel(valor) {
 
-    const ids = [
+    if (
+        valor === null ||
+        valor === undefined ||
+        valor === ""
+    ) {
 
-        "dash-total-actual",
-        "dash-total-anterior",
-        "dash-total-diff",
+        return "-";
 
-        "dash-sla-actual",
-        "dash-sla-anterior",
-        "dash-sla-diff",
-
-        "dash-vc-actual",
-        "dash-vc-anterior",
-        "dash-vc-diff",
-
-        "dash-top-mes-actual",
-        "dash-top-mes-anterior",
-
-        "dash-top-oficina",
-        "dash-top-circuito",
-        "dash-top-gestion",
-        "dash-top-apoderado",
-        "dash-top-centro",
-
-        "dash-hl-mejor-mes",
-        "dash-hl-peor-mes",
-        "dash-hl-sla-alerta",
-        "dash-hl-vc-alerta"
-
-    ];
+    }
 
 
-    ids.forEach(
-        id => dashSet(id, "-")
-    );
+    if (typeof valor === "number") {
 
-
-    const tbody =
-        document.getElementById(
-            "dash-tabla-paneles"
+        return valor.toLocaleString(
+            "es-ES"
         );
 
-
-    if (tbody) {
-        tbody.innerHTML = "";
     }
 
 
-    if (DASH_CHART_COMPARATIVA) {
+    return valor;
 
-        DASH_CHART_COMPARATIVA.destroy();
-
-        DASH_CHART_COMPARATIVA = null;
-
-    }
-
-
-    if (DASH_CHART_MENSUAL) {
-
-        DASH_CHART_MENSUAL.destroy();
-
-        DASH_CHART_MENSUAL = null;
-
-    }
 }
