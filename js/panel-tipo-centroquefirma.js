@@ -8,378 +8,1397 @@ let PCF_CHART_EVOLUCION = null;
 let PCF_DATOS = [];
 let PCF_POR_ANIO = {};
 
+
+/* ============================================================
+   FORMATO DE MILES
+   2019      → 2.019
+   3020      → 3.020
+   15317     → 15.317
+   24649     → 24.649
+============================================================ */
+function pcfFormatoMiles(valor) {
+
+    if (
+        valor === null ||
+        valor === undefined ||
+        valor === ""
+    ) {
+        return "-";
+    }
+
+    const numero = Number(valor);
+
+    if (!Number.isFinite(numero)) {
+        return "-";
+    }
+
+    return Math.round(numero).toLocaleString("es-ES");
+}
+
+
+/* ============================================================
+   ESTILOS — CENTRAR VALORES Y CABECERAS
+============================================================ */
+function pcfInyectarEstilos() {
+
+    /*
+       Evitamos insertar los estilos varias veces.
+    */
+
+    if (
+        document.getElementById(
+            "pcf-estilos-alineacion"
+        )
+    ) {
+        return;
+    }
+
+
+    const style =
+        document.createElement("style");
+
+
+    style.id =
+        "pcf-estilos-alineacion";
+
+
+    style.textContent = `
+
+        /* ====================================================
+           CABECERAS
+        ==================================================== */
+
+        #pcf-tabla-meses thead th {
+
+            text-align: center !important;
+
+            vertical-align: middle !important;
+        }
+
+
+        /* ====================================================
+           CELDAS DE LA TABLA
+        ==================================================== */
+
+        #pcf-tabla-meses tbody td {
+
+            vertical-align: middle !important;
+        }
+
+
+        /* ====================================================
+           PRIMERA COLUMNA
+           Centro que firma → izquierda
+        ==================================================== */
+
+        #pcf-tabla-meses tbody td:first-child {
+
+            text-align: left !important;
+        }
+
+
+        /* ====================================================
+           TODAS LAS COLUMNAS NUMÉRICAS
+        ==================================================== */
+
+        #pcf-tabla-meses tbody td:not(:first-child) {
+
+            text-align: center !important;
+        }
+
+
+        /* ====================================================
+           FILA TOTAL
+        ==================================================== */
+
+        #pcf-tabla-meses tbody tr.fila-sumatorio td {
+
+            text-align: center !important;
+
+            vertical-align: middle !important;
+        }
+
+
+        #pcf-tabla-meses tbody tr.fila-sumatorio td:first-child {
+
+            text-align: left !important;
+        }
+
+
+        /* ====================================================
+           KPI TOTAL
+        ==================================================== */
+
+        #pcf-kpi-total {
+
+            white-space: nowrap;
+        }
+
+    `;
+
+
+    document.head.appendChild(style);
+}
+
+
 /* ============================================================
    Inicialización del panel
 ============================================================ */
 async function initPanelTipoCentroQueFirma() {
 
-    console.log("🏛️ initPanelTipoCentroQueFirma() ejecutado");
+    console.log(
+        "🏛️ initPanelTipoCentroQueFirma() ejecutado"
+    );
 
-    if (!document.getElementById("pcf-select-anio")) {
-        console.warn("⏳ Panel Centro que Firma aún no está en el DOM.");
+
+    /*
+       Aplicamos los estilos antes de
+       pintar la información.
+    */
+
+    pcfInyectarEstilos();
+
+
+    if (
+        !document.getElementById(
+            "pcf-select-anio"
+        )
+    ) {
+
+        console.warn(
+            "⏳ Panel Centro que Firma aún no está en el DOM."
+        );
+
         return;
     }
 
-    let datos = await obtenerFirmas();
-    datos = datos.map(f => aplicarReglas(f));
 
-    if (!datos || !datos.length) return;
+    let datos =
+        await obtenerFirmas();
 
-    PCF_DATOS = datos;
-    PCF_POR_ANIO = pcf_groupByAnio(PCF_DATOS);
+
+    datos =
+        datos.map(
+            f =>
+                aplicarReglas(f)
+        );
+
+
+    if (
+        !datos ||
+        !datos.length
+    ) {
+        return;
+    }
+
+
+    PCF_DATOS =
+        datos;
+
+
+    PCF_POR_ANIO =
+        pcf_groupByAnio(
+            PCF_DATOS
+        );
+
 
     pcf_fillSelectAnios();
+
+
     pcf_selectUltimoAnio();
 
-    document.getElementById("pcf-select-anio")
-        .addEventListener("change", cargarCentroQueFirma);
+
+    const selector =
+        document.getElementById(
+            "pcf-select-anio"
+        );
+
+
+    /*
+       Evitamos registrar el evento
+       más de una vez.
+    */
+
+    if (
+        selector &&
+        !selector.dataset.pcfChangeBound
+    ) {
+
+        selector.addEventListener(
+            "change",
+            cargarCentroQueFirma
+        );
+
+
+        selector.dataset.pcfChangeBound =
+            "1";
+    }
+
 
     await cargarCentroQueFirma();
 }
 
+
 /* ============================================================
-   AGRUPAR POR AÑO → CENTRO QUE FIRMA → MES (solo enero–junio)
+   AGRUPAR POR AÑO → CENTRO QUE FIRMA → MES
+   Solo enero–junio
 ============================================================ */
-function pcf_groupByAnio(datos) {
+function pcf_groupByAnio(
+    datos
+) {
 
-    const mesesValidos = ["enero","febrero","marzo","abril","mayo","junio"];
+    const mesesValidos = [
 
-    const COLABORADORES = [
-        "gestcanarias","gestoria mas","yarza gestion",
-        "julio cuesta","castillo 11","gesgalicia"
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio"
+
     ];
 
-    const centros = ["Molsan", "Colaboradores", "Oficina OE", "Oficina CBK"];
+
+    const COLABORADORES = [
+
+        "gestcanarias",
+        "gestoria mas",
+        "yarza gestion",
+        "julio cuesta",
+        "castillo 11",
+        "gesgalicia"
+
+    ];
+
+
+    const centros = [
+
+        "Molsan",
+        "Colaboradores",
+        "Oficina OE",
+        "Oficina CBK"
+
+    ];
+
 
     const map = {};
 
-    for (const f of datos) {
 
-        const anio = Number(f.anio);
-        if (!anio) continue;
+    for (
+        const f of datos
+    ) {
 
-        const mes = String(f.mes || "").toLowerCase().trim();
-        const idxMes = mesesValidos.indexOf(mes);
-        if (idxMes === -1) continue;
+        const anio =
+            Number(f.anio);
 
-        const ap = (f.apoderado || "").trim().toLowerCase();
 
-        let centro = "Molsan";
-        if (ap === "oficina caixabank") centro = "Oficina CBK";
-        else if (ap === "oficina otra entidad") centro = "Oficina OE";
-        else if (COLABORADORES.includes(ap)) centro = "Colaboradores";
+        if (!anio) {
+            continue;
+        }
 
-        if (!map[anio]) map[anio] = {};
 
-        if (!map[anio][centro]) {
+        const mes =
+            String(
+                f.mes || ""
+            )
+            .toLowerCase()
+            .trim();
+
+
+        const idxMes =
+            mesesValidos.indexOf(
+                mes
+            );
+
+
+        if (
+            idxMes === -1
+        ) {
+            continue;
+        }
+
+
+        const ap =
+            (
+                f.apoderado || ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        let centro =
+            "Molsan";
+
+
+        if (
+            ap ===
+            "oficina caixabank"
+        ) {
+
+            centro =
+                "Oficina CBK";
+
+        } else if (
+            ap ===
+            "oficina otra entidad"
+        ) {
+
+            centro =
+                "Oficina OE";
+
+        } else if (
+            COLABORADORES.includes(ap)
+        ) {
+
+            centro =
+                "Colaboradores";
+        }
+
+
+        if (!map[anio]) {
+
+            map[anio] = {};
+        }
+
+
+        if (
+            !map[anio][centro]
+        ) {
+
             map[anio][centro] = {
-                meses: Array(6).fill(0),
-                total: 0,
-                slaSum: 0,
-                slaCount: 0,
-                vc: 0
+
+                meses:
+                    Array(6).fill(0),
+
+                total:
+                    0,
+
+                slaSum:
+                    0,
+
+                slaCount:
+                    0,
+
+                vc:
+                    0
             };
         }
 
-        const r = map[anio][centro];
+
+        const r =
+            map[anio][centro];
+
 
         r.meses[idxMes]++;
+
+
         r.total++;
 
-        if (Number(f.dias) > 0) {
-            r.slaSum += Number(f.dias);
+
+        if (
+            Number(f.dias) > 0
+        ) {
+
+            r.slaSum +=
+                Number(f.dias);
+
+
             r.slaCount++;
         }
 
-        if (String(f.tipo_firma).toLowerCase() === "videoconferencia") {
+
+        if (
+            String(
+                f.tipo_firma
+            )
+            .toLowerCase() ===
+            "videoconferencia"
+        ) {
+
             r.vc++;
         }
     }
 
+
     return map;
 }
+
 
 /* ============================================================
    SELECT AÑOS
 ============================================================ */
 function pcf_fillSelectAnios() {
-    const sel = document.getElementById("pcf-select-anio");
-    if (!sel) return;
 
-    sel.innerHTML = "";
+    const sel =
+        document.getElementById(
+            "pcf-select-anio"
+        );
 
-    const anios = Object.keys(PCF_POR_ANIO)
+
+    if (!sel) {
+        return;
+    }
+
+
+    sel.innerHTML =
+        "";
+
+
+    const anios =
+        Object.keys(
+            PCF_POR_ANIO
+        )
         .map(Number)
-        .sort((a,b)=>a-b);
+        .sort(
+            (a, b) =>
+                a - b
+        );
 
-    for (const anio of anios) {
-        const opt = document.createElement("option");
-        opt.value = anio;
-        opt.textContent = anio;
-        sel.appendChild(opt);
+
+    for (
+        const anio of anios
+    ) {
+
+        const opt =
+            document.createElement(
+                "option"
+            );
+
+
+        opt.value =
+            anio;
+
+
+        opt.textContent =
+            anio;
+
+
+        sel.appendChild(
+            opt
+        );
     }
 }
 
-function pcf_selectUltimoAnio() {
-    const sel = document.getElementById("pcf-select-anio");
-    if (!sel || sel.options.length === 0) return;
 
-    sel.value = sel.options[sel.options.length - 1].value;
+/* ============================================================
+   SELECCIONAR ÚLTIMO AÑO
+============================================================ */
+function pcf_selectUltimoAnio() {
+
+    const sel =
+        document.getElementById(
+            "pcf-select-anio"
+        );
+
+
+    if (
+        !sel ||
+        sel.options.length === 0
+    ) {
+        return;
+    }
+
+
+    sel.value =
+        sel.options[
+            sel.options.length - 1
+        ].value;
 }
+
 
 /* ============================================================
    THEAD DINÁMICO — Premium 2027
 ============================================================ */
 function pcf_renderThead() {
-    const theadRow = document.getElementById("pcf-thead-row");
-    if (!theadRow) return;
 
-    const meses = ["enero","febrero","marzo","abril","mayo","junio"];
+    const theadRow =
+        document.getElementById(
+            "pcf-thead-row"
+        );
+
+
+    if (!theadRow) {
+        return;
+    }
+
+
+    const meses = [
+
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio"
+
+    ];
+
 
     theadRow.innerHTML = `
-        ${meses.map(m => `<th>${m}</th>`).join("")}
+
+        ${meses
+            .map(
+                m =>
+                    `<th>${m}</th>`
+            )
+            .join("")}
+
         <th>Total</th>
-        ${meses.map(m => `<th>%${m}</th>`).join("")}
+
+        ${meses
+            .map(
+                m =>
+                    `<th>%${m}</th>`
+            )
+            .join("")}
+
         <th>%Total</th>
     `;
 }
+
 
 /* ============================================================
    Cargar datos y generar informe
 ============================================================ */
 async function cargarCentroQueFirma() {
 
-    const sel = document.getElementById("pcf-select-anio");
-    if (!sel) return;
+    const sel =
+        document.getElementById(
+            "pcf-select-anio"
+        );
 
-    const anioSel = Number(sel.value);
 
-    const datos = PCF_DATOS.filter(f => Number(f.anio) === anioSel);
+    if (!sel) {
+        return;
+    }
+
+
+    const anioSel =
+        Number(
+            sel.value
+        );
+
+
+    const datos =
+        PCF_DATOS.filter(
+            f =>
+                Number(f.anio) ===
+                anioSel
+        );
+
 
     const COLABORADORES = [
-        "gestcanarias","gestoria mas","yarza gestion",
-        "julio cuesta","castillo 11","gesgalicia"
+
+        "gestcanarias",
+        "gestoria mas",
+        "yarza gestion",
+        "julio cuesta",
+        "castillo 11",
+        "gesgalicia"
+
     ];
 
-    const centros = ["Molsan", "Colaboradores", "Oficina OE", "Oficina CBK"];
+
+    const centros = [
+
+        "Molsan",
+        "Colaboradores",
+        "Oficina OE",
+        "Oficina CBK"
+
+    ];
+
 
     const mapa = {};
-    centros.forEach(c => {
-        mapa[c] = {
-            meses: Array(6).fill(0),
-            total: 0,
-            slaSum: 0,
-            slaCount: 0,
-            vc: 0
-        };
-    });
 
-    datos.forEach(f => {
 
-        const ap = (f.apoderado || "").trim().toLowerCase();
-        const mesNombre = String(f.mes || "").toLowerCase().trim();
-        const mesIdx = ["enero","febrero","marzo","abril","mayo","junio"].indexOf(mesNombre);
+    centros.forEach(
+        c => {
 
-        let centro = "Molsan";
-        if (ap === "oficina caixabank") centro = "Oficina CBK";
-        else if (ap === "oficina otra entidad") centro = "Oficina OE";
-        else if (COLABORADORES.includes(ap)) centro = "Colaboradores";
+            mapa[c] = {
 
-        if (mesIdx >= 0) mapa[centro].meses[mesIdx]++;
-        mapa[centro].total++;
+                meses:
+                    Array(6).fill(0),
 
-        if (Number(f.dias) > 0) {
-            mapa[centro].slaSum += Number(f.dias);
-            mapa[centro].slaCount++;
+                total:
+                    0,
+
+                slaSum:
+                    0,
+
+                slaCount:
+                    0,
+
+                vc:
+                    0
+            };
         }
+    );
 
-        if (String(f.tipo_firma).toLowerCase() === "videoconferencia") {
-            mapa[centro].vc++;
+
+    datos.forEach(
+        f => {
+
+            const ap =
+                (
+                    f.apoderado || ""
+                )
+                .trim()
+                .toLowerCase();
+
+
+            const mesNombre =
+                String(
+                    f.mes || ""
+                )
+                .toLowerCase()
+                .trim();
+
+
+            const mesIdx =
+                [
+                    "enero",
+                    "febrero",
+                    "marzo",
+                    "abril",
+                    "mayo",
+                    "junio"
+                ]
+                .indexOf(
+                    mesNombre
+                );
+
+
+            let centro =
+                "Molsan";
+
+
+            if (
+                ap ===
+                "oficina caixabank"
+            ) {
+
+                centro =
+                    "Oficina CBK";
+
+            } else if (
+                ap ===
+                "oficina otra entidad"
+            ) {
+
+                centro =
+                    "Oficina OE";
+
+            } else if (
+                COLABORADORES.includes(ap)
+            ) {
+
+                centro =
+                    "Colaboradores";
+            }
+
+
+            if (
+                mesIdx >= 0
+            ) {
+
+                mapa[
+                    centro
+                ].meses[
+                    mesIdx
+                ]++;
+            }
+
+
+            mapa[
+                centro
+            ].total++;
+
+
+            if (
+                Number(f.dias) > 0
+            ) {
+
+                mapa[
+                    centro
+                ].slaSum +=
+                    Number(f.dias);
+
+
+                mapa[
+                    centro
+                ].slaCount++;
+            }
+
+
+            if (
+                String(
+                    f.tipo_firma
+                )
+                .toLowerCase() ===
+                "videoconferencia"
+            ) {
+
+                mapa[
+                    centro
+                ].vc++;
+            }
         }
-    });
+    );
+
 
     /* ============================================================
        KPIs
-    ============================================================= */
+    ============================================================ */
+
     let totalFirmas = 0;
-    let centroTop = "-";
+
+    let centroTop =
+        "-";
+
     let maxFirmas = 0;
+
     let slaGlobal = 0;
+
     let vcGlobal = 0;
 
-    centros.forEach(c => {
-        const r = mapa[c];
-        totalFirmas += r.total;
 
-        if (r.total > maxFirmas) {
-            maxFirmas = r.total;
-            centroTop = c;
+    centros.forEach(
+        c => {
+
+            const r =
+                mapa[c];
+
+
+            totalFirmas +=
+                r.total;
+
+
+            if (
+                r.total >
+                maxFirmas
+            ) {
+
+                maxFirmas =
+                    r.total;
+
+
+                centroTop =
+                    c;
+            }
+
+
+            slaGlobal +=
+                r.slaSum;
+
+
+            vcGlobal +=
+                r.vc;
         }
+    );
 
-        slaGlobal += r.slaSum;
-        vcGlobal += r.vc;
-    });
 
-    const slaMedio = slaGlobal > 0 ? (slaGlobal / (datos.length)).toFixed(1) : 0;
-    const vcPorcentaje = totalFirmas > 0 ? ((vcGlobal / totalFirmas) * 100).toFixed(1) + "%" : "0%";
+    const slaMedio =
+        slaGlobal > 0
+            ? (
+                slaGlobal /
+                datos.length
+            ).toFixed(1)
+            : 0;
 
-    document.getElementById("pcf-kpi-total").textContent = totalFirmas;
-    document.getElementById("pcf-kpi-top").textContent = centroTop;
-    document.getElementById("pcf-kpi-sla").textContent = slaMedio;
-    document.getElementById("pcf-kpi-vc").textContent = vcPorcentaje;
+
+    const vcPorcentaje =
+        totalFirmas > 0
+            ? (
+                (
+                    vcGlobal /
+                    totalFirmas
+                ) *
+                100
+            ).toFixed(1) + "%"
+            : "0%";
+
+
+    /*
+       TOTAL FIRMAS
+       Aplicamos separador de miles.
+    */
+
+    const kpiTotal =
+        document.getElementById(
+            "pcf-kpi-total"
+        );
+
+
+    if (kpiTotal) {
+
+        kpiTotal.textContent =
+            pcfFormatoMiles(
+                totalFirmas
+            );
+    }
+
+
+    const kpiTop =
+        document.getElementById(
+            "pcf-kpi-top"
+        );
+
+
+    if (kpiTop) {
+
+        kpiTop.textContent =
+            centroTop;
+    }
+
+
+    const kpiSla =
+        document.getElementById(
+            "pcf-kpi-sla"
+        );
+
+
+    if (kpiSla) {
+
+        kpiSla.textContent =
+            slaMedio;
+    }
+
+
+    const kpiVc =
+        document.getElementById(
+            "pcf-kpi-vc"
+        );
+
+
+    if (kpiVc) {
+
+        kpiVc.textContent =
+            vcPorcentaje;
+    }
+
 
     /* ============================================================
        THEAD dinámico
-    ============================================================= */
+    ============================================================ */
+
     pcf_renderThead();
+
 
     /* ============================================================
        TABLA Premium 2027
-    ============================================================= */
-    const tbody = document.querySelector("#pcf-tabla-meses tbody");
-    if (!tbody) return;
+    ============================================================ */
 
-    tbody.innerHTML = "";
+    const tbody =
+        document.querySelector(
+            "#pcf-tabla-meses tbody"
+        );
 
-    const mesesOrden = ["enero","febrero","marzo","abril","mayo","junio"];
 
-    const lista = centros.map(c => {
-        const m = mapa[c];
+    if (!tbody) {
+        return;
+    }
 
-        const valoresMes = m.meses;
-        const totalVisible = valoresMes.reduce((acc, v) => acc + v, 0);
 
-        const porcentajesMes = valoresMes.map(v => {
-            if (totalVisible === 0) return "";
-            return ((v / totalVisible) * 100).toFixed(1) + "%";
-        });
+    tbody.innerHTML =
+        "";
 
-        return {
-            centro: c,
-            valoresMes,
-            totalVisible,
-            porcentajesMes
-        };
-    });
 
-    lista.forEach(row => {
-        const tr = document.createElement("tr");
+    const mesesOrden = [
 
-        tr.innerHTML = `
-            <td>${row.centro}</td>
-            ${row.valoresMes.map(v => `<td>${v}</td>`).join("")}
-            <td>${row.totalVisible}</td>
-            ${row.porcentajesMes.map(p => `<td>${p}</td>`).join("")}
-            <td>100%</td>
-        `;
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio"
 
-        tbody.appendChild(tr);
-    });
+    ];
+
+
+    const lista =
+        centros.map(
+            c => {
+
+                const m =
+                    mapa[c];
+
+
+                const valoresMes =
+                    m.meses;
+
+
+                const totalVisible =
+                    valoresMes.reduce(
+                        (
+                            acc,
+                            v
+                        ) =>
+                            acc + v,
+                        0
+                    );
+
+
+                const porcentajesMes =
+                    valoresMes.map(
+                        v => {
+
+                            if (
+                                totalVisible ===
+                                0
+                            ) {
+                                return "";
+                            }
+
+
+                            return (
+                                (
+                                    v /
+                                    totalVisible
+                                ) *
+                                100
+                            ).toFixed(1) +
+                            "%";
+                        }
+                    );
+
+
+                return {
+
+                    centro:
+                        c,
+
+                    valoresMes:
+                        valoresMes,
+
+                    totalVisible:
+                        totalVisible,
+
+                    porcentajesMes:
+                        porcentajesMes
+                };
+            }
+        );
+
+
+    /* ============================================================
+       FILAS DE CENTROS
+    ============================================================ */
+
+    lista.forEach(
+        row => {
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+
+            tr.innerHTML = `
+
+                <td>
+                    ${row.centro}
+                </td>
+
+                ${
+                    row.valoresMes
+                        .map(
+                            v =>
+                                `<td>${pcfFormatoMiles(v)}</td>`
+                        )
+                        .join("")
+                }
+
+                <td>
+                    ${pcfFormatoMiles(
+                        row.totalVisible
+                    )}
+                </td>
+
+                ${
+                    row.porcentajesMes
+                        .map(
+                            p =>
+                                `<td>${p}</td>`
+                        )
+                        .join("")
+                }
+
+                <td>
+                    100%
+                </td>
+            `;
+
+
+            tbody.appendChild(
+                tr
+            );
+        }
+    );
+
 
     /* ============================================================
        FILA TOTAL
-    ============================================================= */
-    const totalesMes = mesesOrden.map((_, idx) =>
-        lista.reduce((acc, row) => acc + row.valoresMes[idx], 0)
+    ============================================================ */
+
+    const totalesMes =
+        mesesOrden.map(
+            (
+                _,
+                idx
+            ) =>
+
+                lista.reduce(
+                    (
+                        acc,
+                        row
+                    ) =>
+                        acc +
+                        row.valoresMes[
+                            idx
+                        ],
+                    0
+                )
+        );
+
+
+    const totalGeneral =
+        totalesMes.reduce(
+            (
+                acc,
+                v
+            ) =>
+                acc + v,
+            0
+        );
+
+
+    const porcentajesTotalesMes =
+        totalesMes.map(
+            v => {
+
+                if (
+                    totalGeneral ===
+                    0
+                ) {
+                    return "";
+                }
+
+
+                return (
+                    (
+                        v /
+                        totalGeneral
+                    ) *
+                    100
+                ).toFixed(1) +
+                "%";
+            }
+        );
+
+
+    const trTotal =
+        document.createElement(
+            "tr"
+        );
+
+
+    trTotal.classList.add(
+        "fila-sumatorio"
     );
 
-    const totalGeneral = totalesMes.reduce((acc, v) => acc + v, 0);
-
-    const porcentajesTotalesMes = totalesMes.map(v => {
-        if (totalGeneral === 0) return "";
-        return ((v / totalGeneral) * 100).toFixed(1) + "%";
-    });
-
-    const trTotal = document.createElement("tr");
-    trTotal.classList.add("fila-sumatorio");
 
     trTotal.innerHTML = `
-        <td><b>TOTAL</b></td>
-        ${totalesMes.map(v => `<td><b>${v}</b></td>`).join("")}
-        <td><b>${totalGeneral}</b></td>
-        ${porcentajesTotalesMes.map(p => `<td><b>${p}</b></td>`).join("")}
-        <td><b>100%</b></td>
+
+        <td>
+            <b>
+                TOTAL
+            </b>
+        </td>
+
+        ${
+            totalesMes
+                .map(
+                    v =>
+                        `<td><b>${pcfFormatoMiles(v)}</b></td>`
+                )
+                .join("")
+        }
+
+        <td>
+            <b>
+                ${pcfFormatoMiles(
+                    totalGeneral
+                )}
+            </b>
+        </td>
+
+        ${
+            porcentajesTotalesMes
+                .map(
+                    p =>
+                        `<td><b>${p}</b></td>`
+                )
+                .join("")
+        }
+
+        <td>
+            <b>
+                100%
+            </b>
+        </td>
     `;
 
-    tbody.appendChild(trTotal);
+
+    tbody.appendChild(
+        trTotal
+    );
+
 
     /* ============================================================
        GRÁFICOS PREMIUM 2027
-    ============================================================= */
-    pcf_renderGraficos(lista, mesesOrden);
+    ============================================================ */
+
+    pcf_renderGraficos(
+        lista,
+        mesesOrden
+    );
 }
+
 
 /* ============================================================
    GRÁFICOS — Premium 2027
 ============================================================ */
-function pcf_renderGraficos(lista, mesesOrden) {
+function pcf_renderGraficos(
+    lista,
+    mesesOrden
+) {
 
     /* ============================
        1) Ranking Centros
     ============================ */
 
-    const labelsRanking = lista.map(o => o.centro);
-    const dataRanking = lista.map(o => o.totalVisible);
+    const labelsRanking =
+        lista.map(
+            o =>
+                o.centro
+        );
 
-    const ctxRanking = document.getElementById("pcf-chart-ranking");
 
-    if (PCF_CHART_RANKING) PCF_CHART_RANKING.destroy();
+    const dataRanking =
+        lista.map(
+            o =>
+                o.totalVisible
+        );
 
-    PCF_CHART_RANKING = new Chart(ctxRanking, {
-        type: "bar",
-        data: {
-            labels: labelsRanking,
-            datasets: [{
-                label: "Total firmas",
-                data: dataRanking,
-                backgroundColor: "rgba(80, 200, 255, 0.5)",
-                borderColor: "rgba(80, 200, 255, 1)",
-                borderWidth: 1.5
-            }]
-        },
-        options: {
-            indexAxis: "y",
-            responsive: true,
-            plugins: { legend: { display: false }},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
+
+    const ctxRanking =
+        document.getElementById(
+            "pcf-chart-ranking"
+        );
+
+
+    if (
+        PCF_CHART_RANKING
+    ) {
+
+        PCF_CHART_RANKING
+            .destroy();
+    }
+
+
+    PCF_CHART_RANKING =
+        new Chart(
+            ctxRanking,
+            {
+
+                type:
+                    "bar",
+
+
+                data: {
+
+                    labels:
+                        labelsRanking,
+
+                    datasets: [
+
+                        {
+
+                            label:
+                                "Total firmas",
+
+                            data:
+                                dataRanking,
+
+                            backgroundColor:
+                                "rgba(80, 200, 255, 0.5)",
+
+                            borderColor:
+                                "rgba(80, 200, 255, 1)",
+
+                            borderWidth:
+                                1.5
+                        }
+                    ]
+                },
+
+
+                options: {
+
+                    indexAxis:
+                        "y",
+
+                    responsive:
+                        true,
+
+                    plugins: {
+
+                        legend: {
+                            display:
+                                false
+                        }
+                    },
+
+
+                    scales: {
+
+                        x: {
+
+                            ticks: {
+                                color:
+                                    "#111"
+                            }
+                        },
+
+
+                        y: {
+
+                            ticks: {
+                                color:
+                                    "#111"
+                            }
+                        }
+                    }
+                }
             }
-        }
-    });
+        );
+
 
     /* ============================
-       2) Evolución mensual del total
+       2) Evolución mensual
     ============================ */
 
-    const totalesMes = mesesOrden.map((_, idx) =>
-        lista.reduce((acc, row) => acc + row.valoresMes[idx], 0)
-    );
+    const totalesMes =
+        mesesOrden.map(
+            (
+                _,
+                idx
+            ) =>
 
-    const ctxEvo = document.getElementById("pcf-chart-evolucion");
+                lista.reduce(
+                    (
+                        acc,
+                        row
+                    ) =>
+                        acc +
+                        row.valoresMes[
+                            idx
+                        ],
+                    0
+                )
+        );
 
-    if (PCF_CHART_EVOLUCION) PCF_CHART_EVOLUCION.destroy();
 
-    PCF_CHART_EVOLUCION = new Chart(ctxEvo, {
-        type: "line",
-        data: {
-            labels: mesesOrden,
-            datasets: [{
-                label: "Total mensual",
-                data: totalesMes,
-                borderColor: "rgba(255, 120, 80, 1)",
-                backgroundColor: "rgba(255, 120, 80, 0.3)",
-                borderWidth: 2,
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false }},
-            scales: {
-                x: { ticks: { color: "#111" }},
-                y: { ticks: { color: "#111" }}
+    const ctxEvo =
+        document.getElementById(
+            "pcf-chart-evolucion"
+        );
+
+
+    if (
+        PCF_CHART_EVOLUCION
+    ) {
+
+        PCF_CHART_EVOLUCION
+            .destroy();
+    }
+
+
+    PCF_CHART_EVOLUCION =
+        new Chart(
+            ctxEvo,
+            {
+
+                type:
+                    "line",
+
+
+                data: {
+
+                    labels:
+                        mesesOrden,
+
+                    datasets: [
+
+                        {
+
+                            label:
+                                "Total mensual",
+
+                            data:
+                                totalesMes,
+
+                            borderColor:
+                                "rgba(255, 120, 80, 1)",
+
+                            backgroundColor:
+                                "rgba(255, 120, 80, 0.3)",
+
+                            borderWidth:
+                                2,
+
+                            tension:
+                                0.3
+                        }
+                    ]
+                },
+
+
+                options: {
+
+                    responsive:
+                        true,
+
+                    plugins: {
+
+                        legend: {
+                            display:
+                                false
+                        }
+                    },
+
+
+                    scales: {
+
+                        x: {
+
+                            ticks: {
+                                color:
+                                    "#111"
+                            }
+                        },
+
+
+                        y: {
+
+                            ticks: {
+                                color:
+                                    "#111"
+                            }
+                        }
+                    }
+                }
             }
-        }
-    });
+        );
 }
