@@ -1,170 +1,181 @@
 /* ============================================================
    MODAL DETALLE EXPEDIENTE
-   ============================================================ */
+============================================================ */
 
-/* Estado oculto */
-#modal-detalle.hidden {
-    display: none !important;
-}
-
-/* Capa que ocupa toda la pantalla */
-#modal-detalle.modal-overlay {
-    position: fixed !important;
-    inset: 0 !important;
-
-    width: 100vw !important;
-    height: 100vh !important;
+#modal-detalle {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    background: rgba(15, 30, 50, 0.45);
+    width: 100vw;
+    height: 100vh;
 
-    z-index: 99999;
+    background: rgba(0, 0, 0, 0.45);
 
     padding: 20px;
     box-sizing: border-box;
-
-    overflow-y: auto;
 }
 
-/* Ventana del modal */
+/* Oculto */
+#modal-detalle.hidden {
+    display: none !important;
+}
+
+
+/* ============================================================
+   CAJA DEL MODAL
+============================================================ */
+
 #modal-detalle .modal-detalle {
     position: relative;
 
     width: min(900px, 95vw);
     max-height: 90vh;
 
-    background: #ffffff;
+    background: white;
+    border-radius: 14px;
 
-    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.30);
 
-    box-shadow:
-        0 25px 70px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
 
     display: flex;
     flex-direction: column;
-
-    overflow: hidden;
 }
+
 
 /* ============================================================
    CABECERA
-   ============================================================ */
+============================================================ */
 
 #modal-detalle .modal-detalle-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    padding: 18px 24px;
+    padding: 16px 20px;
 
-    background: linear-gradient(
-        135deg,
-        #eaf6ff,
-        #dcefff
-    );
+    border-bottom: 1px solid #dbe5ef;
 
-    border-bottom: 1px solid #d5e2ed;
+    background: #ffffff;
 }
 
 #modal-detalle .modal-detalle-header h3 {
     margin: 0;
 
-    color: #064b82;
-
+    color: #06457a;
     font-size: 20px;
     font-weight: 700;
 }
 
-/* Botón X */
-#modal-detalle .modal-close {
-    border: 0;
-    background: transparent;
 
+/* ============================================================
+   BOTÓN CERRAR
+============================================================ */
+
+#modal-detalle .modal-close {
     width: 36px;
     height: 36px;
 
+    border: none;
     border-radius: 50%;
 
-    font-size: 26px;
+    background: transparent;
+
+    color: #06457a;
+
+    font-size: 28px;
     line-height: 1;
 
-    color: #31536d;
-
     cursor: pointer;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 #modal-detalle .modal-close:hover {
-    background: rgba(0, 80, 140, 0.10);
+    background: #edf5fb;
 }
+
 
 /* ============================================================
    CONTENIDO
-   ============================================================ */
+============================================================ */
 
 #modal-detalle .modal-detalle-content {
-    padding: 20px 24px;
+    padding: 20px;
 
     overflow-y: auto;
 
     flex: 1;
 }
 
+
 /* ============================================================
    TABLA DEL DETALLE
-   ============================================================ */
+============================================================ */
 
 #modal-detalle .tabla-detalle {
     width: 100%;
-
     border-collapse: collapse;
-
-    font-size: 14px;
-}
-
-#modal-detalle .tabla-detalle tr {
-    border-bottom: 1px solid #e4ebf1;
 }
 
 #modal-detalle .tabla-detalle td {
-    padding: 10px 12px;
+    padding: 9px 12px;
+
+    border-bottom: 1px solid #e5eaf0;
 
     vertical-align: top;
 }
 
 #modal-detalle .tabla-detalle td:first-child {
-    width: 35%;
-
-    color: #164d76;
+    width: 220px;
 
     font-weight: 600;
-
+    color: #164d78;
     text-align: right;
 }
 
 #modal-detalle .tabla-detalle td:last-child {
     color: #334e68;
-
     text-align: left;
 }
 
+
 /* ============================================================
    PIE
-   ============================================================ */
+============================================================ */
 
 #modal-detalle .modal-detalle-footer {
+    padding: 14px 20px;
+
+    border-top: 1px solid #dbe5ef;
+
     display: flex;
     justify-content: flex-end;
 
-    padding: 15px 24px;
+    background: #fafcff;
+}
 
-    border-top: 1px solid #dce5ec;
 
-    background: #f8fbfd;
+/* ============================================================
+   MÓVIL
+============================================================ */
+
+@media (max-width: 700px) {
+
+    #modal-detalle {
+        padding: 10px;
+    }
+
+    #modal-detalle .modal-detalle {
+        width: 100%;
+        max-height: 95vh;
+    }
+
+    #modal-detalle .tabla-detalle td:first-child {
+        width: 40%;
+        text-align: left;
+    }
 }
